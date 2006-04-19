@@ -1,0 +1,28 @@
+##
+##  This is an example build.properties file, you should modify it to match
+##  your environment.  It should be saved as file called "build.properties".
+##
+
+
+## glassfish-home is only used w/i this file
+glassfish-home=/opt/SUNWappserver
+servlet-api.jar=${glassfish-home}/lib/javaee.jar
+junit.jar=test/junit/junit.jar
+jsftemplating.jar=${dist}/jsftemplating.jar
+
+## This is already available for GlassFish in javaee.jar
+#jsf-api.jar=${glassfish-home}/lib/javaee.jar
+
+## You don't need to change these:
+build=build
+dist=dist
+src=src/java
+test=test
+docs=docs
+
+jsftemplating.home=${src}/com/sun/jsftemplating
+
+compile.debug=true
+compile.optimize=false
+compile.deprecation=false
+

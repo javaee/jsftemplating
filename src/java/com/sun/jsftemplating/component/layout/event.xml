@@ -1,0 +1,71 @@
+<!--
+ The contents of this file are subject to the terms 
+ of the Common Development and Distribution License 
+ (the License).  You may not use this file except in
+ compliance with the License.
+
+ You can obtain a copy of the license at 
+ https://jsftemplating.dev.java.net/cddl1.html or
+ jsftemplating/cddl1.txt.
+ See the License for the specific language governing 
+ permissions and limitations under the License.
+
+ When distributing Covered Code, include this CDDL 
+ Header Notice in each file and include the License file 
+ at jsftemplating/cddl1.txt.  
+ If applicable, add the following below the CDDL Header, 
+ with the fields enclosed by brackets [] replaced by
+ you own identifying information: 
+ "Portions Copyrighted [year] [name of copyright owner]"
+
+ Copyright 2006 Sun Microsystems, Inc. All rights reserved.
+-->
+
+<!DOCTYPE layoutDefinition SYSTEM "/jsftemplating/layout.dtd" >
+
+<layoutDefinition>
+
+    <types>
+	<componentType id="staticText" factoryClass="com.sun.enterprise.tools.jsfext.component.factory.basic.StaticTextFactory" />
+    </types>
+
+    <handlers>
+	<!-- General Handlers -->
+	<!--
+	<handlerDefinition id="setAttribute" className="com.sun.enterprise.tools.jsfext.event.handlers.basic.UtilHandlers" methodName="setAttribute">
+
+	    <inputDef name="key" type="String" required="true" />
+	    <inputDef name="value" type="Object" required="true" />
+	</handlerDefinition>
+	-->
+	<handlerDefinition id="getChildren" className="com.sun.enterprise.tools.jsfext.event.handlers.basic.ComponentHandlers" methodName="getChildren">
+	    <inputDef name="parent" type="javax.faces.component.UIComponent" required="true" />
+	    <outputDef name="children" type="java.util.List" />
+	    <outputDef name="size" type="java.lang.Integer" />
+	</handlerDefinition>
+    </handlers>
+
+    <layout>
+<!--
+	<event type="decode">
+	    <handler id="queueCommand" />
+	</event>
+-->
+	<staticText>HelloWorld - START</staticText>
+
+	<!-- Loop through children -->
+	<foreach key="_child" list="$attribute{_children}">
+	    <event type="beforeLoop">
+		<handler id="getChildren">
+		    <input name="parent" value="$this{component}" />
+		    <outputMapping outputName="children" targetType="attribute" targetKey="_children" />
+		</handler>
+	    </event>
+	    <!-- Add the child component -->
+	    <component type="staticText" id="#{_child.id}" />
+	</foreach>
+
+	<staticText>HelloWorld - END</staticText>
+    </layout>
+
+</layoutDefinition>

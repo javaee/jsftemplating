@@ -1,0 +1,28 @@
+<!DOCTYPE layoutDefinition SYSTEM "/jsftemplating/layout.dtd" >
+
+<layoutDefinition>
+
+    <types>
+	<componentType id="staticText" factoryClass="com.sun.enterprise.tools.jsfext.component.factory.basic.StaticTextFactory" />
+	<componentType id="href" factoryClass="com.sun.enterprise.tools.jsfext.component.factory.basic.HyperlinkFactory" />
+    </types>
+
+    <handlers>
+	<!-- General Handlers
+	<handlerDefinition id="getChildren" className="com.sun.enterprise.tools.jsfext.event.handlers.basic.ComponentHandlers" methodName="getChildren">
+	    <inputDef name="parent" type="javax.faces.component.UIComponent" required="true" />
+	    <outputDef name="children" type="java.util.List" />
+	    <outputDef name="size" type="java.lang.Integer" />
+	</handlerDefinition>
+	-->
+    </handlers>
+
+    <layout>
+	<!--
+	    NOTE: Children and properties of the internal href are added via
+	    NOTE: AjaxRequestFactory.
+	-->
+	<component type="staticText" id="$this{id}_href" />
+
+    </layout>
+</layoutDefinition>
