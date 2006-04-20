@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.component.factory.basic;
 
+import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.EventComponent;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
@@ -36,6 +37,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
+@UIComponentFactory("event")
 public class EventComponentFactory extends ComponentFactoryBase {
 
     /**

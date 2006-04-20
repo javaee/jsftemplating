@@ -8,19 +8,23 @@
 glassfish-home=/opt/SUNWappserver
 servlet-api.jar=${glassfish-home}/lib/javaee.jar
 junit.jar=test/junit/junit.jar
-jsftemplating.jar=${dist}/jsftemplating.jar
 
 ## This is already available for GlassFish in javaee.jar
 #jsf-api.jar=${glassfish-home}/lib/javaee.jar
 
 ## You don't need to change these:
+aptbuild=aptbuild
 build=build
 dist=dist
+docs=docs
 src=src/java
 test=test
-docs=docs
+
+jsftemplating.jar=${dist}/jsftemplating.jar
+jsftemplating-dt.jar=${dist}/jsftemplating-dt.jar
 
 jsftemplating.home=${src}/com/sun/jsftemplating
+
 
 compile.debug=true
 compile.optimize=false
