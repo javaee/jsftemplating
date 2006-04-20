@@ -1,0 +1,128 @@
+<!-- Build file for JSFTemplating -->
+<project name="JSFTemplating" default="all" basedir=".">
+
+    <!-- Set properties -->
+    <property environment="env" />
+    <property file="build.properties" />
+    <property file="user.properties" />
+    <property file="${user.home}/build.properties" />
+
+    <path id="dependencies">
+	<pathelement location="${servlet-api.jar}" />
+	<pathelement location="${jsf-api.jar}" />
+	<pathelement location="${jsftemplating-dt.jar}" />
+    </path>
+
+    <path id="apt-dependencies">
+	<pathelement location="${java.home}/lib/tools.jar" />
+    </path>
+
+    <target name="all" depends="jar" />
+
+    <target name="compile-apt-files">
+	<mkdir dir="${aptbuild}/." />
+
+	<!-- Compile the java code from ${src} into ${build} -->
+	<javac srcdir="${src}" destdir="${aptbuild}/."
+		includes="**/annotation/**.java" debug="${compile.debug}" deprecation="${compile.deprecation}"
+		optimize="${compile.optimize}">
+	    <classpath refid="apt-dependencies" />
+	</javac>
+    </target>
+
+    <target name="jar-apt-files" depends="compile-apt-files">
+	<mkdir dir="${dist}/." />
+	<jar jarfile="${jsftemplating-dt.jar}" update="true">
+            <fileset dir="${aptbuild}" includes="**/*.class" />
+            <zipfileset dir="${jsftemplating.home}/annotation"
+			prefix="META-INF/services" 
+			includes="com.sun.mirror.apt.AnnotationProcessorFactory" />
+	</jar>
+    </target>
+
+    <target name="compile" depends="jar-apt-files">
+	<mkdir dir="${build}/." />
+
+	<!-- Compile the java code from ${src} into ${build} -->
+	<apt srcdir="${src}" destdir="${build}/."
+		debug="${compile.debug}" deprecation="${compile.deprecation}"
+		excludes="**/annotation/**" optimize="${compile.optimize}">
+	    <classpath refid="dependencies" />
+	</apt>
+    </target>
+
+    <target name="jar" depends="compile">
+	<mkdir dir="${dist}/." />
+	<jar jarfile="${jsftemplating.jar}" update="true">
+            <fileset dir="${build}" includes="**/*.class" />
+            <zipfileset dir="${jsftemplating.home}/component/layout"
+			prefix="META-INF/jsftemplating" 
+			includes="*.xml" />
+            <zipfileset dir="${jsftemplating.home}/layout/xml"
+			prefix="META-INF/jsftemplating" 
+			includes="*.dtd" />
+            <zipfileset dir="${jsftemplating.home}"
+			prefix="META-INF" 
+			includes="faces-config.xml" />
+	</jar>
+    </target>
+
+    <target name="javadoc" depends="compile">
+	<!-- Generate javadoc -->
+	<javadoc destdir="${docs}"
+		private="no"
+		author="true"
+		version="true"
+		use="true"
+		windowtitle="Templating for JavaServer Faces Technology (https://jsftemplating.dev.java.net)"
+		serialwarn="false">
+	    <doctitle><![CDATA[<h1><a href="https://jsftemplating.dev.java.net">Templating for JavaServer Faces Technology</a></h1>]]></doctitle>
+	    <header><![CDATA[<h2>Templating for JavaServer Faces Technology</h2>]]></header>
+	    <footer><![CDATA[<a href="https://jsftemplating.dev.java.net">https://jsftemplating.dev.java.net</a>]]></footer>
+
+    	    <fileset dir="${src}">
+		<include name="com/sun/jsftemplating/**/*.java" />
+	    </fileset>
+
+	    <classpath refid="dependencies" />
+	</javadoc>
+    </target>
+
+    <target name="test" depends="compileTest">
+	<java classname="com.sun.jsftemplating.UnitTests" fork="yes" >
+	    <classpath>
+		<pathelement location="${servlet-api.jar}" />
+		<pathelement location="${jsf-api.jar}" />
+		<pathelement location="${junit.jar}" />
+		<pathelement location="${jsftemplating.jar}" />
+		<pathelement location="${test}/build" />
+	    </classpath>
+	</java>
+    </target>
+
+
+    <target name="compileTest" depends="jar">
+	<mkdir dir="${test}/build/." />
+
+	<!-- Compile the java code from ${src} into ${build} -->
+	<javac srcdir="${test}/java" destdir="${test}/build/."
+		debug="${compile.debug}" deprecation="${compile.deprecation}"
+		optimize="${compile.optimize}">
+	    <classpath>
+		<pathelement location="${servlet-api.jar}" />
+		<pathelement location="${jsf-api.jar}" />
+		<pathelement location="${junit.jar}" />
+		<pathelement location="${jsftemplating.jar}" />
+	    </classpath>
+	</javac>
+    </target>
+
+    <target name="clean">
+	<!-- Delete the build / dist directories -->
+	<delete dir="${aptbuild}" />
+	<delete dir="${build}" />
+	<delete dir="${dist}" />
+	<delete dir="${test}/build" />
+	<delete dir="${docs}" />
+    </target>
+</project>
