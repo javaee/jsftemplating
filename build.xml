@@ -32,7 +32,6 @@
     </target>
 
     <target name="jar-apt-files" depends="compile-apt-files">
-	<mkdir dir="${dist}/." />
 	<jar jarfile="${jsftemplating-dt.jar}" update="true">
             <fileset dir="${aptbuild}" includes="**/*.class" />
             <zipfileset dir="${jsftemplating.home}/annotation"

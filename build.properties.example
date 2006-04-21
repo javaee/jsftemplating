@@ -17,11 +17,12 @@ aptbuild=aptbuild
 build=build
 dist=dist
 docs=docs
+lib=lib
 src=src/java
 test=test
 
 jsftemplating.jar=${dist}/jsftemplating.jar
-jsftemplating-dt.jar=${dist}/jsftemplating-dt.jar
+jsftemplating-dt.jar=${lib}/jsftemplating-dt.jar
 
 jsftemplating.home=${src}/com/sun/jsftemplating
 
