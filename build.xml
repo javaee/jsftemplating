@@ -1,5 +1,6 @@
 <!-- Build file for JSFTemplating -->
 <project name="JSFTemplating" default="all" basedir=".">
+    <taskdef name="apt" classname="org.apache.tools.ant.taskdefs.Apt" />
 
     <!-- Set properties -->
     <property environment="env" />
@@ -44,9 +45,13 @@
 	<mkdir dir="${build}/." />
 
 	<!-- Compile the java code from ${src} into ${build} -->
-	<apt srcdir="${src}" destdir="${build}/."
-		debug="${compile.debug}" deprecation="${compile.deprecation}"
-		excludes="**/annotation/**" optimize="${compile.optimize}">
+	<apt	srcdir="${src}"
+		fork="true"
+		destdir="${build}/."
+		debug="${compile.debug}"
+		deprecation="${compile.deprecation}"
+		excludes="**/annotation/**"
+		optimize="${compile.optimize}">
 	    <classpath refid="dependencies" />
 	</apt>
     </target>
