@@ -32,6 +32,7 @@ import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.AnnotationMirror;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -46,7 +47,8 @@ import java.util.Set;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class UIComponentFactoryAP implements AnnotationProcessor {
-    public UIComponentFactoryAP(Set<AnnotationTypeDeclaration> types, AnnotationProcessorEnvironment env) {
+    public UIComponentFactoryAP(Set<AnnotationTypeDeclaration> types, AnnotationProcessorEnvironment env, PrintWriter writer) {
+	_writer = writer;
 	_env = env;
 	_types = types;
     }
@@ -69,6 +71,7 @@ public class UIComponentFactoryAP implements AnnotationProcessor {
 	}
     }
 
+    private PrintWriter _writer = null;
     private AnnotationProcessorEnvironment _env = null;
     private Set<AnnotationTypeDeclaration> _types = null;
 }
