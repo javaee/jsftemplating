@@ -16,12 +16,19 @@
 
     <path id="apt-dependencies">
 	<pathelement location="${java.home}/lib/tools.jar" />
+	<pathelement location="${java.home}/../lib/tools.jar" />
+    </path>
+
+    <path id="javadoc-dependencies">
+	<path refid="dependencies" />
+	<path refid="apt-dependencies" />
     </path>
 
     <target name="all" depends="jar" />
 
     <target name="compile-apt-files">
 	<mkdir dir="${aptbuild}/." />
+	<echo message="${java.home}" />
 
 	<!-- Compile the java code from ${src} into ${build} -->
 	<javac srcdir="${src}" destdir="${aptbuild}/."
@@ -32,6 +39,7 @@
     </target>
 
     <target name="jar-apt-files" depends="compile-apt-files">
+	<mkdir dir="${dist}/." />
 	<jar jarfile="${jsftemplating-dt.jar}" update="true">
             <fileset dir="${aptbuild}" includes="**/*.class" />
             <zipfileset dir="${jsftemplating.home}/annotation"
@@ -88,7 +96,7 @@
 		<include name="com/sun/jsftemplating/**/*.java" />
 	    </fileset>
 
-	    <classpath refid="dependencies" />
+	    <classpath refid="javadoc-dependencies" />
 	</javadoc>
     </target>
 

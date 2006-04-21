@@ -30,10 +30,14 @@ import com.sun.jsftemplating.util.Util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.faces.context.FacesContext;
 
@@ -173,8 +177,7 @@ public abstract class LayoutDefinitionManager {
      *	<p> It is recommended that this method not be used.  The map returned
      *	    by this method is shared across the application and is not thread
      *	    safe.  Instead access this Map via
-     *	    {@link LayoutDefinitionManager#getGlobalComponentType(String)} and
-     *	    {@link LayoutDefinitionManager#addGlobalComponentType(ComponentType)}.</p>
+     *	    {@link LayoutDefinitionManager#getGlobalComponentType(String)}.</p>
      *
      *	<p> This method will initialize the global {@link ComponentType}s if
      *	    they are not initialized.  It does this by... FIXME: TBD...</p>
@@ -182,7 +185,30 @@ public abstract class LayoutDefinitionManager {
     public static Map<String, ComponentType> getGlobalComponentTypes() {
 	if (_globalComponentTypes == null) {
 	    _globalComponentTypes = new HashMap<String, ComponentType>();
-// FIXME: Find / Initialize component types...
+
+	    try {
+// FIXME: Clean up...
+// FIXME: Write a test for this!!
+		ClassLoader loader = Util.getClassLoader(_globalComponentTypes);
+		Properties props = null;
+		URL url = null;
+		String id = null;
+		Enumeration<URL> urls = loader.getResources(UICOMPONENT_FACTORY_FILE);
+		while (urls.hasMoreElements()) {
+		    url = urls.nextElement();
+		    props = new Properties();
+		    props.load(url.openStream());
+		    for (Map.Entry<Object, Object> entry : props.entrySet()) {
+			// Add each property entry (key, ComponentType)
+			id = (String) entry.getKey();
+			_globalComponentTypes.put(id,
+			    new ComponentType(id, (String) entry.getValue()));
+		    }
+		}
+	    } catch (IOException ex) {
+		// FIXME: Throw an appropriate exception
+		ex.printStackTrace();
+	    }
 	}
 	return _globalComponentTypes;
     }
@@ -197,8 +223,10 @@ public abstract class LayoutDefinitionManager {
 
     /**
      *	<p> This method allows a global {@link ComponentType} to be added.
-     *	    This way of adding a global {@link ComponentType} is discouraged,
-     *	    it should be done by... FIXME: TBD...</p>
+     *	    This way of adding a global {@link ComponentType} is discouraged.
+     *	    Instead, you should use a <code>UIComponentFactory</code>
+     *	    annotation in each <code>ComponentFactory</code> and compile
+     *	    using "<code>apt</code>".</p>
      */
     public static void addGlobalComponentType(ComponentType type) {
 	synchronized (LayoutDefinitionManager.class) {
@@ -346,4 +374,12 @@ public abstract class LayoutDefinitionManager {
      */
     public static final String LAYOUT_DEFINITION_MANAGER_KEY =
 	"layoutManagerImpl";
+
+    /**
+     *	<p> This is a <code>Properties</code> file that contains a list of
+     *	    ids and class names corresponding to
+     *	    <code>ComponentFactory</code>'s.</p>
+     */
+    public static final String UICOMPONENT_FACTORY_FILE =
+	"META-INF/jsftemplating/UIComponentFactories.map";
 }

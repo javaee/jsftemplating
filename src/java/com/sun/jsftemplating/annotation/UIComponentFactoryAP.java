@@ -47,23 +47,51 @@ import java.util.Set;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class UIComponentFactoryAP implements AnnotationProcessor {
+
+    /**
+     *	<p> This is the constructor for the {@link UIComponentFactory}
+     *	    <code>AnnotationProcessor</code>.  It expects the annotation to
+     *	    have a single value (called 'value', or have 'value' omitted) which
+     *	    specifies the identifier used to locate the class containing the
+     *	    annotation (the {@link ComponentFactory} class).</p>
+     *
+     *	@param	types	The <code>AnnotationTypeDeclaration</code>s.
+     *	@param	env	The <code>AnnotationProcessorEnvironment</code>.
+     *	@param	writer	The <code>PrintWriter</code> used for output.
+     */
     public UIComponentFactoryAP(Set<AnnotationTypeDeclaration> types, AnnotationProcessorEnvironment env, PrintWriter writer) {
 	_writer = writer;
 	_env = env;
 	_types = types;
     }
 
+    /**
+     *	<p> This method will process the annotation.  It produces a line using
+     *	    the <code>PrintWriter</code> that contains the identifer and the
+     *	    class name which holds the annotation:</p>
+     *
+     *	<p> <code>[identifer]=[class name]</code></p>
+     */
     public void process() {
 	if (_types == null) {
 	    // Nothing to do
 	    return;
 	}
+
+	// Loop through the supported annotation types (only 1)
 	for (AnnotationTypeDeclaration decl : _types) {
+	    // Loop through the declarations that are annotated
 	    for (Declaration dec : _env.getDeclarationsAnnotatedWith(decl)) {
+		// Loop through the annotations on the current declartion
 		for (AnnotationMirror mirror : dec.getAnnotationMirrors()) {
+		    // Loop through the NVPs contained in the annotation
 		    for (Map.Entry<AnnotationTypeElementDeclaration, AnnotationValue> entry : mirror.getElementValues().entrySet()) {
-			if (entry.getKey().getSimpleName().equals(UIComponentFactory.FACTORY_ID)) {
-			    System.out.println(dec.toString() + ">> " + entry.getValue());
+			if (entry.getKey().getSimpleName().equals(
+				UIComponentFactory.FACTORY_ID)) {
+			    // Write NVP using the PrintWriter
+			    _writer.println(
+				entry.getValue().getValue().toString() + "="
+				    + dec.toString());
 			}
 		    }
 		}
