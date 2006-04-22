@@ -59,6 +59,11 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      *	@param	comp	The <code>UIComponent</code>
      */
     protected void setOptions(FacesContext context, LayoutComponent desc, UIComponent comp) {
+	if (desc == null) {
+	    // Nothing to do
+	    return;
+	}
+
 	// First set the id if supplied, treated special b/c the component
 	// used for ${} expressions is the parent and this must be set first
 	// so other ${} expressions can use $this{id} and $this{clientId}.

@@ -174,29 +174,37 @@ public abstract class LayoutDefinitionManager {
      *	    {@link ComponentType}s (the {@link ComponentType}s available across
      *	    the application).</p>
      *
-     *	<p> It is recommended that this method not be used.  The map returned
-     *	    by this method is shared across the application and is not thread
-     *	    safe.  Instead access this Map via
+     *	<p> It is recommended that this method not be used directly.  The map
+     *	    returned by this method is shared across the application and is not
+     *	    thread safe.  Instead access this Map via
      *	    {@link LayoutDefinitionManager#getGlobalComponentType(String)}.</p>
      *
      *	<p> This method will initialize the global {@link ComponentType}s if
-     *	    they are not initialized.  It does this by... FIXME: TBD...</p>
+     *	    they are not initialized.  It does this by finding all files in the
+     *	    classpath named:
+     *	    {@link LayoutDefinitionManager.UICOMPONENT_FACTORY_FILE}.  It then
+     *	    reads each of these files (which must be <code>Properties</code>
+     *	    files) and stores each identifier / fully qualified classname as
+     *	    an entry in the
+     *	    <code>Map&lt;String, {@link ComponentType}&gt;</code>.</p>
      */
     public static Map<String, ComponentType> getGlobalComponentTypes() {
 	if (_globalComponentTypes == null) {
+	    // We haven't initialized the global ComponentTypes yet
 	    _globalComponentTypes = new HashMap<String, ComponentType>();
 
 	    try {
-// FIXME: Clean up...
-// FIXME: Write a test for this!!
-		ClassLoader loader = Util.getClassLoader(_globalComponentTypes);
 		Properties props = null;
 		URL url = null;
 		String id = null;
-		Enumeration<URL> urls = loader.getResources(UICOMPONENT_FACTORY_FILE);
+		// Get all the properties files that define them
+		Enumeration<URL> urls =
+		    Util.getClassLoader(_globalComponentTypes).
+			getResources(UICOMPONENT_FACTORY_FILE);
 		while (urls.hasMoreElements()) {
 		    url = urls.nextElement();
 		    props = new Properties();
+		    // Load each Properties file
 		    props.load(url.openStream());
 		    for (Map.Entry<Object, Object> entry : props.entrySet()) {
 			// Add each property entry (key, ComponentType)
@@ -206,8 +214,7 @@ public abstract class LayoutDefinitionManager {
 		    }
 		}
 	    } catch (IOException ex) {
-		// FIXME: Throw an appropriate exception
-		ex.printStackTrace();
+		throw new RuntimeException(ex);
 	    }
 	}
 	return _globalComponentTypes;

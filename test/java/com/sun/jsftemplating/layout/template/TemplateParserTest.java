@@ -18,6 +18,7 @@ public class TemplateParserTest extends TestCase {
 		new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
 	    assertEquals("URL", "file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt", parser.getURL().toString());
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }
@@ -29,6 +30,7 @@ public class TemplateParserTest extends TestCase {
 	    parser.open();
 	    parser.close();
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }
@@ -54,6 +56,7 @@ public class TemplateParserTest extends TestCase {
 	    assertEquals("testNextChar1-9", ' ', parser.nextChar());
 	    parser.close();
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }
@@ -75,6 +78,7 @@ public class TemplateParserTest extends TestCase {
 	    assertEquals("testNextChar1-7", 'e', parser.nextChar());
 	    parser.close();
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }
@@ -103,6 +107,7 @@ public class TemplateParserTest extends TestCase {
 
 	    parser.close();
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }
@@ -137,6 +142,7 @@ public class TemplateParserTest extends TestCase {
 
 	    parser.close();
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }
@@ -169,6 +175,7 @@ public class TemplateParserTest extends TestCase {
 	    assertEquals("testReadLine4", "\t    <script file=\"jsftemplating/js/jsftemplating.js\" />", parser.readLine());
 	    parser.close();
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }
@@ -203,6 +210,7 @@ public class TemplateParserTest extends TestCase {
 
 	    parser.close();
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }
@@ -229,6 +237,7 @@ public class TemplateParserTest extends TestCase {
 
 	    parser.close();
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }

@@ -27,6 +27,7 @@ public class TemplateReaderTest extends TestCase {
 		new TemplateReader(new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
 	    reader.read();
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }
@@ -41,6 +42,7 @@ public class TemplateReaderTest extends TestCase {
 	    LayoutDefinition ld = reader.read();
 	    assertEquals("LayoutDefinition.unevaluatedId", "", ld.getUnevaluatedId());
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
     }
