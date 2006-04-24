@@ -24,13 +24,29 @@
 	<path refid="apt-dependencies" />
     </path>
 
+    <path id="test-dependencies">
+	<pathelement location="${servlet-api.jar}" />
+	<pathelement location="${jsf-api.jar}" />
+	<pathelement location="${jsftemplating.jar}" />
+	<pathelement location="${junit.jar}" />
+	<pathelement location="${test}/build" />
+    </path>
+
+    <path id="test-compile-dependencies">
+	<pathelement location="${servlet-api.jar}" />
+	<pathelement location="${jsf-api.jar}" />
+	<pathelement location="${jsftemplating.jar}" />
+	<pathelement location="${junit.jar}" />
+    </path>
+
     <target name="all" depends="jar" />
 
+    <!-- This target builds the custom processors for apt -->
     <target name="compile-apt-files">
 	<mkdir dir="${aptbuild}/." />
 	<echo message="${java.home}" />
 
-	<!-- Compile the java code from ${src} into ${build} -->
+	<!-- Compile the java code from ${src} into ${aptbuild} -->
 	<javac srcdir="${src}" destdir="${aptbuild}/."
 		includes="**/annotation/**.java" debug="${compile.debug}" deprecation="${compile.deprecation}"
 		optimize="${compile.optimize}">
@@ -102,13 +118,7 @@
 
     <target name="test" depends="compileTest">
 	<java classname="com.sun.jsftemplating.UnitTests" fork="yes" >
-	    <classpath>
-		<pathelement location="${servlet-api.jar}" />
-		<pathelement location="${jsf-api.jar}" />
-		<pathelement location="${junit.jar}" />
-		<pathelement location="${jsftemplating.jar}" />
-		<pathelement location="${test}/build" />
-	    </classpath>
+	    <classpath refid="test-dependencies" />
 	</java>
     </target>
 
@@ -120,12 +130,7 @@
 	<javac srcdir="${test}/java" destdir="${test}/build/."
 		debug="${compile.debug}" deprecation="${compile.deprecation}"
 		optimize="${compile.optimize}">
-	    <classpath>
-		<pathelement location="${servlet-api.jar}" />
-		<pathelement location="${jsf-api.jar}" />
-		<pathelement location="${junit.jar}" />
-		<pathelement location="${jsftemplating.jar}" />
-	    </classpath>
+	    <classpath refid="test-compile-dependencies" />
 	</javac>
     </target>
 

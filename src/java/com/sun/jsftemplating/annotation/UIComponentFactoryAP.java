@@ -53,7 +53,9 @@ public class UIComponentFactoryAP implements AnnotationProcessor {
      *	    <code>AnnotationProcessor</code>.  It expects the annotation to
      *	    have a single value (called 'value', or have 'value' omitted) which
      *	    specifies the identifier used to locate the class containing the
-     *	    annotation (the {@link ComponentFactory} class).</p>
+     *	    annotation (the
+     *	    {@link com.sun.jsftemplating.component.factory.ComponentFactory}
+     *	    class).</p>
      *
      *	@param	types	The <code>AnnotationTypeDeclaration</code>s.
      *	@param	env	The <code>AnnotationProcessorEnvironment</code>.

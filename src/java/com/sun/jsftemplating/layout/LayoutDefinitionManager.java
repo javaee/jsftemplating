@@ -182,7 +182,7 @@ public abstract class LayoutDefinitionManager {
      *	<p> This method will initialize the global {@link ComponentType}s if
      *	    they are not initialized.  It does this by finding all files in the
      *	    classpath named:
-     *	    {@link LayoutDefinitionManager.UICOMPONENT_FACTORY_FILE}.  It then
+     *	    {@link LayoutDefinitionManager#UICOMPONENT_FACTORY_FILE}.  It then
      *	    reads each of these files (which must be <code>Properties</code>
      *	    files) and stores each identifier / fully qualified classname as
      *	    an entry in the
