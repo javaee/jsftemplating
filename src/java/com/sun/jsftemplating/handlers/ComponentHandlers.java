@@ -27,6 +27,9 @@
  */
 package com.sun.jsftemplating.handlers;
 
+import com.sun.jsftemplating.annotation.Handler;
+import com.sun.jsftemplating.annotation.HandlerInput;
+import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 
 import java.util.List;
@@ -60,7 +63,13 @@ public class ComponentHandlers {
      *
      *	@param	context	The HandlerContext.
      */
-    public void getChildren(HandlerContext context) {
+    @Handler(id="getUIComponentChildren",
+	input={
+	    @HandlerInput(name="parent", type=UIComponent.class, required=true)},
+	output={
+	    @HandlerOutput(name="children", type=List.class),
+	    @HandlerOutput(name="size", type=Integer.class)})
+    public static void getChildren(HandlerContext context) {
 	UIComponent parent = (UIComponent) context.getInputValue("parent");
 	List list = parent.getChildren();
 	context.setOutputValue("children", list);
@@ -77,7 +86,12 @@ public class ComponentHandlers {
      *
      *	@param	context	The HandlerContext.
      */
-    public void setComponentProperty(HandlerContext context) {
+    @Handler(id="setUIComponentProperty",
+	input={
+	    @HandlerInput(name="component", type=UIComponent.class, required=true),
+	    @HandlerInput(name="property", type=String.class, required=true),
+	    @HandlerInput(name="value")})
+    public static void setComponentProperty(HandlerContext context) {
 	UIComponent component =
 	    (UIComponent) context.getInputValue("component");
 	String propName = (String) context.getInputValue("property");
