@@ -27,6 +27,9 @@
  */
 package com.sun.jsftemplating.handlers;
 
+import com.sun.jsftemplating.annotation.Handler;
+import com.sun.jsftemplating.annotation.HandlerInput;
+import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 
 import java.util.ArrayList;
@@ -58,7 +61,9 @@ public class UtilHandlers {
      *
      *	@param	context	The HandlerContext.
      */
-    public void println(HandlerContext context) {
+    @Handler(id="println",
+	input={@HandlerInput(name="value", type=String.class, required=true)})
+    public static void println(HandlerContext context) {
 	String value = (String) context.getInputValue("value");
 	System.out.println(value);
     }
@@ -70,7 +75,12 @@ public class UtilHandlers {
      *
      *	@param	context	The HandlerContext.
      */
-    public void dec(HandlerContext context) {
+    @Handler(id="dec",
+	input={
+	    @HandlerInput(name="number", type=Integer.class, required=true)},
+	output={
+	    @HandlerOutput(name="value", type=Integer.class)})
+    public static void dec(HandlerContext context) {
 	Integer value = (Integer) context.getInputValue("number");
 	context.setOutputValue("value", new Integer(value.intValue() - 1));
     }
@@ -82,7 +92,12 @@ public class UtilHandlers {
      *
      *	@param	context	The HandlerContext.
      */
-    public void inc(HandlerContext context) {
+    @Handler(id="inc",
+	input={
+	    @HandlerInput(name="number", type=Integer.class, required=true)},
+	output={
+	    @HandlerOutput(name="value", type=Integer.class)})
+    public static void inc(HandlerContext context) {
 	Integer value = (Integer) context.getInputValue("number");
 	context.setOutputValue("value", new Integer(value.intValue() + 1));
     }
@@ -93,7 +108,11 @@ public class UtilHandlers {
      *
      *	@param	context	The HandlerContext.
      */
-    public void setAttribute(HandlerContext context) {
+    @Handler(id="setAttribute",
+	input={
+	    @HandlerInput(name="key", type=String.class, required=true),
+	    @HandlerInput(name="value", required=true)})
+    public static void setAttribute(HandlerContext context) {
 	String key = (String) context.getInputValue("key");
 	Object value = context.getInputValue("value");
 	context.getFacesContext().getExternalContext().
@@ -108,7 +127,12 @@ public class UtilHandlers {
      *
      *	@param	context	The HandlerContext.
      */
-    public void getIterator(HandlerContext context) {
+    @Handler(id="getIterator",
+	input={
+	    @HandlerInput(name="list", type=List.class, required=true)},
+	output={
+	    @HandlerOutput(name="iterator", type=Iterator.class)})
+    public static void getIterator(HandlerContext context) {
 	List list = (List) context.getInputValue("list");
 	context.setOutputValue("iterator", list.iterator());
     }
@@ -121,7 +145,12 @@ public class UtilHandlers {
      *
      *	@param	context	The HandlerContext.
      */
-    public void iteratorHasNext(HandlerContext context) {
+    @Handler(id="iteratorHasNext",
+	input={
+	    @HandlerInput(name="iterator", type=Iterator.class, required=true)},
+	output={
+	    @HandlerOutput(name="hasNext", type=Boolean.class)})
+    public static void iteratorHasNext(HandlerContext context) {
 	Iterator it = (Iterator) context.getInputValue("iterator");
 	context.setOutputValue("hasNext", Boolean.valueOf(it.hasNext()));
     }
@@ -134,7 +163,12 @@ public class UtilHandlers {
      *
      *	@param	context	The HandlerContext.
      */
-    public void iteratorNext(HandlerContext context) {
+    @Handler(id="iteratorNext",
+	input={
+	    @HandlerInput(name="iterator", type=Iterator.class, required=true)},
+	output={
+	    @HandlerOutput(name="next")})
+    public static void iteratorNext(HandlerContext context) {
 	Iterator it = (Iterator) context.getInputValue("iterator");
 	context.setOutputValue("next", it.next());
     }
@@ -146,7 +180,12 @@ public class UtilHandlers {
      *
      *	@param	context	The HandlerContext
      */
-    public void createList(HandlerContext context) {
+    @Handler(id="createList",
+	input={
+	    @HandlerInput(name="size", type=Integer.class, required=true)},
+	output={
+	    @HandlerOutput(name="result", type=List.class)})
+    public static void createList(HandlerContext context) {
 	int size = ((Integer) context.getInputValue("size")).intValue();
 	List list = new ArrayList(size);
 	for (int count = 0; count < size; count++) {
@@ -161,7 +200,8 @@ public class UtilHandlers {
      *
      *	@param context	The {@link HandlerContext}
      */
-    public boolean returnTrue(HandlerContext context) {
+    @Handler(id="returnTrue")
+    public static boolean returnTrue(HandlerContext context) {
 	return true;
     }
 
@@ -171,7 +211,8 @@ public class UtilHandlers {
      *
      *	@param context	The {@link HandlerContext}
      */
-    public boolean returnFalse(HandlerContext context) {
+    @Handler(id="returnFalse")
+    public static boolean returnFalse(HandlerContext context) {
 	return false;
     }
 
@@ -181,7 +222,12 @@ public class UtilHandlers {
      *
      *	@param context	The {@link HandlerContext}
      */
-    public void getClientId(HandlerContext context) {
+    @Handler(id="getClientId",
+	input={
+	    @HandlerInput(name="component", type=UIComponent.class, required=true)},
+	output={
+	    @HandlerOutput(name="clientId", type=String.class)})
+    public static void getClientId(HandlerContext context) {
 	UIComponent comp = (UIComponent) context.getInputValue("component");
 	context.setOutputValue("clientId",
 		comp.getClientId(context.getFacesContext()));
@@ -195,7 +241,13 @@ public class UtilHandlers {
      *
      *	@param context	The {@link HandlerContext}
      */
-    public void getId(HandlerContext context) {
+    @Handler(id="getId",
+	input={
+	    @HandlerInput(name="object", required=true)},
+	output={
+	    @HandlerOutput(name="id", type=String.class),
+	    @HandlerOutput(name="clientId", type=String.class)})
+    public static void getId(HandlerContext context) {
 	Object obj = context.getInputValue("object");
 	if (obj == null) {
 	    return;

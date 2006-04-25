@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.layout;
 
+import com.sun.jsftemplating.annotation.UIComponentFactoryAPFactory;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.Resource;
@@ -182,11 +183,10 @@ public abstract class LayoutDefinitionManager {
      *	<p> This method will initialize the global {@link ComponentType}s if
      *	    they are not initialized.  It does this by finding all files in the
      *	    classpath named:
-     *	    {@link LayoutDefinitionManager#UICOMPONENT_FACTORY_FILE}.  It then
-     *	    reads each of these files (which must be <code>Properties</code>
-     *	    files) and stores each identifier / fully qualified classname as
-     *	    an entry in the
-     *	    <code>Map&lt;String, {@link ComponentType}&gt;</code>.</p>
+     *	    {@link UIComponentFactoryAPFactory#FACTORY_FILE}.  It then reads
+     *	    each of these files (which must be <code>Properties</code> files)
+     *	    and stores each identifier / fully qualified classname as an entry
+     *	    in the <code>Map&lt;String, {@link ComponentType}&gt;</code>.</p>
      */
     public static Map<String, ComponentType> getGlobalComponentTypes() {
 	if (_globalComponentTypes == null) {
@@ -200,7 +200,7 @@ public abstract class LayoutDefinitionManager {
 		// Get all the properties files that define them
 		Enumeration<URL> urls =
 		    Util.getClassLoader(_globalComponentTypes).
-			getResources(UICOMPONENT_FACTORY_FILE);
+			getResources(UIComponentFactoryAPFactory.FACTORY_FILE);
 		while (urls.hasMoreElements()) {
 		    url = urls.nextElement();
 		    props = new Properties();
@@ -381,12 +381,4 @@ public abstract class LayoutDefinitionManager {
      */
     public static final String LAYOUT_DEFINITION_MANAGER_KEY =
 	"layoutManagerImpl";
-
-    /**
-     *	<p> This is a <code>Properties</code> file that contains a list of
-     *	    ids and class names corresponding to
-     *	    <code>ComponentFactory</code>'s.</p>
-     */
-    public static final String UICOMPONENT_FACTORY_FILE =
-	"META-INF/jsftemplating/UIComponentFactories.map";
 }

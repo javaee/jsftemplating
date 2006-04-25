@@ -43,11 +43,18 @@ import java.util.Set;
 
 /**
  *  <p>	This is an <code>AnnotationProcessorFactory</code> for
- *	{@link UIComponentFactory} annotations.</p>
+ *	{@link Handler} annotations.</p>
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
-public class UIComponentFactoryAPFactory implements AnnotationProcessorFactory, RoundCompleteListener {
+public class HandlerAPFactory implements AnnotationProcessorFactory, RoundCompleteListener {
+    /*
+<handlerDefinition id="getCFStackMaps" className="com.sun.enterprise.tools.admingui.handlers.CallFlowHandler" methodName="getCallFlowStackMaps">
+    <inputDef name="requestId" type="String" required="true" />
+    <inputDef name="instanceName" type="String" required="true" />
+    <outputDef name="callStackMap" type="java.util.List" />
+</handlerDefinition>
+    */
 
     /**
      *
@@ -71,7 +78,7 @@ public class UIComponentFactoryAPFactory implements AnnotationProcessorFactory, 
 	if ((types != null) && (types.size() > 0)) {
 	    if (setup(env)) {
 		// We have stuff to do, and we're setup...
-		processor = new UIComponentFactoryAP(types, env, _writer);
+		processor = new HandlerAP(types, env, _writer);
 	    }
 	}
 	return processor;
@@ -89,8 +96,8 @@ public class UIComponentFactoryAPFactory implements AnnotationProcessorFactory, 
 	// Register our listener so we can do something at the end
 	env.addListener(this);
 
-	// FIXME: Read property file that we are going to overwrite
 	try {
+	    // Create factory mapping file
 	    _writer = env.getFiler().createTextFile(
 		Filer.Location.CLASS_TREE,
 		"",
@@ -101,7 +108,7 @@ public class UIComponentFactoryAPFactory implements AnnotationProcessorFactory, 
 	    ex.printStackTrace(new PrintWriter(buf));
 	    env.getMessager().printError("Unable to write "
 		+ "'" + FACTORY_FILE + "' file while processing "
-		+ "@UIComponentFactory annotation: " + buf.toString());
+		+ "@Handler annotation: " + buf.toString());
 	    return false;
 	}
 
@@ -127,19 +134,18 @@ public class UIComponentFactoryAPFactory implements AnnotationProcessorFactory, 
     private PrintWriter _writer = null;
 
     private static final Collection<String> _supportedAnnotationTypes =
-	Arrays.asList("com.sun.jsftemplating.annotation.UIComponentFactory");
+	Arrays.asList(
+	    "com.sun.jsftemplating.annotation.Handler",
+	    "com.sun.jsftemplating.annotation.HandlerInput",
+	    "com.sun.jsftemplating.annotation.HandlerOutput");
 
     private static final Collection<String> _supportedOptions =
 	Collections.emptySet();
 
     /**
      *	<p> This is the file name of the file that is created based on the
-     *	    annotations. ("META-INF/jsftemplating/UIComponentFactory.map")</p>
-     *
-     *	<p> The file is a <code>Properties</code> file that contains a list of
-     *	    ids and class names corresponding to
-     *	    <code>ComponentFactory</code>'s.</p>
+     *	    annotations. ("META-INF/jsftemplating/Handler.map")</p>
      */
     public static final String FACTORY_FILE =
-	"META-INF/jsftemplating/UIComponentFactory.map";
+	"META-INF/jsftemplating/Handler.map";
 }
