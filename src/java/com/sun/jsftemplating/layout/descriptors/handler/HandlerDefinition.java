@@ -177,7 +177,7 @@ public class HandlerDefinition implements java.io.Serializable {
      *
      *	@param inputDefs	The Map of IODescriptors
      */
-    public void setInputDefs(Map inputDefs) {
+    public void setInputDefs(Map<String, IODescriptor> inputDefs) {
 	if (inputDefs == null) {
 	    throw new IllegalArgumentException(
 		"inputDefs cannot be null!");
@@ -190,7 +190,7 @@ public class HandlerDefinition implements java.io.Serializable {
      *
      *	@return The Map of IODescriptors
      */
-    public Map getInputDefs() {
+    public Map<String, IODescriptor> getInputDefs() {
 	return _inputDefs;
     }
 
@@ -198,7 +198,7 @@ public class HandlerDefinition implements java.io.Serializable {
      *	This method returns the requested IODescriptor, null if not found.
      */
     public IODescriptor getInputDef(String name) {
-	return (IODescriptor) _inputDefs.get(name);
+	return _inputDefs.get(name);
     }
 
     /**
@@ -216,7 +216,7 @@ public class HandlerDefinition implements java.io.Serializable {
      *
      *	@param outputDefs    The Map of output IODescriptors
      */
-    public void setOutputDefs(Map outputDefs) {
+    public void setOutputDefs(Map<String, IODescriptor> outputDefs) {
 	if (outputDefs == null) {
 	    throw new IllegalArgumentException(
 		"outputDefs cannot be null!");
@@ -229,7 +229,7 @@ public class HandlerDefinition implements java.io.Serializable {
      *
      *	@return The Map of output IODescriptors
      */
-    public Map getOutputDefs() {
+    public Map<String, IODescriptor> getOutputDefs() {
 	return _outputDefs;
     }
 
@@ -237,7 +237,7 @@ public class HandlerDefinition implements java.io.Serializable {
      *	This method returns the requested IODescriptor, null if not found.
      */
     public IODescriptor getOutputDef(String name) {
-	return (IODescriptor) _outputDefs.get(name);
+	return _outputDefs.get(name);
     }
 
     /**
@@ -255,7 +255,7 @@ public class HandlerDefinition implements java.io.Serializable {
      *
      *	@param childHandlers	The List of child Handler objects
      */
-    public void setChildHandlers(List childHandlers) {
+    public void setChildHandlers(List<Handler> childHandlers) {
 	if (childHandlers == null) {
 	    throw new IllegalArgumentException(
 		"childHandlers cannot be null!");
@@ -268,22 +268,22 @@ public class HandlerDefinition implements java.io.Serializable {
      *
      *	@return The List of child Handler for this handler.
      */
-    public List getChildHandlers() {
+    public List<Handler> getChildHandlers() {
 	return _childHandlers;
     }
 
 
     public static final Class[] EVENT_ARGS = new Class[] {HandlerContext.class};
 
-    private String		_id			= null;
-    private String		_description		= null;
-    private String		_methodClass		= null;
-    private String		_methodName		= null;
-    private transient Method	_method			= null;
-    private Map			_inputDefs		= new HashMap(5);
-    private Map			_outputDefs		= new HashMap(5);
-    private List		_childHandlers		= new ArrayList(5);
-    private transient Boolean	_static			= null;
+    private String		_id		    = null;
+    private String		_description	    = null;
+    private String		_methodClass	    = null;
+    private String		_methodName	    = null;
+    private transient Method	_method		    = null;
+    private Map<String, IODescriptor>	_inputDefs  = new HashMap<String, IODescriptor>(5);
+    private Map<String, IODescriptor>	_outputDefs = new HashMap<String, IODescriptor>(5);
+    private List<Handler>	_childHandlers	    = new ArrayList<Handler>(5);
+    private transient Boolean	_static		     = null;
 
     private static final long serialVersionUID = 0xA8B7C6D5E4F30211L;
 }

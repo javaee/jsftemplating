@@ -23,10 +23,13 @@
 package com.sun.jsftemplating.layout;
 
 import com.sun.jsftemplating.annotation.UIComponentFactoryAPFactory;
+import com.sun.jsftemplating.annotation.HandlerAPFactory;
+import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
+import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
 import com.sun.jsftemplating.util.Util;
 
 import java.lang.reflect.InvocationTargetException;
@@ -95,7 +98,7 @@ public abstract class LayoutDefinitionManager {
      *	@see #LAYOUT_DEFINITION_MANAGER_KEY
      */
     public static LayoutDefinitionManager getManager(FacesContext context) {
-// FIXME: Decide how to define the LAYOUT_DEFINITION_MANAGER
+// FIXME: Decide how to define the LAYOUT_DEFINITION_MANAGER (should be switchable per page)
 // FIXME: Properties should be settable on the LDM, such as entity resolvers...
 	Map initParams = context.getExternalContext().getInitParameterMap();
 	String className = DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL;
@@ -255,19 +258,117 @@ public abstract class LayoutDefinitionManager {
      *
      *	<p> It is recommended that this method not be used.  The map returned
      *	    by this method is shared across the application and is not thread
-     *	    safe.  Instead access this Map via
-     *	    {@link LayoutDefinitionManager#getGlobalHandlerDefinition(String)} and
-     *	    {@link LayoutDefinitionManager#addGlobalHandlerDefinition(HandlerDefinition)}.</p>
+     *	    safe.  Instead get values from the Map via:
+     *	    {@link LayoutDefinitionManager#getGlobalHandlerDefinition(String)}.
+     *	    </p>
      *
      *	<p> This method will initialize the global {@link HandlerDefinition}s if
-     *	    they are not initialized.  It does this by... FIXME: TBD...</p>
+     *	    they are not initialized.  It does this by finding all files in the
+     *	    classpath named: {@link HandlerAPFactory#HANDLER_FILE}.  It then
+     *	    reads each file (which must be a valid <code>Properties</code>
+     *	    file) and stores the information for later retrieval.</p>
      */
     public static Map<String, HandlerDefinition> getGlobalHandlerDefinitions() {
-	if (_globalHandlerDefs == null) {
-	    _globalHandlerDefs = new HashMap<String, HandlerDefinition>();
-// FIXME: Find / Initialize component types...
+	if (_globalHandlerDefs != null) {
+	    // We've already done this, return the answer
+	    return _globalHandlerDefs;
+	}
+
+	// Create a new Map to hold the defs
+	_globalHandlerDefs = new HashMap<String, HandlerDefinition>();
+	Properties props = null;
+	URL url = null;
+	try {
+	    // Get all the properties files that define them
+	    Enumeration<URL> urls =
+		Util.getClassLoader(_globalHandlerDefs).
+		    getResources(HandlerAPFactory.HANDLER_FILE);
+	    while (urls.hasMoreElements()) {
+		url = urls.nextElement();
+		props = new Properties();
+		// Load each Properties file
+		props.load(url.openStream());
+		for (Map.Entry<Object, Object> entry : props.entrySet()) {
+		    if (((String) entry.getKey()).endsWith(".class")) {
+			// We will only process .class entries
+			readGlobalHandlerDefinition((Map<String, String>) props, entry);
+		    }
+		}
+	    }
+	} catch (IOException ex) {
+	    throw new RuntimeException(ex);
 	}
 	return _globalHandlerDefs;
+    }
+
+    /**
+     *	<p> This method processes a single {@link HandlerDefinition}'s
+     *	    meta-data.</p>
+     */
+    private static void readGlobalHandlerDefinition(Map<String, String> map, Map.Entry<Object, Object> entry) {
+	// Get the key.class value...
+	String key = (String) entry.getKey();
+	// Strip off .class
+	key = key.substring(0, key.lastIndexOf('.'));
+
+	// Create a new HandlerDefinition
+	HandlerDefinition def = new HandlerDefinition(key);
+
+	// Set the class / method
+	String value = map.get(key + '.' + "method");
+	def.setHandlerMethod((String) entry.getValue(), value);
+
+	// Read the input defs
+	def.setInputDefs(readIODefs(map, key, true));
+
+	// Read the output defs
+	def.setOutputDefs(readIODefs(map, key, false));
+
+	// Add the Handler...
+	_globalHandlerDefs.put(key, def);
+    }
+
+    /**
+     *	<p> This method reads and creates IODescriptors for the given key.</p>
+     */
+    private static Map<String, IODescriptor> readIODefs(Map<String, String> map, String key, boolean input) {
+	String type;
+	String inOrOut = input ? "input" : "output";
+	int count = 0;
+	IODescriptor desc = null;
+	Map<String, IODescriptor> defs = new HashMap<String, IODescriptor>(5);
+	String value = map.get(key + "." + inOrOut + "[" + count + "].name");
+	while (value != null) {
+	    // Get the type
+	    type = map.get(key + "." + inOrOut + "[" + count + "].type");
+	    if (type == null) {
+		type = DEFAULT_TYPE;
+	    }
+
+	    // Create an IODescriptor
+	    desc = new IODescriptor(value, type);
+	    defs.put(value, desc);
+
+	    // If this is an output, we're done... for input we need to do more
+	    if (input) {
+		// required?
+		value = map.get(key + "." + inOrOut + "[" + count + "].required");
+		if ((value != null) && Boolean.valueOf(value).booleanValue()) {
+		    desc.setRequired(true);
+		}
+
+		// default?
+		value = map.get(key + "." + inOrOut + " [ " + count + "].defaultValue");
+		if ((value != null) && !value.equals(HandlerInput.DEFAULT_DEFAULT_VALUE)) {
+		    desc.setDefault(value);
+		}
+	    }
+
+	    // Look for next IO declaration
+	    value = map.get(key + "." + inOrOut + "[" + (++count) + "].name");
+	}
+
+	return defs;
     }
 
     /**
@@ -280,8 +381,13 @@ public abstract class LayoutDefinitionManager {
 
     /**
      *	<p> This method allows a global {@link HandlerDefinition} to be added.
-     *	    This way of adding a global {@link HandlerDefinition} is discouraged,
-     *	    it should be done by... FIXME: TBD...</p>
+     *	    This way of adding a global {@link HandlerDefinition} is
+     *	    discouraged.  It should be done implicitly through annotations,
+     *	    placement of a properties file in the correct location, or
+     *	    explicitly by declaring it the page (some template formats may not
+     *	    support this).</p>
+     *
+     *	@see LayoutDefinitionManager.getGlobalHandlerDefinitions()
      */
     public static void addGlobalHandlerDefinition(HandlerDefinition def) {
 	synchronized (LayoutDefinitionManager.class) {
@@ -318,6 +424,7 @@ public abstract class LayoutDefinitionManager {
      *	<p> This method will find global resources by... FIXME: TBD...</p>
      */
     public static List getGlobalResources() {
+// FIXME: TBD...
 	if (_globalResources == null) {
 	    _globalResources = new ArrayList<Resource>();
 // FIXME: Find / Initialize resources...
@@ -369,11 +476,16 @@ public abstract class LayoutDefinitionManager {
     private static List<Resource> _globalResources	= null;
 
     /**
+     *	<p> This is the default input and output type.</p>
+     */
+    public static final String	DEFAULT_TYPE	= "Object";
+
+    /**
      *	<p> This constant defines the default
      *	    <code>LayoutDefinitionManager</code> implementation class name.</p>
      */
     public static final String DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL =
-	"com.sun.jsftemplating.layout.xml.XMLLayoutDefinitionManager";
+	"com.sun.jsftemplating.layout.template.TemplateLayoutDefinitionManager";
 
     /**
      *	<p> This constant defines the <code>LayoutDefinitionManager</code>

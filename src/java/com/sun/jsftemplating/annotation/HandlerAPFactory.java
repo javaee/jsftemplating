@@ -101,13 +101,13 @@ public class HandlerAPFactory implements AnnotationProcessorFactory, RoundComple
 	    _writer = env.getFiler().createTextFile(
 		Filer.Location.CLASS_TREE,
 		"",
-		new File(FACTORY_FILE),
+		new File(HANDLER_FILE),
 		(String) null);
 	} catch (IOException ex) {
 	    StringWriter buf = new StringWriter();
 	    ex.printStackTrace(new PrintWriter(buf));
 	    env.getMessager().printError("Unable to write "
-		+ "'" + FACTORY_FILE + "' file while processing "
+		+ "'" + HANDLER_FILE + "' file while processing "
 		+ "@Handler annotation: " + buf.toString());
 	    return false;
 	}
@@ -146,6 +146,6 @@ public class HandlerAPFactory implements AnnotationProcessorFactory, RoundComple
      *	<p> This is the file name of the file that is created based on the
      *	    annotations. ("META-INF/jsftemplating/Handler.map")</p>
      */
-    public static final String FACTORY_FILE =
+    public static final String HANDLER_FILE =
 	"META-INF/jsftemplating/Handler.map";
 }
