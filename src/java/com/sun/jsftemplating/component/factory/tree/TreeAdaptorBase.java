@@ -130,7 +130,7 @@ public abstract class TreeAdaptorBase implements TreeAdaptor {
      *	    <code>TreeNode</code> for the given tree node model object.</p>
      */
     public String getFactoryClass(Object nodeObject) {
-	return "com.sun.jsftemplating.component.factory.tree.TreeNodeFactory";
+	return "com.sun.jsftemplating.component.factory.sun.TreeNodeFactory";
     }
 
     /**

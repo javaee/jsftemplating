@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.component.factory.tree;
 
+import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.util.Util;
 
@@ -70,6 +71,7 @@ import javax.faces.component.UIComponent;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
+@UIComponentFactory("dynamicTreeNode")
 public class DynamicTreeNodeFactory extends ComponentFactoryBase {
 
     /**
