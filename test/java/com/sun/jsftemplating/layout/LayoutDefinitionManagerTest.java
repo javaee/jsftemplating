@@ -26,12 +26,12 @@ public class LayoutDefinitionManagerTest extends TestCase {
     public void testReadGlobalComponentTypes() {
 	try {
 	    ComponentType staticText = LayoutDefinitionManager.getGlobalComponentType("staticText");
-	    assertTrue(staticText != null);
+	    assertTrue("staticTextNull", staticText != null);
 	    ComponentType event = LayoutDefinitionManager.getGlobalComponentType("event");
-	    assertTrue(event != null);
-	    assertTrue(staticText != event);
-	    assertTrue(staticText.getFactory() instanceof StaticTextFactory);
-	    assertTrue(event.getFactory().create(null, null, null) instanceof EventComponent);
+	    assertTrue("eventNull", event != null);
+	    assertTrue("eventNotEqualStaticText", staticText != event);
+	    assertTrue("staticTextType", staticText.getFactory() instanceof StaticTextFactory);
+	    assertTrue("eventCreation", event.getFactory().create(null, null, null) instanceof EventComponent);
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	    fail(ex.getMessage());
