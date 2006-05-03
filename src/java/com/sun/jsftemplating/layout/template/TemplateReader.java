@@ -38,7 +38,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutMarkup;
 import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
 import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
 import com.sun.jsftemplating.layout.descriptors.Resource;
-import com.sun.jsftemplating.util.IncludeInputStream;
+import com.sun.jsftemplating.util.LayoutElementUtil;
 
 import java.io.IOException;
 import java.io.BufferedInputStream;
@@ -122,7 +122,7 @@ public class TemplateReader {
      *
      *	@return	The new {@link LayoutDefinition} Object.
      */
-    private LayoutDefinition readLayoutDefinition() {
+    private LayoutDefinition readLayoutDefinition() throws IOException {
 	// Create a new LayoutDefinition (the id is not propagated here)
 	LayoutDefinition ld = new LayoutDefinition("");
 
@@ -133,6 +133,7 @@ public class TemplateReader {
 	// NOTE: Resources may be locale specific, so we can't easily share
 	//	 this at the application scope.  Here, "global" means across
 	//	 pages, not across sessions.
+// FIXME: This isn't implemented yet...
 	ld.setResources(LayoutDefinitionManager.getGlobalResources());
 
 /*
@@ -177,11 +178,12 @@ StringBuffer buf = new StringBuffer("");
 			    if (ch == ':') {
 				// We have a reserved tag...
 				str2 = parser.readToken();
-buf.append("C*:"+str2+"\n");
+buf.append("</"+str1+":"+str2+">\n");
 			    } else {
-				// We have a UIComponent tag...
+				// We have an end UIComponent tag...
 				parser.unread(ch);
-buf.append("C:"+str1+"\n");
+// FIXME: pop UIcomponent name off stack
+buf.append("*:"+str1+"\n");
 			    }
 			} else {
 			    // Open tag
@@ -202,7 +204,8 @@ buf.append("C:"+str1+"\n");
 			    } else {
 				// We have a UIComponent tag...
 				parser.unread(ch);
-// FIXME: XXX
+				ld.addChildLayoutElement(
+				    createLayoutComponent(ld, str1));
 			    }
 			}
 			break;
@@ -216,6 +219,7 @@ buf.append("string2 found: '"+str1 + "'\n");
 			break;
 		    default:
 		}
+		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 		ch = parser.nextChar();
 	    }
 System.out.println(buf.toString());
@@ -225,6 +229,102 @@ System.out.println(buf.toString());
 
 	// Return the LayoutDefinition
 	return ld;
+    }
+
+    /**
+     *	<p> This method is responsible for creating a
+     *	    {@link LayoutComponent}.</p>
+     *
+     *	@param	type	The type of component to create.
+     */
+    private LayoutComponent createLayoutComponent(LayoutElement parent, String type) throws IOException {
+	// Ensure type
+	ComponentType componentType = LayoutDefinitionManager.
+	    getGlobalComponentType(type);
+	if (componentType == null) {
+	    throw new IllegalArgumentException("ComponentType '" + type
+		    + "' not defined!");
+	}
+
+	// Get the rest of the properties (look for id)
+	// We're processing "<type" continue until we find "[/]>".
+	List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+	NameValuePair nvp = null;
+	String id = null;
+	String overwrite = null;
+	int ch = 0;
+	TemplateParser parser = getTemplateParser();
+	while (ch != -1) {
+	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    ch = parser.nextChar();
+	    if ((ch == '>') || (ch == '/')) {
+		// We're at the end of the parameters.
+		break;
+	    }
+	    parser.unread(ch);
+	    nvp = parser.getNVP();
+	    if (nvp.getName().equals("id")) {
+		// Found id...
+		id = nvp.getValue();
+	    } else if (nvp.getName().equals(OVERWRITE_ATTRIBUTE)) {
+		overwrite = nvp.getValue();
+	    } else {
+		// Found other parameter...
+		nvps.add(nvp);
+	    }
+	}
+
+	// Create the LayoutComponent
+	LayoutComponent component =
+	    new LayoutComponent(parent, id, componentType);
+
+	// Set Overwrite flag if needed
+	if (overwrite != null) {
+	    component.setOverwrite(Boolean.valueOf(overwrite).booleanValue());
+	}
+
+	// Set options...
+	for (NameValuePair np : nvps) {
+	    component.addOption(nvp.getName(), nvp.getValue());
+	}
+
+	// Set flag to indicate if this LayoutComponent is nested in another
+	// LayoutComponent.  This is significant b/c during rendering, events
+	// will need to be fired differently (the TemplateRenderer /
+	// LayoutElements will not have any control).  The strategy used will
+	// rely on "instance" handlers, this flag indicates that "instance"
+	// handlers should be used.
+	// NOTE: While this could be implemented on the LayoutComponent
+	//	 itself, I decided not to for performance reasons and to
+	//	 allow this value to be overruled if desired.
+	component.setNested(
+	    LayoutElementUtil.isNestedLayoutComponent(component));
+
+	// Figure out if this should be stored as a facet, if so under what id
+	if (LayoutElementUtil.isLayoutComponentChild(component)) {
+	    component.setFacetChild(false);
+	} else {
+	    // Need to add this so that it has the correct facet name
+	    // Check to see if this LayoutComponent is inside a LayoutFacet
+	    while (parent != null) {
+		if (parent instanceof LayoutFacet) {
+		    // Inside a LayoutFacet, use its id... only if this facet
+		    // is a child of a LayoutComponent (otherwise, it is a
+		    // layout facet used for layout, not for defining a facet
+		    // of a UIComponent)
+		    if (LayoutElementUtil.isLayoutComponentChild(parent)) {
+			id = parent.getUnevaluatedId();
+		    }
+		    break;
+		}
+		parent = parent.getParent();
+	    }
+
+	    // Set the facet name
+	    component.addOption(LayoutComponent.FACET_NAME, id);
+	}
+
+	return component;
     }
 
     /**
@@ -556,7 +656,7 @@ System.out.println(buf.toString());
 	// use a LayoutComponent for it to get rendered
 	LayoutElement markupElt = null;
 	if ((parent instanceof LayoutComponent)
-		|| isNestedLayoutComponent(parent)) {
+		|| LayoutElementUtil.isNestedLayoutComponent(parent)) {
 	    // Make a "markup" LayoutComponent..
 	    ComponentType type = ensureMarkupType(parent);
 	    markupElt = new LayoutComponent(
@@ -610,7 +710,7 @@ System.out.println(buf.toString());
 	if ((rendered == null) || rendered.trim().equals("")
 		|| rendered.equals(AUTO_RENDERED)) {
 	    // Automatically determine if this LayoutFacet should be rendered
-	    isRendered = !isNestedLayoutComponent(facetElt);
+	    isRendered = !LayoutElementUtil.isNestedLayoutComponent(facetElt);
 	} else {
 	    isRendered = Boolean.getBoolean(rendered);
 	}
@@ -621,50 +721,6 @@ System.out.println(buf.toString());
 
 	// Return the LayoutFacet
 	return facetElt;
-    }
-     */
-
-    /**
-     *	<p> This method returns true if any of the parent
-     *	    {@link LayoutElement}s are {@link LayoutComponent}s.  If a
-     *	    {@link LayoutFacet} is encountered first, false is automatically
-     *	    returned.  This method is specific to processing needed for
-     *	    creating a {@link LayoutComponent}.  Do not use this for general
-     *	    cases when you need to find if a {@link LayoutElement} is embedded
-     *	    within a {@link LayoutComponent} (which should ignore
-     *	    {@link LayoutFacet} elements).</p>
-     *
-     *	@param	elt	The {@link LayoutElement} to check.
-     *
-     *	@return true if it has a {@link LayoutComponent} ancestor.
-    private static boolean isLayoutComponentChild(LayoutElement elt) {
-	elt = elt.getParent();
-	while (elt != null) {
-	    if (elt instanceof LayoutComponent) {
-		return true;
-	    } else if (elt instanceof LayoutFacet) {
-		// Don't consider it a child if it is a facet
-		return false;
-	    }
-	    elt = elt.getParent();
-	}
-
-	// Not found
-	return false;
-    }
-     */
-
-    /**
-     *	<p> This method determines if the given {@link LayoutElement} is
-     *	    inside a {@link LayoutComponent}.  It will look at all the
-     *	    parents, if any of them are {@link LayoutComponent} instances,
-     *	    this method will return <code>true</code>.</p>
-     *
-     *	@param	elt	The {@link LayoutElement} to check.
-     *
-     *	@return	true	If a {@link LayoutComponent} exists as an ancestor.
-    public static boolean isNestedLayoutComponent(LayoutElement elt) {
-	return (getParentLayoutComponent(elt) != null);
     }
      */
 
@@ -707,7 +763,7 @@ System.out.println(buf.toString());
 	// NOTE: While this could be implemented on the LayoutComponent
 	//	 itself, I decided not to for performance reasons and to
 	//	 allow this value to be overruled if desired.
-	component.setNested(isNestedLayoutComponent(component));
+	component.setNested(LayoutElementUtil.isNestedLayoutComponent(component));
 
 	// Figure out if this should be stored as a facet, if so under what id
 	if (isLayoutComponentChild(component)) {
@@ -1025,25 +1081,6 @@ System.out.println(buf.toString());
 
 	// Return the map
 	return map;
-    }
-     */
-
-    /**
-     *	<p> This method returns the nearest {@link LayoutComponent} that
-     *	    contains the given {@link LayoutElement}, null if none.</p>
-     *
-     *	@param	elt	The {@link LayoutElement} to start with.
-     *
-     *	@return	The containing {@link LayoutComponent} if one exists.
-    public static LayoutComponent getParentLayoutComponent(LayoutElement elt) {
-	elt = elt.getParent();
-	while (elt != null) {
-	    if (elt instanceof LayoutComponent) {
-		return (LayoutComponent) elt;
-	    }
-	    elt = elt.getParent();
-	}
-	return null;
     }
      */
 

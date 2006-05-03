@@ -204,7 +204,7 @@ public class TemplateParser {
 		    + " => $session{sessionKey}");
 	    }
 
-	    // Skip whitespace agin...
+	    // Skip whitespace again...
 	    skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
 
 	    // Now look for '{'
@@ -492,55 +492,6 @@ public class TemplateParser {
 
 	// Normal case...
 	return buf.toString() + _reader.readLine();
-    }
-
-
-    //////////////////////////////////////////////////////////////////////
-    //	Inner Class
-    //////////////////////////////////////////////////////////////////////
-
-    /**
-     *	<p> This inner class is used to represent NVP information.  This
-     *	    information consists of 2 or 3 parts.  If this is a simple Name
-     *	    Value Pair, it will contain a Name and a Value.  If it is an NVP
-     *	    that is used to map a return value, then it also contains a
-     *	    <code>target</code> as well (which should be set to "session" or
-     *	    "attribute").  All of these values are Strings.</p>
-     */
-    public static final class NameValuePair {
-	public NameValuePair(String name, String value, String target) {
-	    _name = name;
-	    _value = value;
-	    _target = target;
-	}
-
-	/**
-	 *  <p>	Name accessor.</p>
-	 */
-	public String getName() {
-	    return _name;
-	}
-
-	/**
-	 *  <p>	Value accessor.</p>
-	 */
-	public String getValue() {
-	    return _value;
-	}
-
-	/**
-	 *  <p>	Target accessor.  If this value is non-null it can be assumed
-	 *	that this is an output mapping.  Valid values for this are
-	 *	currently attribute or session (this could be expanded in the
-	 *	future).</p>
-	 */
-	public String getTarget() {
-	    return _target;
-	}
-
-	private String _name = null;
-	private String _value = null;
-	private String _target = null;
     }
 
 

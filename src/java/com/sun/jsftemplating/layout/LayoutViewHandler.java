@@ -132,6 +132,9 @@ public class LayoutViewHandler extends ViewHandler {
 	try {
 	    def = viewRoot.getLayoutDefinition(context);
 	} catch (RuntimeException ex) {
+// FIXME: Provide better feedback when no .jsf & no .jsp
+ex.printStackTrace();
+
 	    // Not found, delegate to old ViewHandler
 	    // FIXME: Throw something more specific to catch here
 	    return _oldViewHandler.createView(context, viewId);

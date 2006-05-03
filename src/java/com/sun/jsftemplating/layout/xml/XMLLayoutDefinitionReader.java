@@ -38,6 +38,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
 import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
 import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.util.IncludeInputStream;
+import com.sun.jsftemplating.util.LayoutElementUtil;
 
 import java.io.IOException;
 import java.io.BufferedInputStream;
@@ -797,7 +798,7 @@ public class XMLLayoutDefinitionReader {
 	if (parent instanceof LayoutComponent) {
 	    comp = (LayoutComponent) parent;
 	} else {
-	    comp = getParentLayoutComponent(parent);
+	    comp = LayoutElementUtil.getParentLayoutComponent(parent);
 	}
 	if (comp != null) {
 	    // Treat this as a LayoutComponent "option" instead of "attribute"
@@ -838,7 +839,7 @@ public class XMLLayoutDefinitionReader {
 	// use a LayoutComponent for it to get rendered
 	LayoutElement markupElt = null;
 	if ((parent instanceof LayoutComponent)
-		|| isNestedLayoutComponent(parent)) {
+		|| LayoutElementUtil.isNestedLayoutComponent(parent)) {
 	    // Make a "markup" LayoutComponent..
 	    ComponentType type = ensureMarkupType(parent);
 	    markupElt = new LayoutComponent(
@@ -892,7 +893,7 @@ public class XMLLayoutDefinitionReader {
 	if ((rendered == null) || rendered.trim().equals("")
 		|| rendered.equals(AUTO_RENDERED)) {
 	    // Automatically determine if this LayoutFacet should be rendered
-	    isRendered = !isNestedLayoutComponent(facetElt);
+	    isRendered = !LayoutElementUtil.isNestedLayoutComponent(facetElt);
 	} else {
 	    isRendered = Boolean.getBoolean(rendered);
 	}
@@ -903,50 +904,6 @@ public class XMLLayoutDefinitionReader {
 
 	// Return the LayoutFacet
 	return facetElt;
-    }
-
-    /**
-     *	<p> This method returns true if any of the parent
-     *	    {@link LayoutElement}s are {@link LayoutComponent}s.  If a
-     *	    {@link LayoutFacet} is encountered first, false is automatically
-     *	    returned.  This method is specific to processing needed for
-     *	    creating a {@link LayoutComponent}.  Do not use this for general
-     *	    cases when you need to find if a {@link LayoutElement} is embedded
-     *	    within a {@link LayoutComponent} (which should ignore
-     *	    {@link LayoutFacet} elements).</p>
-     *
-     *	@param	elt	The {@link LayoutElement} to check.
-     *
-     *	@return true if it has a {@link LayoutComponent} ancestor.
-     */
-    private static boolean isLayoutComponentChild(LayoutElement elt) {
-	elt = elt.getParent();
-	while (elt != null) {
-	    if (elt instanceof LayoutComponent) {
-		return true;
-	    } else if (elt instanceof LayoutFacet) {
-		// Don't consider it a child if it is a facet
-		return false;
-	    }
-	    elt = elt.getParent();
-	}
-
-	// Not found
-	return false;
-    }
-
-    /**
-     *	<p> This method determines if the given {@link LayoutElement} is
-     *	    inside a {@link LayoutComponent}.  It will look at all the
-     *	    parents, if any of them are {@link LayoutComponent} instances,
-     *	    this method will return <code>true</code>.</p>
-     *
-     *	@param	elt	The {@link LayoutElement} to check.
-     *
-     *	@return	true	If a {@link LayoutComponent} exists as an ancestor.
-     */
-    public static boolean isNestedLayoutComponent(LayoutElement elt) {
-	return (getParentLayoutComponent(elt) != null);
     }
 
     /**
@@ -985,10 +942,11 @@ public class XMLLayoutDefinitionReader {
 	// NOTE: While this could be implemented on the LayoutComponent
 	//	 itself, I decided not to for performance reasons and to
 	//	 allow this value to be overruled if desired.
-	component.setNested(isNestedLayoutComponent(component));
+	component.setNested(
+	    LayoutElementUtil.isNestedLayoutComponent(component));
 
 	// Figure out if this should be stored as a facet, if so under what id
-	if (isLayoutComponentChild(component)) {
+	if (LayoutElementUtil.isLayoutComponentChild(component)) {
 	    component.setFacetChild(false);
 	} else {
 	    // Need to add this so that it has the correct facet name
@@ -999,7 +957,7 @@ public class XMLLayoutDefinitionReader {
 		    // is a child of a LayoutComponent (otherwise, it is a
 		    // layout facet used for layout, not for defining a facet
 		    // of a UIComponent)
-		    if (isLayoutComponentChild(parent)) {
+		    if (LayoutElementUtil.isLayoutComponentChild(parent)) {
 			id = parent.getUnevaluatedId();
 		    }
 		    break;
@@ -1102,7 +1060,8 @@ public class XMLLayoutDefinitionReader {
 	parent.addChildLayoutElement(component);
 
 	// Configure it...
-	component.setNested(isNestedLayoutComponent(component));
+	component.setNested(
+	    LayoutElementUtil.isNestedLayoutComponent(component));
 	component.setFacetChild(false);
 	component.addOption(EDITABLE, Boolean.TRUE); // Flag
 
@@ -1127,7 +1086,8 @@ public class XMLLayoutDefinitionReader {
 	    new LayoutComponent(parent, EDIT_MENU + id, type);
 
 	// Configure it...
-	popupMenu.setNested(isNestedLayoutComponent(popupMenu));
+	popupMenu.setNested(
+	    LayoutElementUtil.isNestedLayoutComponent(popupMenu));
 	popupMenu.setFacetChild(false);
 
 	// Could add "menu" facet here, however, I decided to do it in the xml
@@ -1429,25 +1389,6 @@ public class XMLLayoutDefinitionReader {
 		    + "' not defined!");
 	}
 	return componentType;
-    }
-
-    /**
-     *	<p> This method returns the nearest {@link LayoutComponent} that
-     *	    contains the given {@link LayoutElement}, null if none.</p>
-     *
-     *	@param	elt	The {@link LayoutElement} to start with.
-     *
-     *	@return	The containing {@link LayoutComponent} if one exists.
-     */
-    public static LayoutComponent getParentLayoutComponent(LayoutElement elt) {
-	elt = elt.getParent();
-	while (elt != null) {
-	    if (elt instanceof LayoutComponent) {
-		return (LayoutComponent) elt;
-	    }
-	    elt = elt.getParent();
-	}
-	return null;
     }
 
 

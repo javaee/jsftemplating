@@ -489,8 +489,9 @@ public abstract class LayoutDefinitionManager {
 
     /**
      *	<p> This constant defines the <code>LayoutDefinitionManager</code>
-     *	    implementation key for initParams. ("layoutManagerImpl")</p>
+     *	    implementation key for initParams.
+     *	    ("LayoutDefinitionManagerImpl")</p>
      */
     public static final String LAYOUT_DEFINITION_MANAGER_KEY =
-	"layoutManagerImpl";
+	"LayoutDefinitionManagerImpl";
 }
