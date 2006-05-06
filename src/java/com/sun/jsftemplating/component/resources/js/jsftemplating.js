@@ -76,6 +76,8 @@ function submitAjaxRequest(targetNode, extraInfo, func) {
 	content += '&' + extraInfo;
     }
     req.send(content);
+
+    return req;
 }
 
 ////////////////////////////////////////////////////////////////////////////
