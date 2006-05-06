@@ -26,9 +26,8 @@ import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 
-//import
-
 import javax.faces.component.UIComponent;
+import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 
 
@@ -54,8 +53,7 @@ public class StaticTextFactory extends ComponentFactoryBase {
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
-//	UIComponent comp = new ...;  // FIXME: <<-- TBD
-	UIComponent comp = null;
+	UIComponent comp = new HtmlOutputText();
 
 	// This needs to be done here (before setOptions) so that $...{...}
 	// expressions can be resolved... may want to defer these?
