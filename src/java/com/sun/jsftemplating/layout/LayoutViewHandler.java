@@ -107,12 +107,6 @@ public class LayoutViewHandler extends ViewHandler {
 	LayoutViewRoot viewRoot = new LayoutViewRoot();
 	viewRoot.setViewId(viewId);
 	viewRoot.setLayoutDefinitionKey(viewId);
-	// FIXME: I should not set the view root here!  But some LH components
-	//	  may require this during creation of the UIComponent tree.
-// Commenting out b/c this prevents _oldViewHandler from working correctly
-//	if (context.getViewRoot() == null) {
-//	    context.setViewRoot(viewRoot);
-//	}
 
 	// if there was no locale from the previous view, calculate the locale
 	// for this view.
@@ -139,6 +133,14 @@ ex.printStackTrace();
 	    // FIXME: Throw something more specific to catch here
 	    return _oldViewHandler.createView(context, viewId);
 	}
+
+	// FIXME: I should not set the view root here!  But some components
+	//	  may require this during creation of the UIComponent tree.
+	// NOTE: This must happen after return _oldViewHandler.createView(...)
+	if (context.getViewRoot() == null) {
+	    context.setViewRoot(viewRoot);
+	}
+
 	if (def != null) {
 	    // Ensure that our Resources are available
 	    Iterator it = def.getResources().iterator();
