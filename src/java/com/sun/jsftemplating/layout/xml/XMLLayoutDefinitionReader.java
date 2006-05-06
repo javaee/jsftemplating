@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.layout.xml;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
@@ -480,7 +481,7 @@ public class XMLLayoutDefinitionReader {
 	}
 
 	// Find the HandlerDefinition associated with this Handler
-	HandlerDefinition handlerDef = (HandlerDefinition) _handlerDefs.get(id);
+	HandlerDefinition handlerDef = getHandlerDef(id);
 	if (handlerDef == null) {
 	    throw new IllegalArgumentException(HANDLER_ELEMENT + " elements "
 		    + ID_ATTRIBUTE + " attribute must match the "
@@ -520,6 +521,27 @@ public class XMLLayoutDefinitionReader {
 
 	// Return the newly created handler
 	return handler;
+    }
+
+    /**
+     *	<p> This method first attempts to find a locally defined
+     *	    {@link HandlerDefinition} with the given <code>id</code>.  If
+     *	    found, it will be returned, otherwise it attempts to return a
+     *	    globally defined {@link HandlerDefinition} via {@link
+     *	    LayoutDefinitionManager#getGlobalHandlerDefinition(String)}.</p>
+     *
+     *	@param	id  The desired {@link HandlerDefinition}'s id.
+     *
+     *	@return	The desired {@link HandlerDefinition} or <code>null</code>.
+     */
+    private HandlerDefinition getHandlerDef(String id) {
+	// Try local...
+	HandlerDefinition def = _handlerDefs.get(id);
+	if (def == null) {
+	    // Try global...
+	    def = LayoutDefinitionManager.getGlobalHandlerDefinition(id);
+	}
+	return def;
     }
 
     /**
@@ -1103,8 +1125,10 @@ public class XMLLayoutDefinitionReader {
     private ComponentType ensurePopupMenuType(LayoutElement elt) {
 	// See if it is defined
 	LayoutDefinition ld = elt.getLayoutDefinition();
-	ComponentType type = ld.getComponentType(POPUP_MENU_TYPE);
-	if (type == null) {
+	ComponentType type = null;
+	try {
+	    type = getComponentType(elt, POPUP_MENU_TYPE);
+	} catch (IllegalArgumentException ex) {
 	    // Nope, define it...
 	    type = new ComponentType(POPUP_MENU_TYPE, POPUP_MENU_TYPE_CLASS);
 	    ld.addComponentType(type);
@@ -1121,8 +1145,10 @@ public class XMLLayoutDefinitionReader {
     private ComponentType ensureEditAreaType(LayoutElement elt) {
 	// See if it is defined
 	LayoutDefinition ld = elt.getLayoutDefinition();
-	ComponentType type = ld.getComponentType(EDIT_AREA_TYPE);
-	if (type == null) {
+	ComponentType type = null;
+	try {
+	    type = getComponentType(elt, EDIT_AREA_TYPE);
+	} catch (IllegalArgumentException ex) {
 	    // Nope, define it...
 	    type = new ComponentType(EDIT_AREA_TYPE, EDIT_AREA_TYPE_CLASS);
 	    ld.addComponentType(type);
@@ -1139,8 +1165,10 @@ public class XMLLayoutDefinitionReader {
     private ComponentType ensureMarkupType(LayoutElement elt) {
 	// See if it is defined
 	LayoutDefinition ld = elt.getLayoutDefinition();
-	ComponentType type = ld.getComponentType(MARKUP_ELEMENT);
-	if (type == null) {
+	ComponentType type = null;
+	try {
+	    type = getComponentType(elt, MARKUP_ELEMENT);
+	} catch (IllegalArgumentException ex) {
 	    // Nope, define it...
 	    type = new ComponentType(MARKUP_ELEMENT, MARKUP_FACTORY_CLASS);
 	    ld.addComponentType(type);
@@ -1382,13 +1410,19 @@ public class XMLLayoutDefinitionReader {
      */
     public ComponentType getComponentType(LayoutElement elt, String type) {
 	// Find the ComponentType
-	ComponentType componentType =
+	ComponentType compType =
 	    elt.getLayoutDefinition().getComponentType(type);
-	if (componentType == null) {
-	    throw new IllegalArgumentException("ComponentType '" + type
-		    + "' not defined!");
+	if (compType == null) {
+	    // Check global component types (defined via @annotations).  This
+	    // is now the preferred way to define types, however, locally
+	    // defined types should have precedence
+	    compType = LayoutDefinitionManager.getGlobalComponentType(type);
+	    if (compType == null) {
+		throw new IllegalArgumentException("ComponentType '" + type
+			+ "' not defined!");
+	    }
 	}
-	return componentType;
+	return compType;
     }
 
 
@@ -1519,6 +1553,7 @@ public class XMLLayoutDefinitionReader {
     private ErrorHandler    _errorHandler	= null;
     private String	    _baseURI		= null;
 
-    private Map		    _handlerDefs	= new HashMap();
+    private Map<String, HandlerDefinition> _handlerDefs	=
+	new HashMap<String, HandlerDefinition>();
     private int		    _markupCount	= 1;
 }
