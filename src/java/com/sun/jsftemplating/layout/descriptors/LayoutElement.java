@@ -62,11 +62,11 @@ public interface LayoutElement extends java.io.Serializable {
 
 
     /**
-     *	This method returns the child LayoutElements as a List.
+     *	This method returns the child LayoutElements as a List of LayoutElement.
      *
      *	@return List of LayoutElements
      */
-    public List getChildLayoutElements();
+    public List<LayoutElement> getChildLayoutElements();
 
 
     /**

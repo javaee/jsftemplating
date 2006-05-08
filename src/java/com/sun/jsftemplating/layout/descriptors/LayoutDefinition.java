@@ -163,11 +163,11 @@ public class LayoutDefinition extends LayoutElementBase {
 	}
 
 	// Not 'this' so lets check the children
-	Iterator it = parent.getChildLayoutElements().iterator();
+	Iterator<LayoutElement> it = parent.getChildLayoutElements().iterator();
 	LayoutElement elt = null;
 	while (it.hasNext()) {
 	    elt = getChildLayoutElementById(
-		    context, id, (LayoutElement) it.next(), parentComponent);
+		    context, id, it.next(), parentComponent);
 	    if (elt != null) {
 		// Found it!
 		return elt;

@@ -196,9 +196,9 @@ public class CommandActionListener implements java.io.Serializable {
 
 	// Iterate over children and recurse (depth first)
 	LayoutElement child = null;
-	Iterator it = elt.getChildLayoutElements().iterator();
+	Iterator<LayoutElement> it = elt.getChildLayoutElements().iterator();
 	while (it.hasNext()) {
-	    child = (LayoutElement) it.next();
+	    child = it.next();
 	    if (child instanceof LayoutComponent) {
 		child = findLayoutElementById(child, id);
 		if (child != null) {

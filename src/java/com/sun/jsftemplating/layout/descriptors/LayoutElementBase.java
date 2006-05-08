@@ -76,11 +76,11 @@ public abstract class LayoutElementBase implements LayoutElement {
 
 
     /**
-     *	<p> This method returns the {@link LayoutElement}s as a List.</p>
+     *	<p> This method returns the {@link LayoutElement}s as a List of LayoutElement.</p>
      *
      *	@return List of {@link LayoutElement}s.
      */
-    public List getChildLayoutElements() {
+    public List<LayoutElement> getChildLayoutElements() {
 	return _layoutElements;
     }
 
@@ -236,9 +236,9 @@ public abstract class LayoutElementBase implements LayoutElement {
 
 	    // Iterate over children
 	    LayoutElement childElt = null;
-	    Iterator it = getChildLayoutElements().iterator();
+	    Iterator<LayoutElement> it = getChildLayoutElements().iterator();
 	    while (it.hasNext()) {
-		childElt = (LayoutElement) it.next();
+		childElt = it.next();
 		childElt.encode(context, component);
 	    }
 	}
@@ -446,7 +446,7 @@ public abstract class LayoutElementBase implements LayoutElement {
     /**
      *	List of renderable elements (if, facet, UIComponents)
      */
-    private List _layoutElements = new ArrayList();
+    private List<LayoutElement> _layoutElements = new ArrayList<LayoutElement>();
 
 
     /**

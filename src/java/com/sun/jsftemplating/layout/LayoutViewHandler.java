@@ -165,11 +165,11 @@ ex.printStackTrace();
     protected void buildUIComponentTree(FacesContext context, UIComponent parent, LayoutElement elt) {
 // FIXME: Consider processing *ALL* LayoutElements so that <if> and others
 // FIXME: have meaning when inside other components.
-	Iterator it = elt.getChildLayoutElements().iterator();
+	Iterator<LayoutElement> it = elt.getChildLayoutElements().iterator();
 	LayoutElement childElt;
 	UIComponent child = null;
 	while (it.hasNext()) {
-	    childElt = (LayoutElement) it.next();
+	    childElt = it.next();
 	    if (childElt instanceof LayoutFacet) {
 		if (!((LayoutFacet) childElt).isRendered()) {
 		    // The contents of this should be a single UIComponent
