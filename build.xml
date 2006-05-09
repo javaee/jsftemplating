@@ -81,6 +81,12 @@
 
     <target name="jar" depends="compile">
 	<mkdir dir="${dist}/." />
+	<!-- Copy JS file also b/c currently it needs to be out of .jar -->
+	<copy todir="${dist}/.">
+            <fileset dir="${src}/com/sun/jsftemplating/component/resources/" >
+                <include name="**/*.js"/>
+            </fileset>
+	</copy>
 	<jar jarfile="${jsftemplating.jar}" update="true">
             <fileset dir="${build}" includes="**/*.class, **/*.map" />
             <zipfileset dir="${jsftemplating.home}/component/layout"
