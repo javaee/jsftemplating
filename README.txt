@@ -41,6 +41,12 @@ more information.
 
   NOTE: You may want to put the ant bin directory in your path.
 
+  NOTE: On SuSe10 Linux which has ant rpm packages pre-installed,
+        you may have to use the --noconfig option to pick up the
+        ant jar files under lib/ant when building. e.g.
+
+        ant --noconfig clean
+
 That's it!  The jsftemplating.jar file can be found in your "dist"
 directory.  If you encounter build problems, resolve them and try again;
 email dev@jsftemplating.dev.java.net for help.
