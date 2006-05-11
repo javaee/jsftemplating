@@ -387,7 +387,7 @@ public abstract class LayoutDefinitionManager {
      *	    explicitly by declaring it the page (some template formats may not
      *	    support this).</p>
      *
-     *	@see LayoutDefinitionManager.getGlobalHandlerDefinitions()
+     *	@see LayoutDefinitionManager#getGlobalHandlerDefinitions()
      */
     public static void addGlobalHandlerDefinition(HandlerDefinition def) {
 	synchronized (LayoutDefinitionManager.class) {

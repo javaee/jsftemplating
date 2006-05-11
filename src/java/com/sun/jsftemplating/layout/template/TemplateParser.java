@@ -148,7 +148,7 @@ public class TemplateParser {
      *	    the curly braces "{}" specifies the key that should be used when
      *	    saving the value as a request attribute or session attribute.</p>
      *
-     *	<p> The return value is of type {@link TemplateParser.NameValuePair}.  This object
+     *	<p> The return value is of type {@link NameValuePair}.  This object
      *	    contains the necessary information to interpret this NVP.</p>
      */
     public NameValuePair getNVP() throws IOException {
