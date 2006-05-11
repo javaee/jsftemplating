@@ -485,7 +485,8 @@ public abstract class LayoutDefinitionManager {
      *	    <code>LayoutDefinitionManager</code> implementation class name.</p>
      */
     public static final String DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL =
-	"com.sun.jsftemplating.layout.template.TemplateLayoutDefinitionManager";
+//	"com.sun.jsftemplating.layout.template.TemplateLayoutDefinitionManager";
+	"com.sun.jsftemplating.layout.xml.XMLLayoutDefinitionManager";
 
     /**
      *	<p> This constant defines the <code>LayoutDefinitionManager</code>
