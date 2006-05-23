@@ -26,11 +26,13 @@ import com.sun.jsftemplating.component.ComponentUtil;
 
 import java.io.IOException;
 
-import javax.el.ValueExpression;
+// JSF 1.2 specific... don't do this yet...
+// import javax.el.ValueExpression;
 
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.component.UIComponent;
+import javax.faces.el.ValueBinding; // JSF 1.1
 
 
 /**
@@ -81,10 +83,18 @@ public class LayoutStaticText extends LayoutElementBase implements LayoutElement
 	    Object value = ComponentUtil.setOption(
 		context, "__value", getValue(),
 		getLayoutDefinition(), component);
+/*
+1.2+
 	    if (value instanceof ValueExpression) {
 		value =
 		    ((ValueExpression) value).getValue(context.getELContext());
 	    }
+*/
+	    // JSF 1.1 VB:
+	    if (value instanceof ValueBinding) {
+		value = ((ValueBinding) value).getValue(context);
+	    }
+
 	    if (value != null) {
 		writer.write(value.toString());
 	    }

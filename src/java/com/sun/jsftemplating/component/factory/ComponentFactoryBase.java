@@ -28,10 +28,12 @@ import com.sun.jsftemplating.util.LogUtil;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.el.ValueExpression;
+// JSF 1.2 specific... don't do this yet...
+//import javax.el.ValueExpression;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.el.ValueBinding; // JSF 1.1
 import javax.faces.webapp.UIComponentTag;
 
 
@@ -84,14 +86,21 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	    key = (String) it.next();
 	    value = desc.getEvaluatedOption(context, key, comp);
 
-	    // Next check to see if the value contains a JSF ValueExpression
+	    // Next check to see if the value contains a ValueExpression
 	    strVal = "" + value;
 	    if (UIComponentTag.isValueReference(strVal)) {
+		/*
+		1.2+
 		ValueExpression ve =
 		    context.getApplication().getExpressionFactory().
 			createValueExpression(
 				context.getELContext(), strVal, Object.class);
 		comp.setValueExpression((String) key, ve);
+		*/
+		// JSF 1.1 VB:
+		ValueBinding vb =
+		    context.getApplication().createValueBinding(strVal);
+		comp.setValueBinding((String) key, vb);
 	    } else {
 		// In JSF, you must directly modify the attribute Map
 		try {

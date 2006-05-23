@@ -37,11 +37,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.el.ELContext;
-import javax.el.ValueExpression;
+// JSF 1.2 specific... don't do this yet...
+// import javax.el.ELContext;
+// import javax.el.ValueExpression;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.el.ValueBinding; // JSF 1.1
 import javax.faces.webapp.UIComponentTag;
 
 
@@ -411,8 +413,8 @@ public class ComponentUtil {
      *			    <code>UIComponent</code>
      *	@param	component   The <code>UIComponent</code>
      *
-     *	@return A ValueExpression, or the evaulated value (if no value binding is
-     *		present).
+     *	@return A <code>ValueExpression</code>, or the evaulated value (if no
+     *		<code>ValueExpression</code> is present).
      */
     public static Object setOption(FacesContext context, String key, Object value, LayoutElement desc, UIComponent component) {
 	// Invoke our own EL.  This is needed b/c JSF's EL is designed for
@@ -432,6 +434,8 @@ public class ComponentUtil {
 	// Next check to see if the value contains a JSF ValueExpression
 	String strVal = value.toString();
 	if (UIComponentTag.isValueReference(strVal)) {
+/*
+1.2+
 	    ValueExpression ve =
 		context.getApplication().getExpressionFactory().
 		    createValueExpression(
@@ -440,6 +444,14 @@ public class ComponentUtil {
 		component.setValueExpression(key, ve);
 	    }
 	    value = ve;
+*/
+	    // JSF 1.1 VB:
+	    ValueBinding vb =
+		context.getApplication().createValueBinding(strVal);
+	    if (component != null) {
+		component.setValueBinding(key, vb);
+	    }
+	    value = vb;
 	} else {
 	    // In JSF, you must directly modify the attribute Map
 	    if (component != null) {
@@ -475,11 +487,18 @@ public class ComponentUtil {
 	if (result != null) {
 	    String strVal = result.toString();
 	    if (UIComponentTag.isValueReference(strVal)) {
+/*
+1.2+
 		ELContext elctx = context.getELContext();
 		ValueExpression ve =
 		    context.getApplication().getExpressionFactory().
 			createValueExpression(elctx, strVal, Object.class);
 		result = ve.getValue(elctx);
+*/
+		// JSF 1.1 VB:
+		ValueBinding vb =
+		    context.getApplication().createValueBinding(strVal);
+		result = vb.getValue(context);
 	    }
 	}
 

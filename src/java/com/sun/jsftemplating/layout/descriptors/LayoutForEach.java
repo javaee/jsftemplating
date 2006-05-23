@@ -31,11 +31,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.el.ELContext;
-import javax.el.ValueExpression;
+// JSF 1.2 specific... don't do this yet...
+//import javax.el.ELContext;
+//import javax.el.ValueExpression;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.el.ValueBinding; // JSF 1.1
 import javax.faces.webapp.UIComponentTag;
 
 
@@ -115,11 +117,18 @@ public class LayoutForEach extends LayoutElementBase implements LayoutElement {
 	if (value != null) {
 	    String strVal = value.toString();
 	    if (UIComponentTag.isValueReference(strVal)) {
+/*
+1.2+
 		ELContext elctx = context.getELContext();
 		ValueExpression ve =
 		    context.getApplication().getExpressionFactory().
 			createValueExpression(elctx, strVal, List.class);
 		value = ve.getValue(elctx);
+*/
+		// JSF 1.1 VB:
+		ValueBinding vb =
+		    context.getApplication().createValueBinding(strVal);
+		value = vb.getValue(context);
 	    }
 	}
 
