@@ -125,12 +125,11 @@ public class LayoutViewHandler extends ViewHandler {
 	LayoutDefinition def = null;
 	try {
 	    def = viewRoot.getLayoutDefinition(context);
-	} catch (RuntimeException ex) {
+	} catch (LayoutDefinitionException ex) {
 // FIXME: Provide better feedback when no .jsf & no .jsp
 ex.printStackTrace();
 
 	    // Not found, delegate to old ViewHandler
-	    // FIXME: Throw something more specific to catch here
 	    return _oldViewHandler.createView(context, viewId);
 	}
 
@@ -178,27 +177,23 @@ ex.printStackTrace();
 		// NOTE: LayoutFacets that aren't JSF facets aren't
 		// NOTE: meaningful in this context
 	    } if (childElt instanceof LayoutComponent) {
-		try {
-		    // Calling getChild will add the child UIComponent to tree
-		    child = ((LayoutComponent) childElt).
-			    getChild(context, parent);
+		// Calling getChild will add the child UIComponent to tree
+		child = ((LayoutComponent) childElt).
+			getChild(context, parent);
 
-		    // Check for events
-		    // NOTE: For now I am only supporting "action" and
-		    // NOTE: "actionListener" event types.  In the future it
-		    // NOTE: may be desirable to support beforeEncode /
-		    // NOTE: afterEncode as well.  At this time, those events
-		    // NOTE: are supported by the "Event" UIComponent.  That
-		    // NOTE: component can wrap non-layout-based components to
-		    // NOTE: achieve this functionality (supporting that
-		    // NOTE: functionality here will simply do the same thing
-		    // NOTE: automatically).
+		// Check for events
+		// NOTE: For now I am only supporting "action" and
+		// NOTE: "actionListener" event types.  In the future it
+		// NOTE: may be desirable to support beforeEncode /
+		// NOTE: afterEncode as well.  At this time, those events
+		// NOTE: are supported by the "Event" UIComponent.  That
+		// NOTE: component can wrap non-layout-based components to
+		// NOTE: achieve this functionality (supporting that
+		// NOTE: functionality here will simply do the same thing
+		// NOTE: automatically).
 
-		    // Recurse
-		    buildUIComponentTree(context, child, childElt);
-		} catch (IOException ex) {
-		    throw new RuntimeException(ex);
-		}
+		// Recurse
+		buildUIComponentTree(context, child, childElt);
 	    } else {
 		buildUIComponentTree(context, parent, childElt);
 	    }

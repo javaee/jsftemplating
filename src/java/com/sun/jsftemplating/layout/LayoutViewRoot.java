@@ -29,6 +29,8 @@ import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.util.LogUtil;
 
+import java.io.IOException;
+
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
@@ -209,7 +211,7 @@ public class LayoutViewRoot extends UIViewRoot {
      *
      *	@return	The {@link LayoutDefinition} for this <code>UIViewRoot</code>.
      */
-    public LayoutDefinition getLayoutDefinition(FacesContext context) {
+    public LayoutDefinition getLayoutDefinition(FacesContext context) throws LayoutDefinitionException {
 	// Make sure we don't already have it...
 	if (_layoutDefinition != null) {
 	    return _layoutDefinition;
@@ -226,14 +228,7 @@ public class LayoutViewRoot extends UIViewRoot {
 	    LayoutDefinitionManager.getManager(context);
 
 	// Save the LayoutDefinition for future calls to this method
-	try {
-	    _layoutDefinition = ldm.getLayoutDefinition(key);
-	} catch (java.io.IOException ex) {
-	    if (LogUtil.configEnabled(this)) {
-		LogUtil.config(
-		    "Unable to get LayoutDefinition for '" + key + "'.");
-	    }
-	}
+	_layoutDefinition = ldm.getLayoutDefinition(key);
 
 	// Return the LayoutDefinition (if found)
 	return _layoutDefinition;

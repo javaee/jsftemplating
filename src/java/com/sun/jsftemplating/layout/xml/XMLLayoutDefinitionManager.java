@@ -22,13 +22,13 @@
  */
 package com.sun.jsftemplating.layout.xml;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.util.Util;
 import com.sun.jsftemplating.util.ClasspathEntityResolver;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -43,7 +43,6 @@ import javax.faces.context.FacesContext;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -114,7 +113,7 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
      *
      *	@return	The requested {@link LayoutDefinition}.
      */
-    public LayoutDefinition getLayoutDefinition(String key) throws IOException {
+    public LayoutDefinition getLayoutDefinition(String key) throws LayoutDefinitionException {
 	// Remove leading "/" (we'll add it back if needed)
 	while (key.startsWith("/")) {
 	    key = key.substring(1);
@@ -142,7 +141,8 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 		method = ctx.getClass().getMethod(
 			"getRealPath", GET_REAL_PATH_ARGS);
 	    } catch (NoSuchMethodException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException(
+		    "Unable to find 'getRealPath' method in this environment!", ex);
 	    }
 	    try {
 		if (baseURI == null) {
@@ -153,9 +153,9 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 		// Don't add the leading '/' back on because it looks a the
 		// root if we do
 	    } catch (IllegalAccessException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException(ex);
 	    } catch (InvocationTargetException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException(ex);
 	    }
 
 	    // Create a URL to the xml file, if file exists
@@ -163,7 +163,7 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 		try {
 		    ldURL = new URL("file:///" + url);
 		} catch (Exception ex) {
-		    throw new RuntimeException(
+		    throw new LayoutDefinitionException(
 			"Unable to create URL: 'file:///" + url
 			+ "' while attempting to locate '" + key + "'", ex);
 		}
@@ -183,7 +183,7 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 
 	    // Make sure we found the url
 	    if (ldURL == null) {
-		throw new java.io.FileNotFoundException(
+		throw new LayoutDefinitionException(
 			"Unable to locate '" + key + "'");
 	    }
 
@@ -193,8 +193,8 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 		    ldURL, getEntityResolver(), getErrorHandler(), baseURI).
 			read();
 	    } catch (IOException ex) {
-		throw new RuntimeException("Unable to process '" + ldURL
-			+ "'.  EntityResolver: '" + getEntityResolver()
+		throw new LayoutDefinitionException("Unable to process '"
+			+ ldURL + "'.  EntityResolver: '" + getEntityResolver()
 			+ "'.  ErrorHandler: '" + getErrorHandler()
 			+ "'.  baseURI: '" + baseURI + "'.", ex);
 	    }

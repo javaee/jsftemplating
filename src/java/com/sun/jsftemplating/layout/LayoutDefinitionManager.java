@@ -80,7 +80,7 @@ public abstract class LayoutDefinitionManager {
      *	@param	key	The key used to identify the requested
      *			{@link LayoutDefinition}.
      */
-    public abstract LayoutDefinition getLayoutDefinition(String key) throws IOException;
+    public abstract LayoutDefinition getLayoutDefinition(String key) throws LayoutDefinitionException;
 
 
     /**

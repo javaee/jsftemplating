@@ -444,10 +444,9 @@ public abstract class LayoutElementBase implements LayoutElement {
 
 
     /**
-     *	List of renderable elements (if, facet, UIComponents)
+     *	List of child LayoutElements (if, facet, UIComponents, etc.)
      */
     private List<LayoutElement> _layoutElements = new ArrayList<LayoutElement>();
-
 
     /**
      *	The parent LayoutElement.  This will be null for the LayoutDefinition.

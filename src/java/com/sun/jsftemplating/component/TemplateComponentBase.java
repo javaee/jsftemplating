@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.component;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
@@ -160,7 +161,7 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
 	// Save the LayoutDefinition for future calls to this method
 	try {
 	    _layoutDefinition = ldm.getLayoutDefinition(key);
-	} catch (IOException ex) {
+	} catch (LayoutDefinitionException ex) {
 	    throw new IllegalArgumentException(
 		    "A LayoutDefinition was not provided for '" + key
 		    + "'!  This is required.", ex);

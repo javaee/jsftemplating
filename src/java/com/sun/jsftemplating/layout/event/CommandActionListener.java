@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.layout.event;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
@@ -146,8 +147,8 @@ public class CommandActionListener implements java.io.Serializable {
 		findLayoutElementByClientId(
 		    LayoutDefinitionManager.getManager(ctx).
 		    getLayoutDefinition(layoutDefKey), clientId);
-	} catch (IOException ex) {
-	    // FIXME: Report a low priority warning, returning null is fine
+	} catch (LayoutDefinitionException ex) {
+// FIXME: Report a low priority warning, returning null is fine
 	}
 	return result;
     }
@@ -176,8 +177,8 @@ public class CommandActionListener implements java.io.Serializable {
 	    result = findLayoutElementById(
 		    LayoutDefinitionManager.getManager(ctx).
 		    getLayoutDefinition(layoutDefKey), id);
-	} catch (IOException ex) {
-	    // FIXME: Report a low priority warning, returning null is fine
+	} catch (LayoutDefinitionException ex) {
+// FIXME: Report a low priority warning, returning null is fine
 	}
 	return result;
     }

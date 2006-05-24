@@ -268,7 +268,7 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
      *
      *	@return	The <code>UIComponent</code> requested (found or newly created)
      */
-    public UIComponent getChild(FacesContext context, UIComponent parent) throws IOException {
+    public UIComponent getChild(FacesContext context, UIComponent parent) {
 	UIComponent childComponent = null;
 
 	// First pull off the id from the descriptor
