@@ -92,13 +92,36 @@ public class UIComponentFactoryAP implements AnnotationProcessor {
 				UIComponentFactory.FACTORY_ID)) {
 			    // Write NVP using the PrintWriter
 			    _writer.println(
-				entry.getValue().getValue().toString() + "="
-				    + dec.toString());
+				escape(entry.getValue().getValue().toString())
+				    + "=" + dec.toString());
 			}
 		    }
 		}
 	    }
 	}
+    }
+
+    /**
+     *	<p> This method ensures that ':' and '=' characters are escaped.
+     *	    Whitespace characters are not escaped -- they are invalid in this
+     *	    context anyway.</p>
+     */
+    private static String escape(String str) {
+	if (str == null) {
+	    return "";
+	}
+	StringBuffer buf = new StringBuffer("");
+	for (char ch : str.trim().toCharArray()) {
+	    switch (ch) {
+		case ':' :
+		case '=' :
+		    buf.append('\\').append(ch);
+		    break;
+		default:
+		    buf.append(ch);
+	    }
+	}
+	return buf.toString();
     }
 
     private PrintWriter _writer = null;
