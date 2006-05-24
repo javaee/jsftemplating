@@ -245,13 +245,34 @@ public class TemplateParser {
     }
 
     /**
-     *	<p> This method reads while the stream contains letters, numbers, or
-     *	    the underscore '_' character, and returns the result.</p>
+     *	<p> This method reads while the stream contains letters, numbers, the
+     *	    colon character ':', or the underscore '_' character, and returns
+     *	    the result.</p>
      */
     public String readToken() throws IOException {
+	return readToken("_:");
+    }
+
+    /**
+     *	<p> This method reads while the stream contains letters or numbers and
+     *	    returns the result.</p>
+     *
+     *	<p> It also allows any charcters specified by <code>otherChars</code>
+     *	    to be considered as part of the token.  This allows tokens with
+     *	    additional valid characters to be read.  <code>otherChars</code>
+     *	    may be null if no additional chars are valid.</p>
+     *
+     *	@param	otherChars  Other valid characters.
+     */
+    public String readToken(String otherChars) throws IOException {
+	if (otherChars == null) {
+	    otherChars = "";
+	}
+
 	StringBuffer buf = new StringBuffer();
 	int next = nextChar();
-	while (Character.isLetterOrDigit(next) || (next == '_')) {
+	while (Character.isLetterOrDigit(next) ||
+		(otherChars.indexOf(next) != -1)) {
 	    buf.append((char) next);
 	    next = nextChar();
 	}

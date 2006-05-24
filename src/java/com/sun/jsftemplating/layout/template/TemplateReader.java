@@ -39,6 +39,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
 import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
 import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.util.LayoutElementUtil;
+import com.sun.jsftemplating.util.Util;
 
 import java.io.IOException;
 import java.io.BufferedInputStream;
@@ -176,7 +177,7 @@ StringBuffer buf = new StringBuffer("");
 			    str1 = parser.readToken();
 			    ch = parser.nextChar();
 			    if (ch == ':') {
-				// We have a reserved tag...
+				// We have an end reserved tag...
 				str2 = parser.readToken();
 buf.append("</"+str1+":"+str2+">\n");
 			    } else {
@@ -185,6 +186,10 @@ buf.append("</"+str1+":"+str2+">\n");
 // FIXME: pop UIcomponent name off stack
 buf.append("*:"+str1+"\n");
 			    }
+			} else if (ch == '!') {
+			    // We have a reserved tag...
+			    str2 = parser.readToken();
+buf.append("</"+str1+":"+str2+">\n");
 			} else {
 			    // Open tag
 			    // Get tag name
@@ -195,34 +200,28 @@ buf.append("*:"+str1+"\n");
 			    parser.skipCommentsAndWhiteSpace(
 				    parser.SIMPLE_WHITE_SPACE);
 
-			    // Check for ':' (events + special elements)
-			    ch = parser.nextChar();
-			    if (ch == ':') {
-				// We have a reserved tag...
-				str2 = parser.readToken();
-// FIXME: XXX
-			    } else {
-				// We have a UIComponent tag...
-				parser.unread(ch);
-				ld.addChildLayoutElement(
-				    createLayoutComponent(ld, str1));
-			    }
+			    // We have a UIComponent tag...
+			    parser.unread(ch);
+			    ld.addChildLayoutElement(
+				createLayoutComponent(ld, str1));
 			}
 			break;
 		    case '\'' :
 			str1 = parser.readLine();
-buf.append("string1 found: '"+str1 + "'\n");
+			// Escape HTML
+			ld.addChildLayoutElement(new LayoutStaticText(
+			    ld, "", Util.htmlEscape(str1)));
 			break;
 		    case '"' :
 			str1 = parser.readLine();
-buf.append("string2 found: '"+str1 + "'\n");
+			ld.addChildLayoutElement(new LayoutStaticText(ld, "", str1));
 			break;
 		    default:
 		}
 		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 		ch = parser.nextChar();
 	    }
-System.out.println(buf.toString());
+//System.out.println(buf.toString());
 	} catch (IOException ex) {
 	    ex.printStackTrace();
 	}

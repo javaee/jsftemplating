@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.layout.template;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.util.Util;
@@ -87,7 +88,7 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
      *
      *	@return		The requested {@link LayoutDefinition}.
      */
-    public LayoutDefinition getLayoutDefinition(String key) throws IOException {
+    public LayoutDefinition getLayoutDefinition(String key) throws LayoutDefinitionException {
 	// Remove leading "/" (we'll add it back if needed)
 	while (key.startsWith("/")) {
 	    key = key.substring(1);
@@ -111,14 +112,15 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 		method = ctx.getClass().getMethod(
 			"getResource", GET_RESOURCE_ARGS);
 	    } catch (NoSuchMethodException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException("Unable to find "
+		    + "'getResource' method in this environment!", ex);
 	    }
 	    try {
 		url = (URL) method.invoke(ctx, new Object [] {"/" + key});
 	    } catch (IllegalAccessException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException(ex);
 	    } catch (InvocationTargetException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException(ex);
 	    }
 
 	    if (url == null) {
@@ -135,7 +137,7 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 
 	    // Make sure we found the url
 	    if (url == null) {
-		throw new java.io.FileNotFoundException(
+		throw new LayoutDefinitionException(
 			"Unable to locate '" + key + "'");
 	    }
 
@@ -143,7 +145,7 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 	    try {
 		ld  = new TemplateReader(url).read();
 	    } catch (IOException ex) {
-		throw new RuntimeException(
+		throw new LayoutDefinitionException(
 		    "Unable to process '" + url.toString() + "'.", ex);
 	    }
 
