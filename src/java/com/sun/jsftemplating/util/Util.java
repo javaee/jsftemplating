@@ -114,4 +114,32 @@ public class Util {
 	// Return the locale; if not found, return the system default Locale
 	return (locale == null) ? Locale.getDefault() : locale;
     }
+
+    /**
+     *	<p> This method escapes text so that HTML tags and escape characters
+     *	    can be shown in an HTML page without seeming to be parsed.</p>
+     */
+    public static String htmlEscape(String str) {
+	if (str == null) {
+	    return null;
+	}
+	StringBuffer buf = new StringBuffer("");
+	for (char ch : str.toCharArray()) {
+	    switch (ch) {
+		case '&':
+		    buf.append("&amp;");
+		    break;
+		case '<':
+		    buf.append("&lt;");
+		    break;
+		case '>':
+		    buf.append("&gt;");
+		    break;
+		default:
+		    buf.append(ch);
+		    break;
+	    }
+	}
+	return buf.toString();
+    }
 }
