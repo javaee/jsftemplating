@@ -495,7 +495,7 @@ public class TemplateParser {
 	int ch = -1;
 	while (_queue.peek() != null) {
 	    // We have values in the queue
-	    ch = _queue.getFirst().charValue();
+	    ch = _queue.remove().charValue();
 	    if ((ch == '\r') || (ch == '\n')) {
 		// We hit the EOL...
 		// Check to see if there are 2...
@@ -503,7 +503,7 @@ public class TemplateParser {
 		    ch = _queue.peek().charValue();
 		    if ((ch == '\r') || (ch == '\n')) {
 			// Remove this one too...
-			_queue.getFirst().charValue();
+			_queue.remove().charValue();
 		    }
 		}
 		return buf.toString();
