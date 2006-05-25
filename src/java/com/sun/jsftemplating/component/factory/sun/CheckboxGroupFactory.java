@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("checkboxGroup")
+@UIComponentFactory("sun:checkboxGroup")
 public class CheckboxGroupFactory extends ComponentFactoryBase {
 
     /**

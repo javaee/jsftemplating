@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("label")
+@UIComponentFactory("sun:label")
 public class LabelFactory extends ComponentFactoryBase {
 
     /**

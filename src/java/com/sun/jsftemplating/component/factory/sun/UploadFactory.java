@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("upload")
+@UIComponentFactory("sun:upload")
 public class UploadFactory extends ComponentFactoryBase {
 
     /**

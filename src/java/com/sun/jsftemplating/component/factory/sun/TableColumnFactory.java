@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("tableColumn")
+@UIComponentFactory("sun:tableColumn")
 public class TableColumnFactory extends ComponentFactoryBase {
 
     /**

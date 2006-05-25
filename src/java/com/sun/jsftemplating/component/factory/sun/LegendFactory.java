@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("legend")
+@UIComponentFactory("sun:legend")
 public class LegendFactory extends ComponentFactoryBase {
 
     /**

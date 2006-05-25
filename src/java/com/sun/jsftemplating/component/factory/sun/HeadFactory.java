@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("head")
+@UIComponentFactory("sun:head")
 public class HeadFactory extends ComponentFactoryBase {
 
     /**

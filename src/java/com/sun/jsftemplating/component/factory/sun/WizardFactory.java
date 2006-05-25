@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("wizard")
+@UIComponentFactory("sun:wizard")
 public class WizardFactory extends ComponentFactoryBase {
 
     /**

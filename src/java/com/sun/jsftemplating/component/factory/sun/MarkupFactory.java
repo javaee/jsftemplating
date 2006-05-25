@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("markup")
+@UIComponentFactory("sun:markup")
 public class MarkupFactory extends ComponentFactoryBase {
 
     /**

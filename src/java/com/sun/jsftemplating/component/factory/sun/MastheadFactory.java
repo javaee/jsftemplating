@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("masthead")
+@UIComponentFactory("sun:masthead")
 public class MastheadFactory extends ComponentFactoryBase {
 
     /**

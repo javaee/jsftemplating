@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("button")
+@UIComponentFactory("sun:button")
 public class ButtonFactory extends ComponentFactoryBase {
 
     /**

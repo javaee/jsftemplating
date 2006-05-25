@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("tableRowGroup")
+@UIComponentFactory("sun:tableRowGroup")
 public class TableRowGroupFactory extends ComponentFactoryBase {
 
     /**

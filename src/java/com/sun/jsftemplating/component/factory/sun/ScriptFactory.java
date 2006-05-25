@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("script")
+@UIComponentFactory("sun:script")
 public class ScriptFactory extends ComponentFactoryBase {
 
     /**

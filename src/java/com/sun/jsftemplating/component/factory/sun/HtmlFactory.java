@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("html")
+@UIComponentFactory("sun:html")
 public class HtmlFactory extends ComponentFactoryBase {
 
     /**

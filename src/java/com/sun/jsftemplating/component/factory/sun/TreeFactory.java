@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("tree")
+@UIComponentFactory("sun:tree")
 public class TreeFactory extends ComponentFactoryBase {
 
     /**

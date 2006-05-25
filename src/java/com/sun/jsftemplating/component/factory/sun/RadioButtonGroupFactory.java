@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("radioButtonGroup")
+@UIComponentFactory("sun:radioButtonGroup")
 public class RadioButtonGroupFactory extends ComponentFactoryBase {
 
     /**

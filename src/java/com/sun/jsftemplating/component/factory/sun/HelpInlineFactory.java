@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("helpInline")
+@UIComponentFactory("sun:helpInline")
 public class HelpInlineFactory extends ComponentFactoryBase {
 
     /**

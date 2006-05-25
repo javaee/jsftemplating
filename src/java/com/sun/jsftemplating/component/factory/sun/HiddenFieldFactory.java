@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("hidden")
+@UIComponentFactory("sun:hidden")
 public class HiddenFieldFactory extends ComponentFactoryBase {
 
     /**

@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("jumpDropDown")
+@UIComponentFactory("sun:jumpDropDown")
 public class JumpDropDownFactory extends ComponentFactoryBase {
 
     /**

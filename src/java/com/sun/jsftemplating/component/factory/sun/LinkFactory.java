@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("link")
+@UIComponentFactory("sun:link")
 public class LinkFactory extends ComponentFactoryBase {
 
     /**

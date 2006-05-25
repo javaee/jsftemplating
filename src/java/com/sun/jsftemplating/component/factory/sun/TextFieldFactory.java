@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("textField")
+@UIComponentFactory("sun:textField")
 public class TextFieldFactory extends ComponentFactoryBase {
 
     /**

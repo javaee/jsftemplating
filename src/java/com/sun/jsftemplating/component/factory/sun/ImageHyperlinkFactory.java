@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
-@UIComponentFactory("imageHyperlink")
+@UIComponentFactory("sun:imageHyperlink")
 public class ImageHyperlinkFactory extends ComponentFactoryBase {
 
     /**

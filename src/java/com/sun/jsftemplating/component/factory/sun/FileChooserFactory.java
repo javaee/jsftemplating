@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("fileChooser")
+@UIComponentFactory("sun:fileChooser")
 public class FileChooserFactory extends ComponentFactoryBase {
 
     /**

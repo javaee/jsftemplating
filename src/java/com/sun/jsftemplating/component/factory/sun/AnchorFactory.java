@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("anchor")
+@UIComponentFactory("sun:anchor")
 public class AnchorFactory extends ComponentFactoryBase {
 
     /**

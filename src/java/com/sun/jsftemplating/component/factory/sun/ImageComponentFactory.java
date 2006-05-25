@@ -37,7 +37,7 @@ import javax.faces.context.FacesContext;
  *  @author Rick Ratta
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("image")
+@UIComponentFactory("sun:image")
 public class ImageComponentFactory extends ComponentFactoryBase {
 
     /**

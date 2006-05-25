@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("form")
+@UIComponentFactory("sun:form")
 public class FormFactory extends ComponentFactoryBase {
 
     /**

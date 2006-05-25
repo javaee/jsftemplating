@@ -41,7 +41,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("tab")
+@UIComponentFactory("sun:tab")
 public class TabFactory extends ComponentFactoryBase {
 
     /**
