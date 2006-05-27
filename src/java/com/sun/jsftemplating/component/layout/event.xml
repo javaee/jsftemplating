@@ -25,10 +25,6 @@
 
 <layoutDefinition>
 
-    <types>
-	<componentType id="staticText" factoryClass="com.sun.enterprise.tools.jsfext.component.factory.basic.StaticTextFactory" />
-    </types>
-
     <handlers>
 	<!-- General Handlers -->
 	<!--

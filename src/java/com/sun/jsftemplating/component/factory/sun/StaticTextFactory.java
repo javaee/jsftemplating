@@ -36,7 +36,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("sun:statictext")
+@UIComponentFactory("sun:staticText")
 public class StaticTextFactory extends ComponentFactoryBase {
 
     /**
