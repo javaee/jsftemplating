@@ -1448,7 +1448,7 @@ public class TemplateReader {
 	    TemplateParser parser = env.getReader().getTemplateParser();
 //System.out.println("handleDefault: " + parser.readUntil('<'));
 // FIXME: **ignore comments and allow escaping**
-	    String bodyContent = parser.readUntil('<');
+	    String bodyContent = parser.readUntil('<', true);
 	    parser.unread('<');
 	}
     }
