@@ -145,8 +145,8 @@ public class CommandActionListener implements java.io.Serializable {
 	try {
 	    result =
 		findLayoutElementByClientId(
-		    LayoutDefinitionManager.getManager(ctx).
-		    getLayoutDefinition(layoutDefKey), clientId);
+		    LayoutDefinitionManager.
+			getLayoutDefinition(ctx, layoutDefKey), clientId);
 	} catch (LayoutDefinitionException ex) {
 // FIXME: Report a low priority warning, returning null is fine
 	}
@@ -175,8 +175,8 @@ public class CommandActionListener implements java.io.Serializable {
 	LayoutElement result = null;
 	try {
 	    result = findLayoutElementById(
-		    LayoutDefinitionManager.getManager(ctx).
-		    getLayoutDefinition(layoutDefKey), id);
+		    LayoutDefinitionManager.
+			getLayoutDefinition(ctx, layoutDefKey), id);
 	} catch (LayoutDefinitionException ex) {
 // FIXME: Report a low priority warning, returning null is fine
 	}
