@@ -33,6 +33,7 @@ import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
 import com.sun.jsftemplating.util.Util;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -48,17 +49,17 @@ import javax.faces.context.FacesContext;
 
 /**
  *  <p>	This abstract class provides the base functionality for all
- *	<code>LayoutDefinitionManager</code> implementations.  It provides an
+ *	<code>LayoutDefinitionManager</code> implementations.  It provides a
  *	static method used to obtain an instance of a concrete
- *	<code>LayoutDefinitionManager</code>: {@link #getManager(FacesContext)}.
- *	It also provides another version of this method which allows a specific
- *	instance to be specified by classname:
- *	{@link #getManager(String className)} (typically not used, the
- *	environment should be setup to provide the correct
- *	<code>LayoutDefinitionManager</code>).  Once an instance is obtained,
- *	the {@link #getLayoutDefinition(String key)} method can be invoked to
- *	obtain a {@link LayoutDefinition}.
- *  </p>
+ *	<code>LayoutDefinitionManager</code>:
+ *	{@link #getLayoutDefinitionManager(FacesContext, String)}.  However, in
+ *	most cases is makes the most sense to call the static method:
+ *	{@link #getLayoutDefinition(FacesContext, String)}.  This method
+ *	ensures that the cache is checked first before going through the effort
+ *	of finding a <code>LayoutDefinitionManager</code> instance.</p>
+ *
+ *  <p>	This class also provides access to global {@link HandlerDefinition}s,
+ *	{@link Resource}s, and {@link ComponentType}s.</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
@@ -82,32 +83,170 @@ public abstract class LayoutDefinitionManager {
      */
     public abstract LayoutDefinition getLayoutDefinition(String key) throws LayoutDefinitionException;
 
+    /**
+     *	<p> This method is used to determine if this
+     *	    <code>LayoutDefinitionManager</code> should process the given key.
+     *	    It does not necessarily mean that the
+     *	    <code>LayoutDefinitionManager</code> <em>can</em> process it.
+     *	    Parser errors do not necessarily mean that it should not process
+     *	    the file.  In order to provide meaningful error messages, this
+     *	    method should return true if the format of the template matches the
+     *	    type that this <code>LayoutDefinitionManager</code> processes.  It
+     *	    is understood that at times it may not be recognizable; in the case
+     *	    where no <code>LayoutDefinitionManager</code>s return
+     *	    <code>true</code> from this method, the parent
+     *	    <code>ViewHandler</code> will be used, which likely means that it
+     *	    will look for a .jsp and give error messages accordingly.  Also,
+     *	    the existance of a file should not be used as a meassure of success
+     *	    as other <code>LayoutDefinitionManager</code>s may be more
+     *	    appropriate.</p>
+     */
+    public abstract boolean accepts(String key);
 
     /**
-     *	<p> This is a factory method for obtaining the
-     *	    {@link LayoutDefinitionManager}.  This implementation uses the
-     *	    external context's initParams to look for the
-     *	    {@link LayoutDefinitionManager} class.  If it exists, the specified
-     *	    concrete {@link LayoutDefinitionManager} class will be used.
-     *	    Otherwise, the default {@link LayoutDefinitionManager} will be
-     *	    used.  The initParam key is:
-     *	    {@link #LAYOUT_DEFINITION_MANAGER_KEY}.</p>
+     *	<p> This method checks for the <code>relPath</code> in the docroot of
+     *	    the application.  This should work in both Portlet and Servlet
+     *	    environments.  If <code>FacesContext</code> is null, null will be
+     *	    returned.</p>
+     */
+    public static URL getResource(String relPath) {
+	FacesContext facesContext = FacesContext.getCurrentInstance();
+	if (facesContext == null) {
+	    return null;
+	}
+	Object ctx = facesContext.getExternalContext().getContext();
+	URL url = null;
+
+	// The following should work w/ a ServletContext or PortletContext
+	Method method = null;
+	try {
+	    method = ctx.getClass().getMethod(
+		    "getResource", GET_RESOURCE_ARGS);
+	} catch (NoSuchMethodException ex) {
+	    throw new LayoutDefinitionException("Unable to find "
+		+ "'getResource' method in this environment!", ex);
+	}
+	try {
+	    url = (URL) method.invoke(ctx, new Object [] {"/" + relPath});
+	} catch (IllegalAccessException ex) {
+	    throw new LayoutDefinitionException(ex);
+	} catch (InvocationTargetException ex) {
+	    throw new LayoutDefinitionException(ex);
+	}
+
+	return url;
+    }
+
+    /**
+     *	<p> This method searches for the given relative path filename.  It
+     *	    first looks relative the context root of the application, it
+     *	    then looks in the classpath, including relative to the
+     *	    <code>META-INF</code> folder.  If found a <code>URL</code> to the
+     *	    file will be returned.</p>
+     */
+    public static URL searchForFile(String relPath) {
+	// Check for file in docroot.
+	URL url = getResource(relPath);
+
+	if (url == null) {
+	    // Check the classpath for the xml file
+	    ClassLoader loader = Util.getClassLoader(relPath);
+	    url = loader.getResource(relPath);
+	    if (url == null) {
+		url = loader.getResource("/" + relPath);
+		if (url == null) {
+		    url = loader.getResource("META-INF/" + relPath);
+		}
+	    }
+	}
+	return url;
+    }
+
+    /**
+     *	<p> This method should be used to obtain a {@link LayoutDefinition}.
+     *	    It first checks to see if a cached {@link LayoutDefinition}
+     *	    already exists, if so it returns it.  If one does not already
+     *	    exist, it will obtain the appropriate
+     *	    <code>LayoutDefinitionManager</code> instance and call
+     *	    {@link #getLayoutDefinition} and return the result.</p>
+     */
+    public static LayoutDefinition getLayoutDefinition(FacesContext ctx, String key) throws LayoutDefinitionException {
+	LayoutDefinition def = getCachedLayoutDefinition(key);
+	if (def != null) {
+	    return def;
+	}
+
+	// Obtain the correct LDM, and get the LD
+	return getLayoutDefinitionManager(ctx, key).getLayoutDefinition(key);
+    }
+
+
+    /**
+     *	<p> This method obtains the <code>LayoutDefinitionManager</code> that
+     *	    is able to process the given <code>key</code>.</p>
+     *
+     *	<p> This implementation uses the <code>ExternalContext</code>'s
+     *	    initParams to look for the <code>LayoutDefinitionManager</code>
+     *	    class.  If it exists, the specified concrete
+     *	    <code>LayoutDefinitionManager</code> class will be used as the
+     *	    "default" (i.e. the first <code>LayoutDefinitionManager</code>
+     *	    checked).  Otherwise,
+     *	    {@link #DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL} will be used.
+     *	    "{@link #LAYOUT_DEFINITION_MANAGER_KEY}" is the initParam key.</p>
+     *
+     *	<p> The <code>key</code> is used to test if desired
+     *	    <code>LayoutDefinitionManager</code> is able to read the requested
+     *	    {@link LayoutDefinition}.</p>
      *
      *	@param	context	The <code>FacesContext</code>.
+     *	@param	key	The desired {@link LayoutDefinition}.
      *
      *	@see #LAYOUT_DEFINITION_MANAGER_KEY
      */
-    public static LayoutDefinitionManager getManager(FacesContext context) {
-// FIXME: Decide how to define the LAYOUT_DEFINITION_MANAGER (should be switchable per page)
-// FIXME: Properties should be settable on the LDM, such as entity resolvers...
-	Map initParams = context.getExternalContext().getInitParameterMap();
-	String className = DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL;
-	if (initParams.containsKey(LAYOUT_DEFINITION_MANAGER_KEY)) {
-	    className = (String) initParams.get(LAYOUT_DEFINITION_MANAGER_KEY);
+    public static LayoutDefinitionManager getLayoutDefinitionManager(FacesContext ctx, String key) throws LayoutDefinitionException {
+	List<String> ldms = getLayoutDefinitionManagers(ctx);
+	LayoutDefinitionManager mgr = null;
+	for (String className : ldms) {
+	    mgr = getLayoutDefinitionManager(className);
+	    if (mgr.accepts(key)) {
+		return mgr;
+	    }
 	}
-	return getManager(className);
+	throw new LayoutDefinitionException("No LayoutDefinitionManager "
+	    + "available for '" + key + "'.  This may mean the file cannot "
+	    + "be found, or is unrecognizable.");
     }
 
+    /**
+     *	<p> This method is responsible for returning a <code>List</code> of
+     *	    known <code>LayoutDefinitionManager</code> instances.  Each value
+     *	    of the list is a <code>String</code> representing the classname of
+     *	    a <code>LayoutDefinitionManager</code> implementation.</p>
+     */
+    public static List<String> getLayoutDefinitionManagers(FacesContext ctx) {
+	if (_ldmKeys == null) {
+	    List<String> keys = new ArrayList<String>();
+
+	    // Check to see what the default should be...
+	    Map initParams = ctx.getExternalContext().getInitParameterMap();
+	    String def = DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL;
+	    if (initParams.containsKey(LAYOUT_DEFINITION_MANAGER_KEY)) {
+		def = (String) initParams.get(LAYOUT_DEFINITION_MANAGER_KEY);
+	    }
+	    keys.add(def);
+// FIXME: Populate this from an external source!!
+// while (...) {
+//  if (!key.equals(def)) {
+//	keys.add(key);
+//  }
+// }
+	    keys.add("com.sun.jsftemplating.layout.xml.XMLLayoutDefinitionManager");
+	    keys.add("com.sun.jsftemplating.layout.template.TemplateLayoutDefinitionManager");
+
+	    _ldmKeys = keys;
+	}
+	return _ldmKeys;
+    }
 
     /**
      *	<p> This method is a singleton factory method for obtaining an instance
@@ -120,7 +259,7 @@ public abstract class LayoutDefinitionManager {
      *	    to locate {@link LayoutDefinition}'s in a different way (XML,
      *	    database, file, java code, etc.).</p>
      */
-    public static LayoutDefinitionManager getManager(String className) {
+    public static LayoutDefinitionManager getLayoutDefinitionManager(String className) {
 	LayoutDefinitionManager ldm =
 	    (LayoutDefinitionManager) _instances.get(className);
 	if (ldm == null) {
@@ -130,23 +269,68 @@ public abstract class LayoutDefinitionManager {
 		    getMethod("getInstance", (Class []) null).
 			invoke((Object) null, (Object []) null);
 	    } catch (ClassNotFoundException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException(
+		    "Unable to find LDM: '" + className + "'.", ex);
 	    } catch (NoSuchMethodException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException("LDM '" + className
+		    + "' does not have a 'getInstance()' method!", ex);
 	    } catch (IllegalAccessException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException("Unable to access LDM: '"
+		    + className + "'!", ex);
 	    } catch (InvocationTargetException ex) {
-		throw new RuntimeException(ex);
-	    } catch (NullPointerException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException("Error while attempting "
+		    + "to get LDM: '" + className + "'!", ex);
 	    } catch (ClassCastException ex) {
-		throw new RuntimeException(ex);
+		throw new LayoutDefinitionException("LDM '" + className
+		    + "' must extend from '"
+		    + LayoutDefinitionManager.class.getName() + " and must "
+		    + "be loaded from the same ClassLoader!", ex);
+	    } catch (NullPointerException ex) {
+		throw new LayoutDefinitionException(ex);
 	    }
 	    _instances.put(className, ldm);
 	}
 	return ldm;
     }
 
+    /**
+     *	<p> This method may be used to obtain a cached
+     *	    {@link LayoutDefinition}.  If it has not been cached, this method
+     *	    returns <code>null</code>.</p>
+     *
+     *	@param	key The key for the cached {@link LayoutDefinition} to obtain.
+     *
+     *	@return	The {@link LayoutDefinition} or <code>null</code>.
+     */
+    public static LayoutDefinition getCachedLayoutDefinition(String key) {
+	if (DEBUG) {
+	    // Disable caching for debug mode
+	    return null;
+	}
+
+	// Remove leading '/' characters if needed
+	while (key.startsWith("/")) {
+	    key = key.substring(1);
+	}
+	return _layoutDefinitions.get(key);
+    }
+
+    /**
+     *	<p> This method should be used by sub-classes to store a cached
+     *	    {@link LayoutDefinition}.</p>
+     *
+     *	@param	key	The {@link LayoutDefinition} key to cache.
+     *	@param	value	The {@link LayoutDefinition} to cache.
+     */
+    protected static void putCachedLayoutDefinition(String key, LayoutDefinition value) {
+	// Remove leading '/' characters if needed
+	while (key.startsWith("/")) {
+	    key = key.substring(1);
+	}
+	synchronized (_layoutDefinitions) {
+	    _layoutDefinitions.put(key, value);
+	}
+    }
 
     /**
      *	<p> Retrieve an attribute by key.</p>
@@ -451,11 +635,18 @@ public abstract class LayoutDefinitionManager {
     private Map<String, Object> _attributes = new HashMap<String, Object>();
 
     /**
-     *	<p> Static map of <code>LayoutDefinitionManager</code s.  Normally
-     *	    this will only contain the default <code>LayoutManager</code>.</p>
+     *	<p> Static <code>Map</code> of <code>LayoutDefinitionManager</code s.
+     *	    Normally this will only contain the default
+     *	    {@link LayoutDefinitionManager}.</p>
      */
     private static Map<String, LayoutDefinitionManager> _instances =
-	new HashMap<String, LayoutDefinitionManager>(2);
+	new HashMap<String, LayoutDefinitionManager>(4);
+
+    /**
+     *	<p> Static <code>Map</code> of cached {@link LayoutDefinition}s.</p>
+     */
+    private static Map<String, LayoutDefinition> _layoutDefinitions =
+	new HashMap<String, LayoutDefinition>();
 
     /**
      *	<p> This <code>Map</code> holds global {@link ComponentType}s so they
@@ -476,6 +667,12 @@ public abstract class LayoutDefinitionManager {
     private static List<Resource> _globalResources	= null;
 
     /**
+     *	<p> This <code>List</code> contains the classnames of known
+     *	    {@link LayoutDefinitionManager} instances.</p>
+     */
+    private static List<String> _ldmKeys = null;
+
+    /**
      *	<p> This is the default input and output type.</p>
      */
     public static final String	DEFAULT_TYPE	= "Object";
@@ -485,7 +682,6 @@ public abstract class LayoutDefinitionManager {
      *	    <code>LayoutDefinitionManager</code> implementation class name.</p>
      */
     public static final String DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL =
-//	"com.sun.jsftemplating.layout.template.TemplateLayoutDefinitionManager";
 	"com.sun.jsftemplating.layout.xml.XMLLayoutDefinitionManager";
 
     /**
@@ -495,4 +691,13 @@ public abstract class LayoutDefinitionManager {
      */
     public static final String LAYOUT_DEFINITION_MANAGER_KEY =
 	"LayoutDefinitionManagerImpl";
+
+    public static final boolean DEBUG =
+	Boolean.getBoolean("com.sun.jsftemplating.DEBUG");
+
+    /**
+     *
+     */
+    private static final Class [] GET_RESOURCE_ARGS =
+	    new Class[] {String.class};
 }

@@ -223,12 +223,9 @@ public class LayoutViewRoot extends UIViewRoot {
 	    return null;
 	}
 
-	// Get the LayoutDefinitionManager
-	LayoutDefinitionManager ldm =
-	    LayoutDefinitionManager.getManager(context);
-
 	// Save the LayoutDefinition for future calls to this method
-	_layoutDefinition = ldm.getLayoutDefinition(key);
+	_layoutDefinition =
+	    LayoutDefinitionManager.getLayoutDefinition(context, key);
 
 	// Return the LayoutDefinition (if found)
 	return _layoutDefinition;
