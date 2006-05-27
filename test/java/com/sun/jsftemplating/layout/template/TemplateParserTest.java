@@ -138,7 +138,7 @@ public class TemplateParserTest extends TestCase {
 	    parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine();
 
 	    // Move to the output mapping on line 50
-	    parser.readUntil('v');
+	    parser.readUntil('v', false);
 	    parser.unread('v');
 
 	    NameValuePair nvp = parser.getNVP();
@@ -199,7 +199,7 @@ public class TemplateParserTest extends TestCase {
 	    parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine();
 
 	    // Move to the Script Tag
-	    parser.readUntil('<');
+	    parser.readUntil('<', false);
 
 	    // Test readToken()
 	    assertEquals("testReadToken", "sun:script", parser.readToken());
@@ -238,9 +238,9 @@ public class TemplateParserTest extends TestCase {
 	    parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine();
 
 	    // Test readUntil.  On line before, read until openning comment.
-	    assertEquals("testReadUntilStr", "    // This text should be commented out.  <tags> should not be parsed.\n    <!--", parser.readUntil("<!--"));
-	    assertEquals("testReadUntilStr2", "\n	This text should be commented out.  <tags> should not be parsed.\n    -->", parser.readUntil("-->"));
-	    assertEquals("testReadUntilStr3", "\n    /*\n     *	This text should be commented out.  <tags> should not be parsed.\n     */", parser.readUntil("*/"));
+	    assertEquals("testReadUntilStr", "    // This text should be commented out.  <tags> should not be parsed.\n    <!--", parser.readUntil("<!--", false));
+	    assertEquals("testReadUntilStr2", "\n	This text should be commented out.  <tags> should not be parsed.\n    -->", parser.readUntil("-->", false));
+	    assertEquals("testReadUntilStr3", "\n    /*\n     *	This text should be commented out.  <tags> should not be parsed.\n     */", parser.readUntil("*/", false));
 
 	    parser.close();
 	} catch (Exception ex) {
