@@ -162,12 +162,12 @@ public class TemplateParser {
 
 	// Ensure next character is '='
 	int next = nextChar();
-	if (next != '=') {
+	if ((next != '=') && (next != ':')) {
 // FIXME: Improve error messages by providing some context
 // FIXME: Define own exceptions
 // FIXME: Localize exceptions
 	    throw new IllegalArgumentException(
-		"'=' missing for Name Value Pair named: '" + name + "'!");
+		"'=' or ':' missing for Name Value Pair: '" + name + "'!");
 	}
 
 	// Check for '>' character (means we're mapping an output value)
@@ -239,7 +239,7 @@ public class TemplateParser {
 	}
 
 	// Read the value
-	String value = readUntil(endingChar);
+	String value = readUntil(endingChar, false);
 
 	// Create the NVP object and return it
 	return new NameValuePair(name, value, target);
@@ -289,28 +289,55 @@ public class TemplateParser {
      *	    file) is encountered.  It will not leave the given character in the
      *	    buffer, so the next character to be read will be the character
      *	    following the given character.</p>
+     *
+     *	@param	skipComments	<code>true</code> to ignore comments.
      */
-    public String readUntil(int endingChar) throws IOException {
+    public String readUntil(int endingChar, boolean skipComments) throws IOException {
+	if (skipComments) {
+	    // In case we start on a comment and should skip it...
+	    skipCommentsAndWhiteSpace("");
+	}
 	StringBuffer buf = new StringBuffer();
 	int next = nextChar();
 	while ((next != endingChar) && (next != -1)) {
 	    buf.append((char) next);
 	    next = nextChar();
-	    if (next == '\\') {
-		// Escape Character...
-		next = nextChar();
-		if ((next == '\n') || (next == '\r')) {
-		    // Special case... skip the return
-		    next = nextChar();
-		    if ((next == '\n') || (next == '\r')) {
-			// Do it one more time for windoze
+	    switch (next) {
+		case '\'' :
+		case '\"' :
+		    if ((skipComments) && (next != endingChar)) {
+			// In this case, we want to make sure no comments are
+			// skipped when inside a quote
+			//
+			// NOTE:    Also means endingChar will not be found in
+			//	    a quote.
+			buf.append((char) next);
+			buf.append(readUntil(next, false));
+		    }
+		    break;
+		case '#' :
+		case '/' :
+		case '<' :
+		    // When reading we want to ignore comments, don't skip
+		    // whitespace, though...
+		    if (skipComments) {
+			unread(next);
+			skipCommentsAndWhiteSpace("");
 			next = nextChar();
 		    }
-		} else if (next == endingChar) {
-		    // We need to add this char so the loop doesn't stop
-		    buf.append((char) next);
+		    break;
+		case '\\' :
+		    // Escape Character...
 		    next = nextChar();
-		}
+		    if (next == '\n') {
+			// Special case... skip the return
+			next = nextChar();
+		    } else if (next == endingChar) {
+			// We need to add this char so the loop doesn't stop
+			buf.append((char) next);
+			next = nextChar();
+		    }
+		    break;
 	    }
 	}
 
@@ -325,9 +352,10 @@ public class TemplateParser {
      *	    buffer, so the next character to be read will be the character
      *	    following the given character.</p>
      *
-     * @param	endingStr   The terminating <code>String</code>.
+     *	@param	endingStr   The terminating <code>String</code>.
+     *	@param	skipComments	<code>true</code> to ignore comments.
      */
-    public String readUntil(String endingStr) throws IOException {
+    public String readUntil(String endingStr, boolean skipComments) throws IOException {
 	// Sanity Check
 	if ((endingStr == null) || (endingStr.length() == 0)) {
 	    return "";
@@ -339,7 +367,7 @@ public class TemplateParser {
 
 	StringBuffer buf = new StringBuffer("");
 	int ch = nextChar();  // Read a char to unread
-	int idx = 0;
+	int idx = 1;
 	do {
 	    // We didn't find the end, push read values back on queue
 	    unread(ch);
@@ -348,7 +376,7 @@ public class TemplateParser {
 	    }
 
 	    // Read until the beginning of the end (maybe)
-	    buf.append(readUntil(arr[0]));
+	    buf.append(readUntil(arr[0], skipComments));
 	    buf.append(arr[0]); // readUntil reads but doesn't return this char
 
 	    // Check to see if we are at the end
@@ -368,7 +396,7 @@ public class TemplateParser {
 
 	if (arrlen != idx) {
 	    // Didn't find it!
-	    throw new SyntaxException("Unable to find ending: '" + endingStr
+	    throw new SyntaxException("Unable to find: '" + endingStr
 		+ "'.  Read to EOF and gave up.  Read: \n" + buf.toString());
 	}
 
@@ -410,8 +438,7 @@ public class TemplateParser {
      *		<li>&lt;!-- -   Comment extends until closing --&gt;.</li></ul>
      *	</code>
      *
-     *	@param	skipChars   The white space characters to skip; passed to
-     *			    {@link TemplateParser#skipWhiteSpace(String)}.
+     *	@param	skipChars   The white space characters to skip
      *
      *	@see	TemplateParser#skipWhiteSpace(String)
      */
@@ -431,7 +458,7 @@ public class TemplateParser {
 			readLine();
 		    } else if (ch == '*') {
 			// Throw away everything until '*' & '/'.
-			readUntil("*/");
+			readUntil("*/", false);
 		    } else {
 			// Not a comment, don't read
 			unread(ch);
@@ -447,7 +474,7 @@ public class TemplateParser {
 			    ch = nextChar();  // -
 			    if (ch == '-') {
 				// Ignore HTML-style comment
-				readUntil("-->");
+				readUntil("-->", false);
 			    } else {
 				// Not a comment, probably a mistake... lets
 				// throw an exception
