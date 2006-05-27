@@ -25,21 +25,14 @@ package com.sun.jsftemplating.layout.xml;
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.util.Util;
+import com.sun.jsftemplating.layout.template.TemplateParser;
 import com.sun.jsftemplating.util.ClasspathEntityResolver;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.faces.context.FacesContext;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
@@ -106,6 +99,32 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
     }
 
     /**
+     *	<p> This method uses the key to determine if this
+     *	    {@link LayoutDefinitionManager} is responsible for handling the
+     *	    key.</p>
+     */
+    public boolean accepts(String key) {
+	URL url = searchForFile(key);
+	if (url == null) {
+	    return false;
+	}
+
+	// Use the TemplateParser to help us read the file to see if it is a
+	// valid XML-format file
+	TemplateParser parser = new TemplateParser(url);
+	try {
+	    parser.open();
+	    parser.readUntil("<layoutDefinition>", true);
+	} catch (Exception ex) {
+	    // Didn't work...
+	    return false;
+	} finally {
+	    parser.close();
+	}
+	return true;
+    }
+
+    /**
      *	<p> This method is responsible for finding the requested
      *	    {@link LayoutDefinition} for the given <code>key</code>.</p>
      *
@@ -120,89 +139,30 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 	}
 
 	// See if we already have this one.
-	LayoutDefinition ld = (LayoutDefinition) layouts.get(key);
-	if (DEBUG) {
-	    // Disable caching
-	    ld = null;
-	}
+	LayoutDefinition ld = getCachedLayoutDefinition(key);
 	if (ld == null) {
-	    String baseURI = getBaseURI();
-
-	    // Check for XML file in docroot.  Use docroot for the baseURI,
-	    // and get the full path to the xml file
-	    URL ldURL = null;
-	    Object ctx = FacesContext.getCurrentInstance().
-		getExternalContext().getContext();
-	    String url;
-
-	    // The following should work w/ a ServletContext or PortletContext
-	    Method method = null;
-	    try {
-		method = ctx.getClass().getMethod(
-			"getRealPath", GET_REAL_PATH_ARGS);
-	    } catch (NoSuchMethodException ex) {
-		throw new LayoutDefinitionException(
-		    "Unable to find 'getRealPath' method in this environment!", ex);
-	    }
-	    try {
-		if (baseURI == null) {
-		    baseURI = "file:///"
-			+ method.invoke(ctx, new Object [] {"/"});
-		}
-		url = (String) method.invoke(ctx, new Object [] {key});
-		// Don't add the leading '/' back on because it looks a the
-		// root if we do
-	    } catch (IllegalAccessException ex) {
-		throw new LayoutDefinitionException(ex);
-	    } catch (InvocationTargetException ex) {
-		throw new LayoutDefinitionException(ex);
-	    }
-
-	    // Create a URL to the xml file, if file exists
-	    if ((url != null) && new File(url).canRead()) {
-		try {
-		    ldURL = new URL("file:///" + url);
-		} catch (Exception ex) {
-		    throw new LayoutDefinitionException(
-			"Unable to create URL: 'file:///" + url
-			+ "' while attempting to locate '" + key + "'", ex);
-		}
-	    }
-
-	    if (ldURL == null) {
-		// Check the classpath for the xml file
-		ClassLoader loader = Util.getClassLoader(key);
-		ldURL = loader.getResource(key);
-		if (ldURL == null) {
-		    ldURL = loader.getResource("/"+key);
-		    if (ldURL == null) {
-			ldURL = loader.getResource("META-INF/"+key);
-		    }
-		}
-	    }
+	    URL url = searchForFile(key);
 
 	    // Make sure we found the url
-	    if (ldURL == null) {
+	    if (url == null) {
 		throw new LayoutDefinitionException(
 			"Unable to locate '" + key + "'");
 	    }
 
 	    // Read the XML file
+	    String baseURI = getBaseURI();
 	    try {
-		ld  = new XMLLayoutDefinitionReader(
-		    ldURL, getEntityResolver(), getErrorHandler(), baseURI).
-			read();
+		ld  = new XMLLayoutDefinitionReader(url, getEntityResolver(),
+		    getErrorHandler(), baseURI).read();
 	    } catch (IOException ex) {
 		throw new LayoutDefinitionException("Unable to process '"
-			+ ldURL + "'.  EntityResolver: '" + getEntityResolver()
+			+ url + "'.  EntityResolver: '" + getEntityResolver()
 			+ "'.  ErrorHandler: '" + getErrorHandler()
 			+ "'.  baseURI: '" + baseURI + "'.", ex);
 	    }
 
 	    // Cache the LayoutDefinition
-	    synchronized (layouts) {
-		layouts.put(key, ld);
-	    }
+	    putCachedLayoutDefinition(key, ld);
 	}
 	return ld;
     }
@@ -247,10 +207,15 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
      *	<p> This returns the LDM's XML parser baseURI which will be used to
      *	    resolve relative URI's, null if not set.</p>
      *
-     *	@return The base URI as a String
+     *	@return The base URI as a String.
      */
     public String getBaseURI() {
-	return (String) getAttribute(BASE_URI);
+	String baseURI = (String) getAttribute(BASE_URI);
+	if (baseURI == null) {
+	    // Use docroot for the baseURI.
+	    baseURI = getResource("").toString();
+	}
+	return baseURI;
     }
 
     /**
@@ -305,22 +270,10 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
     }
 
     /**
-     *	<p> Static map of LayoutDefinitionManagers.  Normally this will only
-     *	    contain the default LayoutManager.</p>
-     */
-    private static Map layouts = new HashMap();
-
-    /**
      *	<p> This is used to ensure that only 1 instance of this class is
      *	    created (per JVM).</p>
      */
     private static LayoutDefinitionManager instance = null;
-
-    /**
-     *
-     */
-    private static final Class [] GET_REAL_PATH_ARGS =
-	    new Class[] {String.class};
 
     /**
      *	<p> This is an attribute key which can be used to provide an
@@ -337,7 +290,4 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
      *
      */
     public static final String BASE_URI		= "baseURI";
-
-    private static boolean DEBUG =
-	Boolean.getBoolean("com.sun.jsftemplating.DEBUG");
 }
