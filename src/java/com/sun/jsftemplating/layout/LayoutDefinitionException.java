@@ -28,7 +28,10 @@ import com.sun.jsftemplating.TemplatingException;
 /**
  *  <p>	This exception is thrown when a {@link LayoutDefinitionManager} is
  *	unable to locate a
- *	{@link com.sun.jsftemplating.layout.descriptors.LayoutDefinition}.</p>
+ *	{@link com.sun.jsftemplating.layout.descriptors.LayoutDefinition}.
+ *	This exception should not be used to indicate that a syntax error has
+ *	occurred, see {@link SyntaxException}.  This exception is meant for
+ *	file not found, i/o problems, etc.</p>
  */
 public class LayoutDefinitionException extends TemplatingException {
 
