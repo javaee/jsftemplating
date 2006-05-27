@@ -25,22 +25,9 @@ package com.sun.jsftemplating.layout.template;
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.util.Util;
-import com.sun.jsftemplating.util.ClasspathEntityResolver;
 
-import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.faces.context.FacesContext;
 
 
 /**
@@ -81,6 +68,69 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
     }
 
     /**
+     *	<p> This method uses the key to determine if this
+     *	    {@link LayoutDefinitionManager} is responsible for handling the
+     *	    key.</p>
+     *
+     *	<p> The template format is very flexible which makes it difficult to
+     *	    detect this vs. another format.  For this reason, it is suggested
+     *	    that this format be attempted last (or at least after more
+     *	    detectable formats).</p>
+     *
+     *	<p> This method checks the first character that is not a comment or
+     *	    whitespace (according to the TemplateParser).  If this first
+     *	    character is a single quote or double quote it return
+     *	    <code>true</code>.  If it is a "&lt;" character, it looks to see
+     *	    if it starts with "&lt;?" or "&lt;!DOCTYPE".  If it does start
+     *	    that way, it returns <code>false</code>; otherwise it returns
+     *	    <code>true</code>.  If any other character is found or an
+     *	    exception is thrown, it will return <code>false</code>.</p>
+     */
+    public boolean accepts(String key) {
+	URL url = searchForFile(key);
+	if (url == null) {
+	    return false;
+	}
+
+	// Use the TemplateParser to help us read the file to see if it is a
+	// valid XML-format file
+	TemplateParser parser = new TemplateParser(url);
+	try {
+	    parser.open();
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
+	    int ch = parser.nextChar();
+	    switch (ch) {
+		case '<':
+		    ch = parser.nextChar();
+		    if (ch == '?') {
+			// XML Documents often start with "<?xml...>", '?' is
+			// not valid after '<' in this format
+			return false;
+		    }
+		    if (ch == '!') {
+			String token = parser.readToken();
+			if (token.equalsIgnoreCase("doctype")) {
+			    // <!DOCTYPE ... is also indicates an XML syntax
+			    // and should be ignored for this format
+			    return false;
+			}
+		    }
+		    return true;
+		case '\"':
+		case '\'':
+		    return true;
+		default:
+		    return false;
+	    }
+	} catch (Exception ex) {
+	    // Didn't work...
+	    return false;
+	} finally {
+	    parser.close();
+	}
+    }
+
+    /**
      *	<p> This method is responsible for finding the requested
      *	    {@link LayoutDefinition} for the given <code>key</code>.</p>
      *
@@ -95,45 +145,9 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 	}
 
 	// See if we already have this one.
-	LayoutDefinition ld = (LayoutDefinition) layouts.get(key);
-	if (DEBUG) {
-	    // Disable caching
-	    ld = null;
-	}
+	LayoutDefinition ld = getCachedLayoutDefinition(key);
 	if (ld == null) {
-	    // Check for template file in docroot.
-	    Object ctx = FacesContext.getCurrentInstance().
-		getExternalContext().getContext();
-	    URL url = null;
-
-	    // The following should work w/ a ServletContext or PortletContext
-	    Method method = null;
-	    try {
-		method = ctx.getClass().getMethod(
-			"getResource", GET_RESOURCE_ARGS);
-	    } catch (NoSuchMethodException ex) {
-		throw new LayoutDefinitionException("Unable to find "
-		    + "'getResource' method in this environment!", ex);
-	    }
-	    try {
-		url = (URL) method.invoke(ctx, new Object [] {"/" + key});
-	    } catch (IllegalAccessException ex) {
-		throw new LayoutDefinitionException(ex);
-	    } catch (InvocationTargetException ex) {
-		throw new LayoutDefinitionException(ex);
-	    }
-
-	    if (url == null) {
-		// Check the classpath for the template file
-		ClassLoader loader = Util.getClassLoader(key);
-		url = loader.getResource(key);
-		if (url == null) {
-		    url = loader.getResource("/"+key);
-		    if (url == null) {
-			url = loader.getResource("META-INF/"+key);
-		    }
-		}
-	    }
+	    URL url = searchForFile(key);
 
 	    // Make sure we found the url
 	    if (url == null) {
@@ -150,32 +164,15 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 	    }
 
 	    // Cache the LayoutDefinition
-	    synchronized (layouts) {
-		layouts.put(key, ld);
-	    }
+	    putCachedLayoutDefinition(key, ld);
 	}
 	return ld;
     }
 
 
     /**
-     *	<p> Static map of LayoutDefinitionManagers.  Normally this will only
-     *	    contain the default LayoutManager.</p>
-     */
-    private static Map layouts = new HashMap();
-
-    /**
      *	<p> This is used to ensure that only 1 instance of this class is
      *	    created (per JVM).</p>
      */
     private static LayoutDefinitionManager instance = null;
-
-    /**
-     *
-     */
-    private static final Class [] GET_RESOURCE_ARGS =
-	    new Class[] {String.class};
-
-    private static boolean DEBUG =
-	Boolean.getBoolean("com.sun.jsftemplating.DEBUG");
 }
