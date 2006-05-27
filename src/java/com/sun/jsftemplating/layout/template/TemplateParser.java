@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.layout.template;
 
+import com.sun.jsftemplating.layout.SyntaxException;
 import com.sun.jsftemplating.util.IncludeInputStream;
 import com.sun.jsftemplating.util.LogUtil;
 
@@ -30,7 +31,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.LinkedList;
+import java.util.Stack;
 
 
 /**
@@ -81,7 +82,7 @@ public class TemplateParser {
 		new BufferedInputStream(getURL().openStream()))));
 
 	// Initialize the queue we will use to push values back
-	_queue = new LinkedList<Character>();
+	_stack = new Stack<Character>();
     }
 
     /**
@@ -105,9 +106,9 @@ public class TemplateParser {
      *	<p> This method returns the next character.</p>
      */
     public int nextChar() throws IOException {
-	if (_queue.peek() != null) {
+	if (!_stack.empty()) {
 	    // We have values in the queue
-	    return _queue.poll().charValue();
+	    return _stack.pop().charValue();
 	}
 	return _reader.read();
     }
@@ -117,7 +118,7 @@ public class TemplateParser {
      *	    be read next.</p>
      */
     public void unread(int ch) {
-	_queue.add(new Character((char) ch));
+	_stack.push(new Character((char) ch));
     }
 
     /**
@@ -334,34 +335,41 @@ public class TemplateParser {
 
 	// Break String into characters
 	char arr[] = endingStr.toCharArray();
+	int arrlen = arr.length;
 
 	StringBuffer buf = new StringBuffer("");
 	int ch = nextChar();  // Read a char to unread
-	int idx = 1;
+	int idx = 0;
 	do {
 	    // We didn't find the end, push read values back on queue
-	    for (int cnt = 1; cnt < idx; cnt++) {
+	    unread(ch);
+	    for (int cnt = idx-1; cnt > 0; cnt--) {
 		unread(arr[cnt]);
 	    }
-	    unread(ch);
 
 	    // Read until the beginning of the end (maybe)
 	    buf.append(readUntil(arr[0]));
 	    buf.append(arr[0]); // readUntil reads but doesn't return this char
 
 	    // Check to see if we are at the end
-	    for (idx = 1; idx < arr.length; idx++) {
+	    for (idx = 1; idx < arrlen; idx++) {
 		ch = nextChar();
 		if (ch != arr[idx]) {
 		    // This is not the end!
 		    break;
 		}
 	    }
-	} while ((ch != -1) && (idx < arr.length));
+	} while ((ch != -1) && (idx < arrlen));
 
 	// Append the remaining characters (use idx in case we hit eof)...
 	for (int cnt = 1; cnt < idx; cnt++) {
 	    buf.append(arr[cnt]);
+	}
+
+	if (arrlen != idx) {
+	    // Didn't find it!
+	    throw new SyntaxException("Unable to find ending: '" + endingStr
+		+ "'.  Read to EOF and gave up.  Read: \n" + buf.toString());
 	}
 
 	// Return the result
@@ -426,8 +434,8 @@ public class TemplateParser {
 			readUntil("*/");
 		    } else {
 			// Not a comment, don't read
-			unread('/');
 			unread(ch);
+			unread('/');
 			ch = -1; // Exit loop
 		    }
 		    break;
@@ -443,31 +451,27 @@ public class TemplateParser {
 			    } else {
 				// Not a comment, probably a mistake... lets
 				// throw an exception
-				unread('<');
-				unread('!');
-				unread('-');
 				unread(ch);
+				unread('-');
+				unread('!');
+				unread('<');
 				throw new IllegalArgumentException("Invalid "
 				    + "comment!  Expected comment to begin "
 				    + "with \"<!--\", but found: "
 				    + readLine());
 			    }
 			} else {
-			    // Not a comment, probably a mistake... lets
-			    // throw an exception
-			    unread('<');
-			    unread('!');
+			    // Not a comment, probably an event.. back out
 			    unread(ch);
-			    throw new IllegalArgumentException("Invalid "
-				+ "comment!  Expected comment to begin "
-				+ "with \"<!--\", but found: "
-				+ readLine());
+			    unread('!');
+			    unread('<');
+			    ch = -1;  // Cause loop to end
 			}
 		    } else {
-			// '!' not found, not a comment... we shouldn't be
+			// '!' not found, not a comment... we shouldn't be here
 			// skipping this back out
-			unread('<');
 			unread(ch);
+			unread('<');
 			ch = -1;  // Cause loop to end
 		    }
 		    break;
@@ -493,17 +497,17 @@ public class TemplateParser {
     public String readLine() throws IOException {
 	StringBuffer buf = new StringBuffer();
 	int ch = -1;
-	while (_queue.peek() != null) {
+	while (!_stack.empty()) {
 	    // We have values in the queue
-	    ch = _queue.remove().charValue();
+	    ch = _stack.pop().charValue();
 	    if ((ch == '\r') || (ch == '\n')) {
 		// We hit the EOL...
 		// Check to see if there are 2...
-		if (_queue.peek() != null) {
-		    ch = _queue.peek().charValue();
+		if (!_stack.empty()) {
+		    ch = _stack.peek().charValue();
 		    if ((ch == '\r') || (ch == '\n')) {
 			// Remove this one too...
-			_queue.remove().charValue();
+			_stack.pop().charValue();
 		    }
 		}
 		return buf.toString();
@@ -530,5 +534,5 @@ public class TemplateParser {
 
     private URL				    _url	= null;
     private transient BufferedReader	    _reader	= null;
-    private transient LinkedList<Character> _queue	= null;
+    private transient Stack<Character>	    _stack	= null;
 }
