@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout.template;
 
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.SyntaxException;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
@@ -153,81 +154,113 @@ public class TemplateReader {
 	    ld.setHandlers(type, getHandlers(eventNode, handlers));
 	}
 */
+	return (LayoutDefinition) process(LAYOUT_DEFINITION_CONTEXT, ld, false);
+    }
 
-	// Loop..
-	String str1 = null;
-	String str2 = null;
-	try {
-	    // Get the parser...
-	    TemplateParser parser = getTemplateParser();
+    /**
+     *	<p> This method does the walking through the file.  The file has
+     *	    different "contexts" in which it may be processing.  For example,
+     *	    when processing at the top-level, certain syntax is valid.
+     *	    However, when processing content inside a component, the valid
+     *	    syntax may be different.  This method delegates handling of various
+     *	    syntaxes to the {@link ProcessingContext}.  This enables the
+     *	    walking and the processing to be separated.</p>
+     *
+     *	<p> The <code>nested</code> flag is used to indicate whether
+     *	    processing is nested inside a {@link LayoutComponent}.  This is
+     *	    important to know because the rules change when
+     *	    <code>UIComponent</code>s become nested.  The
+     *	    <code>ViewHandler</code> has control at the top level
+     *	    (non-nested), but does not have control inside
+     *	    <code>UIComponent</code>s.  When nested often a
+     *	    <code>UIComponent</code> must be utilized instead of a
+     *	    {@link LayoutElement}.  In a page situation, most tags will be
+     *	    nested; when defining a <code>Renderer</code> most tags are not
+     *	    likely to be nested.</p>
+     *
+     *	@param	ctx	The {@link ProcessingContext}
+     *	@param	parent	The parent {@link LayoutElement}
+     *	@param	nested	<code>true</code> if nested in a {@link LayoutComponent}
+     */
+    protected LayoutElement process(ProcessingContext ctx, LayoutElement parent, boolean nested) throws IOException {
+	// Get the parser...
+	TemplateParser parser = getTemplateParser();
 
-	    // Skip White Space...
-	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	// Skip White Space...
+	parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 
-	    int ch = parser.nextChar();
-StringBuffer buf = new StringBuffer("");
-	    while (ch != -1) {
-		switch (ch) {
-		    case '<' :
+	ProcessingContextEnvironment env = new ProcessingContextEnvironment(
+		this, parent, nested);
+	int ch = parser.nextChar();
+	String tmpstr = null;
+	boolean finished = false;
+	while (ch != -1) {
+	    switch (ch) {
+		case '<' :
+		    parser.skipCommentsAndWhiteSpace(   // Skip white space
+			parser.SIMPLE_WHITE_SPACE);
+		    ch = parser.nextChar();
+		    if (ch == '/') {
+			// Closing tag
 			parser.skipCommentsAndWhiteSpace(   // Skip white space
 			    parser.SIMPLE_WHITE_SPACE);
-			ch = parser.nextChar();
-			if (ch == '/') {
-			    // Close open tag (ensure match)
-			    str1 = parser.readToken();
+			if (env.isSpecial()) {
+			    // Check for special flag might have a '!'
 			    ch = parser.nextChar();
-			    if (ch == ':') {
-				// We have an end reserved tag...
-				str2 = parser.readToken();
-buf.append("</"+str1+":"+str2+">\n");
-			    } else {
-				// We have an end UIComponent tag...
-				parser.unread(ch);
-// FIXME: pop UIcomponent name off stack
-buf.append("*:"+str1+"\n");
-			    }
-			} else if (ch == '!') {
-			    // We have a reserved tag...
-			    str2 = parser.readToken();
-buf.append("</"+str1+":"+str2+">\n");
-			} else {
-			    // Open tag
-			    // Get tag name
-			    parser.unread(ch);
-			    str1 = parser.readToken();
-
-			    // Skip white Space
-			    parser.skipCommentsAndWhiteSpace(
+			    // Ignore the '!' if there, if not push it back
+			    if (ch == '!') {
+				// Ignore '!', but skip white space after it
+				parser.skipCommentsAndWhiteSpace(
 				    parser.SIMPLE_WHITE_SPACE);
-
-			    // We have a UIComponent tag...
-			    parser.unread(ch);
-			    ld.addChildLayoutElement(
-				createLayoutComponent(ld, str1));
+			    } else {
+				// No optional '!', push back extra read char
+				parser.unread(ch);
+			    }
 			}
-			break;
-		    case '\'' :
-			str1 = parser.readLine();
-			// Escape HTML
-			ld.addChildLayoutElement(new LayoutStaticText(
-			    ld, "", Util.htmlEscape(str1)));
-			break;
-		    case '"' :
-			str1 = parser.readLine();
-			ld.addChildLayoutElement(new LayoutStaticText(ld, "", str1));
-			break;
-		    default:
-		}
-		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
-		ch = parser.nextChar();
+			tmpstr = parser.readToken();
+			ctx.endComponent(env, tmpstr);
+			finished = true; // Indicate done with this context
+			parser.skipCommentsAndWhiteSpace(   // Skip white space
+			    parser.SIMPLE_WHITE_SPACE);
+			ch = parser.nextChar(); // Throw away '>' character
+			if (ch != '>') {
+			    throw new SyntaxException(
+				"While processing closing tag '</" + tmpstr
+				+ "...' expected to encounter closing '>' but"
+				+ " found '" + (char) ch + "' instead!");
+			}
+		    } else if (ch == '!') {
+			// We have a reserved tag...
+			env.setSpecial(true);
+			ctx.beginSpecial(env, parser.readToken());
+		    } else {
+			// Open tag
+			parser.unread(ch);
+			ctx.beginComponent(env, parser.readToken());
+		    }
+		    break;
+		case '\'' :
+		    // Escape HTML
+		    ctx.escapedStaticText(env, parser.readLine());
+		    break;
+		case '"' :
+		    // Write output directly to stdout
+		    ctx.staticText(env, parser.readLine());
+		    break;
+		default:
+		    parser.unread(ch);
+		    ctx.handleDefault(env, null);
 	    }
-//System.out.println(buf.toString());
-	} catch (IOException ex) {
-	    ex.printStackTrace();
+	    if (finished) {
+		// Done w/ this context...
+		return parent;
+	    }
+	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    ch = parser.nextChar();
 	}
 
 	// Return the LayoutDefinition
-	return ld;
+	return parent;
     }
 
     /**
@@ -236,8 +269,8 @@ buf.append("</"+str1+":"+str2+">\n");
      *
      *	@param	type	The type of component to create.
      */
-    private LayoutComponent createLayoutComponent(LayoutElement parent, String type) throws IOException {
-	// Ensure type
+    private LayoutComponent createLayoutComponent(LayoutElement parent, boolean nested, String type) throws IOException {
+	// Ensure type is defined
 	ComponentType componentType = LayoutDefinitionManager.
 	    getGlobalComponentType(type);
 	if (componentType == null) {
@@ -252,12 +285,25 @@ buf.append("</"+str1+":"+str2+">\n");
 	String id = null;
 	String overwrite = null;
 	int ch = 0;
+	boolean single = false;
 	TemplateParser parser = getTemplateParser();
 	while (ch != -1) {
 	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 	    ch = parser.nextChar();
-	    if ((ch == '>') || (ch == '/')) {
+	    if (ch == '>') {
 		// We're at the end of the parameters.
+		break;
+	    }
+	    if (ch == '/') {
+		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+		ch = parser.nextChar();
+		if (ch != '>') {
+		    throw new SyntaxException("'" + type + "' tag contained "
+			+ "'/' that was not followed by a '>' character!");
+		}
+
+		// We're at the end of the parameters.
+		single = true;
 		break;
 	    }
 	    parser.unread(ch);
@@ -274,6 +320,9 @@ buf.append("</"+str1+":"+str2+">\n");
 	}
 
 	// Create the LayoutComponent
+	if (id == null) {
+	    id = getGeneratedId(type);
+	}
 	LayoutComponent component =
 	    new LayoutComponent(parent, id, componentType);
 
@@ -296,15 +345,37 @@ buf.append("</"+str1+":"+str2+">\n");
 	// NOTE: While this could be implemented on the LayoutComponent
 	//	 itself, I decided not to for performance reasons and to
 	//	 allow this value to be overruled if desired.
-	component.setNested(
-	    LayoutElementUtil.isNestedLayoutComponent(component));
+	component.setNested(nested);
 
+	// Set facet id if needed
+	checkForFacetChild(parent, component);
+
+	// Let calling method see if this is a single tag, or if there should
+	// be a closing tag as well
+	parser.unread('>');
+	if (single) {
+	    parser.unread('/');
+	}
+
+	return component;
+    }
+
+    /**
+     *	<p> This method checks to see if the given <code>component</code> is
+     *	    sitting inside a facet or not.  If it is, it will use the facet
+     *	    name for its id so that it will be found correctly.  However, if
+     *	    the facet tag exists outside a component, then it is not a facet
+     *	    -- its a place holder for a facet.  In this case it will not use
+     *	    the id of the place holder.</p>
+     */
+    private static void checkForFacetChild(LayoutElement parent, LayoutComponent component) {
 	// Figure out if this should be stored as a facet, if so under what id
 	if (LayoutElementUtil.isLayoutComponentChild(component)) {
 	    component.setFacetChild(false);
 	} else {
 	    // Need to add this so that it has the correct facet name
 	    // Check to see if this LayoutComponent is inside a LayoutFacet
+	    String id = component.getUnevaluatedId();
 	    while (parent != null) {
 		if (parent instanceof LayoutFacet) {
 		    // Inside a LayoutFacet, use its id... only if this facet
@@ -322,18 +393,15 @@ buf.append("</"+str1+":"+str2+">\n");
 	    // Set the facet name
 	    component.addOption(LayoutComponent.FACET_NAME, id);
 	}
-
-	return component;
     }
+
 
     /**
      *	<p> This method adds child <code>LayoutElement</code>s.</p>
      *
      *	@param	layElt	The parent <code>LayoutElment</code>.
      */
-    private void addChildLayoutElements(LayoutElement layElt) {
-	// FIXME: XXX HERE
-	System.out.println("Here!");
+    private void addChildLayoutElements(LayoutElement layElt, boolean nested) {
 	/*
 	// Get the child nodes
 	Iterator it = getChildElements(node).iterator();
@@ -1083,6 +1151,307 @@ buf.append("</"+str1+":"+str2+">\n");
     }
      */
 
+    /**
+     *	<p> This method produces a generated ID.  It optionally uses the given
+     *	    base as a prefix to the generated ID ({@link #DEFAULT_ID_BASE} is
+     *	    used otherwise).  This implementation will generate an id that
+     *	    contains a number between 1 and {@link #MAX_ID}.  Do not depend on
+     *	    this implementation, it may change in the future.</p>
+     */
+    public static String getGeneratedId(String base) {
+	if (base == null) {
+	    base = DEFAULT_ID_BASE;
+	} else {
+	    base = base.trim();
+	    if (base.equals("")) {
+		base = DEFAULT_ID_BASE;
+	    }
+	}
+	return base + (_idNum++ % MAX_ID);
+    }
+
+    /**
+     *	<p> This interface defines the operations that may be acted upon while
+     *	    a "template" file is walked.  The intent is that this interface may
+     *	    be implemented by the different "processing contexts" which occur
+     *	    throught the template file.  This provides the opportunity for
+     *	    context sensitive syntax in an easy to provide way.</p>
+     */
+    protected static interface ProcessingContext {
+	/**
+	 *  <p>	This is called when a component tag is found
+	 *	(&lt;tagname ...).</p>
+	 */
+	void beginComponent(ProcessingContextEnvironment env, String content) throws IOException;
+
+	/**
+	 *  <p>	This is called when an end component tag is found
+	 *	(&lt;/tagname ... or &lt;tagname ... /&gt;).</p>
+	 */
+	void endComponent(ProcessingContextEnvironment env, String content) throws IOException;
+
+	/**
+	 *  <p>	This is called when a special tag is found
+	 *	(&lt;!tagname ...).</p>
+	 */
+	void beginSpecial(ProcessingContextEnvironment env, String content) throws IOException;
+
+	/**
+	 *  <p>	This is called when a special end tag is found
+	 *	(&lt;/tagname ... or &lt;!tagname ... /&gt;).</p>
+	 */
+	void endSpecial(ProcessingContextEnvironment env, String content) throws IOException;
+
+	/**
+	 *  <p>	This is called when static text is found (").</p>
+	 */
+	void staticText(ProcessingContextEnvironment env, String content) throws IOException;
+
+	/**
+	 *  <p>	This is called when escaped static text is found (').  The
+	 *	difference between this and staticText is that HTML is expected
+	 *	to be escaped so the browser does not parse it.</p>
+	 */
+	void escapedStaticText(ProcessingContextEnvironment env, String content) throws IOException;
+
+	/**
+	 *  <p>This method is invoked when nothing else matches.</p>
+	 */
+	void handleDefault(ProcessingContextEnvironment env, String content) throws IOException;
+    }
+
+    /**
+     *	<p> This class hold environmental information needed while a
+     *	    {@link ProcessingContext} is processing.</p>
+     */
+    protected static class ProcessingContextEnvironment {
+	public ProcessingContextEnvironment(TemplateReader reader, LayoutElement parent, boolean nested) {
+	    _reader = reader;
+	    _parent = parent;
+	    _nested = nested;
+	}
+
+	/**
+	 *  @return The <code>TemplateReader</code> instance.
+	 */
+	public TemplateReader getReader() {
+	    return _reader;
+	}
+
+	/**
+	 *  @return <code>true</code> if nested in a LayoutComponent.
+	 */
+	public boolean isNested() {
+	    return _nested;
+	}
+
+	/**
+	 *  @return The parent {@link LayoutElement}.
+	 */
+	public LayoutElement getParent() {
+	    return _parent;
+	}
+
+	/**
+	 *  <p>	This method marks the current <code>ProcessingContext</code>
+	 *	as complete.</p>
+	 */
+	public void setFinished(boolean finished) {
+	    _finished = finished;
+	}
+
+	/**
+	 *  <p>	This method indicates if the current
+	 *	<code>ProcessingContext</code> is still valid.</p>
+	 */
+	public boolean isFinished() {
+	    return _finished;
+	}
+
+	/**
+	 *  <p>	Being marked special, indicates a "special" command versus
+	 *	a component.  In other words a tag that starts with a '!'
+	 *	char.</p>
+	 */
+	public void setSpecial(boolean val) {
+	    _special = val;
+	}
+
+	/**
+	 *  <p>	Indicates if the current tag being processed is "special".</p>
+	 */
+	public boolean isSpecial() {
+	    return _special;
+	}
+
+
+	boolean		_finished   = false;
+	boolean		_special    = false;
+	boolean		_nested	    = false;
+	LayoutElement	_parent	    = null;
+	TemplateReader	_reader	    = null;
+    }
+
+    /**
+     *	<p> Since many contexts share common functionality (i.e. processing
+     *	    static text output), it makes sense to have a base processing
+     *	    context which may be specialized as needed.</p>
+     */
+    protected static class BaseProcessingContext implements ProcessingContext {
+	/**
+	 *  <p>	This is called when a component tag is found
+	 *	(&lt;tagname ...).</p>
+	 */
+	public void beginComponent(ProcessingContextEnvironment env, String content) throws IOException {
+	    // We have a UIComponent tag... first get the parser
+	    // Skip white Space
+	    TemplateReader reader = env.getReader();
+	    reader.getTemplateParser().skipCommentsAndWhiteSpace(
+		    TemplateParser.SIMPLE_WHITE_SPACE);
+
+// tagStack.push(content);
+	    // Create the LayoutComponent
+	    LayoutElement parent = env.getParent();
+	    LayoutComponent child = reader.createLayoutComponent(
+		    parent, env.isNested(), content);
+	    parent.addChildLayoutElement(child);
+
+	    // See if this is a single tag or if there is a closing tag
+	    boolean single = false;
+	    TemplateParser parser = reader.getTemplateParser();
+	    int ch = parser.nextChar();
+	    if (ch == '/') {
+		// Single Tag
+		ch = parser.nextChar();  // Throw away '>'
+		single = true;
+	    }
+	    if (ch != '>') {
+		throw new SyntaxException(
+		    "Expected '>' found '" + (char) ch + "'.");
+	    }
+
+	    if (single) {
+		// This is also the end of the component in this case...
+		endComponent(env, content);
+	    } else {
+		// Process child LayoutElements (recurse)
+		reader.process(LAYOUT_COMPONENT_CONTEXT, child, true);
+	    }
+	}
+
+	/**
+	 *  <p>	This is called when an end component tag is found
+	 *	(&lt;/tagname&gt; or &lt;tagname ... /&gt;).  Because it may
+	 *	be called for either of the above syntaxes, the caller of this
+	 *	method is responsible for maintaining the parser position, this
+	 *	method (or its subclasses) should not effect the parser
+	 *	position.</p>
+	 */
+	public void endComponent(ProcessingContextEnvironment env, String content) throws IOException {
+// if (!tagStack.pop().equals(content)) {
+//  throw SyntaxException(...);
+// }
+/*
+		    ch = parser.nextChar();
+// FIXME: ':' is no longer used to indicate resevered... ! is... don't require this on end tag???
+		    if (ch == ':') {
+			// We have an end reserved tag...
+			str2 = parser.readToken();
+		    } else {
+			// We have an end UIComponent tag...
+			parser.unread(ch);
+// FIXME: pop UIcomponent name off stack
+		    }
+*/
+	}
+
+	/**
+	 *  <p>	This is called when a special tag is found
+	 *	(&lt;!tagname ...).</p>
+	 */
+	public void beginSpecial(ProcessingContextEnvironment env, String content) throws IOException {
+//System.out.println("Reading Special: " + content);
+// FIXME: Provide plugable way to add custom directives
+	}
+
+	/**
+	 *  <p>	This is called when a special end tag is found
+	 *	(&lt;/tagname ... or &lt;!tagname ... /&gt;).</p>
+	 */
+	public void endSpecial(ProcessingContextEnvironment env, String content) throws IOException {
+	}
+
+	/**
+	 *  <p>	This is called when static text is found (").</p>
+	 */
+	public void staticText(ProcessingContextEnvironment env, String content) throws IOException {
+	    LayoutElement parent = env.getParent();
+	    LayoutElement child = null;
+	    if (env.isNested()) {
+		// Must create a LayoutComponent (for UIComponent tree)
+		LayoutComponent component =
+		    new LayoutComponent(parent, getGeneratedId("staticText"), STATIC_TEXT);
+		component.addOption("value", content);
+		component.setNested(true);
+		checkForFacetChild(parent, component);
+		child = component;
+	    } else {
+		// Don't need a LayoutComponent
+		child = new LayoutStaticText(parent, "", content);
+	    }
+	    parent.addChildLayoutElement(child);
+	}
+
+	/**
+	 *  <p>	This is called when escaped static text is found (').  The
+	 *	difference between this and staticText is that HTML is expected
+	 *	to be escaped so the browser does not parse it.</p>
+	 */
+	public void escapedStaticText(ProcessingContextEnvironment env, String content) throws IOException {
+	    staticText(env, Util.htmlEscape(content));
+	}
+
+	/**
+	 *  <p>This method is invoked when nothing else matches.</p>
+	 *
+	 *  <p>This implementation does nothing.</p>
+	 */
+	public void handleDefault(ProcessingContextEnvironment env, String content) throws IOException {
+	    // The process() method unreads the character that sent us here, we
+	    // don't want that to happen so read it here and ignore it.
+	    env.getReader().getTemplateParser().nextChar();
+//System.out.println("handleDefault: " + content);
+	}
+    }
+
+    /**
+     *	<p> This is the {@link ProcessingContext} for the
+     *	    {@link LayoutDefinition}.</p>
+     */
+    protected static class LayoutDefinitionContext extends BaseProcessingContext {
+    }
+
+    /**
+     *	<p> This is the {@link ProcessingContext} for
+     *	    {@link LayoutComponent}s.</p>
+     */
+    protected static class LayoutComponentContext extends BaseProcessingContext {
+	/**
+	 *  <p>This method is invoked when nothing else matches.</p>
+	 *
+	 *  <p>This implementation uses this to store "body content".  This
+	 *	content is used as the <code>value</code> of the component.
+	 *	If a value is already set, then this content will be
+	 *	ignored.</p>
+	 */
+	public void handleDefault(ProcessingContextEnvironment env, String content) throws IOException {
+	    TemplateParser parser = env.getReader().getTemplateParser();
+//System.out.println("handleDefault: " + parser.readUntil('<'));
+// FIXME: **ignore comments and allow escaping**
+	    String bodyContent = parser.readUntil('<');
+	    parser.unread('<');
+	}
+    }
 
     //////////////////////////////////////////////////////////////////////
     //	Constants
@@ -1129,7 +1498,7 @@ buf.append("</"+str1+":"+str2+">\n");
     public static final String OUTPUT_MAPPING_ELEMENT	    =
 	"outputmapping";
     public static final String STATIC_TEXT_ELEMENT	    =
-	"statictext";
+	"staticText";
     public static final String TYPES_ELEMENT		    =
 	"types";
     public static final String RESOURCES_ELEMENT	    =
@@ -1187,6 +1556,27 @@ buf.append("</"+str1+":"+str2+">\n");
 
     public static final String MARKUP_FACTORY_CLASS	    =
 	"com.sun.jsftemplating.component.factory.basic.MarkupFactory";
+
+    public static final ComponentType STATIC_TEXT	    = 
+	LayoutDefinitionManager.getGlobalComponentType("staticText");
+
+    protected static final ProcessingContext LAYOUT_DEFINITION_CONTEXT	=
+	new LayoutDefinitionContext();
+
+    protected static final ProcessingContext LAYOUT_COMPONENT_CONTEXT	=
+	new LayoutComponentContext();
+
+    /**
+     *	<p> This value represents the maximum number that is contained in an
+     *	    auto generated id.  I intentionally did not make this final so that
+     *	    if needed it can be tweaked at runtime.  However, I do not think
+     *	    this will ever be necessary (id's can be specified, and this many
+     *	    unspecified ids is unlikely to be needed on a single page!).</p>
+     */
+    public  static int	MAX_ID			= 0x00010000;
+    private static int	_idNum			= 1;
+
+    public static final String DEFAULT_ID_BASE	= "id";
 
     /**
      *	This is used to set the "value" option for static text fields.
