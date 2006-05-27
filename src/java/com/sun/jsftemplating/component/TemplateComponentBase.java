@@ -154,13 +154,10 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
 	    throw new NullPointerException("LayoutDefinition key is null!");
 	}
 
-	// Get the LayoutDefinitionManager
-	LayoutDefinitionManager ldm =
-	    LayoutDefinitionManager.getManager(context);
-
 	// Save the LayoutDefinition for future calls to this method
 	try {
-	    _layoutDefinition = ldm.getLayoutDefinition(key);
+	    _layoutDefinition = LayoutDefinitionManager.
+		getLayoutDefinition(context, key);
 	} catch (LayoutDefinitionException ex) {
 	    throw new IllegalArgumentException(
 		    "A LayoutDefinition was not provided for '" + key
@@ -204,7 +201,7 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
     /**
      *	This method returns the LayoutDefinitionKey for this component.
      *
-     *	@return	key	The key to use in the LayoutDefinitionManager
+     *	@return	key	The key to use in the {@link LayoutDefinitionManager}.
      */
     public String getLayoutDefinitionKey() {
 	return _ldmKey;
@@ -214,7 +211,7 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
     /**
      *	This method sets the LayoutDefinition key for this component.
      *
-     *	@param	key The key to use in the LayoutDefinitionManager
+     *	@param	key The key to use in the {@link LayoutDefinitionManager}.
      */
     public void setLayoutDefinitionKey(String key) {
 	_ldmKey = key;
