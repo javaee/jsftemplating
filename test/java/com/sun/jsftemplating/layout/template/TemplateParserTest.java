@@ -76,6 +76,12 @@ public class TemplateParserTest extends TestCase {
 	    parser.unread('X');
 	    assertEquals("testNextChar1-6", 'X', parser.nextChar());
 	    assertEquals("testNextChar1-7", 'e', parser.nextChar());
+	    parser.unread('1');
+	    parser.unread('2');
+	    parser.unread('3');
+	    assertEquals("testNextChar1-8", '3', (char) parser.nextChar());
+	    assertEquals("testNextChar1-9", '2', (char) parser.nextChar());
+	    assertEquals("testNextChar1-10", '1', (char) parser.nextChar());
 	    parser.close();
 	} catch (Exception ex) {
 	    ex.printStackTrace();
@@ -97,6 +103,7 @@ public class TemplateParserTest extends TestCase {
 	    // Move in to the NVP (actually 1 past just to see that that works)
 	    parser.nextChar(); parser.nextChar(); parser.nextChar(); parser.nextChar(); parser.nextChar();
 	    parser.nextChar(); parser.nextChar(); parser.nextChar(); parser.nextChar(); parser.nextChar();
+	    parser.nextChar(); parser.nextChar(); parser.nextChar(); parser.nextChar();
 	    parser.nextChar(); parser.nextChar(); parser.nextChar(); parser.nextChar();
 
 	    NameValuePair nvp = parser.getNVP();
@@ -172,7 +179,7 @@ public class TemplateParserTest extends TestCase {
 	    parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine();
 
 	    // Make sure we're at the right spot
-	    assertEquals("testReadLine4", "\t    <script file=\"jsftemplating/js/jsftemplating.js\" />", parser.readLine());
+	    assertEquals("testReadLine4", "\t    <sun:script file=\"jsftemplating/js/jsftemplating.js\" />", parser.readLine());
 	    parser.close();
 	} catch (Exception ex) {
 	    ex.printStackTrace();
@@ -195,7 +202,7 @@ public class TemplateParserTest extends TestCase {
 	    parser.readUntil('<');
 
 	    // Test readToken()
-	    assertEquals("testReadToken", "script", parser.readToken());
+	    assertEquals("testReadToken", "sun:script", parser.readToken());
 
 	    // Test skipWhiteSpace();
 	    parser.skipWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);

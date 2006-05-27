@@ -1,8 +1,11 @@
 package com.sun.jsftemplating.layout.template;
 
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 
 import java.net.URL;
+import java.util.List;
 
 import junit.framework.*;
 
@@ -36,13 +39,44 @@ public class TemplateReaderTest extends TestCase {
     /**
      *	<p> This tests the accuracy of what was read.</p>
      */
-    public void testRead2() {
-	/*
+    public void testReadAccuracy() {
 	try {
+	    TemplateReader reader =
+		new TemplateReader(new URL("file:exampleapp/index.jsf"));
+	    LayoutDefinition ld = reader.read();
+	    List<LayoutElement> children = ld.getChildLayoutElements();
+	    if (children.size() < 5) {
+		throw new RuntimeException("Not enough children!");
+	    }
+	    assertEquals("testReadAccuracy.id.y",
+		"y", children.get(2).getUnevaluatedId());
+	    assertEquals("testReadAccuracy.value.abcd",
+		"abcd", ((LayoutComponent) children.get(2)).getOption("value"));
+
+	    assertEquals("testReadAccuracy.id.hhh",
+		"hhh", children.get(3).getUnevaluatedId());
+	    assertEquals("testReadAccuracy.text.some tree",
+		"some tree",
+		((LayoutComponent) children.get(3)).getOption("text"));
+	    assertEquals("testReadAccuracy.hhh:treeNode1.id",
+		"treeNode1",
+		children.get(3).getChildLayoutElements().get(0).getUnevaluatedId());
+	    assertEquals("testReadAccuracy.hhh:treeNode1.text",
+		"abc",
+		((LayoutComponent) children.get(3).getChildLayoutElements().get(0)).getOption("text"));
+
+	    assertEquals("testReadAccuracy.id.theform",
+		"theform", children.get(4).getUnevaluatedId());
+	    assertEquals("testReadAccuracy.style1",
+		"border: 1px solid red;",
+		((LayoutComponent) children.get(4)).getOption("style"));
+
+	    for (LayoutElement elt : children.get(4).getChildLayoutElements()) {
+		System.out.println(elt.getUnevaluatedId());
+	    }
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
-	*/
     }
 }
