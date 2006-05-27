@@ -69,8 +69,10 @@ public class ClasspathEntityResolver implements EntityResolver2 {
 		    systemId = systemId.substring(baseURI.length());
 		}
 	    }
-	    if (systemId.startsWith("file:/")) {
-		systemId = systemId.substring(6); // remove "file:/"
+	    int idx = systemId.indexOf(':');
+	    if (idx != -1) {
+		// remove "file:/", "jndi:/", etc
+		systemId = systemId.substring(idx + 1);
 	    }
 
 	    // Remove any extra leading /'s
