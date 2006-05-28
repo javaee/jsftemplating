@@ -74,6 +74,17 @@ public class NameValuePair {
 	return _target;
     }
 
+    /**
+     *	<p> Customized to reconstruct the NVP.</p>
+     */
+    public String toString() {
+	if (getTarget() == null) {
+	    return getName() + "=\"" + getValue() + '"';
+	} else {
+	    return getName() + "=>$" + getTarget() + '{' + getValue() + '}';
+	}
+    }
+
     private String _name = null;
     private String _value = null;
     private String _target = null;
