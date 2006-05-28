@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout.xml;
 
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.SyntaxException;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
@@ -161,8 +162,10 @@ public class XMLLayoutDefinitionReader {
 	    // Parse the XML file
 	    try {
 		doc = db.parse(inputStream, getBaseURI());
+	    } catch (IOException ex) {
+		throw new SyntaxException("Unable to parse XML file!", ex);
 	    } catch (SAXException ex) {
-		throw new RuntimeException(ex);
+		throw new SyntaxException(ex);
 	    }
 	} finally {
 	    try {
