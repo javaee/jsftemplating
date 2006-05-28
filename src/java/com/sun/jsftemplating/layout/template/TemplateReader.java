@@ -75,6 +75,9 @@ public class TemplateReader {
      */
     public TemplateReader(URL url) {
 	_tpl = new TemplateParser(url);
+	if (_parserCmds == null) {
+	    initCustomParserCommands();
+	}
     }
 
     /**
@@ -496,70 +499,6 @@ public class TemplateReader {
 
 	// Return the handlers
 	return handlers;
-    }
-     */
-
-    /**
-     *	<p> This method creates a {@link Handler} from the given handler
-     *	    <code>Node</code>.  It will add input and/or output mappings
-     *	    specified by any child Elements named {@link INPUT_ELEMENT} or
-     *	    {@link OUTPUT_MAPPING_ELEMENT}.</p>
-     *
-     *	@param	handlerNode	The <code>Node</code> describing the
-     *				{@link Handler} to be created.
-     *
-     *	@return	The newly created {@link Handler}.
-    private Handler createHandler(Node handlerNode) {
-	// Pull off attributes...
-	String id = (String) getAttributes(handlerNode).
-	    get(ID_ATTRIBUTE);
-	if ((id == null) || (id.trim().equals(""))) {
-	    throw new RuntimeException("'" + ID_ATTRIBUTE
-		    + "' attribute not found on '" + HANDLER_ELEMENT
-		    + "' Element!");
-	}
-
-	// Find the HandlerDefinition associated with this Handler
-	HandlerDefinition handlerDef = LayoutDefinitionManager.getGlobalHandlerDefinition.get(id);
-	if (handlerDef == null) {
-	    throw new IllegalArgumentException(HANDLER_ELEMENT + " elements "
-		    + ID_ATTRIBUTE + " attribute must match the "
-		    + ID_ATTRIBUTE + " attribute of a "
-		    + HANDLER_DEFINITION_ELEMENT + ".  A HANDLER_ELEMENT with '"
-		    + id + "' was specified, however there is no cooresponding "
-		    + HANDLER_DEFINITION_ELEMENT + " with a matching "
-		    + ID_ATTRIBUTE + " attribute.");
-	}
-
-	// Create new Handler
-	Handler handler =  new Handler(handlerDef);
-
-	// Add the inputs
-	Map attributes = null;
-	Node inputNode = null;
-	Iterator it = getChildElements(handlerNode, INPUT_ELEMENT).iterator();
-	while (it.hasNext()) {
-	    // Processing an INPUT_ELEMENT
-	    inputNode = (Node) it.next();
-	    attributes = getAttributes(inputNode);
-	    handler.setInputValue(
-		(String) attributes.get(NAME_ATTRIBUTE),
-		getValueFromNode(inputNode, attributes));
-	}
-
-	// Add the OutputMapping objects
-	it = getChildElements(handlerNode, OUTPUT_MAPPING_ELEMENT).iterator();
-	while (it.hasNext()) {
-	    // Processing an OUTPUT_MAPPING_ELEMENT
-	    attributes = getAttributes((Node) it.next());
-	    handler.setOutputMapping(
-		(String) attributes.get(OUTPUT_NAME_ATTRIBUTE),
-		(String) attributes.get(TARGET_KEY_ATTRIBUTE),
-		(String) attributes.get(TARGET_TYPE_ATTRIBUTE));
-	}
-
-	// Return the newly created handler
-	return handler;
     }
      */
 
@@ -996,160 +935,11 @@ public class TemplateReader {
     }
      */
 
-    /**
-     *
-     *	@param	node	The {@link #STATIC_TEXT_ELEMENT} node to extract
-     *			information from when creating the
-     *			{@link LayoutStaticText}.
-    private LayoutElement createLayoutStaticText(LayoutElement parent, Node node) {
-	// Create new LayoutComponent
-	LayoutStaticText text =
-	    new LayoutStaticText(parent, "", getTextNodesAsString(node));
-
-	// Add all the attributes from the static text as options
-//	component.addOptions(getAttributes(node));
-
-	// Add escape... FIXME
-
-	// Return the LayoutStaticText
-	return text;
-    }
-     */
-
-
 
     //////////////////////////////////////////////////////////////////////
     //	Utility Methods
     //////////////////////////////////////////////////////////////////////
 
-    /**
-     *	<p> This method returns a <code>List</code> of all child
-     *	    <code>Element</code>s below the given <code>Node</code>.</p>
-     *
-     *	@param	node	The <code>Node</code> to pull child elements from.
-     *
-     *	@return	<code>List</code> of child <code>Element</code>s found below
-     *		the given <code>Node</code>.
-    public List getChildElements(Node node) {
-	return getChildElements(node, null);
-    }
-     */
-
-    /**
-     *	<p> This method returns a List of all child Elements below the given
-     *	    Node matching the given name.  If name equals null, all Elements
-     *	    below this node will be returned.</p>
-     *
-     *	@param	node	The node to pull child elements from.
-     *	@param	name	The name of the Elements to return.
-     *
-     *	@return	List of child elements found below the given node matching
-     *		the name (if provided).
-    public List getChildElements(Node node, String name) {
-	// Get the child nodes
-	NodeList nodes = node.getChildNodes();
-	if (nodes == null) {
-	    // No children, just return an empty List
-	    return new ArrayList(0);
-	}
-
-	// Create a new List to store the child Elements
-	List list = new ArrayList();
-
-	// Add all the child Elements to the List
-	Node childNode = null;
-	for (int idx = 0; idx < nodes.getLength(); idx++) {
-	    childNode = nodes.item(idx);
-	    if (childNode.getNodeType() != Node.ELEMENT_NODE) {
-		// Skip TEXT_NODE and other Node types
-		continue;
-	    }
-
-	    // Add to the list if name is null, or it matches the node name
-	    if ((name == null) || childNode.getNodeName().equalsIgnoreCase(name)) {
-		list.add(childNode);
-	    }
-	}
-
-	// Return the list of Elements
-	return list;
-    }
-     */
-
-
-    /**
-     *	<p> This method returns the <code>String</code> representation of all
-     *	    the <code>Node.TEXT_NODE</code> nodes that are children of the
-     *	    given <code>Node</code>.
-     *
-     *	@param	node	The <code>Node</code> to pull child
-     *			<code>Element</code>s from.
-     *
-     *	@return	The <code>String</code> representation of all the
-     *		<code>Node.TEXT_NODE</code> type nodes under the given
-     *		<code>Node</code>.
-    public String getTextNodesAsString(Node node) {
-	// Get the child nodes
-	NodeList nodes = node.getChildNodes();
-	if (nodes == null) {
-	    // No children, return null
-	    return null;
-	}
-
-	// Create a StringBuffer
-	StringBuffer buf = new StringBuffer("");
-
-	// Add all the child Element values to the StringBuffer
-	Node childNode = null;
-	for (int idx = 0; idx < nodes.getLength(); idx++) {
-	    childNode = nodes.item(idx);
-	    if ((childNode.getNodeType() != Node.TEXT_NODE)
-		    && (childNode.getNodeType() != Node.CDATA_SECTION_NODE)) {
-		// Skip all other Node types
-		continue;
-	    }
-	    buf.append(childNode.getNodeValue());
-	}
-
-	// Return the String
-	return buf.toString();
-    }
-     */
-
-
-
-    /**
-     *	<p> This method returns a <code>Map</code> of all attributes for the
-     *	    given <code>Node</code>.  Each attribute name will be stored in the
-     *	    <code>Map</code> in lower case so case can be ignored.</p>
-     *
-     *	@param	node	The node to pull attributes from.
-     *
-     *	@return	<code>Map</code> of attributes found on the given
-     *		<code>Node</code>.
-    public Map getAttributes(Node node) {
-	// Get the attributes
-	NamedNodeMap attributes = node.getAttributes();
-	if ((attributes == null) || (attributes.getLength() == 0)) {
-	    // No attributes, just return an empty Map
-	    return new HashMap(0);
-	}
-
-	// Create a Map to contain the attributes
-	Map map = new HashMap();
-
-	// Add all the attributes to the Map
-	Node attNode = null;
-	for (int idx = 0; idx < attributes.getLength(); idx++) {
-	    attNode = attributes.item(idx);
-	    map.put(attNode.getNodeName().toLowerCase(),
-		    attNode.getNodeValue());
-	}
-
-	// Return the map
-	return map;
-    }
-     */
 
     /**
      *	<p> This method produces a generated ID.  It optionally uses the given
@@ -1181,6 +971,41 @@ public class TemplateReader {
 	}
 	return base + (_idNum++ % MAX_ID);
     }
+
+    /**
+     *	<p> This method provides access to registered
+     *	    {@link CustomParserCommand}s.</p>
+     */
+    public static CustomParserCommand getCustomParserCommand(String id) {
+	return _parserCmds.get(id);
+    }
+
+    /**
+     *	<p> This method allows you to set a {@link CustomParserCommand}.</p>
+     */
+    public static void setCustomParserCommand(String id, CustomParserCommand command) {
+	_parserCmds.put(id, command);
+    }
+
+    /**
+     *	<p> This method initializes the {@link CustomParserCommands}.</p>
+     */
+    protected static void initCustomParserCommands() {
+	Map<String, CustomParserCommand> map =
+	    new HashMap<String, CustomParserCommand>();
+	map.put("if", new IfParserCommand());
+	map.put("while", new WhileParserCommand());
+	map.put("foreach", new ForeachParserCommand());
+	map.put("facet", new FacetParserCommand());
+// FIXME: Do initialization via @annotations??
+	_parserCmds = map;
+    }
+
+
+    //////////////////////////////////////////////////////////////////////
+    //	Inner Classes
+    //////////////////////////////////////////////////////////////////////
+
 
     /**
      *	<p> This interface defines the operations that may be acted upon while
@@ -1230,78 +1055,6 @@ public class TemplateReader {
 	 *  <p>This method is invoked when nothing else matches.</p>
 	 */
 	void handleDefault(ProcessingContextEnvironment env, String content) throws IOException;
-    }
-
-    /**
-     *	<p> This class hold environmental information needed while a
-     *	    {@link ProcessingContext} is processing.</p>
-     */
-    protected static class ProcessingContextEnvironment {
-	public ProcessingContextEnvironment(TemplateReader reader, LayoutElement parent, boolean nested) {
-	    _reader = reader;
-	    _parent = parent;
-	    _nested = nested;
-	}
-
-	/**
-	 *  @return The <code>TemplateReader</code> instance.
-	 */
-	public TemplateReader getReader() {
-	    return _reader;
-	}
-
-	/**
-	 *  @return <code>true</code> if nested in a LayoutComponent.
-	 */
-	public boolean isNested() {
-	    return _nested;
-	}
-
-	/**
-	 *  @return The parent {@link LayoutElement}.
-	 */
-	public LayoutElement getParent() {
-	    return _parent;
-	}
-
-	/**
-	 *  <p>	This method marks the current <code>ProcessingContext</code>
-	 *	as complete.</p>
-	 */
-	public void setFinished(boolean finished) {
-	    _finished = finished;
-	}
-
-	/**
-	 *  <p>	This method indicates if the current
-	 *	<code>ProcessingContext</code> is still valid.</p>
-	 */
-	public boolean isFinished() {
-	    return _finished;
-	}
-
-	/**
-	 *  <p>	Being marked special, indicates a "special" command versus
-	 *	a component.  In other words a tag that starts with a '!'
-	 *	char.</p>
-	 */
-	public void setSpecial(boolean val) {
-	    _special = val;
-	}
-
-	/**
-	 *  <p>	Indicates if the current tag being processed is "special".</p>
-	 */
-	public boolean isSpecial() {
-	    return _special;
-	}
-
-
-	boolean		_finished   = false;
-	boolean		_special    = false;
-	boolean		_nested	    = false;
-	LayoutElement	_parent	    = null;
-	TemplateReader	_reader	    = null;
     }
 
     /**
@@ -1383,7 +1136,14 @@ public class TemplateReader {
 	 */
 	public void beginSpecial(ProcessingContextEnvironment env, String content) throws IOException {
 //System.out.println("Reading Special: " + content);
-// FIXME: Provide plugable way to add custom directives
+	    CustomParserCommand command =
+		TemplateReader.getCustomParserCommand(content);
+	    if (command != null) {
+		command.process(env, content);
+	    } else {
+		// If there is no Custom command for this, use the default...
+		_eventParserCommand.process(env, content);
+	    }
 	}
 
 	/**
@@ -1458,12 +1218,160 @@ public class TemplateReader {
 	 */
 	public void handleDefault(ProcessingContextEnvironment env, String content) throws IOException {
 	    TemplateParser parser = env.getReader().getTemplateParser();
-//System.out.println("handleDefault: " + parser.readUntil('<'));
 // FIXME: **ignore comments and allow escaping**
+// Store body content in env until end component, set as 'value' if value is not set?
 	    String bodyContent = parser.readUntil('<', true);
 	    parser.unread('<');
 	}
+
+	/**
+	 *
+	 */
+	public void beginSpecial(ProcessingContextEnvironment env, String content) throws IOException {
+	    super.beginSpecial(env, content);
+	}
     }
+
+    /**
+     *	<p> This {@link CustomParserCommand} implementation processes event
+     *	    declarations.</p>
+     */
+    public static class EventParserCommand implements CustomParserCommand {
+	public void process(ProcessingContextEnvironment env, String eventName) throws IOException {
+	    String handlerId = null;
+	    String target = null;
+	    NameValuePair nvp = null;
+	    HandlerDefinition def = null;
+	    Handler handler = null;
+	    ArrayList handlers = new ArrayList();
+	    TemplateParser parser = env.getReader().getTemplateParser();
+
+	    // Read the Handler(s)...
+	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    int ch = parser.nextChar();
+	    while ((ch != -1) && (ch != '/') && (ch != '>')) {
+		// Get Handler ID / Definition
+		parser.unread(ch);
+		handlerId = parser.readToken();
+		def = LayoutDefinitionManager.
+		    getGlobalHandlerDefinition(handlerId);
+		if (def == null) {
+		    throw new SyntaxException("Handler '" + handlerId
+			+ "' in event '" + eventName + "' is not declared!  "
+			+ "Ensure the '@Handler' annotation has been defined "
+			+ "on the handler Java method, that it has been "
+			+ "compiled with the annotation processing tool, and "
+			+ "that the resulting"
+			+ " 'META-INF/jsftemplating/Handler.map' is located "
+			+ "in your classpath (you may need to do a clean "
+			+ "build).");
+		}
+
+		// Create a Handler
+		handler = new Handler(def);
+		handlers.add(handler);
+
+		// Ensure we have an opening parenthesis
+		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+		ch = parser.nextChar();
+		if (ch != '(') {
+		    throw new SyntaxException("While processing '<!" + eventName
+			+ "...' the handler '" + handlerId
+			+ "' was missing the '(' character!");
+		}
+
+		// Read NVP(s)...
+		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+		ch = parser.nextChar();
+		while ((ch != -1) && (ch != ')')) {
+		    // Read NVP
+		    parser.unread(ch);
+		    nvp = parser.getNVP();
+		    parser.skipCommentsAndWhiteSpace(
+			parser.SIMPLE_WHITE_SPACE + ",;");
+		    ch = parser.nextChar();
+
+		    // Store the NVP..
+		    target = nvp.getTarget();
+		    if (target != null) {
+			// We have an OutputMapping
+			handler.setOutputMapping(
+			    nvp.getName(), nvp.getValue(), target);
+		    } else {
+			// We have an Input
+			handler.setInputValue(nvp.getName(), nvp.getValue());
+		    }
+		}
+
+		// ';' or ',' characters may appear between handlers
+		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE + ",;");
+		ch = parser.nextChar();
+	    }
+	    if (ch == -1) {
+		// Make sure we didn't get to the end of the file
+		throw new SyntaxException("Unexpected EOF encountered while "
+		    + "parsing handlers for event '" + eventName + "'!");
+	    }
+	    if (ch == '/') {
+		// Make sure we have a "/>"...
+		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+		ch = parser.nextChar();
+		if (ch != '>') {
+		    throw new SyntaxException("Expected '/>' a end of '"
+			+ eventName + "' event.  But found '/"
+			+ (char) ch + "'.");
+		}
+	    }
+// FIXME: Ensure "parent" is always correct!!
+	    // Set the Handlers on the parent...
+	    env.getParent().setHandlers(eventName, handlers);
+	}
+    }
+
+    /**
+     *	<p> This {@link CustomParserCommand} handles "if" statements.</p>
+     */
+    public static class IfParserCommand implements CustomParserCommand {
+	public void process(ProcessingContextEnvironment env, String eventName) throws IOException {
+// FIXME: TBD...
+	    TemplateParser parser = env.getReader().getTemplateParser();
+	    parser.readUntil('>', true);
+	}
+    }
+
+    /**
+     *	<p> This {@link CustomParserCommand} handles "while" statements.</p>
+     */
+    public static class WhileParserCommand extends IfParserCommand {
+	public void process(ProcessingContextEnvironment env, String eventName) throws IOException {
+// FIXME: TBD...
+	    TemplateParser parser = env.getReader().getTemplateParser();
+	    parser.readUntil('>', true);
+	}
+    }
+
+    /**
+     *	<p> This {@link CustomParserCommand} handles "foreach" statements.</p>
+     */
+    public static class ForeachParserCommand implements CustomParserCommand {
+	public void process(ProcessingContextEnvironment env, String eventName) throws IOException {
+// FIXME: TBD...
+	    TemplateParser parser = env.getReader().getTemplateParser();
+	    parser.readUntil('>', true);
+	}
+    }
+
+    /**
+     *	<p> This {@link CustomParserCommand} handles "facets".</p>
+     */
+    public static class FacetParserCommand implements CustomParserCommand {
+	public void process(ProcessingContextEnvironment env, String eventName) throws IOException {
+// FIXME: TBD...
+	    TemplateParser parser = env.getReader().getTemplateParser();
+	    parser.readUntil('>', true);
+	}
+    }
+
 
     //////////////////////////////////////////////////////////////////////
     //	Constants
@@ -1590,12 +1498,17 @@ public class TemplateReader {
 
     public static final String DEFAULT_ID_BASE	= "id";
 
+    public static CustomParserCommand _eventParserCommand =
+	new EventParserCommand();
+
     /**
      *	This is used to set the "value" option for static text fields.
      */
 //    public static final String VALUE_OPTION	=   "value";
 
     private TemplateParser  _tpl		= null;
+
+    private static Map<String, CustomParserCommand> _parserCmds	= null;
 
     /*
     private int		    _markupCount	= 1;
