@@ -103,6 +103,25 @@ public class UtilHandlers {
     }
 
     /**
+     *	<p> This handler gets a request attribute.  It requires "key" as an
+     *	    input value.  It returns "value" as an output value.  Note this
+     *	    can also be done via #{attributeName}.</p>
+     *
+     *	@param	context	The HandlerContext.
+     */
+    @Handler(id="getAttribute",
+	input={
+	    @HandlerInput(name="key", type=String.class, required=true)},
+	output={
+	    @HandlerOutput(name="value", type=Object.class)})
+    public static void getAttribute(HandlerContext context) {
+	String key = (String) context.getInputValue("key");
+	Object value = context.getFacesContext().getExternalContext().
+	    getRequestMap().get(key);
+	context.setOutputValue("value", value);
+    }
+
+    /**
      *	<p> This handler sets a request attribute.  It requires "key" and
      *	    "value" input values to be passed in.</p>
      *
