@@ -55,6 +55,12 @@ public class StaticTextFactory extends ComponentFactoryBase {
 	// Create the UIComponent
 	UIComponent comp = new HtmlOutputText();
 
+	// Set escape as false by default, don't call setEscape() b/c then
+	// ValueExpressions won't get evaluated
+	if (!descriptor.getOptions().containsKey("escape")) {
+	    setOption(context, comp, "escape", "#{false}");
+	}
+
 	// This needs to be done here (before setOptions) so that $...{...}
 	// expressions can be resolved... may want to defer these?
 	if (parent != null) {

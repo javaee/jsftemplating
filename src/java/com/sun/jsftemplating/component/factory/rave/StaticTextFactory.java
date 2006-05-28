@@ -60,9 +60,13 @@ public class StaticTextFactory extends ComponentFactoryBase {
 	    addChild(context, descriptor, parent, comp);
 	}
 
-	// Make the default to NOT escape
-	comp.getAttributes().put("escape", Boolean.FALSE);
-	// FIXME: Deal w/ type conversion... setAttribute("false") fails
+	// Set escape as false by default, don't call setEscape() b/c then
+	// ValueExpressions won't get evaluated
+	if (!descriptor.getOptions().containsKey("escape")) {
+	    setOption(context, comp, "escape", "#{false}");
+	}
+
+// FIXME: Deal w/ type conversion... setAttribute("false") fails
 
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);
