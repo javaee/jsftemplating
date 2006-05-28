@@ -308,7 +308,7 @@ public class TemplateReader {
 	    }
 	    parser.unread(ch);
 	    nvp = parser.getNVP();
-	    if (nvp.getName().equals("id")) {
+	    if (nvp.getName().equals(ID_ATTRIBUTE)) {
 		// Found id...
 		id = nvp.getValue();
 	    } else if (nvp.getName().equals(OVERWRITE_ATTRIBUTE)) {
@@ -333,7 +333,7 @@ public class TemplateReader {
 
 	// Set options...
 	for (NameValuePair np : nvps) {
-	    component.addOption(nvp.getName(), nvp.getValue());
+	    component.addOption(np.getName(), np.getValue());
 	}
 
 	// Set flag to indicate if this LayoutComponent is nested in another
