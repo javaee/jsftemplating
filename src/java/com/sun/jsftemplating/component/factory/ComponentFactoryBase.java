@@ -75,7 +75,6 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	}
 
 	// Loop through all the options and set the values
-	Map attributes = comp.getAttributes();
 // FIXME: Figure a way to skip options that should not be set on the Component
 	Iterator it = desc.getOptions().keySet().iterator();
 	Object value = null;
@@ -84,36 +83,47 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	while (it.hasNext()) {
 	    // Get next property
 	    key = (String) it.next();
-	    value = desc.getEvaluatedOption(context, key, comp);
 
-	    // Next check to see if the value contains a ValueExpression
-	    strVal = "" + value;
-	    if (UIComponentTag.isValueReference(strVal)) {
-		/*
-		1.2+
-		ValueExpression ve =
-		    context.getApplication().getExpressionFactory().
-			createValueExpression(
-				context.getELContext(), strVal, Object.class);
-		comp.setValueExpression((String) key, ve);
-		*/
-		// JSF 1.1 VB:
-		ValueBinding vb =
-		    context.getApplication().createValueBinding(strVal);
-		comp.setValueBinding((String) key, vb);
-	    } else {
-		// In JSF, you must directly modify the attribute Map
-		try {
-		    attributes.put(key, value);
-		} catch (NullPointerException ex) {
-		    // Setting null, assume they want to remove the value
-		    attributes.remove(key);
-		}
-	    }
+	    setOption(context, comp, key,
+		desc.getEvaluatedOption(context, key, comp));
 	}
 
 	// Set the events on the new component
 	storeInstanceHandlers(desc, comp);
+    }
+
+    /**
+     *	<p> This method sets an individual option on the
+     *	    <code>UIComponent</code>.  It will check to see if it is a
+     *	    <code>ValueExpression</code>, if it is it will store it as
+     *	    such.</p>
+     */
+    protected void setOption(FacesContext context, UIComponent comp, String key, Object value) {
+	// Next check to see if the value contains a ValueExpression
+	String strVal = "" + value;
+	if (UIComponentTag.isValueReference(strVal)) {
+	    /*
+	    1.2+
+	    ValueExpression ve =
+		context.getApplication().getExpressionFactory().
+		    createValueExpression(
+			    context.getELContext(), strVal, Object.class);
+	    comp.setValueExpression((String) key, ve);
+	    */
+	    // JSF 1.1 VB:
+	    ValueBinding vb =
+		context.getApplication().createValueBinding(strVal);
+	    comp.setValueBinding((String) key, vb);
+	} else {
+	    // In JSF, you must directly modify the attribute Map
+	    Map attributes = comp.getAttributes();
+	    if (value == null) {
+		// Setting null, assume they want to remove the value
+		attributes.remove(key);
+	    } else {
+		attributes.put(key, value);
+	    }
+	}
     }
 
     /**
