@@ -471,38 +471,6 @@ public class TemplateReader {
     }
 
     /**
-     *	<p> This method creates a <code>List</code> of {@link Handler}s from
-     *	    the provided <code>Node</code>.  It will look at the child
-     *	    <code>Element</code>s for {@link HANDLER_ELEMENT} elements.  When
-     *	    found, it will create a new {@link Handler} object and add it to a
-     *	    <code>List</code> that is created internally.  This
-     *	    <code>List</code> is returned.</p>
-     *
-     *	@param	node	    <code>Node</code> containing
-     *			    {@link HANDLER_ELEMENT} elements.
-     *	@param	handlers    <code>List</code> of existing {@link Handler}s.
-     *
-     *	@return	A <code>List</code> of {@link Handler} objects, empty
-     *		<code>List</code> if no {@link Handler}s found
-    private List getHandlers(Node node, List handlers) {
-	// Get the child nodes
-	Iterator it = getChildElements(node, HANDLER_ELEMENT).iterator();
-
-	// Walk children (we only care about HANDLER_ELEMENT)
-	if (handlers == null) {
-	    handlers = new ArrayList();
-	}
-	while (it.hasNext()) {
-	    // Found a HANDLER_ELEMENT
-	    handlers.add(createHandler((Node) it.next()));
-	}
-
-	// Return the handlers
-	return handlers;
-    }
-     */
-
-    /**
      *	<p> This method creates a new {@link LayoutIf}
      *	    {@link LayoutElement}.</p>
      *
@@ -732,78 +700,6 @@ public class TemplateReader {
 
     /**
      *
-     *	@param	node	The {@link #COMPONENT_ELEMENT} node to extract
-     *			information from when creating the
-     *			{@link LayoutComponent}.
-    private LayoutElement createLayoutComponent(LayoutElement parent, Node node) {
-	// Pull off attributes...
-	Map attributes = getAttributes(node);
-	String id = (String) attributes.get(ID_ATTRIBUTE);
-	String type = (String) attributes.get(TYPE_ATTRIBUTE);
-	if ((type == null) || (type.trim().equals(""))) {
-	    throw new RuntimeException("'" + TYPE_ATTRIBUTE
-		    + "' attribute not found on '" + COMPONENT_ELEMENT
-		    + "' Element!");
-	}
-
-	// Create new LayoutComponent
-	ComponentType componentType = getGlobalComponentType(type);
-	if (componentType == null) {
-	    throw new IllegalArgumentException("ComponentType '" + type
-		    + "' not defined!");
-	}
-	LayoutComponent component =  new LayoutComponent(parent, id, type);
-
-	// Check for overwrite flag
-	String overwrite = (String) attributes.get(OVERWRITE_ATTRIBUTE);
-	if ((overwrite != null) && (overwrite.length() > 0)) {
-	    component.setOverwrite(Boolean.valueOf(overwrite).booleanValue());
-	}
-
-	// Set flag to indicate if this LayoutComponent is nested in another
-	// LayoutComponent.  This is significant b/c during rendering, events
-	// will need to be fired differently (the TemplateRenderer /
-	// LayoutElements will not have any control).  The strategy used will
-	// rely on "instance" handlers, this flag indicates that "instance"
-	// handlers should be used.
-	// NOTE: While this could be implemented on the LayoutComponent
-	//	 itself, I decided not to for performance reasons and to
-	//	 allow this value to be overruled if desired.
-	component.setNested(LayoutElementUtil.isNestedLayoutComponent(component));
-
-	// Figure out if this should be stored as a facet, if so under what id
-	if (isLayoutComponentChild(component)) {
-	    component.setFacetChild(false);
-	} else {
-	    // Need to add this so that it has the correct facet name
-	    // Check to see if this LayoutComponent is inside a LayoutFacet
-	    while (parent != null) {
-		if (parent instanceof LayoutFacet) {
-		    // Inside a LayoutFacet, use its id... only if this facet
-		    // is a child of a LayoutComponent (otherwise, it is a
-		    // layout facet used for layout, not for defining a facet
-		    // of a UIComponent)
-		    if (isLayoutComponentChild(parent)) {
-			id = parent.getUnevaluatedId();
-		    }
-		    break;
-		}
-		parent = parent.getParent();
-	    }
-	    // Set the facet name
-	    component.addOption(LayoutComponent.FACET_NAME, id);
-	}
-
-	// Add children... (different for component LayoutElements)
-	addChildLayoutComponentChildren(component, node);
-
-	// Return the LayoutComponent
-	return component;
-    }
-     */
-
-    /**
-     *
     private void addChildLayoutComponentChildren(LayoutComponent component, Node node) {
 	// Get the child nodes
 	Iterator it = getChildElements(node).iterator();
@@ -852,51 +748,6 @@ public class TemplateReader {
 			+ COMPONENT_ELEMENT + "'.");
 	    }
 	}
-    }
-     */
-
-    /**
-     *	<p> This method ensures that a "markup" {@link ComponentType} has been
-     *	    defined so that it can be used implicitly.</p>
-    private ComponentType ensureMarkupType(LayoutElement elt) {
-	// See if it is defined
-	ComponentType type = getGlobalComponentType(MARKUP_ELEMENT);
-	if (type == null) {
-	    // Nope, define it...
-	    type = new ComponentType(MARKUP_ELEMENT, MARKUP_FACTORY_CLASS);
-	    elt.getLayoutDefinition().addComponentType(type);
-	}
-
-	// Return the type
-	return type;
-    }
-     */
-
-    /**
-     *	<p> This method adds an option to the given {@link LayoutComponent}
-     *	    based on the information in the given {@link #OPTION_ELEMENT}
-     *	    <code>Node</code>.</p>
-     *
-     *	@param	component   The {@link LayoutComponent}.
-     *	@param	node	    The {@link #OPTION_ELEMENT} <code>Node</code>.
-    private void addOption(LayoutComponent component, Node node) {
-	// Pull off the attributes
-	Map attributes = getAttributes(node);
-
-	// Get the name
-	String name = (String) attributes.get(NAME_ATTRIBUTE);
-	if ((name == null) || (name.trim().equals(""))) {
-	    throw new RuntimeException("'" + NAME_ATTRIBUTE
-		    + "' attribute not found on '" + OPTION_ELEMENT
-		    + "' Element!");
-	}
-	name = name.trim();
-
-	// Get the value
-	Object value = getValueFromNode(node, attributes);
-
-	// Add the option to the component (value may be null)
-	component.addOption(name, value);
     }
      */
 
@@ -1135,7 +986,6 @@ public class TemplateReader {
 	 *	(&lt;!tagname ...).</p>
 	 */
 	public void beginSpecial(ProcessingContextEnvironment env, String content) throws IOException {
-//System.out.println("Reading Special: " + content);
 	    CustomParserCommand command =
 		TemplateReader.getCustomParserCommand(content);
 	    if (command != null) {
@@ -1377,105 +1227,23 @@ public class TemplateReader {
     //	Constants
     //////////////////////////////////////////////////////////////////////
 
-    public static final String ATTRIBUTE_ELEMENT	    =
-	"attribute";
-    public static final String COMPONENT_ELEMENT	    =
-	"component";
-    public static final String COMPONENT_TYPE_ELEMENT	    =
-	"componenttype";
-    public static final String EDIT_ELEMENT		    =
-	"edit";
-    public static final String EVENT_ELEMENT		    =
-	"event";
     public static final String FACET_ELEMENT		    =
 	"facet";
     public static final String FOREACH_ELEMENT		    =
 	"foreach";
-    public static final String HANDLER_ELEMENT		    =
-	"handler";
-    public static final String HANDLERS_ELEMENT		    =
-	"handlers";
-    public static final String HANDLER_DEFINITION_ELEMENT   =
-	"handlerdefinition";
     public static final String IF_ELEMENT		    =
 	"if";
-    public static final String INPUT_DEF_ELEMENT	    =
-	"inputdef";
-    public static final String INPUT_ELEMENT		    =
-	"input";
-    public static final String LAYOUT_DEFINITION_ELEMENT    =
-	"layoutdefinition";
-    public static final String LAYOUT_ELEMENT		    =
-	"layout";
     public static final String LIST_ELEMENT		    =
 	"list";
     public static final String MARKUP_ELEMENT		    =
 	"markup";
-    public static final String OPTION_ELEMENT		    =
-	"option";
-    public static final String OUTPUT_DEF_ELEMENT	    =
-	"outputdef";
-    public static final String OUTPUT_MAPPING_ELEMENT	    =
-	"outputmapping";
-    public static final String STATIC_TEXT_ELEMENT	    =
-	"staticText";
-    public static final String TYPES_ELEMENT		    =
-	"types";
-    public static final String RESOURCES_ELEMENT	    =
-	"resources";
-    public static final String RESOURCE_ELEMENT		    =
-	"resource";
     public static final String WHILE_ELEMENT		    =
 	"while";
 
-    public static final String CLASS_NAME_ATTRIBUTE	    =
-	"classname";
-    public static final String CONDITION_ATTRIBUTE	    =
-	"condition";
-    public static final String DEFAULT_ATTRIBUTE	    =
-	"default";
-    public static final String DESCRIPTION_ATTRIBUTE	    =
-	"description";
-    public static final String EXTRA_INFO_ATTRIBUTE	    =
-	"extrainfo";
-    public static final String FACTORY_CLASS_ATTRIBUTE	    =
-	"factoryclass";
     public static final String ID_ATTRIBUTE		    =
 	"id";
-    public static final String KEY_ATTRIBUTE		    =
-	"key";
-    public static final String LIST_ATTRIBUTE		    =
-	"list";
-    public static final String METHOD_NAME_ATTRIBUTE	    =
-	"methodname";
-    public static final String NAME_ATTRIBUTE		    =
-	"name";
-    public static final String OUTPUT_NAME_ATTRIBUTE	    =
-	"outputname";
     public static final String OVERWRITE_ATTRIBUTE	    =
 	"overwrite";
-    public static final String PROPERTY_ATTRIBUTE	    =
-	"property";
-    public static final String RENDERED_ATTRIBUTE	    =
-	"rendered";
-    public static final String REQUIRED_ATTRIBUTE	    =
-	"required";
-    public static final String TAG_ATTRIBUTE		    =
-	"tag";
-    public static final String TARGET_KEY_ATTRIBUTE	    =
-	"targetkey";
-    public static final String TARGET_TYPE_ATTRIBUTE	    =
-	"targettype";
-    public static final String TYPE_ATTRIBUTE		    =
-	"type";
-    public static final String VALUE_ATTRIBUTE		    =
-	"value";
-
-    public static final String AUTO_RENDERED		    =
-	"auto";
-
-    public static final String MARKUP_FACTORY_CLASS	    =
-	"com.sun.jsftemplating.component.factory.basic.MarkupFactory";
 
     public static final ComponentType STATIC_TEXT	    = 
 	LayoutDefinitionManager.getGlobalComponentType("staticText");
@@ -1501,16 +1269,7 @@ public class TemplateReader {
     public static CustomParserCommand _eventParserCommand =
 	new EventParserCommand();
 
-    /**
-     *	This is used to set the "value" option for static text fields.
-     */
-//    public static final String VALUE_OPTION	=   "value";
-
     private TemplateParser  _tpl		= null;
 
     private static Map<String, CustomParserCommand> _parserCmds	= null;
-
-    /*
-    private int		    _markupCount	= 1;
-    */
 }
