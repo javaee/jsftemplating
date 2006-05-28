@@ -167,7 +167,8 @@ public class Handler implements java.io.Serializable {
 
     /**
      *	<p> This method retrieves an output value.  Output values are stored
-     *	    in the location specified by the OutputType in the Handler.</p>
+     *	    in the location specified by the {@link OutputType} in the
+     *	    Handler.</p>
      *
      *	@param	context	    The HandlerContext
      *	@param	name	    The output name
@@ -195,7 +196,9 @@ public class Handler implements java.io.Serializable {
 
     /**
      *	<p> This method stores an output value.  Output values are stored
-     *	    as specified by the OutputType in the Handler.</p>
+     *	    as specified by the {@link OutputType} in the Handler.  This
+     *	    method is not used to create the "mapping" of an output value,
+     *	    for that see {@link #setOutputMapping(String, String, String)}.</p>
      *
      *	@param	context	    The HandlerContext
      *	@param	name	    The name the Handler uses for the output
@@ -240,7 +243,8 @@ public class Handler implements java.io.Serializable {
      *	<p> This method adds a new OutputMapping to this handler.  An
      *	    OutputMapping allows the handler to return a value and have it
      *	    "mapped" to the location of your choice.  The "outputType"
-     *	    corresponds to a registered OutputType (see OutputTypeManager).</p>
+     *	    corresponds to a registered {@link OutputType}
+     *	    (see {@link OutputTypeManager}).</p>
      *
      *	@param	outputName  The Handler's name for the output value
      *	@param	targetKey   The 'key' the OutputType uses to store the output

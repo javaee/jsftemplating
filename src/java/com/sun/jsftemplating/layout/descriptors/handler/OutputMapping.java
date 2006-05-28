@@ -79,26 +79,6 @@ public class OutputMapping implements java.io.Serializable {
     }
 
     /**
-     *	<p> Constructor with all the values passed in.  This constructor will
-     *	    throw an IllegalArgumentException if outputName or
-     *	    targetOutputType is null.</p>
-     *
-     *	@param	outputName	    The name the Handler uses for output value
-     *	@param	targetKey	    The key the OutputType will use
-     *	@param	targetOutputType    OutputType that will store the output value
-     *
-     *	@see	OutputTypeManager
-     *
-     *	@throws	IllegalArumentException	If outputName or
-     *	    targetOutputType is null
-    public OutputMapping(String outputName, String targetKey, OutputType targetOutputType) {
-	_outputName = outputName;
-	_targetKey = targetKey;
-	_targetOutputType = targetOutputType;
-    }
-     */
-
-    /**
      *	Accessor for outputName.
      */
     public String getOutputName() {
