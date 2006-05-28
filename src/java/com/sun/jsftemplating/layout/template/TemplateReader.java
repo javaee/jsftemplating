@@ -1165,6 +1165,18 @@ public class TemplateReader {
 	    base = base.trim();
 	    if (base.equals("")) {
 		base = DEFAULT_ID_BASE;
+	    } else {
+		StringBuffer buf = new StringBuffer();
+		int lowch;
+		for (int ch : base.toCharArray()) {
+		    lowch = ch | 0x20;
+		    if ((lowch >= 'a') && (lowch <= 'z')) {
+			buf.append((char) ch);
+		    } else {
+			buf.append('_');
+		    }
+		}
+		base = buf.toString();
 	    }
 	}
 	return base + (_idNum++ % MAX_ID);
