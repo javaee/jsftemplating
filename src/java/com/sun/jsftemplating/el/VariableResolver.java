@@ -117,9 +117,7 @@ public class VariableResolver {
      *	@return The new string with substitutions, or the specified request
      *		attribute value.
      */
-    public static Object resolveVariables(FacesContext ctx,
-	    LayoutElement desc, UIComponent component, String string,
-	    String startToken, String typeDelim, String endToken) {
+    public static Object resolveVariables(FacesContext ctx, LayoutElement desc, UIComponent component, String string, String startToken, String typeDelim, String endToken) {
 
 	int stringLen = string.length();
 	int delimIndex;
@@ -260,8 +258,7 @@ public class VariableResolver {
      *
      *	@return	The result
      */
-    public static Object resolveVariables(FacesContext ctx, LayoutElement desc,
-	    UIComponent component, Object value) {
+    public static Object resolveVariables(FacesContext ctx, LayoutElement desc, UIComponent component, Object value) {
 	if (value == null) {
 	    return null;
 	}
@@ -442,6 +439,9 @@ public class VariableResolver {
 		key = key.substring(0, idx);
 	    }
 
+	    if (component == null) {
+		return "";
+	    }
 	    Object value = component.getAttributes().get(key);
 	    while (walk && (value == null) && (component.getParent() != null)) {
 		component = component.getParent();
