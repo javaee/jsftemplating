@@ -153,6 +153,11 @@ public class Handler implements java.io.Serializable {
 	UIComponent component = null;
 	if (event instanceof UIComponentHolder) {
 	    component = ((UIComponentHolder) event).getUIComponent();
+	} else {
+	    Object src = event.getSource();
+	    if (src instanceof UIComponent) {
+		component = (UIComponent) src;
+	    }
 	}
 	if ((value != null) && (value instanceof String)) {
 	    value = ComponentUtil.resolveValue(ctx.getFacesContext(),
