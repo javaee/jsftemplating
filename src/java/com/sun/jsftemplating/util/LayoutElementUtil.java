@@ -97,4 +97,48 @@ public class LayoutElementUtil {
 	// Not found
 	return false;
     }
+
+    /**
+     *	<p> This method produces a generated ID.  It optionally uses the given
+     *	    base as a prefix to the generated ID ({@link #DEFAULT_ID_BASE} is
+     *	    used otherwise).  This implementation will generate an id that
+     *	    contains a number between 1 and {@link #MAX_ID}.  Do not depend on
+     *	    this implementation, it may change in the future.</p>
+     */
+    public static String getGeneratedId(String base) {
+	if (base == null) {
+	    base = DEFAULT_ID_BASE;
+	} else {
+	    base = base.trim();
+	    if (base.equals("")) {
+		base = DEFAULT_ID_BASE;
+	    } else {
+		StringBuffer buf = new StringBuffer();
+		int lowch;
+		for (int ch : base.toCharArray()) {
+		    lowch = ch | 0x20;
+		    if ((lowch >= 'a') && (lowch <= 'z')) {
+			buf.append((char) ch);
+		    } else {
+			buf.append('_');
+		    }
+		}
+		base = buf.toString();
+	    }
+	}
+	return base + (_idNum++ % MAX_ID);
+    }
+
+
+    /**
+     *	<p> This value represents the maximum number that is contained in an
+     *	    auto generated id.  I intentionally did not make this final so that
+     *	    if needed it can be tweaked at runtime.  However, I do not think
+     *	    this will ever be necessary (id's can be specified, and this many
+     *	    unspecified ids is unlikely to be needed on a single page!).</p>
+     */
+    public  static int	MAX_ID			= 0x00010000;
+    private static int	_idNum			= 1;
+
+    public static final String DEFAULT_ID_BASE	= "id";
 }
