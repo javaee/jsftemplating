@@ -30,6 +30,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
@@ -38,23 +39,44 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.event.ActionListener;
 
 
 /**
  *  <p>	The purpose of this class is to provide an <code>ActionListener</code>
  *	that can delegate to handlers (that are likely defined via XML).  It is
  *	safe to register this class as a managed bean at the Application
- *	scope.</p>
+ *	scope.  Or to use it directly as an <code>ActionListener</code>.</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-public class CommandActionListener implements java.io.Serializable {
+public class CommandActionListener implements ActionListener, Serializable {
 
     /**
-     *	<p> Constructor.</p>
+     *	<p> Constructor.  It is not recommended this constructor be used,
+     *	    however, it is available so that it may be used as a managed
+     *	    bean.  Instead call {@link #getInstance()}.</p>
      */
     public CommandActionListener() {
 	super();
+    }
+
+    /**
+     *	<p> This is the preferred way to obtain an instance of this object.</p>
+     */
+    public static CommandActionListener getInstance() {
+	if (_instance == null) {
+	    _instance = new CommandActionListener();
+	}
+	return _instance;
+    }
+
+    /**
+     *	<p> This method is invoked, when used directly as an
+     *	    <code>ActionListener</code>.</code>
+     */
+    public void processAction(ActionEvent event) {
+	invokeCommandHandlers(event);
     }
 
     /**
@@ -74,7 +96,8 @@ public class CommandActionListener implements java.io.Serializable {
 
 	// Look on the UIComponent for the CommandHandlers
 	LayoutElement desc = null;
-	List handlers = (List) command.getAttributes().get(COMMAND_HANDLERS);
+	List handlers = (List)
+	    command.getAttributes().get(LayoutComponent.COMMAND);
 	if ((handlers != null) && (handlers.size() > 0)) {
 	    // This is needed for components that don't have corresponding
 	    // LayoutElements, it is also useful for dynamically defining
@@ -85,7 +108,6 @@ public class CommandActionListener implements java.io.Serializable {
 	    // No parent (null) or ComponentType, just pass (null)
 	    desc = new LayoutComponent(
 		(LayoutElement) null, command.getId(), (ComponentType) null);
-	    desc.setHandlers(CommandEvent.EVENT_TYPE, handlers);
 	} else {
 	    // Attempt to find LayoutElement based on command's client id
 	    // "desc" may be null
@@ -211,8 +233,7 @@ public class CommandActionListener implements java.io.Serializable {
     }
 
     /**
-     *	<p> Attribute name on a UIComponent which may store handlers for a
-     *	    CommandEvent. ("commandHandlers")</p>
+     *	<p> Shared instance.</p>
      */
-    public static final String	COMMAND_HANDLERS    = "command";
+    private static CommandActionListener _instance = null;
 }
