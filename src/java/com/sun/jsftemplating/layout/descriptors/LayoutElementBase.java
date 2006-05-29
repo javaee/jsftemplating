@@ -250,20 +250,21 @@ public abstract class LayoutElementBase implements LayoutElement {
 
 
     /**
-     *	<p> This method iterates over the handlers and executes each one.  A
-     *	    HandlerContext will be created to pass to each Handler.  The
-     *	    HandlerContext object is reused across all Handlers that are
-     *	    invoked; the setHandler(Handler) method is invoked with the
-     *	    correct Handler descriptor before the handler is executed.</p>
+     *	<p> This method iterates over the {@link Handler}s and executes each
+     *	    one.  A {@link HandlerContext} will be created to pass to each
+     *	    {@link Handler}.  The {@link HandlerContext} object is reused
+     *	    across all {@link Handler}s that are invoked; the
+     *	    {@link #setHandler(Handler)} method is invoked with the correct
+     *	    {@link Handler} descriptor before the handler is executed.</p>
      *
-     *	@param	context	    The FacesContext
+     *	@param	context	    The <code>FacesContext</code>
      *	@param	eventType   The event type which is being fired
-     *	@param	event	    An optional EventObject providing more detail
+     *	@param	event	    An optional <code>EventObject</code>
      *
      *	@return	By default, (null) is returned.  However, if any of the
-     *		handlers produce a non-null return value, then the value from
-     *		the last handler to produces a non-null return value is
-     *		returned.
+     *		{@link Handler}s produce a non-null return value, the value
+     *		from the last {@link Handler} to produces a non-null return
+     *		value is returned.
      */
     public Object dispatchHandlers(FacesContext context, String eventType, EventObject event) {
 	// Get the handlers for this eventType
@@ -271,7 +272,7 @@ public abstract class LayoutElementBase implements LayoutElement {
 	if (!(eventObj instanceof UIComponent)) {
 	    eventObj = null;
 	}
-	List handlers = getHandlers(eventType, (UIComponent) eventObj);
+	List<Handler> handlers = getHandlers(eventType, (UIComponent) eventObj);
 
 	// Make sure we have something to do...
 	if (handlers == null) {
@@ -288,18 +289,18 @@ public abstract class LayoutElementBase implements LayoutElement {
 
     /**
      *	<p> As currently implemented, this method is essentially a utility
-     *	    method.  It dispatches the given List of <code>Handler<code>s.
+     *	    method.  It dispatches the given List of {@link Handler}s.
      *	    This may be available as a static method in the future.</p>
      */
-    public Object dispatchHandlers(HandlerContext handlerCtx, List handlers) {
+    public Object dispatchHandlers(HandlerContext handlerCtx, List<Handler> handlers) {
 	Object retVal = null;
 	Object result = null;
 	Handler handler = null;
-	Iterator it = handlers.iterator();
+	Iterator<Handler> it = handlers.iterator();
 	while (it.hasNext()) {
 	    try {
 		// Get the Handler
-		handler = (Handler) it.next();
+		handler = it.next();
 		handlerCtx.setHandler(handler);
 
 		// Delegate to the Handler to perform invocation
@@ -334,21 +335,21 @@ public abstract class LayoutElementBase implements LayoutElement {
     }
 
     /**
-     *	<p> This method retrieves the Handlers for the requested type.</p>
+     *	<p> This method retrieves the {@link Handler}s for the requested type.</p>
      *
-     *	@param	type	The type of Handlers to retrieve.
+     *	@param	type	The type of {@link Handler}s to retrieve.
      *
-     *	@return	A List of Handlers.
+     *	@return	A List of {@link Handler}s.
      */
-    public List getHandlers(String type) {
-	return (List) _handlersByType.get(type);
+    public List<Handler> getHandlers(String type) {
+	return _handlersByType.get(type);
     }
 
     /**
      *	<p> This method provides access to the "handlersByType"
      *	    <code>Map</code>.</p>
      */
-    public Map getHandlersByTypeMap() {
+    public Map<String, List<Handler>> getHandlersByTypeMap() {
 	return _handlersByType;
     }
 
@@ -366,14 +367,15 @@ public abstract class LayoutElementBase implements LayoutElement {
     }
 
     /**
-     *	<p> This method retrieves the Handlers for the requested type.</p>
+     *	<p> This method retrieves the {@link Handler}s for the requested
+     *	    type.</p>
      *
      *	@param	type	The type of <code>Handler</code>s to retrieve.
      *	@param	comp	The associated <code>UIComponent</code> (or null).
      *
-     *	@return	A List of Handlers.
+     *	@return	A <code>List</code> of {@link Handler}s.
      */
-    public List getHandlers(String type, UIComponent comp) {
+    public List<Handler> getHandlers(String type, UIComponent comp) {
 	// 1st get list of handlers for definition of this LayoutElement
 	List handlers = getHandlers(type);
 
@@ -388,10 +390,11 @@ public abstract class LayoutElementBase implements LayoutElement {
     }
 
     /**
-     *	<p> This method associates 'type' with the given list of Handlers.</p>
+     *	<p> This method associates 'type' with the given list of
+     *	    {@link Handler}s.</p>
      *
-     *	@param	type	    The String type for the List of Handlers
-     *	@param	handlers    The List of Handlers
+     *	@param	type	    The String type for the List of {@link Handler}s
+     *	@param	handlers    The List of {@link Handler}s
      */
     public void setHandlers(String type, List handlers) {
 	_handlersByType.put(type, handlers);
@@ -454,9 +457,10 @@ public abstract class LayoutElementBase implements LayoutElement {
     private LayoutElement _parent = null;
 
     /**
-     *	Map containing Lists of Handlers
+     *	<p> <code>Map</code> containing <code>List</code>s of
+     *	    {@link Handler}s.</p>
      */
-    private Map _handlersByType = new HashMap();
+    private Map<String, List<Handler>> _handlersByType = new HashMap();
 
     /**
      *	This stores the id for the LayoutElement

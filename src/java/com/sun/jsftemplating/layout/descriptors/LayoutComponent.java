@@ -447,6 +447,12 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
     public static final String BEFORE_CREATE =	"beforeCreate";
 
     /**
+     *	<p> This is the "type" for handlers to be invoked to handle
+     *	    "command" functionality for this element.</p>
+     */
+    public static final String COMMAND =	"command";
+
+    /**
      *	<p> This defines the property key for specifying the facet name in
      *	    which the component should be stored under in its parent
      *	    UIComponent.</p>

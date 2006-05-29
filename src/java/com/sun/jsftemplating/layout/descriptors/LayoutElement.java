@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 
 import java.io.IOException;
@@ -132,7 +133,7 @@ public interface LayoutElement extends java.io.Serializable {
     /**
      *
      */
-    public Object dispatchHandlers(HandlerContext handlerCtx, List handlers);
+    public Object dispatchHandlers(HandlerContext handlerCtx, List<Handler> handlers);
 
     /**
      *	<p> This method iterates over the handlers and executes each one.  A
