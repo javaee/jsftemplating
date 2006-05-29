@@ -34,7 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating an <code>Anchor
  *	UIComponent</code>.</p>
  *
- *  <p>	The id for this component is: "rave:anchor".</p>
+ *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
+ *	id for this factory is: "rave:anchor".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */

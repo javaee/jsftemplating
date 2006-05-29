@@ -34,7 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating a <code>PageAlert
  *	UIComponent</code>.</p>
  *
- *  <p>	The id for this component is: "rave:pageAlert".</p>
+ *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
+ *	id for this factory is: "rave:pageAlert".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */

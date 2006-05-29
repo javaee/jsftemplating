@@ -34,7 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for creating a <code>Label
  *	UIComponent</code>.</p>
  *
- *  <p>	The id for this component is: "rave:label".</p>
+ *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
+ *	id for this factory is: "rave:label".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */

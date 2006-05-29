@@ -34,7 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating an <code>Frame
  *	UIComponent</code>.</p>
  *
- *  <p>	The id for this component is: "rave:frame".</p>
+ *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
+ *	id for this factory is: "rave:frame".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */

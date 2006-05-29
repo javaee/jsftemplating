@@ -36,7 +36,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating a <code>UIMessage
  *	UIComponent</code>.</p>
  *
- *  <p>	The id for this component is: "message".</p>
+ *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
+ *	id for this factory is: "message".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */

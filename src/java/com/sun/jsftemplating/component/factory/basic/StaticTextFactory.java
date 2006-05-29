@@ -35,7 +35,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating a
  *  <code>UIComponent</code> capable of producing raw text output.</p>
  *
- *  <p>	The id for this component is: "staticText".</p>
+ *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
+ *	id for this factory is: "staticText".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */

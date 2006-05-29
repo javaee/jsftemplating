@@ -34,7 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating an <code>Alert
  *	UIComponent</code>.</p>
  *
- *  <p>	The id for this component is: "rave:alert".</p>
+ *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
+ *	id for this factory is: "rave:alert".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */

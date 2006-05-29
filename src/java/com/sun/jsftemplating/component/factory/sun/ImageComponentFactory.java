@@ -34,7 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for creating a <code>ImageComponent</code>
  *	UIComponent.</p>
  *
- *  <p>	The id for this component is: "sun:image".</p>
+ *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
+ *	id for this factory is: "sun:image".</p>
  *
  *  @author Rick Ratta
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
