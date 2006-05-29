@@ -23,17 +23,22 @@
 package com.sun.jsftemplating.component.factory;
 
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.event.CommandActionListener;
 import com.sun.jsftemplating.util.LogUtil;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 // JSF 1.2 specific... don't do this yet...
 //import javax.el.ValueExpression;
 
+import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding; // JSF 1.1
+import javax.faces.event.ActionListener;
 import javax.faces.webapp.UIComponentTag;
 
 
@@ -86,6 +91,13 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 
 	    setOption(context, comp, key,
 		desc.getEvaluatedOption(context, key, comp));
+	}
+
+	// Check for "Command" handler...
+	List<Handler> handlers = desc.getHandlers(LayoutComponent.COMMAND);
+	if ((handlers != null) && (comp instanceof ActionSource)) {
+	    ((ActionSource) comp).addActionListener(
+		CommandActionListener.getInstance());
 	}
 
 	// Set the events on the new component
