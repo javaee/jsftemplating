@@ -104,8 +104,30 @@ public class LayoutElementUtil {
      *	    used otherwise).  This implementation will generate an id that
      *	    contains a number between 1 and {@link #MAX_ID}.  Do not depend on
      *	    this implementation, it may change in the future.</p>
+     *
+     *	<p> Since this implementation increments the number each call, it does
+     *	    not produce reproducible results between pages.  You may want to
+     *	    pass in your own number to use, see
+     *	    {@link #getGeneratedId(String, int)}.</p>
      */
     public static String getGeneratedId(String base) {
+	return getGeneratedId(base, (_idNum++ % MAX_ID));
+    }
+
+    /**
+     *	<p> This method produces a generated ID.  It optionally uses the given
+     *	    base as a prefix to the generated ID ({@link #DEFAULT_ID_BASE} is
+     *	    used otherwise).  This implementation will generate an id that
+     *	    contains the given number.  Do not depend result of this this
+     *	    implementation, it may change in the future.</p>
+     *
+     *	<p> This method replaces illegal characters (all non alpha characters)
+     *	    with an '_'.</p>
+     *
+     *	@param	base	Prefix to use in the id.
+     *	@param	num	Number to use in the id.
+     */
+    public static String getGeneratedId(String base, int num) {
 	if (base == null) {
 	    base = DEFAULT_ID_BASE;
 	} else {
@@ -126,7 +148,7 @@ public class LayoutElementUtil {
 		base = buf.toString();
 	    }
 	}
-	return base + (_idNum++ % MAX_ID);
+	return base + num;
     }
 
 
