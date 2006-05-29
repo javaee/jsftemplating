@@ -808,7 +808,7 @@ public class TemplateReader {
     }
 
     /**
-     *	<p> This method initializes the {@link CustomParserCommands}.</p>
+     *	<p> This method initializes the {@link CustomParserCommand}s.</p>
      */
     protected static void initCustomParserCommands() {
 	Map<String, CustomParserCommand> map =

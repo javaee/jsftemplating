@@ -198,7 +198,7 @@ public abstract class LayoutDefinitionManager {
      *	    <code>LayoutDefinitionManager</code> is able to read the requested
      *	    {@link LayoutDefinition}.</p>
      *
-     *	@param	context	The <code>FacesContext</code>.
+     *	@param	ctx	The <code>FacesContext</code>.
      *	@param	key	The desired {@link LayoutDefinition}.
      *
      *	@see #LAYOUT_DEFINITION_MANAGER_KEY
