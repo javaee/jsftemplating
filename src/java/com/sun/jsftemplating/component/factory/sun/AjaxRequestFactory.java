@@ -38,6 +38,8 @@ import javax.faces.context.FacesContext;
  *  <p>	All properties are passed through to the underlying
  *	<code>Hyperlink</code> UIComponent.</p>
  *
+ *  <p>	The id for this component is: "ajaxRequest".</p>
+ *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 @UIComponentFactory("ajaxRequest")

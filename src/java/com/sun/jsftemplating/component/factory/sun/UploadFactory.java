@@ -34,6 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating a <code>Upload
  *	UIComponent</code>.</p>
  *
+ *  <p>	The id for this component is: "sun:upload".</p>
+ *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 @UIComponentFactory("sun:upload")

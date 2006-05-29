@@ -34,6 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating a <code>Link
  *	UIComponent</code>.</p>
  *
+ *  <p>	The id for this component is: "rave:link".</p>
+ *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 @UIComponentFactory("rave:link")

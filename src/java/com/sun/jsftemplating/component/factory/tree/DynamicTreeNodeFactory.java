@@ -69,6 +69,8 @@ import javax.faces.component.UIComponent;
  *	order for this factory to be capable of populating
  *	<code>TreeNode</code>s based on your data.</p>
  *
+ *  <p>	The id for this component is: "dynamicTreeNode".</p>
+ *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 @UIComponentFactory("dynamicTreeNode")

@@ -34,6 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating an <code>Icon
  *	UIComponent</code>.</p>
  *
+ *  <p>	The id for this component is: "sun:icon"</p>
+ *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 @UIComponentFactory("sun:icon")

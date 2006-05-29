@@ -34,6 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating an <code>IconHyperlink
  *	UIComponent</code>.</p>
  *
+ *  <p>	The id for this component is: "sun:iconHyperlink".</p>
+ *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 @UIComponentFactory("sun:iconHyperlink")

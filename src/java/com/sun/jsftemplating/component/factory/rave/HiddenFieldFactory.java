@@ -34,6 +34,8 @@ import javax.faces.context.FacesContext;
  *  <p>	This factory is responsible for instantiating a <code>HiddenField
  *	UIComponent</code>.</p>
  *
+ *  <p>	The id for this component is: "rave:hidden".</p>
+ *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 @UIComponentFactory("rave:hidden")
