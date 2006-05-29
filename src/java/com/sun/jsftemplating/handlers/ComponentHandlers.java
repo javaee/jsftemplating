@@ -100,4 +100,41 @@ public class ComponentHandlers {
 	// Set the attribute or property value
 	component.getAttributes().put(propName, value);
     }
+
+    /**
+     *	<p> This handler finds the requested <code>UIComponent</code> by
+     *	    <code>clientId</code>.  It takes <code>clientId</code> as an input
+     *	    parameter, and returns <code>component</code> as an output
+     *	    parameter.</p>
+     */
+    @Handler(id="getUIComponent",
+	input={
+	    @HandlerInput(name="clientId", type=String.class, required=true)},
+	output={
+	    @HandlerOutput(name="component", type=UIComponent.class)})
+    public static void getUIComponent(HandlerContext context) {
+	UIComponent viewRoot = context.getFacesContext().getViewRoot();
+	String clientId = (String) context.getInputValue("clientId");
+	context.setOutputValue("component", viewRoot.findComponent(clientId));
+    }
+
+    /**
+     *	<p> This handler retrieves a property from the given
+     *	    <code>UIComponent</code>.  It expects <code>component</code> and
+     *	    <code>name</code> as an input parameters, and returns
+     *	    <code>value</code> as an output parameter containing the value of
+     *	    the property.</p>
+     */
+    @Handler(id="getUIComponentProperty",
+	input={
+	    @HandlerInput(name="component", type=UIComponent.class, required=true),
+	    @HandlerInput(name="name", type=String.class, required=true)},
+	output={
+	    @HandlerOutput(name="value", type=Object.class)})
+    public static void getUIComponentProperty(HandlerContext context) {
+	UIComponent comp = (UIComponent) context.getInputValue("component");
+	String name = (String) context.getInputValue("name");
+	Object value = comp.getAttributes().get(name);
+	context.setOutputValue("value", value);
+    }
 }
