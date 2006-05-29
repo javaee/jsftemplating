@@ -26,7 +26,6 @@ import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.SyntaxException;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
-import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutAttribute;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
@@ -36,19 +35,14 @@ import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
 import com.sun.jsftemplating.layout.descriptors.LayoutForEach;
 import com.sun.jsftemplating.layout.descriptors.LayoutIf;
 import com.sun.jsftemplating.layout.descriptors.LayoutMarkup;
-import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
 import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
 import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.util.LayoutElementUtil;
-import com.sun.jsftemplating.util.Util;
 
 import java.io.IOException;
-import java.io.BufferedInputStream;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -185,7 +179,7 @@ public class TemplateReader {
      *	@param	parent	The parent {@link LayoutElement}
      *	@param	nested	<code>true</code> if nested in a {@link LayoutComponent}
      */
-    protected LayoutElement process(ProcessingContext ctx, LayoutElement parent, boolean nested) throws IOException {
+    public LayoutElement process(ProcessingContext ctx, LayoutElement parent, boolean nested) throws IOException {
 	// Get the parser...
 	TemplateParser parser = getTemplateParser();
 
@@ -219,9 +213,12 @@ public class TemplateReader {
 				// No optional '!', push back extra read char
 				parser.unread(ch);
 			    }
+			    tmpstr = parser.readToken();
+			    ctx.endSpecial(env, tmpstr);
+			} else {
+			    tmpstr = parser.readToken();
+			    ctx.endComponent(env, tmpstr);
 			}
-			tmpstr = parser.readToken();
-			ctx.endComponent(env, tmpstr);
 			finished = true; // Indicate done with this context
 			parser.skipCommentsAndWhiteSpace(   // Skip white space
 			    parser.SIMPLE_WHITE_SPACE);
@@ -267,12 +264,15 @@ public class TemplateReader {
     }
 
     /**
-     *	<p> This method is responsible for creating a
+     *	<p> This method is responsible for parsing and creating a
      *	    {@link LayoutComponent}.</p>
      *
+     *	@param	parent	The parent {@link LayoutElement}.
+     *	@param	nested	<code>true</code> if nested inside another
+     *			{@link LayoutComponent}.
      *	@param	type	The type of component to create.
      */
-    private LayoutComponent createLayoutComponent(LayoutElement parent, boolean nested, String type) throws IOException {
+    public LayoutComponent createLayoutComponent(LayoutElement parent, boolean nested, String type) throws IOException {
 	// Ensure type is defined
 	ComponentType componentType = LayoutDefinitionManager.
 	    getGlobalComponentType(type);
@@ -324,7 +324,7 @@ public class TemplateReader {
 
 	// Create the LayoutComponent
 	if (id == null) {
-	    id = getGeneratedId(type);
+	    id = LayoutElementUtil.getGeneratedId(type);
 	}
 	LayoutComponent component =
 	    new LayoutComponent(parent, id, componentType);
@@ -371,7 +371,7 @@ public class TemplateReader {
      *	    -- its a place holder for a facet.  In this case it will not use
      *	    the id of the place holder.</p>
      */
-    private static void checkForFacetChild(LayoutElement parent, LayoutComponent component) {
+    public static void checkForFacetChild(LayoutElement parent, LayoutComponent component) {
 	// Figure out if this should be stored as a facet, if so under what id
 	if (LayoutElementUtil.isLayoutComponentChild(component)) {
 	    component.setFacetChild(false);
@@ -793,37 +793,6 @@ public class TemplateReader {
 
 
     /**
-     *	<p> This method produces a generated ID.  It optionally uses the given
-     *	    base as a prefix to the generated ID ({@link #DEFAULT_ID_BASE} is
-     *	    used otherwise).  This implementation will generate an id that
-     *	    contains a number between 1 and {@link #MAX_ID}.  Do not depend on
-     *	    this implementation, it may change in the future.</p>
-     */
-    public static String getGeneratedId(String base) {
-	if (base == null) {
-	    base = DEFAULT_ID_BASE;
-	} else {
-	    base = base.trim();
-	    if (base.equals("")) {
-		base = DEFAULT_ID_BASE;
-	    } else {
-		StringBuffer buf = new StringBuffer();
-		int lowch;
-		for (int ch : base.toCharArray()) {
-		    lowch = ch | 0x20;
-		    if ((lowch >= 'a') && (lowch <= 'z')) {
-			buf.append((char) ch);
-		    } else {
-			buf.append('_');
-		    }
-		}
-		base = buf.toString();
-	    }
-	}
-	return base + (_idNum++ % MAX_ID);
-    }
-
-    /**
      *	<p> This method provides access to registered
      *	    {@link CustomParserCommand}s.</p>
      */
@@ -859,194 +828,6 @@ public class TemplateReader {
 
 
     /**
-     *	<p> This interface defines the operations that may be acted upon while
-     *	    a "template" file is walked.  The intent is that this interface may
-     *	    be implemented by the different "processing contexts" which occur
-     *	    throught the template file.  This provides the opportunity for
-     *	    context sensitive syntax in an easy to provide way.</p>
-     */
-    protected static interface ProcessingContext {
-	/**
-	 *  <p>	This is called when a component tag is found
-	 *	(&lt;tagname ...).</p>
-	 */
-	void beginComponent(ProcessingContextEnvironment env, String content) throws IOException;
-
-	/**
-	 *  <p>	This is called when an end component tag is found
-	 *	(&lt;/tagname ... or &lt;tagname ... /&gt;).</p>
-	 */
-	void endComponent(ProcessingContextEnvironment env, String content) throws IOException;
-
-	/**
-	 *  <p>	This is called when a special tag is found
-	 *	(&lt;!tagname ...).</p>
-	 */
-	void beginSpecial(ProcessingContextEnvironment env, String content) throws IOException;
-
-	/**
-	 *  <p>	This is called when a special end tag is found
-	 *	(&lt;/tagname ... or &lt;!tagname ... /&gt;).</p>
-	 */
-	void endSpecial(ProcessingContextEnvironment env, String content) throws IOException;
-
-	/**
-	 *  <p>	This is called when static text is found (").</p>
-	 */
-	void staticText(ProcessingContextEnvironment env, String content) throws IOException;
-
-	/**
-	 *  <p>	This is called when escaped static text is found (').  The
-	 *	difference between this and staticText is that HTML is expected
-	 *	to be escaped so the browser does not parse it.</p>
-	 */
-	void escapedStaticText(ProcessingContextEnvironment env, String content) throws IOException;
-
-	/**
-	 *  <p>This method is invoked when nothing else matches.</p>
-	 */
-	void handleDefault(ProcessingContextEnvironment env, String content) throws IOException;
-    }
-
-    /**
-     *	<p> Since many contexts share common functionality (i.e. processing
-     *	    static text output), it makes sense to have a base processing
-     *	    context which may be specialized as needed.</p>
-     */
-    protected static class BaseProcessingContext implements ProcessingContext {
-	/**
-	 *  <p>	This is called when a component tag is found
-	 *	(&lt;tagname ...).</p>
-	 */
-	public void beginComponent(ProcessingContextEnvironment env, String content) throws IOException {
-	    // We have a UIComponent tag... first get the parser
-	    // Skip white Space
-	    TemplateReader reader = env.getReader();
-	    reader.getTemplateParser().skipCommentsAndWhiteSpace(
-		    TemplateParser.SIMPLE_WHITE_SPACE);
-
-// tagStack.push(content);
-	    // Create the LayoutComponent
-	    LayoutElement parent = env.getParent();
-	    LayoutComponent child = reader.createLayoutComponent(
-		    parent, env.isNested(), content);
-	    parent.addChildLayoutElement(child);
-
-	    // See if this is a single tag or if there is a closing tag
-	    boolean single = false;
-	    TemplateParser parser = reader.getTemplateParser();
-	    int ch = parser.nextChar();
-	    if (ch == '/') {
-		// Single Tag
-		ch = parser.nextChar();  // Throw away '>'
-		single = true;
-	    }
-	    if (ch != '>') {
-		throw new SyntaxException(
-		    "Expected '>' found '" + (char) ch + "'.");
-	    }
-
-	    if (single) {
-		// This is also the end of the component in this case...
-		endComponent(env, content);
-	    } else {
-		// Process child LayoutElements (recurse)
-		reader.process(LAYOUT_COMPONENT_CONTEXT, child, true);
-	    }
-	}
-
-	/**
-	 *  <p>	This is called when an end component tag is found
-	 *	(&lt;/tagname&gt; or &lt;tagname ... /&gt;).  Because it may
-	 *	be called for either of the above syntaxes, the caller of this
-	 *	method is responsible for maintaining the parser position, this
-	 *	method (or its subclasses) should not effect the parser
-	 *	position.</p>
-	 */
-	public void endComponent(ProcessingContextEnvironment env, String content) throws IOException {
-// if (!tagStack.pop().equals(content)) {
-//  throw SyntaxException(...);
-// }
-/*
-		    ch = parser.nextChar();
-// FIXME: ':' is no longer used to indicate resevered... ! is... don't require this on end tag???
-		    if (ch == ':') {
-			// We have an end reserved tag...
-			str2 = parser.readToken();
-		    } else {
-			// We have an end UIComponent tag...
-			parser.unread(ch);
-// FIXME: pop UIcomponent name off stack
-		    }
-*/
-	}
-
-	/**
-	 *  <p>	This is called when a special tag is found
-	 *	(&lt;!tagname ...).</p>
-	 */
-	public void beginSpecial(ProcessingContextEnvironment env, String content) throws IOException {
-	    CustomParserCommand command =
-		TemplateReader.getCustomParserCommand(content);
-	    if (command != null) {
-		command.process(env, content);
-	    } else {
-		// If there is no Custom command for this, use the default...
-		_eventParserCommand.process(env, content);
-	    }
-	}
-
-	/**
-	 *  <p>	This is called when a special end tag is found
-	 *	(&lt;/tagname ... or &lt;!tagname ... /&gt;).</p>
-	 */
-	public void endSpecial(ProcessingContextEnvironment env, String content) throws IOException {
-	}
-
-	/**
-	 *  <p>	This is called when static text is found (").</p>
-	 */
-	public void staticText(ProcessingContextEnvironment env, String content) throws IOException {
-	    LayoutElement parent = env.getParent();
-	    LayoutElement child = null;
-	    if (env.isNested()) {
-		// Must create a LayoutComponent (for UIComponent tree)
-		LayoutComponent component =
-		    new LayoutComponent(parent, getGeneratedId("staticText"), STATIC_TEXT);
-		component.addOption("value", content);
-		component.setNested(true);
-		checkForFacetChild(parent, component);
-		child = component;
-	    } else {
-		// Don't need a LayoutComponent
-		child = new LayoutStaticText(parent, "", content);
-	    }
-	    parent.addChildLayoutElement(child);
-	}
-
-	/**
-	 *  <p>	This is called when escaped static text is found (').  The
-	 *	difference between this and staticText is that HTML is expected
-	 *	to be escaped so the browser does not parse it.</p>
-	 */
-	public void escapedStaticText(ProcessingContextEnvironment env, String content) throws IOException {
-	    staticText(env, Util.htmlEscape(content));
-	}
-
-	/**
-	 *  <p>This method is invoked when nothing else matches.</p>
-	 *
-	 *  <p>This implementation does nothing.</p>
-	 */
-	public void handleDefault(ProcessingContextEnvironment env, String content) throws IOException {
-	    // The process() method unreads the character that sent us here, we
-	    // don't want that to happen so read it here and ignore it.
-	    env.getReader().getTemplateParser().nextChar();
-//System.out.println("handleDefault: " + content);
-	}
-    }
-
-    /**
      *	<p> This is the {@link ProcessingContext} for the
      *	    {@link LayoutDefinition}.</p>
      */
@@ -1058,6 +839,7 @@ public class TemplateReader {
      *	    {@link LayoutComponent}s.</p>
      */
     protected static class LayoutComponentContext extends BaseProcessingContext {
+
 	/**
 	 *  <p>This method is invoked when nothing else matches.</p>
 	 *
@@ -1087,7 +869,7 @@ public class TemplateReader {
      *	    declarations.</p>
      */
     public static class EventParserCommand implements CustomParserCommand {
-	public void process(ProcessingContextEnvironment env, String eventName) throws IOException {
+	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String eventName) throws IOException {
 	    String handlerId = null;
 	    String target = null;
 	    NameValuePair nvp = null;
@@ -1171,8 +953,9 @@ public class TemplateReader {
 			+ eventName + "' event.  But found '/"
 			+ (char) ch + "'.");
 		}
+		ctx.endSpecial(env, eventName);
 	    }
-// FIXME: Ensure "parent" is always correct!!
+
 	    // Set the Handlers on the parent...
 	    env.getParent().setHandlers(eventName, handlers);
 	}
@@ -1182,7 +965,7 @@ public class TemplateReader {
      *	<p> This {@link CustomParserCommand} handles "if" statements.</p>
      */
     public static class IfParserCommand implements CustomParserCommand {
-	public void process(ProcessingContextEnvironment env, String eventName) throws IOException {
+	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
 // FIXME: TBD...
 	    TemplateParser parser = env.getReader().getTemplateParser();
 	    parser.readUntil('>', true);
@@ -1193,7 +976,7 @@ public class TemplateReader {
      *	<p> This {@link CustomParserCommand} handles "while" statements.</p>
      */
     public static class WhileParserCommand extends IfParserCommand {
-	public void process(ProcessingContextEnvironment env, String eventName) throws IOException {
+	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
 // FIXME: TBD...
 	    TemplateParser parser = env.getReader().getTemplateParser();
 	    parser.readUntil('>', true);
@@ -1204,7 +987,7 @@ public class TemplateReader {
      *	<p> This {@link CustomParserCommand} handles "foreach" statements.</p>
      */
     public static class ForeachParserCommand implements CustomParserCommand {
-	public void process(ProcessingContextEnvironment env, String eventName) throws IOException {
+	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
 // FIXME: TBD...
 	    TemplateParser parser = env.getReader().getTemplateParser();
 	    parser.readUntil('>', true);
@@ -1215,7 +998,7 @@ public class TemplateReader {
      *	<p> This {@link CustomParserCommand} handles "facets".</p>
      */
     public static class FacetParserCommand implements CustomParserCommand {
-	public void process(ProcessingContextEnvironment env, String eventName) throws IOException {
+	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
 // FIXME: TBD...
 	    TemplateParser parser = env.getReader().getTemplateParser();
 	    parser.readUntil('>', true);
@@ -1245,28 +1028,13 @@ public class TemplateReader {
     public static final String OVERWRITE_ATTRIBUTE	    =
 	"overwrite";
 
-    public static final ComponentType STATIC_TEXT	    = 
-	LayoutDefinitionManager.getGlobalComponentType("staticText");
-
-    protected static final ProcessingContext LAYOUT_DEFINITION_CONTEXT	=
+    public static final ProcessingContext LAYOUT_DEFINITION_CONTEXT	=
 	new LayoutDefinitionContext();
 
-    protected static final ProcessingContext LAYOUT_COMPONENT_CONTEXT	=
+    public static final ProcessingContext LAYOUT_COMPONENT_CONTEXT	=
 	new LayoutComponentContext();
 
-    /**
-     *	<p> This value represents the maximum number that is contained in an
-     *	    auto generated id.  I intentionally did not make this final so that
-     *	    if needed it can be tweaked at runtime.  However, I do not think
-     *	    this will ever be necessary (id's can be specified, and this many
-     *	    unspecified ids is unlikely to be needed on a single page!).</p>
-     */
-    public  static int	MAX_ID			= 0x00010000;
-    private static int	_idNum			= 1;
-
-    public static final String DEFAULT_ID_BASE	= "id";
-
-    public static CustomParserCommand _eventParserCommand =
+    public static CustomParserCommand EVENT_PARSER_COMMAND =
 	new EventParserCommand();
 
     private TemplateParser  _tpl		= null;

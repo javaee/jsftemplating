@@ -32,5 +32,5 @@ import java.io.IOException;
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public interface CustomParserCommand {
-    void process(ProcessingContextEnvironment env, String name) throws IOException;
+    void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException;
 }
