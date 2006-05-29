@@ -139,7 +139,8 @@ public class BaseProcessingContext implements ProcessingContext {
 	    // Must create a LayoutComponent (for UIComponent tree)
 	    LayoutComponent component = new LayoutComponent(
 		    parent,
-		    LayoutElementUtil.getGeneratedId("staticText"),
+		    LayoutElementUtil.getGeneratedId("staticText",
+			env.getReader().getNextIdNumber()),
 		    STATIC_TEXT);
 	    component.addOption("value", content);
 	    component.setNested(true);

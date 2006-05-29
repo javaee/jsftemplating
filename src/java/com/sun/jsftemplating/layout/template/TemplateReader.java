@@ -324,7 +324,7 @@ public class TemplateReader {
 
 	// Create the LayoutComponent
 	if (id == null) {
-	    id = LayoutElementUtil.getGeneratedId(type);
+	    id = LayoutElementUtil.getGeneratedId(type, getNextIdNumber());
 	}
 	LayoutComponent component =
 	    new LayoutComponent(parent, id, componentType);
@@ -786,6 +786,13 @@ public class TemplateReader {
     }
      */
 
+    /**
+     *	<p> This method returns the next ID number.  Calling this method will
+     *	    increment the id number.</p>
+     */
+    public int getNextIdNumber() {
+	return _idNumber++;
+    }
 
     //////////////////////////////////////////////////////////////////////
     //	Utility Methods
@@ -1037,7 +1044,8 @@ public class TemplateReader {
     public static CustomParserCommand EVENT_PARSER_COMMAND =
 	new EventParserCommand();
 
-    private TemplateParser  _tpl		= null;
-
     private static Map<String, CustomParserCommand> _parserCmds	= null;
+
+    private TemplateParser  _tpl    = null;
+    private int _idNumber	    = 1;
 }
