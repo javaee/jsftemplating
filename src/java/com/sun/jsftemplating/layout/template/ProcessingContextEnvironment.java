@@ -91,22 +91,6 @@ public class ProcessingContextEnvironment {
 	return _finished;
     }
 
-    /**
-     *  <p> Being marked special, indicates a "special" command versus a
-     *	    component.  In other words a tag that starts with a '!' char.</p>
-     */
-    public void setSpecial(boolean val) {
-	_special = val;
-    }
-
-    /**
-     *  <p> Indicates if the current tag being processed is "special".</p>
-     */
-    public boolean isSpecial() {
-	return _special;
-    }
-
-
     boolean		_finished   = false;
     boolean		_special    = false;
     boolean		_nested	    = false;
