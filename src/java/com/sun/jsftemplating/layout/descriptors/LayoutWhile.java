@@ -66,7 +66,7 @@ public class LayoutWhile extends LayoutIf implements LayoutElement {
      *
      *	@return	true
      */
-    protected boolean encodeThis(FacesContext context, UIComponent component) {
+    public boolean encodeThis(FacesContext context, UIComponent component) {
 	return true;
     }
 
@@ -81,7 +81,8 @@ public class LayoutWhile extends LayoutIf implements LayoutElement {
      */
     protected boolean shouldContinue(UIComponent component) {
 	PermissionChecker checker =
-	    new PermissionChecker(this, component, getCondition());
+	    new PermissionChecker(this, component,
+		(String) getOption("condition"));
 //	return checker.evaluate();
 	return checker.hasPermission();
     }
