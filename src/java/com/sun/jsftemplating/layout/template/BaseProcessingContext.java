@@ -67,6 +67,7 @@ public class BaseProcessingContext implements ProcessingContext {
 	    // Single Tag
 	    ch = parser.nextChar();  // Throw away '>'
 	    single = true;
+	    reader.popTag();	    // Don't look for ending tag
 	}
 	if (ch != '>') {
 	    throw new SyntaxException(
