@@ -29,6 +29,7 @@ import com.sun.jsftemplating.layout.event.EncodeEvent;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContextImpl;
+import com.sun.jsftemplating.util.LayoutElementUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -133,8 +134,11 @@ public abstract class LayoutElementBase implements LayoutElement {
      *	@return a non-null id
      */
     private String getId() {
-	if (_id == null) {
-	    return "";
+	if ((_id == null) || (_id == "")) {
+	    // Ensure we ALWAYS have an id, however, generating ids is
+	    // potentially dangerous because the results may not be the same
+	    // always.  Effort has been taken to avoid most problems, though.
+	    _id = LayoutElementUtil.getGeneratedId((String) null);
 	}
 	return _id;
     }
