@@ -99,12 +99,15 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
      *	    LayoutFacet
      */
     public void addChildLayoutElement(LayoutElement element) {
+	/*
+// FIXME: Remove this block after testing...
 	if (!(element instanceof LayoutComponent)
 		&& !(element instanceof LayoutFacet)) {
 	    throw new IllegalArgumentException("Only LayoutComponent and "
 		    + "LayoutFacet LayoutElements may be added as children to "
 		    + "a LayoutComponent!");
 	}
+	*/
 	super.addChildLayoutElement(element);
     }
 
@@ -210,6 +213,13 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
      *	@param	parent	    The <code>UIComponent</code>.
      */
     public void encode(FacesContext context, UIComponent parent) throws IOException {
+	if (!this.getClass().getName().equals(CLASS_NAME)) {
+	    // The sub-classes of this component shouldn't use this method,
+	    // this is a hack to allow them to use LayoutElementBase.encode
+	    super.encode(context, parent);
+	    return;
+	}
+
 	// If overwrite...
 	if (isOverwrite()) {
 	    String id = getId(context, parent);
@@ -273,16 +283,12 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
 
 	// First pull off the id from the descriptor
 	String id = this.getId(context, parent);
-	if ((id != null) && !(id.trim().equals(""))) {
-	    // We have an id, use it to search for an already-created child
-	    childComponent = ComponentUtil.findChild(parent, id, id);
-	    if (childComponent != null) {
-		return childComponent;
-	    }
-	}
 
-	// No id, or the component hasn't been created.  In either case, we
-	// create a new component (moral: always have an id)
+	// We have an id, use it to search for an already-created child
+	childComponent = ComponentUtil.findChild(parent, id, id);
+	if (childComponent != null) {
+	    return childComponent;
+	}
 
 	// Invoke "beforeCreate" handlers
 	this.beforeCreate(context, parent);
@@ -457,7 +463,9 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
      *	    which the component should be stored under in its parent
      *	    UIComponent.</p>
      */
-    public static final String FACET_NAME =	"_facetName";
+    public static final String FACET_NAME   = "_facetName";
+
+    private static final String CLASS_NAME  = LayoutComponent.class.getName();
 
     /**
      *	<p> The value of the nested property.</p>
