@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout.descriptors;
 
 import com.sun.jsftemplating.el.PermissionChecker;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -34,29 +35,29 @@ import javax.faces.context.FacesContext;
  *	of the layout tree.  The condition is a boolean equation and may use
  *	"$...{...}" type expressions to substitute in values.</p>
  *
+ *  <p>	Depending on its environment, this {@link LayoutElement} can represent
+ *	an {@link If} <code>UIComponent</code> or simply exist as a
+ *	{@link LayoutElement}.  When its {@link #encode} method is called, the
+ *	if functionality will act as a {@link LayoutElement}.  When the
+ *	{@link LayoutComponent#getChild(FacesContext, UIComponent)} method is
+ *	called, it will create an {@link If} <code>UIComponent</code>.</p>
+ *
  *  @see com.sun.jsftemplating.el.VariableResolver
  *  @see com.sun.jsftemplating.el.PermissionChecker
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
-public class LayoutIf extends LayoutElementBase implements LayoutElement {
+public class LayoutIf extends LayoutComponent {
 
     /**
      *	Constructor
      */
     public LayoutIf(LayoutElement parent, String condition) {
-	super(parent, null);
-	_condition = condition;
+	super(parent, (String) null,
+	    LayoutDefinitionManager.getGlobalComponentType("if"));
+	setFacetChild(false);
+	addOption("condition", condition);
     }
-
-
-    /**
-     *	Accessor for condition boolean equation.
-     */
-    public String getCondition() {
-	return _condition;
-    }
-
 
     /**
      *	This method returns true if the condition of this LayoutIf is met,
@@ -68,9 +69,10 @@ public class LayoutIf extends LayoutElementBase implements LayoutElement {
      *
      *	@return	true if children are to be rendered, false otherwise.
      */
-    protected boolean encodeThis(FacesContext context, UIComponent component) {
+    public boolean encodeThis(FacesContext context, UIComponent component) {
 	PermissionChecker checker =
-	    new PermissionChecker(this, component, getCondition());
+	    new PermissionChecker(this, component,
+		(String) getOption("condition"));
 //	return checker.evaluate();
 	return checker.hasPermission();
     }
