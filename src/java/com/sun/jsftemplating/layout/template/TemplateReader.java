@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 
 /**
@@ -189,6 +190,7 @@ public class TemplateReader {
 	ProcessingContextEnvironment env = new ProcessingContextEnvironment(
 		this, parent, nested);
 	int ch = parser.nextChar();
+	String startTag = null;
 	String tmpstr = null;
 	boolean finished = false;
 	while (ch != -1) {
@@ -201,8 +203,18 @@ public class TemplateReader {
 			// Closing tag
 			parser.skipCommentsAndWhiteSpace(   // Skip white space
 			    parser.SIMPLE_WHITE_SPACE);
-			if (env.isSpecial()) {
-			    // Check for special flag might have a '!'
+			// Get the expected String
+			if (isTagStackEmpty()) {
+			    parser.skipCommentsAndWhiteSpace(
+				parser.SIMPLE_WHITE_SPACE + '!');
+			    throw new SyntaxException("Found end tag '</"
+				+ parser.readToken()
+				+ "...' but did not find matching begin tag!");
+			}
+			startTag = popTag();
+			if ((startTag.length() > 0)
+				&& (startTag.charAt(0) == '!')) {
+			    // Check for special flag, might have a '!'
 			    ch = parser.nextChar();
 			    // Ignore the '!' if there, if not push it back
 			    if (ch == '!') {
@@ -214,9 +226,22 @@ public class TemplateReader {
 				parser.unread(ch);
 			    }
 			    tmpstr = parser.readToken();
+			    if (!startTag.contains(tmpstr)) {
+				throw new SyntaxException(
+				    "Expected to find closing tag '</"
+				    + startTag + "...' but instead found '</'"
+				    + ((ch == '!') ? '!' : "")
+				    + tmpstr + "...'.");
+			    }
 			    ctx.endSpecial(env, tmpstr);
 			} else {
 			    tmpstr = parser.readToken();
+			    if (!startTag.equals(tmpstr)) {
+				throw new SyntaxException(
+				    "Expected to find closing tag '</"
+				    + startTag + "...' but instead found '</'"
+				    + tmpstr + "...'.");
+			    }
 			    ctx.endComponent(env, tmpstr);
 			}
 			finished = true; // Indicate done with this context
@@ -231,12 +256,15 @@ public class TemplateReader {
 			}
 		    } else if (ch == '!') {
 			// We have a reserved tag...
-			env.setSpecial(true);
-			ctx.beginSpecial(env, parser.readToken());
+			tmpstr = parser.readToken();
+			pushTag("!" + tmpstr);
+			ctx.beginSpecial(env, tmpstr);
 		    } else {
 			// Open tag
 			parser.unread(ch);
-			ctx.beginComponent(env, parser.readToken());
+			tmpstr = parser.readToken();
+			pushTag(tmpstr);
+			ctx.beginComponent(env, tmpstr);
 		    }
 		    break;
 		case '\'' :
@@ -305,7 +333,7 @@ public class TemplateReader {
 			+ "'/' that was not followed by a '>' character!");
 		}
 
-		// We're at the end of the parameters.
+		// We're at the end of the parameters and the component
 		single = true;
 		break;
 	    }
@@ -787,6 +815,34 @@ public class TemplateReader {
      */
 
     /**
+     *	<p> This method removes a tag from the Stack.  This should be called
+     *	    outside of <code>TemplateReader</code> when writing
+     *	    {@link ProcessingContext} code and a tag starts and ends in a
+     *	    single tag (i.e. &lt;tag /&gt;).  In other cases, it should be
+     *	    handled within the </code>TemplateReader</code>.</p>
+     */
+    public String popTag() {
+	return _tagStack.pop();
+    }
+
+    /**
+     *	<p> This method exists because popTag() does, it likely doesn't have
+     *	    much use outside of <code>TemplateReader</code>.</p>
+     */
+    public void pushTag(String tag) {
+	_tagStack.push(tag);
+    }
+
+    /**
+    /**
+     *	<p> This method checks to see if the tag <code>Stack</code> is
+     *	    empty.</p>
+     */
+    public boolean isTagStackEmpty() {
+	return _tagStack.empty();
+    }
+
+    /**
      *	<p> This method returns the next ID number.  Calling this method will
      *	    increment the id number.</p>
      */
@@ -843,6 +899,13 @@ public class TemplateReader {
 
     /**
      *	<p> This is the {@link ProcessingContext} for
+     *	    {@link LayoutIf}s.</p>
+     */
+    protected static class LayoutIfContext extends BaseProcessingContext {
+    }
+
+    /**
+     *	<p> This is the {@link ProcessingContext} for
      *	    {@link LayoutComponent}s.</p>
      */
     protected static class LayoutComponentContext extends BaseProcessingContext {
@@ -883,7 +946,8 @@ public class TemplateReader {
 	    HandlerDefinition def = null;
 	    Handler handler = null;
 	    ArrayList handlers = new ArrayList();
-	    TemplateParser parser = env.getReader().getTemplateParser();
+	    TemplateReader reader = env.getReader();
+	    TemplateParser parser = reader.getTemplateParser();
 
 	    // Read the Handler(s)...
 	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
@@ -951,6 +1015,12 @@ public class TemplateReader {
 		throw new SyntaxException("Unexpected EOF encountered while "
 		    + "parsing handlers for event '" + eventName + "'!");
 	    }
+	    if (ch == '>') {
+// FIXME: Deal w/ nested Handlers
+		// Until we allow Handlers w/i Handlers, throw an exception
+		throw new SyntaxException("Handlers for event '" + eventName
+		    + "' did not end with '/>' but instead ended with '>'!");
+	    }
 	    if (ch == '/') {
 		// Make sure we have a "/>"...
 		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
@@ -960,6 +1030,7 @@ public class TemplateReader {
 			+ eventName + "' event.  But found '/"
 			+ (char) ch + "'.");
 		}
+		reader.popTag();   // Get rid of this event tag from the Stack
 		ctx.endSpecial(env, eventName);
 	    }
 
@@ -969,13 +1040,29 @@ public class TemplateReader {
     }
 
     /**
-     *	<p> This {@link CustomParserCommand} handles "if" statements.</p>
+     *	<p> This {@link CustomParserCommand} handles "if" statements.  To
+     *	    obtain the condition, it simply reads until it finds '&gt;'.  This
+     *	    means '&gt;' must be escaped if it appears in the condition.</p>
      */
     public static class IfParserCommand implements CustomParserCommand {
 	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
-// FIXME: TBD...
-	    TemplateParser parser = env.getReader().getTemplateParser();
-	    parser.readUntil('>', true);
+	    // Get the condition for this if statement.  We simply read until we find '>'.  This means '>' must be escaped if it appears in the condition.
+	    TemplateReader reader = env.getReader();
+	    TemplateParser parser = reader.getTemplateParser();
+	    String condition = parser.readUntil('>', true).trim();
+
+	    // Create new LayoutIf
+	    LayoutElement parent = env.getParent();
+	    LayoutElement ifElt =  new LayoutIf(parent, condition);
+	    parent.addChildLayoutElement(ifElt);
+
+	    if (condition.endsWith("/")) {
+		reader.popTag();  // Don't look for end tag
+	    } else {
+		// Process child LayoutElements (recurse)
+		reader.process(
+		    TemplateReader.LAYOUT_IF_CONTEXT, ifElt, true);
+	    }
 	}
     }
 
@@ -986,7 +1073,10 @@ public class TemplateReader {
 	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
 // FIXME: TBD...
 	    TemplateParser parser = env.getReader().getTemplateParser();
-	    parser.readUntil('>', true);
+	    String content = parser.readUntil('>', true).trim();
+	    if (content.endsWith("/")) {
+		env.getReader().popTag();  // Don't look for end tag
+	    }
 	}
     }
 
@@ -997,7 +1087,10 @@ public class TemplateReader {
 	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
 // FIXME: TBD...
 	    TemplateParser parser = env.getReader().getTemplateParser();
-	    parser.readUntil('>', true);
+	    String content = parser.readUntil('>', true).trim();
+	    if (content.endsWith("/")) {
+		env.getReader().popTag();  // Don't look for end tag
+	    }
 	}
     }
 
@@ -1008,7 +1101,10 @@ public class TemplateReader {
 	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
 // FIXME: TBD...
 	    TemplateParser parser = env.getReader().getTemplateParser();
-	    parser.readUntil('>', true);
+	    String content = parser.readUntil('>', true).trim();
+	    if (content.endsWith("/")) {
+		env.getReader().popTag();  // Don't look for end tag
+	    }
 	}
     }
 
@@ -1041,10 +1137,19 @@ public class TemplateReader {
     public static final ProcessingContext LAYOUT_COMPONENT_CONTEXT	=
 	new LayoutComponentContext();
 
+    public static final ProcessingContext LAYOUT_IF_CONTEXT	=
+	new LayoutIfContext();
+
+
     public static CustomParserCommand EVENT_PARSER_COMMAND =
 	new EventParserCommand();
 
     private static Map<String, CustomParserCommand> _parserCmds	= null;
+
+    /**
+     *	<p> This <code>Stack</code> keep track of the nesting.</p>
+     */
+    private Stack<String> _tagStack = new Stack<String>();
 
     private TemplateParser  _tpl    = null;
     private int _idNumber	    = 1;
