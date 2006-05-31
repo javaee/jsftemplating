@@ -297,11 +297,10 @@ public class TemplateParser {
 	    // In case we start on a comment and should skip it...
 	    skipCommentsAndWhiteSpace("");
 	}
-	StringBuffer buf = new StringBuffer();
+	int tmpch;
 	int next = nextChar();
+	StringBuffer buf = new StringBuffer();
 	while ((next != endingChar) && (next != -1)) {
-	    buf.append((char) next);
-	    next = nextChar();
 	    switch (next) {
 		case '\'' :
 		case '\"' :
@@ -313,6 +312,9 @@ public class TemplateParser {
 			//	    a quote.
 			buf.append((char) next);
 			buf.append(readUntil(next, false));
+			buf.append((char) next);
+		    } else {
+			buf.append((char) next);
 		    }
 		    break;
 		case '#' :
@@ -323,22 +325,37 @@ public class TemplateParser {
 		    if (skipComments) {
 			unread(next);
 			skipCommentsAndWhiteSpace("");
-			next = nextChar();
+			// If same char, read next to prevent infinite loop
+			// We don't have to go through switch again b/c its
+			// not the ending char and its not escaped -- so it is
+			// safe to add.
+			tmpch = nextChar();
+			if (next == tmpch) {
+			    buf.append((char) next);
+			} else {
+			    // We're somewhere different, unread
+			    unread(tmpch);
+			}
+		    } else {
+			buf.append((char) next);
 		    }
 		    break;
 		case '\\' :
 		    // Escape Character...
 		    next = nextChar();
-		    if (next == '\n') {
-			// Special case... skip the return
-			next = nextChar();
-		    } else if (next == endingChar) {
-			// We need to add this char so the loop doesn't stop
+		    if (next == 'n') {
+			// Special case, insert a '\n' character.
+			buf.append('\n');
+		    } if (next != '\n') {
+			// add the next char unless it's a return char
 			buf.append((char) next);
-			next = nextChar();
 		    }
 		    break;
+		default:
+		    buf.append((char) next);
+		    break;
 	    }
+	    next = nextChar();
 	}
 
 	// Return the result
@@ -542,8 +559,16 @@ public class TemplateParser {
 	    buf.append((char) ch);
 	}
 
-	// Normal case...
-	return buf.toString() + _reader.readLine();
+	// Read the rest of the line
+	buf.append(_reader.readLine());
+
+	int idx = buf.indexOf("\\n");
+	while (idx != -1) {
+	    // Replace '\\n' with '\n'
+	    buf.replace(idx, idx+2, "\n");
+	    idx = buf.indexOf("\\n", idx+1);
+	}
+	return buf.toString();
     }
 
 
