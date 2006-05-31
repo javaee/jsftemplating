@@ -149,13 +149,28 @@ public abstract class LayoutDefinitionManager {
 	URL url = getResource(relPath);
 
 	if (url == null) {
-	    // Check the classpath for the xml file
+	    // Check the classpath for the file
 	    ClassLoader loader = Util.getClassLoader(relPath);
 	    url = loader.getResource(relPath);
 	    if (url == null) {
+		// Check w/ a leading '/'
 		url = loader.getResource("/" + relPath);
 		if (url == null) {
+		    // Check in "META-INF/"
 		    url = loader.getResource("META-INF/" + relPath);
+		    if (url == null) {
+			// Check to see if the extension is not .jsf, if not
+			// then try finding w/ the extension of .jsf
+			// This allows developers to write .jsf files and
+			// share them even if the FacesServlet is mapped
+			// differently
+			int idx = relPath.lastIndexOf('.');
+			String ext = relPath.substring(idx);
+			if (!ext.equalsIgnoreCase(".jsf")) {
+			    return searchForFile(
+				relPath.substring(0, idx) + ".jsf");
+			}
+		    }
 		}
 	    }
 	}
