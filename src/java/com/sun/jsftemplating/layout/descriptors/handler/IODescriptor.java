@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.layout.descriptors.handler;
 
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -148,6 +149,27 @@ public class IODescriptor implements java.io.Serializable {
      */
     public void setRequired(boolean required) {
 	_required = required;
+    }
+
+    /**
+     *	<p> This <code>toString()</code> method provides detailed information
+     *	    about this <code>IODescriptor</code>.</p>
+     */
+    public String toString() {
+	// Print the info...
+	Formatter printf = new Formatter();
+	printf.format("%-26s  %-30s  %s\n",
+	    _name + (_required ? "(required)" : ""),
+	    _type,
+	    (_default == null) ? "" : ("DEFAULT: " + _default.toString()));
+
+	// Print description if available
+	if (_description != null) {
+	    printf.format("\t%s\n", _description);
+	}
+
+	// Return the result...
+	return printf.toString();
     }
 
     //	The following provides some basic pre-defined types
