@@ -25,6 +25,8 @@ package com.sun.jsftemplating.layout.descriptors.handler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Formatter;
+import java.util.Iterator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,8 +274,41 @@ public class HandlerDefinition implements java.io.Serializable {
 	return _childHandlers;
     }
 
+    /**
+     *	<p> This toString() provides detailed information about this
+     *	    <code>HandlerDefinition</code>.</p>
+     */
+    public String toString() {
+	// Print the basic info...
+	Formatter printf = new Formatter();
+	printf.format("%-30s  %s.%s\n", _id, _methodClass, _methodName);
+
+	// Print the description
+	if (_description != null) {
+	    printf.format("%s\n", _description);
+	}
+
+	// Print the Inputs
+	Iterator<IODescriptor> it = _inputDefs.values().iterator();
+	while (it.hasNext()) {
+	    printf.format("    INPUT> %s\n", it.next().toString());
+	}
+
+	// Print the Outputs
+	it = _outputDefs.values().iterator();
+	while (it.hasNext()) {
+	    printf.format("    OUTPUT> %s\n", it.next().toString());
+	}
+
+	// Print the Child Handlers (TBD...)
+
+	// Return the result
+	return printf.toString();
+    }
+
 
     public static final Class[] EVENT_ARGS = new Class[] {HandlerContext.class};
+
 
     private String		_id		    = null;
     private String		_description	    = null;
