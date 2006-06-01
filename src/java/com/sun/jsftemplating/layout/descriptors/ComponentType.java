@@ -24,6 +24,8 @@ package com.sun.jsftemplating.layout.descriptors;
 
 import com.sun.jsftemplating.component.factory.ComponentFactory;
 
+import java.util.Formatter;
+
 
 /**
  *  <p>	This class holds information that describes a {@link LayoutComponent}
@@ -85,6 +87,16 @@ public class ComponentType implements java.io.Serializable {
 	} catch (IllegalAccessException ex) {
 	    throw new RuntimeException(ex);
 	}
+    }
+
+    /**
+     *	<p> This <code>toString()</code> method produces information about
+     *	    this <code>ComponentType</code>.</p>
+     */
+    public String toString() {
+	Formatter println = new Formatter();
+	println.format("%-30s  %s\n", _id, _factoryClass);
+	return println.toString();
     }
 
 
