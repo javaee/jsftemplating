@@ -31,36 +31,34 @@ import javax.faces.context.FacesContext;
 
 
 /**
- *  <p>	This factory is responsible for instantiating a radio button
- *	UIComponent.</p>
+ *  <p>	This factory is responsible for instantiating an <code>Breadcrumbs
+ *	UIComponent</code>.</p>
  *
  *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
- *	id for this factory is: "sun:password".</p>
+ *	id for this factory is: "sun:Breadcrumbs".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("sun:passwordField")
-public class PasswordFactory extends ComponentFactoryBase {
+@UIComponentFactory("sun:breadcrumbs")
+public class BreadcrumbsFactory extends ComponentFactoryBase {
 
     /**
      *	<p> This is the factory method responsible for creating the
      *	    <code>UIComponent</code>.</p>
      *
-     *	@param	context	    The <code>FacesContext</code>.
+     *	@param	context	    The <code>FacesContext</code>
      *	@param	descriptor  The {@link LayoutComponent} descriptor associated
      *			    with the requested <code>UIComponent</code>.
-     *	@param	parent	    The parent <code>UIComponent</code>.
+     *	@param	parent	    The parent <code>UIComponent</code>
      *
-     *	@return	The newly created <code>PasswordField</code>.
+     *	@return	The newly created <code>Breadcrumbs</code>.
      */
-    public UIComponent create(FacesContext context,
-			      LayoutComponent descriptor,
-			      UIComponent parent) {
+    public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
 	UIComponent comp = context.getApplication().createComponent(COMPONENT_TYPE);
 
 	// This needs to be done here (before setOptions) so that $...{...}
-	// expressions can be resolved...
+	// expressions can be resolved... may want to defer these?
 	if (parent != null) {
 	    addChild(context, descriptor, parent, comp);
 	}
@@ -68,7 +66,7 @@ public class PasswordFactory extends ComponentFactoryBase {
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);
 
-	// Return the value
+	// Return the component
 	return comp;
     }
 
@@ -77,5 +75,5 @@ public class PasswordFactory extends ComponentFactoryBase {
      *	    <code>faces-config.xml</code> file mapping to the UIComponent class
      *	    to use for this <code>UIComponent</code>.</p>
      */
-    public static final String COMPONENT_TYPE	= "com.sun.web.ui.PasswordField";
+    public static final String COMPONENT_TYPE	= "com.sun.web.ui.Breadcrumbs";
 }

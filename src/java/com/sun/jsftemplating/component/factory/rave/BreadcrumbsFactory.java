@@ -39,7 +39,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("rave:Breadcrumbs")
+@UIComponentFactory("rave:breadcrumbs")
 public class BreadcrumbsFactory extends ComponentFactoryBase {
 
     /**
