@@ -103,42 +103,6 @@ public class UtilHandlers {
     }
 
     /**
-     *	<p> This handler gets a request attribute.  It requires "key" as an
-     *	    input value.  It returns "value" as an output value.  Note this
-     *	    can also be done via #{attributeName}.</p>
-     *
-     *	@param	context	The HandlerContext.
-     */
-    @Handler(id="getAttribute",
-	input={
-	    @HandlerInput(name="key", type=String.class, required=true)},
-	output={
-	    @HandlerOutput(name="value", type=Object.class)})
-    public static void getAttribute(HandlerContext context) {
-	String key = (String) context.getInputValue("key");
-	Object value = context.getFacesContext().getExternalContext().
-	    getRequestMap().get(key);
-	context.setOutputValue("value", value);
-    }
-
-    /**
-     *	<p> This handler sets a request attribute.  It requires "key" and
-     *	    "value" input values to be passed in.</p>
-     *
-     *	@param	context	The HandlerContext.
-     */
-    @Handler(id="setAttribute",
-	input={
-	    @HandlerInput(name="key", type=String.class, required=true),
-	    @HandlerInput(name="value", required=true)})
-    public static void setAttribute(HandlerContext context) {
-	String key = (String) context.getInputValue("key");
-	Object value = context.getInputValue("value");
-	context.getFacesContext().getExternalContext().
-	    getRequestMap().put(key, value);
-    }
-
-    /**
      *	<p> This method returns an <code>Iterator</code> for the given
      *	    <code>List</code>.  The <code>List</code> input value key is:
      *	    "list".  The output value key for the <code>Iterator</code> is:
