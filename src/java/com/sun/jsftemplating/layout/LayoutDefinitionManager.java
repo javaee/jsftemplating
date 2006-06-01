@@ -145,9 +145,13 @@ public abstract class LayoutDefinitionManager {
      *	    file will be returned.</p>
      */
     public static URL searchForFile(String relPath) {
+	// Remove leading '/' characters if needed
+	while (relPath.startsWith("/")) {
+	    relPath = relPath.substring(1);
+	}
+
 	// Check for file in docroot.
 	URL url = getResource(relPath);
-
 	if (url == null) {
 	    // Check the classpath for the file
 	    ClassLoader loader = Util.getClassLoader(relPath);
@@ -186,6 +190,12 @@ public abstract class LayoutDefinitionManager {
      *	    {@link #getLayoutDefinition} and return the result.</p>
      */
     public static LayoutDefinition getLayoutDefinition(FacesContext ctx, String key) throws LayoutDefinitionException {
+	// Remove leading '/' characters
+	while (key.startsWith("/")) {
+	    key = key.substring(1);
+	}
+
+	// Check to see if we already have it.
 	LayoutDefinition def = getCachedLayoutDefinition(key);
 	if (def != null) {
 	    return def;
@@ -323,10 +333,6 @@ public abstract class LayoutDefinitionManager {
 	    return null;
 	}
 
-	// Remove leading '/' characters if needed
-	while (key.startsWith("/")) {
-	    key = key.substring(1);
-	}
 	return _layoutDefinitions.get(key);
     }
 
@@ -338,10 +344,6 @@ public abstract class LayoutDefinitionManager {
      *	@param	value	The {@link LayoutDefinition} to cache.
      */
     protected static void putCachedLayoutDefinition(String key, LayoutDefinition value) {
-	// Remove leading '/' characters if needed
-	while (key.startsWith("/")) {
-	    key = key.substring(1);
-	}
 	synchronized (_layoutDefinitions) {
 	    _layoutDefinitions.put(key, value);
 	}
