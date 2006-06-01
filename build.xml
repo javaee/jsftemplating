@@ -89,6 +89,9 @@
 	</copy>
 	<jar jarfile="${jsftemplating.jar}" update="true">
             <fileset dir="${build}" includes="**/*.class, **/*.map" />
+            <zipfileset dir="${jsftemplating.home}/layout/pages"
+			prefix="" 
+			includes="*.jsf" />
             <zipfileset dir="${jsftemplating.home}/component/layout"
 			prefix="META-INF/jsftemplating" 
 			includes="*.xml" />
