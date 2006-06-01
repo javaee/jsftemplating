@@ -281,7 +281,7 @@ public class HandlerDefinition implements java.io.Serializable {
     public String toString() {
 	// Print the basic info...
 	Formatter printf = new Formatter();
-	printf.format("%-30s  %s.%s\n", _id, _methodClass, _methodName);
+	printf.format("%-40s  %s.%s\n", _id, _methodClass, _methodName);
 
 	// Print the description
 	if (_description != null) {
@@ -291,7 +291,7 @@ public class HandlerDefinition implements java.io.Serializable {
 	// Print the Inputs
 	Iterator<IODescriptor> it = _inputDefs.values().iterator();
 	while (it.hasNext()) {
-	    printf.format("    INPUT> %s\n", it.next().toString());
+	    printf.format("    INPUT>  %s\n", it.next().toString());
 	}
 
 	// Print the Outputs

@@ -158,14 +158,14 @@ public class IODescriptor implements java.io.Serializable {
     public String toString() {
 	// Print the info...
 	Formatter printf = new Formatter();
-	printf.format("%-26s  %-30s  %s\n",
+	printf.format("%-28s  %-40s  %s",
 	    _name + (_required ? "(required)" : ""),
 	    _type,
 	    (_default == null) ? "" : ("DEFAULT: " + _default.toString()));
 
 	// Print description if available
 	if (_description != null) {
-	    printf.format("\t%s\n", _description);
+	    printf.format("\n\t%s", _description);
 	}
 
 	// Return the result...
