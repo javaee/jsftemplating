@@ -256,6 +256,13 @@ public class Handler implements java.io.Serializable {
      *	@param	targetType  The OutputType implementation map the output
      */
     public void setOutputMapping(String outputName, String targetKey, String targetType) {
+	// Ensure we have a valid outputName (check HandlerDefinition)
+	if (getHandlerDefinition().getOutputDef(outputName) == null) {
+	    throw new IllegalArgumentException("Handler named '"
+		+ getHandlerDefinition().getId() + "' does not declare output "
+		+ "mapping named '" + outputName + "'.");
+	}
+
 	// Ensure the data is trim
 	if (targetKey != null) {
 	    targetKey = targetKey.trim();
