@@ -122,7 +122,7 @@
 	escape			CDATA	#IMPLIED
 >
 
-<!ELEMENT component (option | facet | event | edit | component | markup)*>
+<!ELEMENT component (option | facet | staticText | event | edit | component | markup)*>
 <!ATTLIST component
 	type			CDATA	#REQUIRED
 	id			CDATA	#REQUIRED
