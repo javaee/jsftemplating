@@ -86,7 +86,18 @@ public class LayoutElementUtil {
 	elt = elt.getParent();
 	while (elt != null) {
 	    if (elt instanceof LayoutComponent) {
-		return true;
+		// Make sure we are in a LayoutComponent and not an "if",
+		// "while", or something like that
+		if (elt.getClass().getName().equals(
+			LayoutComponent.CLASS_NAME)) {
+		    // This is a real LayoutComponent, return true
+		    return true;
+		}
+
+		// This isn't a LC, however, we need to count it as such if
+		// there is any LC parent (even if we encounter a LayoutFacet
+		// first)
+		return isNestedLayoutComponent(elt);
 	    } else if (elt instanceof LayoutFacet) {
 		// Don't consider it a child if it is a facet
 		return false;
