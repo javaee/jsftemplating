@@ -255,7 +255,7 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
     }
 
     /**
-     *	<p> Althought this method is part of the interface, it is not used b/c
+     *	<p> Although this method is part of the interface, it is not used b/c
      *	    I overrode the encode() method which calls this method.  This
      *	    method does nothing except satisfy the compiler.</p>
      */
@@ -465,7 +465,7 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
      */
     public static final String FACET_NAME   = "_facetName";
 
-    private static final String CLASS_NAME  = LayoutComponent.class.getName();
+    public static final String CLASS_NAME  = LayoutComponent.class.getName();
 
     /**
      *	<p> The value of the nested property.</p>
