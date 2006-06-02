@@ -286,7 +286,9 @@ ex.printStackTrace();
 	    renderFactory.getRenderKit(context,
 		 context.getViewRoot().getRenderKitId());
 	String contentTypeList = (String) extCtx.getRequestHeaderMap().get("Accept");
-	if (!contentTypeList.toLowerCase().contains("text/html")) {
+	if (contentTypeList == null) {
+	    contentTypeList = "text/html;q=1.0";
+	} else if (!contentTypeList.toLowerCase().contains("text/html")) {
 	    contentTypeList += ",text/html;q=1.0";
 	}
 	writer =
