@@ -1042,6 +1042,10 @@ public class XMLLayoutDefinitionReader {
 		// Found an MARKUP_ELEMENT
 		component.addChildLayoutElement(
 			createLayoutMarkup(component, childNode));
+	    } else if (name.equalsIgnoreCase(STATIC_TEXT_ELEMENT)) {
+		// Found a STATIC_TEXT_ELEMENT
+		component.addChildLayoutElement(
+		    createLayoutStaticText(component, childNode));
 	    } else if (name.equalsIgnoreCase(ATTRIBUTE_ELEMENT)) {
 		// Found a ATTRIBUTE_ELEMENT (actually in this case it will
 		// just add an "option" to the LayoutComponent), technically
@@ -1051,8 +1055,9 @@ public class XMLLayoutDefinitionReader {
 		createLayoutAttribute(component, childNode);
 	    } else {
 		throw new RuntimeException("Unknown Element Found: '"
-			+ childNode.getNodeName() + "' under '"
-			+ COMPONENT_ELEMENT + "'.");
+			+ childNode.getNodeName() + "' under '<"
+			+ COMPONENT_ELEMENT + " id=\""
+			+ component.getUnevaluatedId() + "\"...'.");
 	    }
 	}
     }
