@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout.descriptors;
 
 import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 
 import java.io.IOException;
 
@@ -42,13 +43,16 @@ import javax.faces.el.ValueBinding; // JSF 1.1
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
-public class LayoutStaticText extends LayoutElementBase implements LayoutElement {
+public class LayoutStaticText extends LayoutComponent {
 
     /**
      *	<p> Constructor.</p>
      */
     public LayoutStaticText(LayoutElement parent, String id, String value) {
-	super(parent, id);
+	super(parent, id,
+	    LayoutDefinitionManager.getGlobalComponentType("staticText"));
+	setFacetChild(false);
+	addOption("value", value);
 	_value = value;
     }
 
@@ -69,7 +73,7 @@ public class LayoutStaticText extends LayoutElementBase implements LayoutElement
      *
      *	@return	false
      */
-    protected boolean encodeThis(FacesContext context, UIComponent component) throws IOException {
+    public boolean encodeThis(FacesContext context, UIComponent component) throws IOException {
 	// Get the ResponseWriter
 	ResponseWriter writer = context.getResponseWriter();
 
