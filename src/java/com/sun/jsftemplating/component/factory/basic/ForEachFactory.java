@@ -23,7 +23,7 @@
 package com.sun.jsftemplating.component.factory.basic;
 
 import com.sun.jsftemplating.annotation.UIComponentFactory;
-import com.sun.jsftemplating.component.StaticText;
+import com.sun.jsftemplating.component.ForEach;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 
@@ -32,16 +32,16 @@ import javax.faces.context.FacesContext;
 
 
 /**
- *  <p>	This factory is responsible for instantiating an <code>StaticText
+ *  <p>	This factory is responsible for instantiating an <code>ForEach
  *	UIComponent</code>.</p>
  *
  *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
- *	id for this factory is: "staticText".</p>
+ *	id for this factory is: "foreach".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("staticText")
-public class StaticTextFactory extends ComponentFactoryBase {
+@UIComponentFactory("foreach")
+public class ForEachFactory extends ComponentFactoryBase {
 
     /**
      *	<p> This is the factory method responsible for creating the
@@ -52,7 +52,7 @@ public class StaticTextFactory extends ComponentFactoryBase {
      *			    with the requested <code>UIComponent</code>.
      *	@param	parent	    The parent <code>UIComponent</code>
      *
-     *	@return	The newly created <code>StaticText</code>.
+     *	@return	The newly created <code>ForEach</code>.
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
@@ -77,5 +77,5 @@ public class StaticTextFactory extends ComponentFactoryBase {
      *	    <code>faces-config.xml</code> file mapping to the UIComponent class
      *	    to use for this <code>UIComponent</code>.</p>
      */
-    public static final String COMPONENT_TYPE	= "com.sun.jsftemplating.StaticText";
+    public static final String COMPONENT_TYPE	= "com.sun.jsftemplating.ForEach";
 }
