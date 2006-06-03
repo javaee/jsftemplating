@@ -32,6 +32,9 @@ import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -55,7 +58,7 @@ public class UtilHandlers {
     }
 
     /**
-     *	<p> This handler writes using <CODE>System.out.println</CODE>.  It
+     *	<p> This handler writes using <code>System.out.println</code>.  It
      *	    requires that <code>value</code> be supplied as a String input
      *	    parameter.</p>
      *
@@ -67,6 +70,22 @@ public class UtilHandlers {
 	String value = (String) context.getInputValue("value");
 	System.out.println(value);
     }
+
+    /**
+     *	<p> This handler writes using
+     *	    <code>FacesContext.getResponseWriter()</code>.</p>
+     */
+    @Handler(id="write",
+	input={@HandlerInput(name="value", type=String.class, required=true)})
+    public static void write(HandlerContext context) {
+	try {
+	    context.getFacesContext().getResponseWriter().write(
+		(String) context.getInputValue("value"));
+	} catch (IOException ex) {
+	    throw new RuntimeException(ex);
+	}
+    }
+
 
     /**
      *	<p> This handler decrements a number by 1.  This handler requires
@@ -248,5 +267,33 @@ public class UtilHandlers {
 	}
 	context.setOutputValue("id", id);
 	context.setOutputValue("clientId", clientId);
+    }
+
+    /**
+     *	<p> This handler provides a way to see the call stack by printing a
+     *	    stack trace.  The output will go to stderr and will also be
+     *	    returned in the output value "stackTrace".  An optional message
+     *	    may be provided to be included in the trace.</p>
+     */
+    @Handler(id="printStackTrace",
+	input={
+	    @HandlerInput(name="msg", type=String.class)},
+	output={
+	    @HandlerOutput(name="stackTrace", type=String.class)})
+    public static void printStackTrace(HandlerContext context) {
+	// See if we have a message to print w/ it
+	String msg = (String) context.getInputValue("msg");
+	if (msg == null) {
+	    msg = "";
+	}
+
+	// Get the StackTrace
+	StringWriter strWriter = new StringWriter();
+	new RuntimeException(msg).printStackTrace(new PrintWriter(strWriter));
+	String trace = strWriter.toString();
+
+	// Print it to stderr and return it
+	System.err.println(trace);
+	context.setOutputValue("stackTrace", trace);
     }
 }
