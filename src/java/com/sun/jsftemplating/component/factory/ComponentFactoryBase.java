@@ -131,7 +131,16 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	    Map attributes = comp.getAttributes();
 	    if (value == null) {
 		// Setting null, assume they want to remove the value
-		attributes.remove(key);
+		try {
+		    attributes.remove(key);
+		} catch (IllegalArgumentException ex) {
+		    // JSF is mesed up... it throws an exception if it has a
+		    // property descriptor and you call remove(...).  It also
+		    // throws an exception if you attempt to call put w/ null
+		    // and there is no property descriptor.  Either way you
+		    // MUST catch something and then handle the other case.
+		    attributes.put(key, (Object) null);
+		}
 	    } else {
 		attributes.put(key, value);
 	    }
