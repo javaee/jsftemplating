@@ -499,33 +499,6 @@ public class TemplateReader {
     }
 
     /**
-     *	<p> This method creates a new {@link LayoutIf}
-     *	    {@link LayoutElement}.</p>
-     *
-     *	@param	parent	The parent {@link LayoutElement}.
-     *	@param	node	The {@link IF_ELEMENT} node to extract information from
-     *			when creating the {@link LayoutIf}
-    private LayoutElement createLayoutIf(LayoutElement parent, Node node) {
-	// Pull off attributes...
-	String condition = (String) getAttributes(node).get(
-	    CONDITION_ATTRIBUTE);
-	if ((condition == null) || (condition.trim().equals(""))) {
-	    throw new RuntimeException("'" + CONDITION_ATTRIBUTE
-		    + "' attribute not found on '" + IF_ELEMENT + "' Element!");
-	}
-
-	// Create new LayoutIf
-	LayoutElement ifElt =  new LayoutIf(parent, condition);
-
-	// Add children...
-	addChildLayoutElements(ifElt, node);
-
-	// Return the if
-	return ifElt;
-    }
-     */
-
-    /**
      *	<p> This method creates a new {@link LayoutForEach}
      *	    {@link LayoutElement}.</p>
      *
@@ -906,6 +879,20 @@ public class TemplateReader {
 
     /**
      *	<p> This is the {@link ProcessingContext} for
+     *	    {@link LayoutForEach}es.</p>
+     */
+    protected static class LayoutForEachContext extends BaseProcessingContext {
+    }
+
+    /**
+     *	<p> This is the {@link ProcessingContext} for
+     *	    {@link LayoutWhile}s.</p>
+     */
+    protected static class LayoutWhileContext extends BaseProcessingContext {
+    }
+
+    /**
+     *	<p> This is the {@link ProcessingContext} for
      *	    {@link LayoutComponent}s.</p>
      */
     protected static class LayoutComponentContext extends BaseProcessingContext {
@@ -1046,7 +1033,9 @@ public class TemplateReader {
      */
     public static class IfParserCommand implements CustomParserCommand {
 	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
-	    // Get the condition for this if statement.  We simply read until we find '>'.  This means '>' must be escaped if it appears in the condition.
+	    // Get the condition for this if statement.  We simply read until
+	    // we find '>'.  This means '>' must be escaped if it appears in
+	    // the condition.
 	    TemplateReader reader = env.getReader();
 	    TemplateParser parser = reader.getTemplateParser();
 	    String condition = parser.readUntil('>', true).trim();
@@ -1061,35 +1050,81 @@ public class TemplateReader {
 	    } else {
 		// Process child LayoutElements (recurse)
 		reader.process(
-		    TemplateReader.LAYOUT_IF_CONTEXT, ifElt, true);
+		    TemplateReader.LAYOUT_IF_CONTEXT, ifElt,
+		    LayoutElementUtil.isLayoutComponentChild(ifElt));
 	    }
 	}
     }
 
     /**
-     *	<p> This {@link CustomParserCommand} handles "while" statements.</p>
+     *	<p> This {@link CustomParserCommand} handles "while" statements. To
+     *	    obtain the condition, it simply reads until it finds '&gt;'.  This
+     *	    means '&gt;' must be escaped if it appears in the condition.</p>
      */
     public static class WhileParserCommand extends IfParserCommand {
 	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
-// FIXME: TBD...
-	    TemplateParser parser = env.getReader().getTemplateParser();
-	    String content = parser.readUntil('>', true).trim();
-	    if (content.endsWith("/")) {
-		env.getReader().popTag();  // Don't look for end tag
+	    // Get the condition for this while statement.  We simply read
+	    // until we find '>'.  This means '>' must be escaped if it
+	    // appears in the condition.
+	    TemplateReader reader = env.getReader();
+	    TemplateParser parser = reader.getTemplateParser();
+	    String condition = parser.readUntil('>', true).trim();
+
+	    // Create new LayoutWhile
+	    LayoutElement parent = env.getParent();
+	    LayoutElement elt =  new LayoutWhile(parent, condition);
+	    parent.addChildLayoutElement(elt);
+
+	    if (condition.endsWith("/")) {
+		reader.popTag();  // Don't look for end tag
+	    } else {
+		// Process child LayoutElements (recurse)
+		reader.process(
+		    TemplateReader.LAYOUT_WHILE_CONTEXT, elt,
+		    LayoutElementUtil.isLayoutComponentChild(elt));
 	    }
 	}
     }
 
     /**
      *	<p> This {@link CustomParserCommand} handles "foreach" statements.</p>
+     *
+     *	<p> The syntax must look like:</p>
+     *
+     *	<code>
+     *	    <!foreach key : $something{something}>
+     *		...
+     *	    </!foreach>
+     *	</code>
+     *
+     *	<p> The "key" is a <code>String</code> that will be used to store each
+     *	    <code>Object</code> in a request attribute on each iteration.
+     *	    $something{something} must resolve to a <code>List</code>.  It may
+     *	    also be in the form <code>#{value.binding}</code> if you prefer,
+     *	    in either case it must resolve to a <code>List</code>.</p>
      */
     public static class ForeachParserCommand implements CustomParserCommand {
 	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
-// FIXME: TBD...
-	    TemplateParser parser = env.getReader().getTemplateParser();
-	    String content = parser.readUntil('>', true).trim();
-	    if (content.endsWith("/")) {
-		env.getReader().popTag();  // Don't look for end tag
+	    TemplateReader reader = env.getReader();
+	    TemplateParser parser = reader.getTemplateParser();
+
+	    // First get the key
+// FIXME: Don't do it this way... read until the '>' first then split the String.  This will allow detecting the missing ':' much more easily.
+	    String key = parser.readUntil(':', true).trim();
+	    String listExp = parser.readUntil('>', true).trim();
+
+	    // Create new LayoutForEach
+	    LayoutElement parent = env.getParent();
+	    LayoutElement elt =  new LayoutForEach(parent, listExp, key);
+	    parent.addChildLayoutElement(elt);
+
+	    if (listExp.endsWith("/")) {
+		reader.popTag();  // Don't look for end tag
+	    } else {
+		// Process child LayoutElements (recurse)
+		reader.process(
+		    TemplateReader.LAYOUT_FOREACH_CONTEXT, elt,
+		    LayoutElementUtil.isLayoutComponentChild(elt));
 	    }
 	}
     }
@@ -1137,8 +1172,14 @@ public class TemplateReader {
     public static final ProcessingContext LAYOUT_COMPONENT_CONTEXT	=
 	new LayoutComponentContext();
 
-    public static final ProcessingContext LAYOUT_IF_CONTEXT	=
+    public static final ProcessingContext LAYOUT_IF_CONTEXT		=
 	new LayoutIfContext();
+
+    public static final ProcessingContext LAYOUT_FOREACH_CONTEXT	=
+	new LayoutForEachContext();
+
+    public static final ProcessingContext LAYOUT_WHILE_CONTEXT		=
+	new LayoutWhileContext();
 
 
     public static CustomParserCommand EVENT_PARSER_COMMAND =
