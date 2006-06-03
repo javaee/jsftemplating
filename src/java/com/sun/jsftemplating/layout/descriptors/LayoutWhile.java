@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.event.AfterLoopEvent;
 import com.sun.jsftemplating.layout.event.BeforeLoopEvent;
 import com.sun.jsftemplating.el.PermissionChecker;
@@ -44,13 +45,14 @@ import javax.faces.component.UIComponent;
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
-public class LayoutWhile extends LayoutIf implements LayoutElement {
+public class LayoutWhile extends LayoutIf {
 
     /**
      *	Constructor
      */
     public LayoutWhile(LayoutElement parent, String condition) {
-	super(parent, condition);
+	super(parent, condition,
+	    LayoutDefinitionManager.getGlobalComponentType("while"));
     }
 
 
@@ -83,7 +85,6 @@ public class LayoutWhile extends LayoutIf implements LayoutElement {
 	PermissionChecker checker =
 	    new PermissionChecker(this, component,
 		(String) getOption("condition"));
-//	return checker.evaluate();
 	return checker.hasPermission();
     }
 

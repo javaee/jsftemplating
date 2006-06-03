@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout.descriptors;
 
 import com.sun.jsftemplating.el.VariableResolver;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.event.AfterLoopEvent;
 import com.sun.jsftemplating.layout.event.BeforeLoopEvent;
 
@@ -51,7 +52,7 @@ import javax.faces.webapp.UIComponentTag;
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
-public class LayoutForEach extends LayoutElementBase implements LayoutElement {
+public class LayoutForEach extends LayoutComponent {
 
     /**
      *	<p> Constructor.</p>
@@ -62,15 +63,17 @@ public class LayoutForEach extends LayoutElementBase implements LayoutElement {
      *				used to store the object being processed
      */
     public LayoutForEach(LayoutElement parent, String listBinding, String key) {
-	super(parent, null);
+	super(parent, null,
+	    LayoutDefinitionManager.getGlobalComponentType("foreach"));
 	if ((listBinding == null) || listBinding.equals("")) {
 	    throw new IllegalArgumentException("'listBinding' is required!");
 	}
 	if ((key == null) || key.equals("")) {
 	    throw new IllegalArgumentException("'key' is required!");
 	}
-	_listBinding = listBinding;
-	_key = key;
+	setFacetChild(false);
+	addOption("list", listBinding);
+	addOption("key", key);
     }
 
 
@@ -86,7 +89,7 @@ public class LayoutForEach extends LayoutElementBase implements LayoutElement {
      *
      *	@return	true
      */
-    protected boolean encodeThis(FacesContext context, UIComponent component) {
+    public boolean encodeThis(FacesContext context, UIComponent component) {
 	return true;
     }
 
@@ -103,45 +106,22 @@ public class LayoutForEach extends LayoutElementBase implements LayoutElement {
      *	return	The <code>List</code> of objects to iterate over
      */
     protected List getList(FacesContext context) {
-	// Invoke our own EL.  This is needed b/c JSF's EL is designed for
-	// Bean getters only.  It does not get CONSTANTS or pull data from
-	// other sources (such as session, request attributes, etc., etc.)
-	// Resolve our variables now because we cannot depend on the
-	// individual components to do this.  We may want to find a way to
-	// make this work as a regular ValueExpression... but for
-	// now, we'll just resolve it this way.
-	Object value = VariableResolver.resolveVariables(
-	    context, this, null /* FIXME: component */, _listBinding);
-
-	// Next check to see if the value contains a ValueExpression
-	if (value != null) {
-	    String strVal = value.toString();
-	    if (UIComponentTag.isValueReference(strVal)) {
-/*
-1.2+
-		ELContext elctx = context.getELContext();
-		ValueExpression ve =
-		    context.getApplication().getExpressionFactory().
-			createValueExpression(elctx, strVal, List.class);
-		value = ve.getValue(elctx);
-*/
-		// JSF 1.1 VB:
-		ValueBinding vb =
-		    context.getApplication().createValueBinding(strVal);
-		value = vb.getValue(context);
-	    }
-	}
+// FIXME: Pass in the UIComponent
+	Object value = resolveValue(
+		context, (UIComponent) null, (String) getOption("list"));
 
 	// Make sure we found something...
 	if (value == null) {
 	    throw new NullPointerException("List not found via expression: '"
-		    + _listBinding + "'.");
+		    + getOption("list") + "'.");
 	}
 
 	// Make sure we have a List...
 	if (!(value instanceof List)) {
-	    throw new IllegalArgumentException("Expression '" + _listBinding
-		    + "' did not resolve to a List! Found: '" + value + "'");
+	    throw new IllegalArgumentException("Expression '"
+		    + getOption("list")
+		    + "' did not resolve to a List! Found: '"
+		    + value.getClass().getName() + "'");
 	}
 
 	// Return the List
@@ -183,7 +163,7 @@ public class LayoutForEach extends LayoutElementBase implements LayoutElement {
 	    new BeforeLoopEvent(component));
 
 	String key = resolveValue(
-		context, component, _key).toString();
+		context, component, (String) getOption("key")).toString();
 
 	// Iterate over the values in the list and perform the requested
 	// action(s) per the body of the LayoutForEach
@@ -197,10 +177,6 @@ public class LayoutForEach extends LayoutElementBase implements LayoutElement {
 	result = dispatchHandlers(context, AFTER_LOOP,
 	    new AfterLoopEvent(component));
     }
-
-
-    private String  _listBinding    = null;
-    private String  _key	    = null;
 
 
     /**
