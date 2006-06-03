@@ -63,7 +63,7 @@ public class OutputMapping implements java.io.Serializable {
      *
      *	@see	OutputTypeManager
      *
-     *	@throws	IllegalArumentException If outputName / targetOutputType is null
+     *	@throws	NullPointerException If outputName / targetOutputType is null
      */
     public OutputMapping(String outputName, String targetKey, String targetOutputType) {
 	// Sanity checks...

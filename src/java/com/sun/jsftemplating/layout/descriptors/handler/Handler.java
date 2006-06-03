@@ -81,9 +81,18 @@ public class Handler implements java.io.Serializable {
     }
 
     /**
-     *
+     *	<p> This method is invoked by a parser to help populate this
+     *	    <code>Handler</code>.  This information is generally static but
+     *	    may contain expressions to make the value dynamic.</p>
      */
     public void setInputValue(String name, Object value) {
+	IODescriptor inDesc = getHandlerDefinition().getInputDef(name);
+	if (inDesc == null) {
+	    throw new RuntimeException("Attempted to set input value '"
+		+ name + "' with value '" + value + "', however, '" + name
+		+ "' is not a declared input parameter in HandlerDefinition '"
+		+ getHandlerDefinition().getId() + "'!");
+	}
 	_inputs.put(name, value);
     }
 
