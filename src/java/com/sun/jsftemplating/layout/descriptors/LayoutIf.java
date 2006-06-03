@@ -50,11 +50,27 @@ import javax.faces.context.FacesContext;
 public class LayoutIf extends LayoutComponent {
 
     /**
-     *	Constructor
+     *	Constructor.
      */
     public LayoutIf(LayoutElement parent, String condition) {
-	super(parent, (String) null,
+	this(parent, condition,
 	    LayoutDefinitionManager.getGlobalComponentType("if"));
+    }
+
+    /**
+     *	<p> This constructor may be used by subclasses which wish to provide
+     *	    an alternate {@link ComponentType}.  The {@link ComponentType} is
+     *	    used to instantiate an {@link com.sun.jsftemplating.component.If}
+     *	    <code>UIComponent</code> (or whatever the given
+     *	    {@link ComponentType} specifies).  This occurs when this
+     *	    {@link LayoutElement} is nested inside a {@link LayoutComponent}.
+     *	    It must create a <code>UIComponent</code> in order to ensure it
+     *	    is executed because during rendering there is no other way to get
+     *	    control to perform the functionality provided by this
+     *	    {@link LayoutElement}.</p>
+     */
+    protected LayoutIf(LayoutElement parent, String condition, ComponentType type) {
+	super(parent, (String) null, type);
 	setFacetChild(false);
 	addOption("condition", condition);
     }
@@ -73,7 +89,6 @@ public class LayoutIf extends LayoutComponent {
 	PermissionChecker checker =
 	    new PermissionChecker(this, component,
 		(String) getOption("condition"));
-//	return checker.evaluate();
 	return checker.hasPermission();
     }
 
