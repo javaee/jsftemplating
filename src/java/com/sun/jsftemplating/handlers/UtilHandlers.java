@@ -78,9 +78,13 @@ public class UtilHandlers {
     @Handler(id="write",
 	input={@HandlerInput(name="value", type=String.class, required=true)})
     public static void write(HandlerContext context) {
+	String text = (String) context.getInputValue("value");
+	if (text == null) {
+	    // Even though this is required, an expression can evaluate to null
+	    text = "";
+	}
 	try {
-	    context.getFacesContext().getResponseWriter().write(
-		(String) context.getInputValue("value"));
+	    context.getFacesContext().getResponseWriter().write(text);
 	} catch (IOException ex) {
 	    throw new RuntimeException(ex);
 	}
