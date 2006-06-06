@@ -253,12 +253,14 @@ public abstract class LayoutDefinitionManager {
 	    List<String> keys = new ArrayList<String>();
 
 	    // Check to see what the default should be...
-	    Map initParams = ctx.getExternalContext().getInitParameterMap();
-	    String def = DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL;
-	    if (initParams.containsKey(LAYOUT_DEFINITION_MANAGER_KEY)) {
-		def = (String) initParams.get(LAYOUT_DEFINITION_MANAGER_KEY);
+	    if (ctx != null) {
+		Map initParams = ctx.getExternalContext().getInitParameterMap();
+		String def = DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL;
+		if (initParams.containsKey(LAYOUT_DEFINITION_MANAGER_KEY)) {
+		    def = (String) initParams.get(LAYOUT_DEFINITION_MANAGER_KEY);
+		}
+		keys.add(def);
 	    }
-	    keys.add(def);
 // FIXME: Populate this from an external source!!
 // while (...) {
 //  if (!key.equals(def)) {
