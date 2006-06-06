@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.faces.FactoryFinder;
 import javax.faces.application.StateManager;
@@ -207,6 +208,14 @@ ex.printStackTrace();
      *	<p> ...</p>
      */
     public UIViewRoot restoreView(FacesContext context, String viewId) {
+	Map<String, Object> map = context.getExternalContext().getRequestMap();
+	if (map.get(RESTORE_VIEW_ID) == null) {
+	    map.put(RESTORE_VIEW_ID, viewId);
+	} else {
+	    // This request has already been processed, it must be a forward()
+	    return createView(context, viewId);
+	}
+
 	// Peform default behavior...
 	UIViewRoot root = _oldViewHandler.restoreView(context, viewId);
 
@@ -406,6 +415,8 @@ ex.printStackTrace();
      *	    UIComponent that is to be updated via an Ajax request.</p>
      */
     public static final String AJAX_REQ_KEY		= "ajaxReq";
+
+    public static final String RESTORE_VIEW_ID		= "_resViewID";
 
     private ViewHandler _oldViewHandler			= null;
     static final String AJAX_REQ_TARGET_KEY		= "_ajaxReqTarget";
