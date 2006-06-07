@@ -30,13 +30,19 @@ package com.sun.jsftemplating.handlers;
 import com.sun.jsftemplating.annotation.Handler;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
+import com.sun.jsftemplating.el.PageSessionResolver;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 
+import java.io.Serializable;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
+
 
 
 /**
@@ -101,6 +107,96 @@ public class ScopeHandlers {
     public static void dumpAttributes(HandlerContext context) {
 	Map<String, Object> map =
 	    context.getFacesContext().getExternalContext().getRequestMap();
+	context.setOutputValue("value", formatAttributes(map));
+    }
+
+    /**
+     *	<p> This handler gets a "page" session attribute.  It requires
+     *	    <code>key</code> as an input value.  It returns <code>value</code>
+     *	    as an output value.  You may pass in the page
+     *	    (<code>UIViewRoot</code>) as an input value via the
+     *	    <code>page</code> input value, if you don't the current
+     *	    <code>UIViewRoot</code> will be used.</p>
+     *
+     *	@param	context	The {@link HandlerContext}.
+     */
+    @Handler(id="getPageSessionAttribute",
+	input={
+	    @HandlerInput(name="key", type=String.class, required=true),
+	    @HandlerInput(name="page", type=UIViewRoot.class, required=false)
+	},
+	output={
+	    @HandlerOutput(name="value", type=Serializable.class)
+	})
+    public static void getPageSessionAttribute(HandlerContext context) {
+	// Get the Page Session Map
+	Map<String, Serializable> map =
+	    PageSessionResolver.getPageSession(
+		context.getFacesContext(),
+		(UIViewRoot) context.getInputValue("page"));
+
+	// Get the value to return
+	Serializable value = null;
+	if (map != null) {
+	    value = map.get((String) context.getInputValue("key"));
+	}
+
+	// Return the value
+	context.setOutputValue("value", value);
+    }
+
+    /**
+     *	<p> This handler sets a page session attribute.  It requires
+     *	    <code>key</code> and <code>value</code> input values to be passed
+     *	    in.  <code>page</code> may optionally be passed in to specify the
+     *	    page (<code>UIViewRoot</code>) that should be used -- otherwise
+     *	    the current <code>UIViewRoot</code> is used.</p>
+     *
+     *	@param	context	The {@link HandlerContext}.
+     */
+    @Handler(id="setPageSessionAttribute",
+	input={
+	    @HandlerInput(name="key", type=String.class, required=true),
+	    @HandlerInput(name="value", type=Serializable.class, required=true),
+	    @HandlerInput(name="page", type=UIViewRoot.class, required=false)
+	})
+    public static void setPageSessionAttribute(HandlerContext context) {
+	UIViewRoot root = (UIViewRoot) context.getInputValue("page");
+	FacesContext ctx = context.getFacesContext();
+
+	// Get the Page Session Map
+	Map<String, Serializable> map =
+	    PageSessionResolver.getPageSession(ctx, root);
+	if (map == null) {
+	    map = PageSessionResolver.createPageSession(ctx, root);
+	}
+
+	// Set the page session value
+	map.put((String) context.getInputValue("key"),
+	    (Serializable) context.getInputValue("value"));
+    }
+
+    /**
+     *	<p> This handler produces a String consisting of all the page session
+     *	    attributes.  It outputs this via the <code>value</code> output
+     *	    value.  This handler optionally accepts the <code>page</code> input
+     *	    value (<code>UIViewRoot</code>) -- if not supplied the current
+     *	    <code>UIViewRoot</code> is used.</p>
+     */
+    @Handler(id="dumpPageSessionAttributes",
+	input={
+	    @HandlerInput(name="page", type=UIViewRoot.class, required=false)
+	},
+	output={
+	    @HandlerOutput(name="value", type=String.class)
+	})
+    public static void dumpPageSessionAttributes(HandlerContext context) {
+	// Get the Page Session Map
+	Map<String, Serializable> map = PageSessionResolver.getPageSession(
+	    context.getFacesContext(),
+	    (UIViewRoot) context.getInputValue("page"));
+
+	// Return the formatted result
 	context.setOutputValue("value", formatAttributes(map));
     }
 
@@ -208,10 +304,13 @@ public class ScopeHandlers {
      *	<p> This method formats attributes from a <code>Map</code>.  This is
      *	    used with the dump handlers.</p>
      */
-    private static String formatAttributes(Map<String, Object> map) {
-	Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
+    private static <T> String formatAttributes(Map<String, T> map) {
 	Formatter printf = new Formatter();
-	Map.Entry<String, Object> entry = null;
+	if (map == null) {
+	    printf.format("Map null.");
+	}
+	Iterator<Map.Entry<String, T>> it = map.entrySet().iterator();
+	Map.Entry<String, T> entry = null;
 	while (it.hasNext()) {
 	    entry = it.next();
 	    printf.format("%-20s = %s\n", entry.getKey(), entry.getValue());
