@@ -151,7 +151,7 @@ public abstract class LayoutElementBase implements LayoutElement {
      *	@return	The unevaluated id.
      */
     public String getUnevaluatedId() {
-	return _id;
+	return getId();
     }
 
     /**
