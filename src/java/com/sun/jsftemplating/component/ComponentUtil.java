@@ -246,7 +246,7 @@ public class ComponentUtil {
     private static UIComponent getChild(UIComponent parent, String id, ComponentType type, Properties properties, String facetName) {
 	LayoutComponent desc = new LayoutComponent(null, id, type);
 	if (properties != null) {
-	    desc.setOptions(properties);
+	    desc.setOptions((Map<String, Object>) properties);
 	}
 	if (facetName != null) {
 	    // Add the facetName to use
