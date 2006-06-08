@@ -99,6 +99,13 @@ public class OutputMapping implements java.io.Serializable {
 	return OutputTypeManager.getInstance().getOutputType(_targetOutputType);
     }
 
+    /**
+     *	<p> Accessor for targetOutputType as a String.</p>
+     */
+    public String getStringOutputType() {
+	return _targetOutputType;
+    }
+
 
     private String	_outputName = null;
     private String	_targetKey  = null;
