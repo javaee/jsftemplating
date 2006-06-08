@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.component.UIComponent;
 
@@ -100,7 +101,7 @@ public class Handler implements java.io.Serializable {
      *	<p> This method returns a Map of NVPs representing the input to this
      *	    handler.</p>
      */
-    protected Map getInputMap() {
+    protected Map<String, Object> getInputMap() {
 	return _inputs;
     }
 
@@ -108,9 +109,8 @@ public class Handler implements java.io.Serializable {
      *	<p> This method simply returns the named input value, null if not
      *	    found.  It will not attempt to resolve $...{...} expressions or
      *	    do modifications of any kind.  If you are looking for a method to
-     *	    do these types of operations, try:</p>
-     *
-     *		getInputValue(FacesContext, String).
+     *	    do these types of operations, try
+     *	    {@link #getInputValue(FacesContext, String)}. </p>
      *
      *	@param	name	The name used to identify the input value.
      */
@@ -201,7 +201,7 @@ public class Handler implements java.io.Serializable {
 	}
 
 	// Get the OutputMapping that describes how to store this output
-	OutputMapping outputDesc = getOutput(name);
+	OutputMapping outputDesc = getOutputValue(name);
 
 	// Return the value
 	return outputDesc.getOutputType().
@@ -230,7 +230,7 @@ public class Handler implements java.io.Serializable {
 	}
 
 	// Get the OutputMapping that describes how to store this output
-	OutputMapping outputMapping = getOutput(name);
+	OutputMapping outputMapping = getOutputValue(name);
 	if (outputMapping == null) {
 	    // They did not Map the output, do nothing...
 	    return;
@@ -296,8 +296,8 @@ public class Handler implements java.io.Serializable {
     /**
      *
      */
-    public OutputMapping getOutput(String name) {
-	return (OutputMapping) _outputs.get(name);
+    public OutputMapping getOutputValue(String name) {
+	return _outputs.get(name);
     }
 
     /**
@@ -343,7 +343,10 @@ public class Handler implements java.io.Serializable {
     }
 
 
-    private HandlerDefinition 	_handlerDef	= null;
-    private Map			_inputs		= new HashMap();
-    private Map			_outputs	= new HashMap();
+    private HandlerDefinition _handlerDef = null;
+
+    private Map<String, Object> _inputs = new HashMap<String, Object>();
+
+    private Map<String, OutputMapping> _outputs =
+	new HashMap<String, OutputMapping>();
 }
