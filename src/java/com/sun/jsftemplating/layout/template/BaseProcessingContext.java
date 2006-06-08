@@ -135,22 +135,17 @@ public class BaseProcessingContext implements ProcessingContext {
      */
     public void staticText(ProcessingContextEnvironment env, String content) throws IOException {
 	LayoutElement parent = env.getParent();
-	LayoutElement child = null;
-	if (env.isNested()) {
-	    // Must create a LayoutComponent (for UIComponent tree)
-	    LayoutComponent component = new LayoutComponent(
-		    parent,
-		    LayoutElementUtil.getGeneratedId("staticText",
-			env.getReader().getNextIdNumber()),
-		    STATIC_TEXT);
-	    component.addOption("value", content);
-	    component.setNested(true);
-	    TemplateReader.checkForFacetChild(parent, component);
-	    child = component;
-	} else {
-	    // Don't need a LayoutComponent
-	    child = new LayoutStaticText(parent, "", content);
-	}
+
+	// Create a LayoutStaticText
+	LayoutComponent child = new LayoutStaticText(
+	    parent,
+	    LayoutElementUtil.getGeneratedId(
+		"txt", env.getReader().getNextIdNumber()),
+	    content);
+	child.addOption("value", content);
+	child.setNested(env.isNested());
+	TemplateReader.checkForFacetChild(parent, child);
+
 	parent.addChildLayoutElement(child);
     }
 
@@ -175,7 +170,7 @@ public class BaseProcessingContext implements ProcessingContext {
     /**
      *	<p>  This is a static reference to the "staticText"
      *	    {@link ComponentType}.</p>
-     */
     public static final ComponentType STATIC_TEXT = 
 	LayoutDefinitionManager.getGlobalComponentType("staticText");
+     */
 }
