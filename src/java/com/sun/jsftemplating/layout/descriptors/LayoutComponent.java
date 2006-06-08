@@ -87,31 +87,6 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
     }
 
     /**
-     *	<p> This method overrides LayoutElementBase.addChildLayoutElement().
-     *	    Child LayoutElements for LayoutComponent are limited to LayoutFacet
-     *	    objects.  This method ensures that only LayoutFacet objects are
-     *	    added.  If any other types are added, an IllegalArgumentException
-     *	    will be thrown.</p>
-     *
-     *	@param	element	    The LayoutElement to add.
-     *
-     *	@throws	IllegalArgumentException Thrown if LayoutElement is not a
-     *	    LayoutFacet
-     */
-    public void addChildLayoutElement(LayoutElement element) {
-	/*
-// FIXME: Remove this block after testing...
-	if (!(element instanceof LayoutComponent)
-		&& !(element instanceof LayoutFacet)) {
-	    throw new IllegalArgumentException("Only LayoutComponent and "
-		    + "LayoutFacet LayoutElements may be added as children to "
-		    + "a LayoutComponent!");
-	}
-	*/
-	super.addChildLayoutElement(element);
-    }
-
-    /**
      *	<p> This method adds an option to the LayoutComponent.  Options may be
      *	    useful in constructing the LayoutComponent.</p>
      *
@@ -124,12 +99,12 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
 
     /**
      *	<p> This method adds all the options in the given Map to the
-     *	    LayoutComponent.  Options may be useful in constructing the
-     *	    LayoutComponent.</p>
+     *	    {@link LayoutComponent}.  Options may be useful in constructing the
+     *	    {@link LayoutComponent}.</p>
      *
      *	@param	map	The map of options to add.
      */
-    public void addOptions(Map map) {
+    public void addOptions(Map<String, Object> map) {
 	_options.putAll(map);
     }
 
@@ -190,7 +165,7 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
      *
      *	@param	options	    <code>Map</code> of options.
      */
-    public void setOptions(Map options) {
+    public void setOptions(Map<String, Object> options) {
 	_options = options;
     }
 
@@ -200,7 +175,7 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
      *
      *	@return Map of options.
      */
-    public Map getOptions() {
+    public Map<String, Object> getOptions() {
 	return _options;
     }
 
@@ -426,14 +401,16 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
     /**
      *	<p> Determines if this component should be created even if there is
      *	    already an existing <code>UIComponent</code>.  It will "overwrite"
-     *	    the existing component if this property is true.</p>
+     *	    the existing component if this property is true.  Usually only
+     *	    applies when this is used within the context of a
+     *	    <code>Renderer</code>.</p>
      */
     private boolean _overwrite	= false;
 
     /**
      *	<p> Map of options.</p>
      */
-    private Map	_options	= new HashMap();
+    private Map<String, Object>	_options    = new HashMap<String, Object>();
 
     /**
      *
