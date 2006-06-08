@@ -28,6 +28,7 @@ import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import java.io.IOException;
 import java.util.EventObject;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.component.UIComponent;
@@ -88,13 +89,34 @@ public interface LayoutElement extends java.io.Serializable {
 
 
     /**
-     *	<p> This method retrieves the Handlers for the requested type.</p>
+     *	<p> This method retrieves the {@link Handler}s for the requested
+     *	    type.</p>
      *
-     *	@param	type	The type of Handlers to retrieve.
+     *	@param	type	The event type of {@link Handler}s to retrieve.
      *
-     *	@return	A List of Handlers.
+     *	@return	A List of {@link Handler}s.
      */
-    public List getHandlers(String type);
+    public List<Handler> getHandlers(String type);
+
+    /**
+     *	<p> This method retrieves the {@link Handler}s for the requested
+     *	    type.  This method is unique in that it looks at the
+     *	    <code>UIComponent</code> passed in to see if there are
+     *	    {@link Handler}s defined on it (instance handlers vs. those
+     *	    defined on the <code>LayoutElement</code>.</p>
+     *
+     *	@param	type	The event type of {@link Handler}s to retrieve.
+     *	@param	event	The associated <code>UIComponent</code> (or null).
+     *
+     *	@return	A List of {@link Handler}s.
+     */
+    public List<Handler> getHandlers(String type, UIComponent comp);
+
+    /**
+     *	<p> This method provides access to the "handlersByType"
+     *	    <code>Map</code>.</p>
+     */
+    public Map<String, List<Handler>> getHandlersByTypeMap();
 
     /**
      *	<p> This method associates 'type' with the given list of Handlers.</p>
@@ -102,7 +124,7 @@ public interface LayoutElement extends java.io.Serializable {
      *	@param	type	    The String type for the List of Handlers
      *	@param	handlers    The List of Handlers
      */
-    public void setHandlers(String type, List handlers);
+    public void setHandlers(String type, List<Handler> handlers);
 
     /**
      *	Accessor method for id.  This should always return a non-null value,
