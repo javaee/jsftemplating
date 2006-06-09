@@ -1,50 +1,30 @@
-<sun:page>
-    <sun:html>
-	 <sun:head id="propertyhead" title="#{msgs.propertysheet_title}" />
-	 <sun:body>
-	     <sun:form id="propertyForm"> 
-		   <!-- Masthead -->
-		   <sun:masthead id="Masthead" productImageURL="../images/example_primary_masthead.png"
-		       productImageDescription="#{msgs.mastheadAltText}" />
+<rave:page>
+    <rave:html>
+	<rave:head id="propertyhead" title="#{msgs.propertysheet_title}" />
+	<rave:body>
+	    <rave:form id="propertyForm">
 
-		   
+		<rave:alert id="alert" summary="#{msgs.menu_alertElement}" type="info"rendered="#{MenuListBean.alertRendered}" detail="#{MenuListBean.alertDetail}" />
 
-		     <!-- Page Title -->
-		     <sun:title id="propertyContentPage" title="JSF Editing Tool - Step 2">
-<sun:alert id="alert" summary="#{msgs.menu_alertElement}" type="info"  rendered="#{MenuListBean.alertRendered}"
- detail="#{MenuListBean.alertDetail}" />
+		<rave:propertySheet id="propertySheet" jumpLinks="#{PropertySheetBean.jumpLink}" requiredFields="#{PropertySheetBean.requiredLabel}">
+		    <rave:propertySheetSection id="propertSectionTextField" label="">
 
- 
-			 <!-- PropertySheet Example.... -->
-			 <sun:propertySheet id="propertySheet" jumpLinks="#{PropertySheetBean.jumpLink}" 
-					   requiredFields="#{PropertySheetBean.requiredLabel}">
-			 
-			    <!-- Text Field section -->               
-			   <sun:propertySheetSection id="propertSectionTextField" label="">
-			       <sun:property id="propertyTextField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
-				<sun:label text="Page Name" for="pageName" id="nameLabel"/>                               
-				<sun:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
-					  width="$int{27}" height="$int{1}"/>
-				<sun:staticText id="pageName"  text="#{pagename}"
-					      />      ssss
-					
-			       </sun:property>
-				<sun:property id="propertyHiddenField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
-				
-				<sun:hidden id="hiddenPageName"  value="#{pagename}"
-					      />      
-					
-			       </sun:property>
+			<rave:property id="propertyTextField"labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+			    <rave:label text="Page Name" for="pageName" id="nameLabel"/>
+			    <rave:image id="space" url="/theme/com/sun/rave/web/ui/defaulttheme/images/other/dot.gif" width="$int{27}" height="$int{1}"/>
+			    <rave:staticText id="pageName"text="#{pagename}"/>
+			</rave:property>
 
-			       "<br /><br />
+			<rave:property id="propertyHiddenField"labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+			    <rave:hidden id="hiddenPageName"value="#{pagename}"/>
+			</rave:property>
 
-			   </sun:propertySheetSection>
-			 
-			 </sun:propertySheet>       	
-   
-		       </sun:title>       
-			 
-		     </sun:form>           
-		 </sun:body> 
-	     </sun:html>  
-	 </sun:page>
+			"<br /><br />
+
+		    </rave:propertySheetSection>
+
+		</rave:propertySheet>
+	    </rave:form>
+	</rave:body>
+    </rave:html>
+</rave:page>

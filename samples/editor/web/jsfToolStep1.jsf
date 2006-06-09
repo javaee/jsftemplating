@@ -1,50 +1,30 @@
-<sun:page>
-    <sun:html>
-	 <sun:head id="propertyhead" title="#{msgs.propertysheet_title}" />
-	 <sun:body>
-	     <sun:form id="propertyForm"> 
-		   <!-- Masthead -->
-		   <sun:masthead id="Masthead" productImageURL="../images/example_primary_masthead.png"
-		       productImageDescription="#{msgs.mastheadAltText}" />
+<rave:page>
+    <rave:html>
+	<rave:head id="propertyhead" title="#{msgs.propertysheet_title}" />
+	<rave:body>
+	    <rave:form id="propertyForm"> 
+		<!-- PropertySheet Example.... -->
+		<rave:propertySheet id="propertySheet" jumpLinks="#{PropertySheetBean.jumpLink}" 
+		    requiredFields="#{PropertySheetBean.requiredLabel}">
 
-		   
+		    <!-- Text Field section -->               
+		    <rave:propertySheetSection id="propertSectionTextField" label="">
+			<rave:property id="propertyTextField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+			    <rave:label text="Page Name" for="pageName" id="nameLabel"/>                           
+			    <rave:image id="space" url="/theme/com/sun/rave/web/ui/defaulttheme/images/other/dot.gif" width="$int{27}" height="$int{1}"/>
+			    <rave:textField id="pageName" required="#{true}"/> 
+			    <rave:button primary="#{true}" value="Create" Align="right">
+				<!command  getUIComponent(clientId="propertyForm:propertySheet:propertSectionTextField:propertyTextField:pageName", component=>$attribute{pageName});
+					    getUIComponentProperty(component="$attribute{pageName}", name="value", value=>$attribute{pagename});
+                                            navigate(page="/step2.jsf");
+				/>
+			    </rave:button>  
+			</rave:property>
 
-		     <!-- Page Title -->
-		     <sun:title id="propertyContentPage" title="JSF Editing Tool - Step 1">
-<sun:alert id="alert" summary="#{msgs.menu_alertElement}" type="info"  rendered="#{MenuListBean.alertRendered}"
- detail="#{MenuListBean.alertDetail}" />
-
- 
-			 <!-- PropertySheet Example.... -->
-			 <sun:propertySheet id="propertySheet" jumpLinks="#{PropertySheetBean.jumpLink}" 
-					   requiredFields="#{PropertySheetBean.requiredLabel}">
-			 
-			    <!-- Text Field section -->               
-			   <sun:propertySheetSection id="propertSectionTextField" label="">
-			       <sun:property id="propertyTextField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
-				<sun:label text="Page Name" for="pageName" id="nameLabel"/>                               
-				<sun:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
-					  width="$int{27}" height="$int{1}"/>
-				<sun:textField id="pageName" 
-					      required="#{true}"/>      
-				<sun:button primary="#{true}" value="Create" Align="right">
-			    						  <!command		
-						           getUIComponent(clientId="propertyForm:propertyContentPage:propertySheet:propertSectionTextField:propertyTextField:pageName", component=>$attribute{pageName});
-			getUIComponentProperty(component="$attribute{pageName}", name="value", value=>$attribute{pagename});
-				  navigate(page="/jsfToolStep2.jsf");
-		    			/>
-				</sun:button>	
-			       </sun:property>
-
-			       "<br /><br />
-
-			   </sun:propertySheetSection>
-			 
-			 </sun:propertySheet>       	
-   
-		       </sun:title>       
-			 
-		     </sun:form>           
-		 </sun:body> 
-	     </sun:html>  
-	 </sun:page>
+		    "<br /><br />
+		    </rave:propertySheetSection>
+		</rave:propertySheet>     
+	    </rave:form>           
+	</rave:body> 
+    </rave:html>  
+</rave:page>
