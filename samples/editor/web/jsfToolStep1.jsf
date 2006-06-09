@@ -16,7 +16,7 @@
 			    <rave:button primary="#{true}" value="Create" Align="right">
 				<!command  getUIComponent(clientId="propertyForm:propertySheet:propertSectionTextField:propertyTextField:pageName", component=>$attribute{pageName});
 					    getUIComponentProperty(component="$attribute{pageName}", name="value", value=>$attribute{pagename});
-                                            navigate(page="/step2.jsf");
+                                            navigate(page="/jsfToolStep2.jsf");
 				/>
 			    </rave:button>  
 			</rave:property>
