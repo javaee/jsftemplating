@@ -18,6 +18,7 @@ build=build
 dist=dist
 docs=docs
 lib=lib
+external=${lib}/external
 src=src/java
 test=test
 
