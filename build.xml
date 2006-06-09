@@ -1,5 +1,5 @@
 <!-- Build file for JSFTemplating -->
-<project name="JSFTemplating" default="all" basedir=".">
+<project name="JSFTemplating" default="build" basedir=".">
     <taskdef name="apt" classname="org.apache.tools.ant.taskdefs.Apt" />
 
     <!-- Set properties -->
@@ -39,8 +39,10 @@
 	<pathelement location="${junit.jar}" />
     </path>
 
-    <target name="all" depends="jar" />
-
+    <target name="build" depends="jar" />
+    
+    <target name="all" depends="build, build-samples" />
+    
     <!-- This target builds the custom processors for apt -->
     <target name="compile-apt-files">
 	<mkdir dir="${aptbuild}/." />
@@ -144,11 +146,21 @@
     </target>
 
     <target name="clean">
-	<!-- Delete the build / dist directories -->
+	<!-- Delete the build / dist directories ;-->
 	<delete dir="${aptbuild}" />
 	<delete dir="${build}" />
 	<delete dir="${dist}" />
 	<delete dir="${test}/build" />
 	<delete dir="${docs}" />
     </target>
+    
+    <target name="clean-all" depends="clean" >
+        <ant dir="samples" target="clean" />
+    </target>
+   
+    <target name="build-samples">
+        <!-- build all sample apps under the samples directory -->
+        <ant dir="samples" target="build" />
+    </target>
+    
 </project>
