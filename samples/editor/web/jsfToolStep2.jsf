@@ -1,0 +1,50 @@
+<sun:page>
+    <sun:html>
+	 <sun:head id="propertyhead" title="#{msgs.propertysheet_title}" />
+	 <sun:body>
+	     <sun:form id="propertyForm"> 
+		   <!-- Masthead -->
+		   <sun:masthead id="Masthead" productImageURL="../images/example_primary_masthead.png"
+		       productImageDescription="#{msgs.mastheadAltText}" />
+
+		   
+
+		     <!-- Page Title -->
+		     <sun:title id="propertyContentPage" title="JSF Editing Tool - Step 2">
+<sun:alert id="alert" summary="#{msgs.menu_alertElement}" type="info"  rendered="#{MenuListBean.alertRendered}"
+ detail="#{MenuListBean.alertDetail}" />
+
+ 
+			 <!-- PropertySheet Example.... -->
+			 <sun:propertySheet id="propertySheet" jumpLinks="#{PropertySheetBean.jumpLink}" 
+					   requiredFields="#{PropertySheetBean.requiredLabel}">
+			 
+			    <!-- Text Field section -->               
+			   <sun:propertySheetSection id="propertSectionTextField" label="">
+			       <sun:property id="propertyTextField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+				<sun:label text="Page Name" for="pageName" id="nameLabel"/>                               
+				<sun:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
+					  width="$int{27}" height="$int{1}"/>
+				<sun:staticText id="pageName"  text="#{pagename}"
+					      />      ssss
+					
+			       </sun:property>
+				<sun:property id="propertyHiddenField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+				
+				<sun:hidden id="hiddenPageName"  value="#{pagename}"
+					      />      
+					
+			       </sun:property>
+
+			       "<br /><br />
+
+			   </sun:propertySheetSection>
+			 
+			 </sun:propertySheet>       	
+   
+		       </sun:title>       
+			 
+		     </sun:form>           
+		 </sun:body> 
+	     </sun:html>  
+	 </sun:page>

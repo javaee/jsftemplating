@@ -1,0 +1,27 @@
+"<html>
+"   <head>
+"	<title>Templating for JavaServer&trade; Faces Info</title>
+"	<style type="text/css">
+".info .title {background-color: #333388; color: #AAAAAA; font-family: Arial,sans-serif; font-size: 14pt; font-weight: bold; padding: 15px; white-space: nowrap;}
+".info pre {border: 2px solid #333388; padding: 15px;}
+"	</style>
+"   </head>
+"   <body bgcolor="#FFFFFF">
+"	<div class="info" id="handlers">
+"	    <div class="title">
+"		Handlers:
+"	    </div>
+"	    <pre>
+<staticText value="test">
+    <!beforeCreate
+	getGlobalHandlerInformation(info=>$attribute{test});
+	println(value="Here!");
+    />
+</staticText>
+" $attribute{test}
+"	    </pre>
+"	</div>
+"	<div class="info" id="types">
+"	</div>
+"   </body>
+"</html>
