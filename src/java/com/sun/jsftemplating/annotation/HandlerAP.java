@@ -159,10 +159,40 @@ public class HandlerAP implements AnnotationProcessor {
 		// Look at each "param": @Handler<I/O>put(param=)
 		_writer.println(id + "." + type + "[" + cnt + "]."
 		    + prop.getKey().getSimpleName() + "="
-		    + prop.getValue().getValue());
+		    + convertClassName(prop.getValue().getValue().toString()));
 	    }
 	    cnt++;
 	}
+    }
+
+    /**
+     *	<p> This method attempts to convert the given <code>clsName</code> to
+     *	    a valid class name.  The issue is that arrays appear something like
+     *	    "java.lang.String[]" where they should appear
+     *	    "[Ljava.lang.String;".</p>
+     */
+    private String convertClassName(String str) {
+	int idx = str.indexOf("[]");
+	if (idx == -1) {
+	    // For not only worry about Strings that contain array brackets
+	    return str;
+	}
+
+	// Count []'s
+	int count = 0;
+	while (idx != -1) {
+	    str = str.replaceFirst("\\[]", "");
+	    idx = str.indexOf("[]");
+	    count++;
+	}
+
+	// Generate new String
+	String brackets = "";
+	for (idx = 0; idx<count; idx++) {
+	    brackets += "[";
+	}
+	// Return something of the format: [Ljava.lang.String;
+	return brackets + "L" + str + ";";
     }
 
     /**
