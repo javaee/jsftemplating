@@ -50,7 +50,6 @@
         <copy todir="${assemble.dir}/WEB-INF/lib" >
             <fileset dir="${external.lib.dir}">
 		<include name="*.jar" />
-                <exclude name="ant-apt.jar" />
             </fileset>
         </copy>
         <copy todir="${assemble.dir}/WEB-INF/classes" >
