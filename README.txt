@@ -31,6 +31,8 @@ more information, you will need ant 1.6 or a more recent build.
    https://glassfish.dev.java.net and set glassfish-home to your
    installation directory.
 
+** If you want to use netbeans to build this project, skep Step 4 and follow Step 5 instead.
+
 4) Run ant:
 
     lib/ant/bin/ant
@@ -50,7 +52,24 @@ more information, you will need ant 1.6 or a more recent build.
     ant --noconfig clean
 
 That's it!  The jsftemplating.jar file can be found in your "dist"
-directory.  If you encounter build problems, resolve them and try again;
+directory. 
+
+5) Using netbeans to build project
+
+    jsftemplating has been configurated as a netbeans project.  After following
+    Steps 1-3 to setup your environment, you can open the project by pointing
+    to the directory where you check out the source.
+
+    You need to add ant-apt.jar to the ant classpath.  To do so, go to
+    Tools->Options, select Miscellaneous on the left side, then Ant on the right
+    hand side.  Press the "Manage Classpath..." button, then "Add JAR/ZIP..." 
+    button. Specify ant-api.jar that can be found under this project's 
+    lib/external directory.
+
+    You can now build your project.  The jsftemplating.jar can be found in your
+    "dist" dirctory".  
+
+If you encounter build problems, resolve them and try again;
 email dev@jsftemplating.dev.java.net for help.
 
 Good luck!
