@@ -125,7 +125,7 @@ public class MetaDataHandlers {
 	},
 	output={
 	    @HandlerOutput(name="info", type=String.class),
-	    @HandlerOutput(name="ids", type=List.class),
+	    @HandlerOutput(name="ids", type=Set.class),
 	    @HandlerOutput(name="value", type=ComponentType.class)
 	})
     public static void getGlobalComponentTypeInformation(HandlerContext context) {
