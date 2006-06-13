@@ -36,22 +36,22 @@ public class DropDownHandlers {
      *	    labels and values. labels and values must be equal in size and
      *      in the proper sequence.</p>
      *
-     *	<p> Input value: "labels" -- Type: <code>java.util.List</code></p>
+     *	<p> Input value: "labels" -- Type: <code>java.util.Collection</code></p>
      *
-     *	<p> Input value: "values" -- Type: <code>java.util.List</code></p>
+     *	<p> Input value: "values" -- Type: <code>java.util.Collection</code></p>
      *
      *  <p> Output value: "options" -- Type: <code>Option[]</code></p>
      *	@param	context	The HandlerContext.
      */
     @Handler(id="getDropDownOptions",
 	input={
-	    @HandlerInput(name="labels", type=List.class, required=true),
-	    @HandlerInput(name="values", type=List.class, required=true)},
+	    @HandlerInput(name="labels", type=Collection.class, required=true),
+	    @HandlerInput(name="values", type=Collection.class, required=true)},
 	output={
 	    @HandlerOutput(name="options", type=Option[].class)})
     public static void getDropDownOptions(HandlerContext context) throws Exception {
-	List<String> labels = (List) context.getInputValue("labels");
-        List<String> values = (List) context.getInputValue("values");
+	Collection<String> labels = (Collection) context.getInputValue("labels");
+        Collection<String> values = (Collection) context.getInputValue("values");
         if (labels.size() != values.size()) {
             throw new Exception("getDropDownOptions Handler input incorrect: Input 'labels' and 'values'"
                 +  " size must be equal. labels size: " + labels.size() 
@@ -66,6 +66,5 @@ public class DropDownHandlers {
         }
 	context.setOutputValue("options", options);
     }
-
     
 }
