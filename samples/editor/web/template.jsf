@@ -1,0 +1,11 @@
+<sun:page>
+    <sun:html>
+	 <sun:head id="propertyhead" />
+	 <sun:body>
+	     <sun:form id="propertyForm"> 
+
+			 
+	     </sun:form>           
+	 </sun:body> 
+     </sun:html>  
+ </sun:page>
