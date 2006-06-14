@@ -12,7 +12,7 @@
 			<rave:property id="propertyTextField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
 			    <rave:label text="Page Name" for="pageName" id="nameLabel"/>                           
 			    <rave:image id="space" url="/theme/com/sun/rave/web/ui/defaulttheme/images/other/dot.gif" width="$int{27}" height="$int{1}"/>
-			    <rave:textField id="pageName" required="#{true}"/> 
+			    <rave:textField id="pageName"  text="#{pagename}" required="#{true}"/> 
 			    <rave:button primary="#{true}" value="Create" Align="right">
 				<!command  getUIComponent(clientId="propertyForm:propertySheet:propertSectionTextField:propertyTextField:pageName", component=>$attribute{pageName});
 					    getUIComponentProperty(component="$attribute{pageName}", name="value", value=>$attribute{pagename});
