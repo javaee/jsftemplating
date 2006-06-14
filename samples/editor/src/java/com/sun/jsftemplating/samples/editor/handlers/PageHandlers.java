@@ -51,7 +51,7 @@ public class PageHandlers {
             @HandlerOutput(name="qualifiedNames", type=List.class)})
     public static void getPageComponentNames(HandlerContext context) {
 	String pageName = (String) context.getInputValue("pageName");
-        LayoutDefinition ld = LayoutDefinitionManager.getLayoutDefinition(null, pageName);
+        LayoutDefinition ld = LayoutDefinitionManager.getLayoutDefinition(null, "template.jsf");
         List<String> displayNames = getDisplayList(ld, new ArrayList(), "");
         List<String> qualifiedNames = getQualifiedList(ld, new ArrayList(), "");
 	context.setOutputValue("displayNames", displayNames);
