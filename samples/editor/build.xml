@@ -30,6 +30,7 @@
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${classes.dir}"/>
 	<apt	srcdir="${src.java.dir}"
+		fork="true"
 		destdir="${classes.dir}/."
 		debug="${compile.debug}"
 		deprecation="${compile.deprecation}"
