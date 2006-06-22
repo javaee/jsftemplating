@@ -1,0 +1,32 @@
+<!-- Build file for JSFTemplating -->
+<project name="JSFTemplating" default="build" basedir=".">
+    <taskdef name="apt" classname="org.apache.tools.ant.taskdefs.Apt" />
+
+    <!-- Set properties -->
+    <property file="build.properties" />
+    <property file="user.properties" />
+    <!--
+    <property environment="env" />
+    <property file="${user.home}/build.properties" />
+    -->
+
+    <!-- The "dependencies" path should exist in both build.xml files -->
+    <path id="dependencies">
+	<pathelement location="${servlet-api.jar}" />
+	<pathelement location="${jsf-api.jar}" />
+	<pathelement location="${jsftemplating-dt.jar}" />
+    </path>
+
+    <target name="compile">
+	<!-- Compile the java code from ${src} into ${build} -->
+	<apt	srcdir="${src}"
+		fork="true"
+		destdir="${build}/."
+		debug="${compile.debug}"
+		deprecation="${compile.deprecation}"
+		excludes="**/annotation/**"
+		optimize="${compile.optimize}">
+	    <classpath refid="dependencies" />
+	</apt>
+    </target>
+</project>

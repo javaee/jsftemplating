@@ -1,12 +1,13 @@
 <!-- Build file for JSFTemplating -->
 <project name="JSFTemplating" default="build" basedir=".">
-    <taskdef name="apt" classname="org.apache.tools.ant.taskdefs.Apt" />
 
     <!-- Set properties -->
-    <property environment="env" />
     <property file="build.properties" />
     <property file="user.properties" />
+    <!--
+    <property environment="env" />
     <property file="${user.home}/build.properties" />
+    -->
 
     <path id="dependencies">
 	<pathelement location="${servlet-api.jar}" />
@@ -69,16 +70,10 @@
     <target name="compile" depends="jar-apt-files">
 	<mkdir dir="${build}/." />
 
-	<!-- Compile the java code from ${src} into ${build} -->
-	<apt	srcdir="${src}"
-		fork="true"
-		destdir="${build}/."
-		debug="${compile.debug}"
-		deprecation="${compile.deprecation}"
-		excludes="**/annotation/**"
-		optimize="${compile.optimize}">
-	    <classpath refid="dependencies" />
-	</apt>
+	<exec dir="." executable="ant">
+	    <!-- We do this to add the ant-apt.jar to the lib path -->
+	    <arg line="-f aptbuild.xml -lib lib/external/ant-apt.jar compile" />
+	</exec>
     </target>
 
     <target name="jar" depends="compile">
@@ -162,5 +157,4 @@
         <!-- build all sample apps under the samples directory -->
         <ant dir="samples" target="build" />
     </target>
-    
 </project>
