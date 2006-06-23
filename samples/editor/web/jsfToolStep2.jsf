@@ -23,7 +23,7 @@
 				<rave:dropDown id="parentName"  items="$attribute{opts}" required="#{true}" label="Parent" >
                                     <!beforeCreate
                                       getPageComponentNames(pageName="#{pagename}" displayNames=>$attribute{disp} qualifiedNames=>$attribute{long});
-                                      getDropDownOptions(labels="$attribute{disp}", values="$attribute{long}", options=>$attribute{opts});
+                                      getRaveDropDownOptions(labels="$attribute{disp}", values="$attribute{long}", options=>$attribute{opts});
                                     /> 
 				</rave:dropDown>                                					
 			       </rave:property>
@@ -32,7 +32,7 @@
 				<rave:dropDown id="componentType" items="$attribute{types}" required="#{true}" label="Component Type" >
                                    <!beforeCreate
                                       getGlobalComponentTypeInformation(ids=>$attribute{ids});
-                                      getDropDownOptions(labels="$attribute{ids}", values="$attribute{ids}", options=>$attribute{types});
+                                      getRaveDropDownOptions(labels="$attribute{ids}", values="$attribute{ids}", options=>$attribute{types});
                                     />   
 				</rave:dropDown>  
 					
