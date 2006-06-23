@@ -69,8 +69,13 @@
 
     <target name="compile" depends="jar-apt-files">
 	<mkdir dir="${build}/." />
+	<echo message="ant or ant.bat will not be found depending on your platform, this is normal and good." />
 
-	<exec dir="." executable="ant">
+	<exec dir="." executable="ant" failonerror="true" failifexecutionfails="false">
+	    <!-- We do this to add the ant-apt.jar to the lib path -->
+	    <arg line="-f aptbuild.xml -lib lib/external/ant-apt.jar compile" />
+	</exec>
+	<exec dir="." executable="ant.bat" failonerror="true" failifexecutionfails="false">
 	    <!-- We do this to add the ant-apt.jar to the lib path -->
 	    <arg line="-f aptbuild.xml -lib lib/external/ant-apt.jar compile" />
 	</exec>
@@ -147,9 +152,6 @@
 	<delete dir="${dist}" />
 	<delete dir="${test}/build" />
 	<delete dir="${docs}" />
-    </target>
-    
-    <target name="clean-all" depends="clean" >
         <ant dir="samples" target="clean" />
     </target>
    
