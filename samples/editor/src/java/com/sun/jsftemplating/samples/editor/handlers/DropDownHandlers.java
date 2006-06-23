@@ -1,12 +1,31 @@
 /*
+ * The contents of this file are subject to the terms
+ * of the Common Development and Distribution License
+ * (the License).  You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the license at
+ * https://jsftemplating.dev.java.net/cddl1.html or
+ * jsftemplating/cddl1.txt.
+ * See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ * When distributing Covered Code, include this CDDL
+ * Header Notice in each file and include the License file
+ * at jsftemplating/cddl1.txt.
+ * If applicable, add the following below the CDDL Header,
+ * with the fields enclosed by brackets [] replaced by
+ * you own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
+ */
+
+/*
  * DropDownHandlers.java
  *
  * Created on June 8, 2006, 5:01 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
-
 package com.sun.jsftemplating.samples.editor.handlers;
 
 import com.sun.jsftemplating.annotation.Handler;
@@ -14,57 +33,91 @@ import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 
-import com.sun.rave.web.ui.model.Option;
+import java.util.Collection;
 
-import java.util.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+
+import javax.faces.model.SelectItem;
 
 
 /**
  *
- * @author Administrator
+ *  @author Jennifer Chou
  */
 public class DropDownHandlers {
-    
+
     /**
      * Creates a new instance of DropDownHandlers
      */
     public DropDownHandlers() {
     }
-    
+
     /**
-     *	<p> This handler returns the options of the drop-down of the given
-     *	    labels and values. labels and values must be equal in size and
-     *      in the proper sequence.</p>
+     *	<p> This handler returns the "rave" version of Options of the drop-down
+     *	    of the given <code>labels</code> and <code>values</code>.
+     *	    <code>labels</code> and <code>values</code> arrays must be equal in
+     *	    size and in matching sequence.</p>
      *
-     *	<p> Input value: "labels" -- Type: <code>java.util.Collection</code></p>
+     *	<p> Input value: <code>labels</code> -- Type:
+     *	    <code>java.util.Collection</code></p>
      *
-     *	<p> Input value: "values" -- Type: <code>java.util.Collection</code></p>
+     *	<p> Input value: <code>values</code> -- Type:
+     *	    <code>java.util.Collection</code></p>
      *
-     *  <p> Output value: "options" -- Type: <code>Option[]</code></p>
+     *  <p> Output value: <code>options</code> -- Type:
+     *	    <code>SelectItem[] (castable to Option[])</code></p>
+     *
      *	@param	context	The HandlerContext.
      */
-    @Handler(id="getDropDownOptions",
+    @Handler(id="getRaveDropDownOptions",
 	input={
 	    @HandlerInput(name="labels", type=Collection.class, required=true),
 	    @HandlerInput(name="values", type=Collection.class, required=true)},
 	output={
-	    @HandlerOutput(name="options", type=Option[].class)})
-    public static void getDropDownOptions(HandlerContext context) throws Exception {
+	    @HandlerOutput(name="options", type=SelectItem[].class)})
+    public static void getRaveDropDownOptions(HandlerContext context) throws Exception {
 	Collection<String> labels = (Collection) context.getInputValue("labels");
-        Collection<String> values = (Collection) context.getInputValue("values");
-        if (labels.size() != values.size()) {
-            throw new Exception("getDropDownOptions Handler input incorrect: Input 'labels' and 'values'"
-                +  " size must be equal. labels size: " + labels.size() 
-                + " values size: " + values.size());
-        }
-    	Option[] options = new Option[labels.size()];
-    	String[] labelsArray = (String[])labels.toArray(new String[labels.size()]);
-        String[] valuesArray = (String[])values.toArray(new String[values.size()]);
-    	for (int i =0; i < labels.size(); i++) {
-		Option option = new Option(valuesArray[i], labelsArray[i]);
-		options[i] = option;
-        }
+	Collection<String> values = (Collection) context.getInputValue("values");
+	if (labels.size() != values.size()) {
+	    throw new Exception("getRaveDropDownOptions Handler input "
+		+ "incorrect: Input 'labels' and 'values' size must be equal. "
+		+ "'labels' size: " + labels.size() + " 'values' size: "
+		+ values.size());
+	}
+
+	//SelectItem[] options = new SelectItem[labels.size()];
+	SelectItem[] options =
+	    (SelectItem []) Array.newInstance(RAVE_OPTION_CLASS, labels.size());
+	String[] labelsArray = (String[])labels.toArray(new String[labels.size()]);
+	String[] valuesArray = (String[])values.toArray(new String[values.size()]);
+	for (int i =0; i < labels.size(); i++) {
+	    SelectItem option = getRaveOption(valuesArray[i], labelsArray[i]);
+	    options[i] = option;
+	}
 	context.setOutputValue("options", options);
     }
-    
+
+    private static SelectItem getRaveOption(String value, String label) {
+	try {
+	    return (SelectItem) RAVE_OPTION_CONSTRUCTOR.newInstance(value, label);
+	} catch (Exception ex) {
+	    return null;
+	}
+    }
+
+    private static Class	     RAVE_OPTION_CLASS = null;
+    private static Constructor RAVE_OPTION_CONSTRUCTOR = null;
+
+    static {
+	try {
+	    RAVE_OPTION_CLASS =
+		Class.forName("com.sun.rave.web.ui.model.Option");
+	    RAVE_OPTION_CONSTRUCTOR = RAVE_OPTION_CLASS.
+		getConstructor(new Class[] {Object.class, String.class});
+	} catch (Exception ex) {
+	    // Ignore exception here, NPE will be thrown when attempting to
+	    // use RAVE_OPTION_CONSTRUCTOR.
+	}
+    }
 }
