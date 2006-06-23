@@ -5,21 +5,9 @@
 <!-- ========== Initialize Properties =================================== -->
     <property file="../../build.properties"/>
     <property file="../../user.properties" />
-    <property file="${user.home}/build.properties" />
     <property file="./build.properties"/>
+    <!-- <property file="${user.home}/build.properties" /> -->
 
-    <taskdef name="apt" classname="org.apache.tools.ant.taskdefs.Apt" />
-   
-    <path id="dependencies">
-	<pathelement location="${servlet-api.jar}" />
-	<pathelement location="${jsf-api.jar}" />
-	<pathelement location="../../${jsftemplating-dt.jar}" />
-        <pathelement location="../../${jsftemplating.jar}" />
-        <pathelement location="${dataprovider.jar}" />
-        <pathelement location="${defaulttheme.jar}" />
-        <pathelement location="${webui.jar}" />
-    </path>
-    
     <!-- build the war file --> 
     <target name="build" depends="war" 
         description="Compile all the sources and build the war file">  
@@ -29,14 +17,15 @@
     <target name="compile" >
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${classes.dir}"/>
-	<apt	srcdir="${src.java.dir}"
-		fork="true"
-		destdir="${classes.dir}/."
-		debug="${compile.debug}"
-		deprecation="${compile.deprecation}"
-		optimize="${compile.optimize}">
-	    <classpath refid="dependencies" />
-	</apt>
+	<echo message="ant or ant.bat will not be found depending on your platform, this is normal and good." />
+	<exec dir="." executable="ant" failonerror="true" failifexecutionfails="false">
+	    <!-- We do this to add the ant-apt.jar to the lib path -->
+	    <arg line="-f aptbuild.xml -lib ../../lib/external/ant-apt.jar compile" />
+	</exec>
+	<exec dir="." executable="ant.bat" failonerror="true" failifexecutionfails="false">
+	    <!-- We do this to add the ant-apt.jar to the lib path -->
+	    <arg line="-f aptbuild.xml -lib ../../lib/external/ant-apt.jar compile" />
+	</exec>
     </target>
     
     <!-- assemble the war file -->
