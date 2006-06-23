@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.faces.component.UIComponent;
 
@@ -84,7 +85,7 @@ public class MetaDataHandlers {
     public static void getGlobalHandlerInformation(HandlerContext context) {
 	// Get the known global HandlerDefinitions
 	Map<String, HandlerDefinition> defs =
-	    LayoutDefinitionManager.getGlobalHandlerDefinitions();
+	    new TreeMap(LayoutDefinitionManager.getGlobalHandlerDefinitions());
 
 	// Provide a Set of ids
 	context.setOutputValue("ids", defs.keySet());
@@ -131,7 +132,7 @@ public class MetaDataHandlers {
     public static void getGlobalComponentTypeInformation(HandlerContext context) {
 	// Get the known global HandlerDefinitions
 	Map<String, ComponentType> defs =
-	    LayoutDefinitionManager.getGlobalComponentTypes();
+	    new TreeMap(LayoutDefinitionManager.getGlobalComponentTypes());
 
 	// Provide a Set of ids
 	context.setOutputValue("ids", defs.keySet());
