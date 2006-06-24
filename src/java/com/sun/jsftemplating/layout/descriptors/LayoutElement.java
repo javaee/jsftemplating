@@ -70,6 +70,16 @@ public interface LayoutElement extends java.io.Serializable {
      */
     public List<LayoutElement> getChildLayoutElements();
 
+    /**
+     *	<p> This method returns the requested child {@link LayoutElement} by
+     *	    <code>id</code>.</p>
+     *
+     *	@param	id  The <code>id</code> of the child to find and return.
+     *
+     *	@return	The requested {@link LayoutElement}; <code>null</code> if not
+     *		found.
+     */
+    public LayoutElement getChildLayoutElement(String id);
 
     /**
      *	This method returns the parent LayoutElement.

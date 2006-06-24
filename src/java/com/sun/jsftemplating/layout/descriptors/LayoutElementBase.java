@@ -77,7 +77,8 @@ public abstract class LayoutElementBase implements LayoutElement {
 
 
     /**
-     *	<p> This method returns the {@link LayoutElement}s as a List of LayoutElement.</p>
+     *	<p> This method returns the {@link LayoutElement}s as a
+     *	    <code>List</code> of {@link LayoutElement}.</p>
      *
      *	@return List of {@link LayoutElement}s.
      */
@@ -85,6 +86,26 @@ public abstract class LayoutElementBase implements LayoutElement {
 	return _layoutElements;
     }
 
+    /**
+     *	<p> This method returns the requested child {@link LayoutElement} by
+     *	    <code>id</code>.</p>
+     *
+     *	@param	id  The <code>id</code> of the child to find and return.
+     *
+     *	@return	The requested {@link LayoutElement}; <code>null</code> if not
+     *		found.
+     */
+    public LayoutElement getChildLayoutElement(String id) {
+	Iterator<LayoutElement> it = getChildLayoutElements().iterator();
+	LayoutElement elt = null;
+	while (it.hasNext()) {
+	    elt = it.next();
+	    if (id.equals(elt.getUnevaluatedId())) {
+		return elt;
+	    }
+	}
+	return null;
+    }
 
     /**
      *	<p> This method walks to the top-most {@link LayoutElement}, which
