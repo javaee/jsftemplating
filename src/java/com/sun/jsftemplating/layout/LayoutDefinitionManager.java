@@ -169,10 +169,15 @@ public abstract class LayoutDefinitionManager {
 			// share them even if the FacesServlet is mapped
 			// differently
 			int idx = relPath.lastIndexOf('.');
-			String ext = relPath.substring(idx);
-			if (!ext.equalsIgnoreCase(".jsf")) {
+			if (idx != -1) {
+			    String ext = relPath.substring(idx);
+			    if (!ext.equalsIgnoreCase(".jsf")) {
+				return searchForFile(
+				    relPath.substring(0, idx) + ".jsf");
+			    }
+			} else {
 			    return searchForFile(
-				relPath.substring(0, idx) + ".jsf");
+				relPath + ".jsf");
 			}
 		    }
 		}
@@ -339,13 +344,15 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     *	<p> This method should be used by sub-classes to store a cached
-     *	    {@link LayoutDefinition}.</p>
+     *	<p> In general, this method should be used by sub-classes to store a
+     *	    cached {@link LayoutDefinition}.  It may also be used, however, to
+     *	    define {@link LayoutDefinition}s on the fly (not recommended unless
+     *	    you know what you're doing. ;)</p>
      *
      *	@param	key	The {@link LayoutDefinition} key to cache.
      *	@param	value	The {@link LayoutDefinition} to cache.
      */
-    protected static void putCachedLayoutDefinition(String key, LayoutDefinition value) {
+    public static void putCachedLayoutDefinition(String key, LayoutDefinition value) {
 	synchronized (_layoutDefinitions) {
 	    _layoutDefinitions.put(key, value);
 	}
