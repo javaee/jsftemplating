@@ -22,6 +22,8 @@
  */
 package com.sun.jsftemplating.util;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -142,4 +144,38 @@ public class Util {
 	}
 	return buf.toString();
     }
+
+    /**
+     *	<p> This method calculates the system path to the given filename that
+     *	    is relative to the docroot.  It takes the
+     *	    <code>ServletContext</code> or <code>PortletContext</code> (which
+     *	    is why this method takes an <code>Object</code> for this parameter)
+     *	    and the relative path to find.  It then invokes the
+     *	    <code>getRealPath(String)</code> method of the
+     *	    <code>ServletContext</code> / <code>PortletContext</code> and
+     *	    returns the result.  This method uses reflection.</p>
+     */
+    public static String getRealPath(Object ctx, String relativePath) {
+	String path = null;
+
+	// The following should work w/ a ServletContext or PortletContext
+	Method method = null;
+	try {
+	    method = ctx.getClass().getMethod("getRealPath", REALPATH_ARGS);
+	} catch (NoSuchMethodException ex) {
+	    throw new RuntimeException(ex);
+	}
+	try {
+	    path = (String) method.invoke(ctx, new Object [] {relativePath});
+	} catch (IllegalAccessException ex) {
+	    throw new RuntimeException(ex);
+	} catch (InvocationTargetException ex) {
+	    throw new RuntimeException(ex);
+	}
+
+	// Return Result
+	return path;
+    }
+
+    private static final Class[] REALPATH_ARGS = new Class[] {String.class};
 }
