@@ -82,7 +82,62 @@
 				    navigate(page="/jsfToolStep1.jsf");
 		    		 />
 			   </rave:button>
-                           <rave:button id="addButton" primary="#{true}" text="Add"/>
+                           <rave:button id="addButton" primary="#{true}" text="Add">
+			    	 <!command
+				     // I am going to re-write this to be *much* smaller... Ken
+				     getUIComponent(
+					 clientId="propertyForm:propertySheet:propertSectionProperties:propertyHiddenField:hiddenPageName",
+					 component=>$attribute{field});
+				     getUIComponentProperty(
+					 component="$attribute{field}", name="value",
+					 value=>$attribute{pageName});
+
+				     getUIComponent(
+					 clientId="propertyForm:propertySheet:propertSectionTextField:propertyParentName:parentName",
+					 component=>$attribute{field});
+				     getUIComponentProperty(
+					 component="$attribute{field}", name="value",
+					 value=>$attribute{parentId});
+
+				     getUIComponent(
+					 clientId="propertyForm:propertySheet:propertSectionTextField:propertyComponentType:componentType",
+					 component=>$attribute{field});
+				     getUIComponentProperty(
+					 component="$attribute{field}", name="value",
+					 value=>$attribute{componentType});
+
+				     getUIComponent(
+					 clientId="propertyForm:propertySheet:propertSectionTextField:propertyIdField:ID",
+					 component=>$attribute{field});
+				     getUIComponentProperty(
+					 component="$attribute{field}", name="value",
+					 value=>$attribute{compid});
+
+				     getUIComponent(
+					 clientId="propertyForm:propertySheet:propertSectionTextField:propertyLabelField:labelProp",
+					 component=>$attribute{field});
+				     getUIComponentProperty(
+					 component="$attribute{field}", name="value",
+					 value=>$attribute{complabel});
+
+				     getUIComponent(
+					 clientId="propertyForm:propertySheet:propertSectionTextField:propertyTextField:textProp",
+					 component=>$attribute{field});
+				     getUIComponentProperty(
+					 component="$attribute{field}", name="value",
+					 value=>$attribute{comptext});
+
+				     addLayoutComponentToPage(
+					 pageName="#{pagename}"
+					 parent="#{parentId}"
+					 type="#{componentType}"
+					 id="#{compid}"
+					 label="#{complabel}"
+					 text="#{comptext}"
+					 #nvps="addremove.selectedList"
+				     );
+		    		 />
+			   </rave:button>
 			 </rave:panelGroup>		
 		     </rave:form>           
 		 </rave:body> 
