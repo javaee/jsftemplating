@@ -5,141 +5,101 @@
 	     <rave:form id="propertyForm"> 
  <!-- OK and Cancel button -->
 
-			 <!-- PropertySheet .... -->
-			 <rave:propertySheet id="propertySheet" jumpLinks="#{PropertySheetBean.jumpLink}" 
-					   requiredFields="#{PropertySheetBean.requiredLabel}">
-			 
-			    <!-- Page Name -->               
-			   <rave:propertySheetSection id="propertSectionTextField" label="JSF Editor Tool - Step 2">
-			       <rave:property id="propertyPageName"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
-				<rave:label text="Page Name" for="pageName" id="nameLabel"/>                               
-				<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
-					  width="$int{27}" height="$int{1}"/>
-				<rave:staticText id="pageName"  text="#{pagename}"
-					      />  					
-			       </rave:property>
-			    <!-- Parent Name -->           
-			      <rave:property id="propertyParentName"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
-				<rave:dropDown id="parentName"  items="$attribute{opts}" required="#{true}" label="Parent" >
-                                    <!beforeCreate
-                                      getPageComponentNames(pageName="#{pagename}" displayNames=>$attribute{disp} qualifiedNames=>$attribute{long});
-                                      getRaveDropDownOptions(labels="$attribute{disp}", values="$attribute{long}", options=>$attribute{opts});
-                                    /> 
-				</rave:dropDown>                                					
-			       </rave:property>
-			    <!-- Component Type -->           
-			      <rave:property id="propertyComponentType"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
-				<rave:dropDown id="componentType" items="$attribute{types}" required="#{true}" label="Component Type" >
-                                   <!beforeCreate
-                                      getGlobalComponentTypeInformation(ids=>$attribute{ids});
-                                      getRaveDropDownOptions(labels="$attribute{ids}", values="$attribute{ids}", options=>$attribute{types});
-                                    />   
-				</rave:dropDown>  
-					
-			       </rave:property>		
-                            <!-- ID Name -->
-			       <rave:property id="propertyIdField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
-				<rave:label text="ID" for="ID" id="idLabel"/>                               
-				<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
-					  width="$int{27}" height="$int{1}"/>
-				<rave:textField id="ID" />  					
-			       </rave:property>	
-                            <!-- Label Prop -->
-			       <rave:property id="propertyLabelField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
-				<rave:label text="Label" for="labelProp" id="labelPropLabel"/>                               
-				<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
-					  width="$int{27}" height="$int{1}"/>
-				<rave:textField id="labelProp" />  					
-			       </rave:property>	         
-                            <!-- Text Prop -->
-			       <rave:property id="propertyTextField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
-				<rave:label text="Text" for="textProp" id="textPropLabel"/>                               
-				<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
-					  width="$int{27}" height="$int{1}"/>
-				<rave:textField id="textProp" />  					
-			       </rave:property>	   
-                            </rave:propertySheetSection>	                                
-                            <rave:propertySheetSection id="propertSectionProperties" label="Additional Properties">                            
-                            <!-- Properties -->
-			       <rave:property id="propertiesField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
-                                <rave:editableList id="editList" fieldLabel="Name=Value" listLabel="Properties Entered">
-                                </rave:editableList>
-			       </rave:property>						       
-                            <!-- Hidden Field -->     	      
-                               <rave:property id="propertyHiddenField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">				
-				<rave:hidden id="hiddenPageName"  value="#{pagename}"/> 
-                               </rave:property>	 			       
-			       "<br /><br />                               
+		 <!-- PropertySheet .... -->
+		 <rave:propertySheet id="propertySheet" jumpLinks="#{PropertySheetBean.jumpLink}" 
+				   requiredFields="#{PropertySheetBean.requiredLabel}">
+		 
+		    <!-- Page Name -->               
+		   <rave:propertySheetSection id="propertSectionTextField" label="JSF Editor Tool - Step 2">
+		       <rave:property id="propertyPageName"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+			<rave:label text="Page Name" for="pageName" id="nameLabel"/>                               
+			<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
+				  width="$int{27}" height="$int{1}"/>
+			<rave:staticText id="pageName"  text="#{pagename}"
+				      />  					
+		       </rave:property>
+		    <!-- Parent Name -->           
+		      <rave:property id="propertyParentName"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+			<event>
+			  <!beforeEncode
+			    getPageComponentNames(pageName="#{pagename}" displayNames=>$attribute{disp} qualifiedNames=>$attribute{long});
+			    getRaveDropDownOptions(labels="$attribute{disp}", values="$attribute{long}", options=>$attribute{opts});
 
-                               <rave:helpInline id="fieldHelp" type="field" text="#{msgs.editablelist_helpText}" />
+			  /> 
+			</event>
+			<rave:dropDown id="parentName" value="#{requestScope.parentName}" items="#{requestScope.opts}" required="#{true}" label="Parent" >
+			</rave:dropDown>                                					
+		       </rave:property>
+		    <!-- Component Type -->           
+		      <rave:property id="propertyComponentType"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+			<rave:dropDown id="componentType" value="#{requestScope.componentType}" items="$attribute{types}" required="#{true}" label="Component Type" >
+			   <!beforeCreate
+			      getGlobalComponentTypeInformation(ids=>$attribute{ids});
+			      getRaveDropDownOptions(labels="$attribute{ids}", values="$attribute{ids}", options=>$attribute{types});
+			    />   
+			</rave:dropDown>  
+				
+		       </rave:property>		
+		    <!-- ID Name -->
+		       <rave:property id="propertyIdField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+			<rave:label text="ID" for="ID" id="idLabel"/>                               
+			<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
+				  width="$int{27}" height="$int{1}"/>
+			<rave:textField id="ID" value="#{requestScope.ID}" />  					
+		       </rave:property>	
+		    <!-- Label Prop -->
+		       <rave:property id="propertyLabelField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+			<rave:label text="Label" for="labelProp" id="labelPropLabel"/>                               
+			<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
+				  width="$int{27}" height="$int{1}"/>
+			<rave:textField id="labelProp" value="#{requestScope.labelProp}" />  					
+		       </rave:property>	         
+		    <!-- Text Prop -->
+		       <rave:property id="propertyTextField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+			<rave:label text="Text" for="textProp" id="textPropLabel"/>                               
+			<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
+				  width="$int{27}" height="$int{1}"/>
+			<rave:textField id="textProp" value="#{requestScope.textProp}" />  					
+		       </rave:property>	   
+		    </rave:propertySheetSection>	                                
+		    <rave:propertySheetSection id="propertSectionProperties" label="Additional Properties">                            
+		    <!-- Properties -->
+		       <rave:property id="propertiesField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
+			<rave:editableList id="editList" fieldLabel="Name=Value" listLabel="Properties Entered">
+			</rave:editableList>
+		       </rave:property>						       
+		    <!-- Hidden Field -->     	      
+		       <rave:property id="propertyHiddenField"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">				
+			<rave:hidden id="hiddenPageName"  value="#{requestScope.pagename}"/> 
+		       </rave:property>	 			       
+		       "<br /><br />                               
 
-  
-			   </rave:propertySheetSection>	 
-			 </rave:propertySheet>       
-                         <rave:panelGroup id="pageButtonsGroupBottom">
-			   <rave:button id="prevButton" primary="#{true}" text="Previous"  >
-			    	 <!command 
-				    navigate(page="/jsfToolStep1.jsf");
-		    		 />
-			   </rave:button>
-                           <rave:button id="addButton" primary="#{true}" text="Add">
-			    	 <!command
-				     // I am going to re-write this to be *much* smaller... Ken
-				     getUIComponent(
-					 clientId="propertyForm:propertySheet:propertSectionProperties:propertyHiddenField:hiddenPageName",
-					 component=>$attribute{field});
-				     getUIComponentProperty(
-					 component="$attribute{field}", name="value",
-					 value=>$attribute{pageName});
+		       <rave:helpInline id="fieldHelp" type="field" text="#{msgs.editablelist_helpText}" />
 
-				     getUIComponent(
-					 clientId="propertyForm:propertySheet:propertSectionTextField:propertyParentName:parentName",
-					 component=>$attribute{field});
-				     getUIComponentProperty(
-					 component="$attribute{field}", name="value",
-					 value=>$attribute{parentId});
 
-				     getUIComponent(
-					 clientId="propertyForm:propertySheet:propertSectionTextField:propertyComponentType:componentType",
-					 component=>$attribute{field});
-				     getUIComponentProperty(
-					 component="$attribute{field}", name="value",
-					 value=>$attribute{componentType});
-
-				     getUIComponent(
-					 clientId="propertyForm:propertySheet:propertSectionTextField:propertyIdField:ID",
-					 component=>$attribute{field});
-				     getUIComponentProperty(
-					 component="$attribute{field}", name="value",
-					 value=>$attribute{compid});
-
-				     getUIComponent(
-					 clientId="propertyForm:propertySheet:propertSectionTextField:propertyLabelField:labelProp",
-					 component=>$attribute{field});
-				     getUIComponentProperty(
-					 component="$attribute{field}", name="value",
-					 value=>$attribute{complabel});
-
-				     getUIComponent(
-					 clientId="propertyForm:propertySheet:propertSectionTextField:propertyTextField:textProp",
-					 component=>$attribute{field});
-				     getUIComponentProperty(
-					 component="$attribute{field}", name="value",
-					 value=>$attribute{comptext});
-
-				     addLayoutComponentToPage(
-					 pageName="#{pagename}"
-					 parent="#{parentId}"
-					 type="#{componentType}"
-					 id="#{compid}"
-					 label="#{complabel}"
-					 text="#{comptext}"
-					 #nvps="addremove.selectedList"
-				     );
-		    		 />
-			   </rave:button>
-			 </rave:panelGroup>		
-		     </rave:form>           
-		 </rave:body> 
-	     </rave:html>  
-	 </rave:page>
+		   </rave:propertySheetSection>	 
+		 </rave:propertySheet>       
+		 <rave:panelGroup id="pageButtonsGroupBottom">
+		   <rave:button id="prevButton" primary="#{true}" text="Previous"  >
+			 <!command 
+			    navigate(page="/jsfToolStep1.jsf");
+			 />
+		   </rave:button>
+		   <rave:button id="addButton" primary="#{true}" text="Add">
+			 <!command
+			     addLayoutComponentToPage(
+				 pageName="#{pagename}"
+				 parent="#{parentName}"
+				 type="#{componentType}"
+				 id="#{ID}"
+				 label="#{labelProp}"
+				 text="#{textProp}"
+				 #nvps="addremove.selectedList"
+			     );
+			 />
+		   </rave:button>
+		 </rave:panelGroup>		
+	     </rave:form>           
+	 </rave:body> 
+     </rave:html>  
+ </rave:page>
