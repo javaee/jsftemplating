@@ -26,7 +26,7 @@
  *
  * Created on June 8, 2006, 5:01 PM
  */
-package com.sun.jsftemplating.samples.editor.handlers;
+package com.sun.jsftemplating.handlers;
 
 import com.sun.jsftemplating.annotation.Handler;
 import com.sun.jsftemplating.annotation.HandlerInput;
