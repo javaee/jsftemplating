@@ -238,7 +238,7 @@ public class PageHandlers {
 		LayoutElement lel = (LayoutElement)list.get(i);
 		if (lel instanceof LayoutComponent) {
 			displayList.add(indent + lel.getUnevaluatedId());
-			getDisplayList(lel, displayList, indent + " ");
+			getDisplayList(lel, displayList, indent + ".");
 			
 		}	
 	}
