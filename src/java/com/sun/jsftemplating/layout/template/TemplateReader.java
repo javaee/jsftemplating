@@ -38,6 +38,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutMarkup;
 import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
 import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.util.LayoutElementUtil;
+import com.sun.jsftemplating.util.LogUtil;
 
 import java.io.IOException;
 import java.net.URL;
@@ -922,6 +923,16 @@ public class TemplateReader {
     }
 
     /**
+     *	<p> This is the {@link ProcessingContext} for
+     *	    {@link LayoutFacet}s.</p>
+     */
+    protected static class LayoutFacetContext extends BaseProcessingContext {
+// FIXME: May want to do some special processing to ensure a single
+// FIXME: UIComponent is used, create a panel group if not.
+    }
+
+
+    /**
      *	<p> This {@link CustomParserCommand} implementation processes event
      *	    declarations.</p>
      */
@@ -1134,12 +1145,40 @@ public class TemplateReader {
      */
     public static class FacetParserCommand implements CustomParserCommand {
 	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
-// FIXME: TBD...
-	    TemplateParser parser = env.getReader().getTemplateParser();
-	    String content = parser.readUntil('>', true).trim();
-	    if (content.endsWith("/")) {
-		env.getReader().popTag();  // Don't look for end tag
+	    // Get the facet id
+	    TemplateReader reader = env.getReader();
+	    TemplateParser parser = reader.getTemplateParser();
+	    String id = parser.readUntil('>', true).trim();
+
+	    // Check to see if this is a single tag
+	    boolean singleTag = false;
+	    if (id.endsWith("/")) {
+		reader.popTag();  // Don't look for end tag
+		id = id.substring(0, id.length() - 1).trim();
+		singleTag = true;
 	    }
+
+	    // Create new LayoutFacet
+	    LayoutElement parent = env.getParent();
+	    LayoutFacet facetElt =  new LayoutFacet(parent, id);
+	    parent.addChildLayoutElement(facetElt);
+
+	    // Determine if this is a facet place holder (i.e. we're defining
+	    // a renderer w/ a facet), or if it is a facet value to set on a
+	    // containing component.
+	    boolean isRendered =
+		!LayoutElementUtil.isNestedLayoutComponent(facetElt);
+	    facetElt.setRendered(isRendered);
+	    if (singleTag && !isRendered && LogUtil.configEnabled()) {
+		LogUtil.config((Object) this, "Facet (" + id
+		    + ") specified, however, there is no component specified "
+		    + "inside this facet.  Nothing will happen.");
+	    }
+
+	    // Process child LayoutElements (recurse)
+	    reader.process(
+		TemplateReader.LAYOUT_FACET_CONTEXT, facetElt,
+		LayoutElementUtil.isLayoutComponentChild(facetElt));
 	}
     }
 
@@ -1171,6 +1210,9 @@ public class TemplateReader {
 
     public static final ProcessingContext LAYOUT_COMPONENT_CONTEXT	=
 	new LayoutComponentContext();
+
+    public static final ProcessingContext LAYOUT_FACET_CONTEXT	=
+	new LayoutFacetContext();
 
     public static final ProcessingContext LAYOUT_IF_CONTEXT		=
 	new LayoutIfContext();
