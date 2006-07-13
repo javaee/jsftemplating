@@ -144,7 +144,8 @@ public class HandlerDefinition implements java.io.Serializable {
 		clzz = Class.forName(_methodClass);
 	    } catch (ClassNotFoundException ex) {
 		throw new RuntimeException("'"
-			+ _methodClass + "' not found!", ex);
+			+ _methodClass + "' not found for method '"
+			+ _methodName + "'!", ex);
 	    }
 
 	    // Find the method on the class

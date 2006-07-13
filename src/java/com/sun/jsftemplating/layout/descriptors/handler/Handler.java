@@ -315,6 +315,12 @@ public class Handler implements java.io.Serializable {
 	HandlerDefinition handlerDef = getHandlerDefinition();
 	Method method = handlerDef.getHandlerMethod();
 
+// Consider changing this to do the following:
+// 1 - Invoke 'this' handler
+// 2 - Check HandlerContext for a flag (TBD) indicating child handlers should be
+// 	skipped
+// 3 - conditionally execute child handlers.
+// This would provide a means to implement conditional handlers.
 	// First execute all child handlers
 	// A copy is provided of the HandlerContext to avoid the Handler being
 	// changed before we execute this Handler.
