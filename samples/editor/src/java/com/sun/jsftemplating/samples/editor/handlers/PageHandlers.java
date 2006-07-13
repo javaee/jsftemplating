@@ -49,6 +49,7 @@ import com.sun.jsftemplating.util.Util;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -221,7 +222,9 @@ public class PageHandlers {
 		+ "'!  Is this application is directory deployed?");
 	}
 	try {
-	    new TemplateWriter(new FileOutputStream(path)).write(ld);
+	    OutputStream os = new FileOutputStream(path);
+	    new TemplateWriter(os).write(ld);
+	    os.close();
 	} catch (FileNotFoundException ex2) {
 	    throw new IllegalArgumentException("Unable to write '" + path
 		+ "'!  Is this application is directory deployed and "
