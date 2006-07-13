@@ -28,7 +28,8 @@
 			  /> 
 			</event>
 			<rave:dropDown id="parentName" value="#{requestScope.parentName}" items="#{requestScope.opts}" required="#{true}" label="Parent" >
-			</rave:dropDown>                                					
+			</rave:dropDown>
+		        <rave:button id="refresh" primary="#{false}" text="Refresh" />
 		       </rave:property>
 		    <!-- Component Type -->           
 		      <rave:property id="propertyComponentType"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}">
