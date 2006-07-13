@@ -1,11 +1,6 @@
 <!DOCTYPE layoutDefinition SYSTEM "/jsftemplating/layout.dtd" >
 
 <layoutDefinition>
-
-    <types>
-	<componentType id="staticText" factoryClass="com.sun.enterprise.tools.jsfext.component.factory.basic.StaticTextFactory" />
-    </types>
-
     <layout>
 	<!--
 	    NOTE: Children and properties of the internal href are added via
