@@ -24,35 +24,16 @@
 <!DOCTYPE layoutDefinition SYSTEM "/jsftemplating/layout.dtd" >
 
 <layoutDefinition>
-
-    <handlers>
-	<!-- General Handlers -->
-	<!--
-	<handlerDefinition id="setAttribute" className="com.sun.enterprise.tools.jsfext.event.handlers.basic.UtilHandlers" methodName="setAttribute">
-
-	    <inputDef name="key" type="String" required="true" />
-	    <inputDef name="value" type="Object" required="true" />
-	</handlerDefinition>
-	-->
-	<handlerDefinition id="getChildren" className="com.sun.enterprise.tools.jsfext.event.handlers.basic.ComponentHandlers" methodName="getChildren">
-	    <inputDef name="parent" type="javax.faces.component.UIComponent" required="true" />
-	    <outputDef name="children" type="java.util.List" />
-	    <outputDef name="size" type="java.lang.Integer" />
-	</handlerDefinition>
-    </handlers>
-
     <layout>
 <!--
 	<event type="decode">
 	    <handler id="queueCommand" />
 	</event>
 -->
-	<staticText>HelloWorld - START</staticText>
-
 	<!-- Loop through children -->
 	<foreach key="_child" list="$attribute{_children}">
 	    <event type="beforeLoop">
-		<handler id="getChildren">
+		<handler id="getUIComponentChildren">
 		    <input name="parent" value="$this{component}" />
 		    <outputMapping outputName="children" targetType="attribute" targetKey="_children" />
 		</handler>
@@ -60,8 +41,5 @@
 	    <!-- Add the child component -->
 	    <component type="staticText" id="#{_child.id}" />
 	</foreach>
-
-	<staticText>HelloWorld - END</staticText>
     </layout>
-
 </layoutDefinition>
