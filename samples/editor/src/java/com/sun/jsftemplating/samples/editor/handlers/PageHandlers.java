@@ -51,6 +51,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -63,13 +64,13 @@ import javax.faces.context.FacesContext;
  * @author Administrator
  */
 public class PageHandlers {
-    
+
     /**
      * Creates a new instance of PageHandlers
      */
     public PageHandlers() {
     }
-    
+
     /**
      *	<p>
      *	</p>
@@ -105,9 +106,12 @@ public class PageHandlers {
 
 	// Walk the LD
 	LayoutElement parent = ld;
-	String id = null;
-	StringTokenizer tok =
-	    new StringTokenizer((String) context.getInputValue("parent"), ":");
+	String id = (String) context.getInputValue("parent");
+	if (id == null) {
+// FIXME: report an error?
+	    return;
+	}
+	StringTokenizer tok = new StringTokenizer(id, ":");
 	while (tok.hasMoreTokens()) {
 	    id = tok.nextToken();
 	    parent = parent.getChildLayoutElement(id);
@@ -170,7 +174,7 @@ public class PageHandlers {
     }
 
     /**
-     *	<p> This handler returns a list of display names and the corresponding 
+     *	<p> This handler returns a list of display names and the corresponding
      *      list of qualified names of all the LayoutComponents in a given page.</p>
      *
      *	<p> Input value: "pageName" -- Type: <code>java.lang.String</code></p>
@@ -233,36 +237,37 @@ public class PageHandlers {
 	    throw new RuntimeException(ex2);
 	}
     }
-    
+
     private static List<String> getDisplayList(LayoutElement le, List displayList, String indent) {
+	Formatter printf = null;
 	List list = le.getChildLayoutElements();
-	
 	for (int i=0; i < list.size(); i++) {
-		LayoutElement lel = (LayoutElement)list.get(i);
-		if (lel instanceof LayoutComponent) {
-			displayList.add(indent + lel.getUnevaluatedId());
-			getDisplayList(lel, displayList, indent + ".");
-			
-		}	
+	    LayoutElement lel = (LayoutElement)list.get(i);
+	    if (lel instanceof LayoutComponent) {
+		printf = new Formatter();
+		printf.format("%-25s",
+		    ((LayoutComponent) lel).getType().getId());
+		displayList.add(printf.toString().replaceAll(" ", "&nbsp;") + indent + lel.getUnevaluatedId());
+		getDisplayList(lel, displayList, indent + "&nbsp;");
+	    }	
 	}
 
 	return displayList;
     }
-    
+
     private static List<String> getQualifiedList(LayoutElement le, List qualifiedList, String longName) {
 	List list = le.getChildLayoutElements();
 	
 	for (int i=0; i < list.size(); i++) {
-		LayoutElement lel = (LayoutElement)list.get(i);
-		if (lel instanceof LayoutComponent) {
-			qualifiedList.add(longName + lel.getUnevaluatedId());
-			getQualifiedList(lel, qualifiedList, longName + lel.getUnevaluatedId() + ":");
-			
-		}	
+	    LayoutElement lel = (LayoutElement)list.get(i);
+	    if (lel instanceof LayoutComponent) {
+		qualifiedList.add(longName + lel.getUnevaluatedId());
+		getQualifiedList(lel, qualifiedList, longName + lel.getUnevaluatedId() + ":");
+	    }	
 	}
-        
+
 	return qualifiedList;
     }
 
-    
+
 }
