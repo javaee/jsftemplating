@@ -32,12 +32,16 @@ import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.el.PageSessionResolver;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
+import com.sun.jsftemplating.resource.ResourceBundleManager;
+import com.sun.jsftemplating.util.Util;
 
 import java.io.Serializable;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
@@ -316,5 +320,44 @@ public class ScopeHandlers {
 	    printf.format("%-20s = %s\n", entry.getKey(), entry.getValue());
 	}
 	return printf.toString();
+    }
+
+    /**
+     *	<p> This handler sets a <code>ResourceBundle</code> in desired request
+     *	    attribute.  It requires "key" as an input value, which is the
+     *	    request attribute key used to store the bundle.  "bundle" is also
+     *	    required as an input value, this is the fully qualified name of the
+     *	    bundle.  Optionally the "locale" can be specified, if not the web
+     *	    user's locale will be used.  It returns "bundle" as an output
+     *	    value.</p>
+     *
+     *	@param	context	The {@link HandlerContext}.
+     */
+    @Handler(id="setResourceBundle",
+	input={
+	    @HandlerInput(name="key", type=String.class, required=true),
+	    @HandlerInput(name="bundle", type=String.class, required=true),
+	    @HandlerInput(name="locale", type=Locale.class, required=false)},
+	output={
+	    @HandlerOutput(name="bundle", type=ResourceBundle.class)})
+    public static void setResourceBundle(HandlerContext context) {
+	// Get the input
+	String key = (String) context.getInputValue("key");
+	String name = (String) context.getInputValue("bundle");
+	Locale locale = (Locale) context.getInputValue("locale");
+	if (locale == null) {
+	    locale = Util.getLocale(FacesContext.getCurrentInstance());
+	}
+
+	// Get the ResourceBundle
+	ResourceBundle bundle =
+	    ResourceBundleManager.getInstance().getBundle(name, locale);
+
+	// Store it in the Request Map
+	context.getFacesContext().getExternalContext().
+	    getRequestMap().put(key, bundle);
+
+	// Return it
+	context.setOutputValue("bundle", bundle);
     }
 }
