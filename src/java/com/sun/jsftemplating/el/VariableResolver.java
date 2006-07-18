@@ -41,6 +41,7 @@ import java.util.Stack;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
@@ -777,14 +778,24 @@ public class VariableResolver {
 	    String value = key.substring(0, separator);
 
 	    // Get the Resource Bundle
-	    ResourceBundle bundle = (ResourceBundle) ctx.getExternalContext().
-		    getRequestMap().get(value);
+	    Object obj = ctx.getExternalContext().getRequestMap().get(value);
 
-	    // Make sure we have the bundle
-	    if (bundle == null) {
-		// Should we throw an exception?  For now just return the key
+	    // Make sure we have something...
+	    if (obj == null) {
+		// Only check the request scope b/c the RB is request specific
+		// Should we throw an exception? For now return the key
 		return key;
 	    }
+
+	    // Make sure its a RB
+	    if (!(obj instanceof ResourceBundle)) {
+		throw new IllegalArgumentException("\"" + value + "\" in: \""
+		    + SUB_START + RESOURCE + SUB_TYPE_DELIM + key + SUB_END
+		    + "\" did not resolve to a ResourceBundle!  Found: \""
+		    + obj.getClass().getName() + "\" instead.  (toString(): "
+		    + obj.toString() + ")");
+	    }
+	    ResourceBundle bundle = (ResourceBundle) obj;
 
 	    // Return the result of the ResouceBundle lookup
 	    value = bundle.getString(key.substring(separator + 1));
