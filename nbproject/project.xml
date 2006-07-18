@@ -110,7 +110,7 @@
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/1">
             <compilation-unit>
                 <package-root>src/java</package-root>
-                <classpath mode="compile">../as90/publish/glassfishPE/lib/javaee.jar</classpath>
+                <classpath mode="compile">${glassfish-home}/lib/javaee.jar</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
@@ -119,7 +119,7 @@
             </compilation-unit>
             <compilation-unit>
                 <package-root>samples/editor/src/java</package-root>
-                <classpath mode="compile">dist/jsftemplating-dt.jar:dist/jsftemplating.jar:samples/lib/dataprovider.jar:samples/lib/defaulttheme.jar:samples/lib/webui.jar</classpath>
+                <classpath mode="compile">dist/jsftemplating-dt.jar:dist/jsftemplating.jar:samples/lib/dataprovider.jar:samples/lib/defaulttheme.jar:samples/lib/webui.jar:${glassfish-home}/lib/javaee.jar</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
