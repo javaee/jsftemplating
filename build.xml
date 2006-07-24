@@ -41,8 +41,7 @@
     </path>
 
 	<target name="init" description="sets ant to execute">
-		<property name="glassfish.home" value="/export/home/s1aspe0711" />
-		<condition property="execute.ant" value="${glassfish.home}/lib/ant/bin/ant.bat" else="${glassfish.home}/lib/ant/bin/ant">
+		<condition property="execute.ant" value="lib/ant/bin/ant.bat" else="lib/ant/bin/ant">
 			<os family="windows" />
 		</condition>
 		<echo message="${execute.ant}" />
