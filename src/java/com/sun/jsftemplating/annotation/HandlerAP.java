@@ -201,6 +201,11 @@ public class HandlerAP implements AnnotationProcessor {
      *	    are no trailing returns.</p>
      */
     private String formatComment(String javadoc) {
+	if (javadoc == null) {
+	    // No JavaDoc, return
+	    return "";
+	}
+
 	// First trim off extra stuff
 	int idx = javadoc.indexOf("@param");
 	if (idx > -1) {
