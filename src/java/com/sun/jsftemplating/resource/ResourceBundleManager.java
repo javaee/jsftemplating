@@ -105,7 +105,7 @@ public class ResourceBundleManager {
 	ResourceBundle bundle = getCachedBundle(baseName, locale);
 	if (bundle == null) {
 	    bundle = ResourceBundle.getBundle(baseName, locale,
-		    Util.getClassLoader(this));
+		    Util.getClassLoader(baseName));
 	    if (bundle != null) {
 		addCachedBundle(baseName, locale, bundle);
 	    }
