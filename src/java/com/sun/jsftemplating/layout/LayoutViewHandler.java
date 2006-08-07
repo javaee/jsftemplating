@@ -343,9 +343,9 @@ ex.printStackTrace();
 		context.getApplication().getStateManager();
 	    SerializedView view = stateManager.saveSerializedView(context);
 
-	    if (stateManager.isSavingStateInClient(context)) {
-		stateManager.writeState(context, view);
-	    }
+	    // New versions of JSF 1.2 changed the contract so that state is
+	    // always written (client and server state saving)
+	    stateManager.writeState(context, view);
 	}
     }
 
