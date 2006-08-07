@@ -24,6 +24,7 @@ package com.sun.jsftemplating.layout.descriptors;
 
 import com.sun.jsftemplating.component.TemplateComponent;
 import com.sun.jsftemplating.layout.event.DecodeEvent;
+import com.sun.jsftemplating.layout.event.InitPageEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -270,12 +271,57 @@ public class LayoutDefinition extends LayoutElementBase {
 	dispatchHandlers(context, DECODE, new DecodeEvent(component));
     }
 
+    /**
+     *	<p> This method is responsible for dispatching the "initPage" handlers
+     *	    associated with this <code>LayoutDefinition</code> (if any).</p>
+     *
+     *	<p> The <code>source</code> passed in should be the
+     *	    <code>UIViewRoot</code>.  However, it is expected that in most
+     *	    cases this will not be available.  It is reasonable for this to be
+     *	    <code>null</code>.</p>
+     *
+     *	<p> If the <code>FacesContext</code> provided is null, this method
+     *	    will simply return.</p>
+     */
+    public void dispatchInitPageHandlers(FacesContext ctx, Object source) {
+	// Sanity check (this may happen if invoked outside JSF)...
+	if (ctx == null) {
+	    // Do nothing...
+	    return;
+	}
+
+	// Check to see if we need to do this...
+	Map<String, Object> reqAtts = ctx.getExternalContext().getRequestMap();
+	String key = INIT_PAGE_PREFIX + getId(ctx, (UIComponent) null);
+	if (reqAtts.get(key) != null) {
+	    // We've already init'd this request, do nothing
+	    return;
+	}
+
+	// Dispatch Handlers
+	dispatchHandlers(ctx, INIT_PAGE, new InitPageEvent(source));
+
+	// Flag request as having processed the initPage handlers
+	reqAtts.put(key, Boolean.TRUE);
+    }
+
+
+    /**
+     *
+     */
+    private static final String INIT_PAGE_PREFIX =  "__ip";
 
     /**
      *	<p> This is the "type" for handlers to be invoked to handle "decode"
      *	    functionality for this element.</p>
      */
      public static final String DECODE =	"decode";
+
+    /**
+     *	<p> This is the "type" for handlers to be invoked to handle "initPage"
+     *	    functionality for this element.</p>
+     */
+     public static final String INIT_PAGE =	"initPage";
 
     /**
      *	<p> This is a hard-coded LayoutComponent type.  By default it
