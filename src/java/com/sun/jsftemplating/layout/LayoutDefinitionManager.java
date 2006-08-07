@@ -45,6 +45,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.faces.context.FacesContext;
+import javax.faces.component.UIComponent;
 
 
 /**
@@ -202,12 +203,17 @@ public abstract class LayoutDefinitionManager {
 
 	// Check to see if we already have it.
 	LayoutDefinition def = getCachedLayoutDefinition(key);
-	if (def != null) {
-	    return def;
+	if (def == null) {
+	    // Obtain the correct LDM, and get the LD
+	    def = getLayoutDefinitionManager(ctx, key).getLayoutDefinition(key);
+	} else {
+	    // In the case where we found a cached version,
+	    // ensure we invoke "initPage" handlers
+	    def.dispatchInitPageHandlers(ctx, def);
 	}
 
-	// Obtain the correct LDM, and get the LD
-	return getLayoutDefinitionManager(ctx, key).getLayoutDefinition(key);
+	// Return the LD
+	return def;
     }
 
 
