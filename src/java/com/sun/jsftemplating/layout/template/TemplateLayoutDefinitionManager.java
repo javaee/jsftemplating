@@ -29,6 +29,9 @@ import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.faces.context.FacesContext;
+import javax.faces.component.UIComponent;
+
 
 /**
  *  <p>	This class is a concrete implmentation of the abstract class
@@ -166,6 +169,11 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 	    // Cache the LayoutDefinition
 	    putCachedLayoutDefinition(key, ld);
 	}
+
+	// Dispatch "initPage" handlers
+	ld.dispatchInitPageHandlers(FacesContext.getCurrentInstance(), ld);
+
+	// Return the LayoutDefinition
 	return ld;
     }
 

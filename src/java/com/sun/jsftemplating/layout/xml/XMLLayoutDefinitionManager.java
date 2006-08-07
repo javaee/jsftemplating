@@ -34,6 +34,9 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
+import javax.faces.context.FacesContext;
+import javax.faces.component.UIComponent;
+
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -164,6 +167,11 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 	    // Cache the LayoutDefinition
 	    putCachedLayoutDefinition(key, ld);
 	}
+
+	// Dispatch "initPage" handlers
+	ld.dispatchInitPageHandlers(FacesContext.getCurrentInstance(), ld);
+
+	// Return the LayoutDefinition
 	return ld;
     }
 
