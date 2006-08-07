@@ -54,12 +54,25 @@ public class EventObjectBase extends EventObject implements UIComponentHolder {
     }
 
     /**
+     *	<p> This constructor should only be used when a
+     *	    <code>UIComponent</code> is not available.</p>
+     */
+    protected EventObjectBase(Object obj) {
+	super(obj);
+    }
+
+    /**
      *	<P> This method returns the <code>UIComponent</code> held by the
-     *	    <code>Object</code> implementing this interface.</p>
+     *	    <code>Object</code> implementing this interface (or null if the
+     *	    event source is not a UIComponent).</p>
      *
      *	@return The <code>UIComponent</code>.
      */
     public UIComponent getUIComponent() {
-	return (UIComponent) getSource();
+	Object source = getSource();
+	if (source instanceof UIComponent) {
+	    return (UIComponent) getSource();
+	}
+	return null;
     }
 }
