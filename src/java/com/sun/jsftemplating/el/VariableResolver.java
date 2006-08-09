@@ -68,6 +68,7 @@ import javax.faces.event.ActionEvent;
  *	<li>{@link #HAS_PROPERTY} -- {@link HasPropertyDataSource}</li>
  *	<li>{@link #INT} -- {@link IntDataSource}</li>
  *	<li>{@link #METHOD_BINDING} -- {@link MethodBindingDataSource}</li>
+ *	<li>{@link #OPTION} -- {@link OptionDataSource}</li>
  *	<li>{@link #PROPERTY} -- {@link PropertyDataSource}</li>
  *	<li>{@link #REQUEST_PARAMETER} --
  *		{@link RequestParameterDataSource}</li>
@@ -359,6 +360,38 @@ public class VariableResolver {
 	public Object getValue(FacesContext ctx, LayoutElement desc,
 		UIComponent component, String key) {
 	    return ctx.getExternalContext().getRequestMap().get(key);
+	}
+    }
+
+    /**
+     *	<p> This {@link VariableResolver.DataSource} provides access to
+     *	    "option" values that are set on a {@link LayoutComponent}.  It
+     *	    uses the data portion of the substitution String as a key to the
+     *	    {@link LayoutComponent}'s options.  If a value is not found, it
+     *	    will walk up the LayoutComponent's parents looking for a defined
+     *	    value.</p>
+     */
+    public static class OptionDataSource implements DataSource {
+	/**
+	 *  <p>	See class JavaDoc.</p>
+	 *
+	 *  @param  ctx		The <code>FacesContext</code>
+	 *  @param  desc	The <code>LayoutElement</code>
+	 *  @param  component	The <code>UIComponent</code>
+	 *  @param  key		The key used to obtain information from this
+	 *			<code>DataSource</code>.
+	 *
+	 *  @return The value resolved from key. (null) if not found.
+	 */
+	public Object getValue(FacesContext ctx, LayoutElement desc, UIComponent component, String key) {
+	    Object value = null;
+	    while ((value == null) && (desc != null)) {
+		if (desc instanceof LayoutComponent) {
+		    value = ((LayoutComponent) desc).getEvaluatedOption(ctx, key, component);
+		}
+		desc = desc.getParent();
+	    }
+	    return value;
 	}
     }
 
@@ -1154,6 +1187,12 @@ public class VariableResolver {
     public static final String	    ATTRIBUTE		= "attribute";
 
     /**
+     *	<p> Defines "option" in $option{...}.  This allows you to obtain an
+     *	    "option" that is defined in a {@link LayoutComponent}.</p>
+     */
+    public static final String	    OPTION		= "option";
+
+    /**
      *	<p> Defines "pageSession" in $pageSession{...}.  This allows you to
      *	    retrieve a PageSession attribute.</p>
     public static final String	    PAGE_SESSION	= "pageSession";
@@ -1258,8 +1297,9 @@ public class VariableResolver {
     // Static initializer to setup DataSources
     static {
 	AttributeDataSource attrDS = new AttributeDataSource();
-	dataSourceMap.put(ATTRIBUTE, attrDS);
 	dataSourceMap.put("", attrDS);
+	dataSourceMap.put(ATTRIBUTE, attrDS);
+	dataSourceMap.put(OPTION, new OptionDataSource());
 //	dataSourceMap.put(PAGE_SESSION, new PageSessionDataSource());
 	dataSourceMap.put(PROPERTY, new PropertyDataSource());
 	dataSourceMap.put(HAS_PROPERTY, new HasPropertyDataSource());
