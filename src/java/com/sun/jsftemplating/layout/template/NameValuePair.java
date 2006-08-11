@@ -34,17 +34,20 @@ import java.util.LinkedList;
 
 
 /**
- *  <p> This class is used to represent NVP information.  This
- *      information consists of 2 or 3 parts.  If this is a simple Name
- *      Value Pair, it will contain a Name and a Value.  If it is an NVP
- *      that is used to map a return value, then it also contains a
- *      <code>target</code> as well (which should be set to "session" or
- *      "attribute").  All of these values are Strings.</p>
+ *  <p> This class is used to represent NVP information.  This information
+ *	consists of 2 or 3 parts.  If this is a simple Name Value Pair, it will
+ *	contain a <code>name</code> and a <code>value</code>.  If it is an NVP
+ *	that is used to map a return value, then it also contains a
+ *	<code>target</code> as well (which should be set to "session" or
+ *	"attribute").  <code>name</code> and <code>target</code> contain
+ *	<code>String</code> values.  The <code>value</code> property contains
+ *	an <code>Object</code> value because it may be a <code>String</code>,
+ *	<code>java.util.List</code>, or an <code>array[]</code>. </p>
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class NameValuePair {
-    public NameValuePair(String name, String value, String target) {
+    public NameValuePair(String name, Object value, String target) {
 	_name = name;
 	_value = value;
 	_target = target;
@@ -60,7 +63,7 @@ public class NameValuePair {
     /**
      *	<p> Value accessor.</p>
      */
-    public String getValue() {
+    public Object getValue() {
 	return _value;
     }
 
@@ -86,6 +89,6 @@ public class NameValuePair {
     }
 
     private String _name = null;
-    private String _value = null;
+    private Object _value = null;
     private String _target = null;
 }

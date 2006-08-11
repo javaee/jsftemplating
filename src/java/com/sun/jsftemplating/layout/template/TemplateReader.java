@@ -339,12 +339,16 @@ public class TemplateReader {
 		break;
 	    }
 	    parser.unread(ch);
+// FIXME: An Illegal argument exception may be thrown, in this case the
+// FIXME: component name is not available and is hard to find.  Catch this
+// FIXME: error here and add more information so the stack trace is readable.
 	    nvp = parser.getNVP();
 	    if (nvp.getName().equals(ID_ATTRIBUTE)) {
-		// Found id...
-		id = nvp.getValue();
+		// Found id... (id must be a String, not an array / List)
+		id = nvp.getValue().toString();
 	    } else if (nvp.getName().equals(OVERWRITE_ATTRIBUTE)) {
-		overwrite = nvp.getValue();
+		// Found overwrite... (must be a String, not an array / List)
+		overwrite = nvp.getValue().toString();
 	    } else {
 		// Found other parameter...
 		nvps.add(nvp);
@@ -996,8 +1000,9 @@ public class TemplateReader {
 		    target = nvp.getTarget();
 		    if (target != null) {
 			// We have an OutputMapping
+			// NOTE: 'value' must be a String for an OutputMapping
 			handler.setOutputMapping(
-			    nvp.getName(), nvp.getValue(), target);
+			    nvp.getName(), nvp.getValue().toString(), target);
 		    } else {
 			// We have an Input
 			handler.setInputValue(nvp.getName(), nvp.getValue());

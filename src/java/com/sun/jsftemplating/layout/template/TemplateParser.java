@@ -31,6 +31,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 
@@ -170,79 +172,125 @@ public class TemplateParser {
 		"'=' or ':' missing for Name Value Pair: '" + name + "'!");
 	}
 
+	// Skip whitespace...
+	skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
+
 	// Check for '>' character (means we're mapping an output value)
+	Object value = null;
 	String target = null;
 	int endingChar = -1;
 	next = nextChar();
-	if (next == '>') {
-	    // We are mapping an output value, this should look like:
-	    //	    keyName => $attribute{attKey}
-	    //	    keyName => $session{sessionKey}
+	switch (next) {
+	    case '>':
+		// We are mapping an output value, this should look like:
+		//	    keyName => $attribute{attKey}
+		//	    keyName => $session{sessionKey}
 
-	    // First skip any whitespace after the '>'
-	    skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
+		// First skip any whitespace after the '>'
+		skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
 
-	    // Next Make sure we have a '$' character
-	    next = nextChar();
-	    if (next != '$') {
-		throw new IllegalArgumentException(
-		    "'$' missing for Name Value Pair named: '" + name
-		    + "=>'!  This NVP appears to be a mapping expression, and "
-		    + "therefor requires one of these formats:\n\t" + name
-		    + " => $attribute{attKey}\nor:\n\t" + name
-		    + " => $session{sessionKey}");
-	    }
+		// Next Make sure we have a '$' character
+		next = nextChar();
+		if (next != '$') {
+		    throw new IllegalArgumentException(
+			"'$' missing for Name Value Pair named: '" + name
+			+ "=>'!  This NVP appears to be a mapping expression, and "
+			+ "therefor requires one of these formats:\n\t" + name
+			+ " => $attribute{attKey}\nor:\n\t" + name
+			+ " => $session{sessionKey}");
+		}
 
-	    // Next look for "attribute" or "session"
-	    target = readToken();
-	    if (!target.equals("attribute") && !target.equals("session")) {
-		throw new IllegalArgumentException(
-		    "'attribute' or 'session' type is missing for Name Value "
-		    + "Pair named: '" + name + "=>$'!  This NVP appears to "
-		    + "be a mapping expression, and therefor requires one of "
-		    + "these formats:\n\t" + name
-		    + " => $attribute{attKey}\nor:\n\t" + name
-		    + " => $session{sessionKey}");
-	    }
+		// Next look for "attribute" or "session"
+		target = readToken();
+		if (!target.equals("attribute") && !target.equals("session")) {
+		    throw new IllegalArgumentException(
+			"'attribute' or 'session' type is missing for Name Value "
+			+ "Pair named: '" + name + "=>$'!  This NVP appears to "
+			+ "be a mapping expression, and therefor requires one of "
+			+ "these formats:\n\t" + name
+			+ " => $attribute{attKey}\nor:\n\t" + name
+			+ " => $session{sessionKey}");
+		}
 
-	    // Skip whitespace again...
-	    skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
+		// Skip whitespace again...
+		skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
 
-	    // Now look for '{'
-	    next = nextChar();
-	    if (next != '{') {
-		throw new IllegalArgumentException(
-		    "'{' missing for Name Value Pair: '" + name
-		    + "=>$" + target
-		    + "'!  The format must resemble the following:\n\t"
-		    + name + " => $" + target + "{key}");
-	    }
-	    endingChar = '}';
-	} else {
-	    // We read past the '=', backup before we skip whitespace
-	    unread(next);
-
-	    // Regular NVP, skip whitespace...
-	    skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
-
-	    // Now look for starting quote...
-	    next = nextChar();
-	    if ((next != '"') && (next != '\'')) {
+		// Now look for '{'
+		next = nextChar();
+		if (next != '{') {
+		    throw new IllegalArgumentException(
+			"'{' missing for Name Value Pair: '" + name
+			+ "=>$" + target
+			+ "'!  The format must resemble the following:\n\t"
+			+ name + " => $" + target + "{key}");
+		}
+		endingChar = '}';
+		break;
+	    case '{':
+		// NVP w/ a List as its value
+		value = parseList('}');
+		break;
+	    case '[':
+		// NVP w/ an array as its value
+		value = parseList(']').toArray();
+		break;
+	    case '"':
+	    case '\'':
+		// Regular NVP...
+		// Set the ending character to the same type of quote
+		endingChar = next;
+		break;
+	    default:
+		// Now look for starting quote...
 		throw new IllegalArgumentException("Name Value Pair named '"
 		    + name + "' is missing single or double quotes enclosing "
 		    + "its value.  It must follow one of these formats:\n\t"
 		    + name + "=\"value\"\nor:\n\t" + name + "='value'");
-	    }
-
-	    // Set the ending character to the same type of quote
-	    endingChar = next;
 	}
 
 	// Read the value
-	String value = readUntil(endingChar, false);
+	if (endingChar != -1) {
+	    value = readUntil(endingChar, false);
+	}
 
 	// Create the NVP object and return it
 	return new NameValuePair(name, value, target);
+    }
+
+    /**
+     *	<p> This method processes lists of String values in the format:</p>
+     *
+     *	<p><code>"value1", "value2", ...}</code></p>
+     *
+     *	<p> The content inside the Strings can be anything.  The double quotes
+     *	    can also be single quotes. The separators can be spaces, tabs, new
+     *	    lines, commas, semi-colons, or colons.  The terminating character
+     *	    is whatever is passed in for <code>endChar</code> (shown as '}'
+     *	    above).</p>
+     */
+    protected List parseList(int endChar) throws IOException {
+	List<String> list = new ArrayList<String>();
+	skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
+	int next = nextChar();
+	while (next != endChar) {
+	    // We should start w/ a single or double quote
+	    if ((next != '\'') && (next != '"')) {
+		throw new IllegalArgumentException(
+		    "A List or array is missing a single or double quotes "
+		    + "enclosing one or more of its values.  It must "
+		    + "follow:\n\tname={\"value\", ...}\nor:\n\tname={'value',"
+		    + "...}\n\n[]'s may be used in place of {}'s to specify "
+		    + "an array instead of a List.");
+	    }
+
+	    // Read everything inside the quotes
+	    list.add(readUntil(next, true));
+
+	    // Skip white space (including the seperators ",:;");
+	    skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE + ",:;");
+	    next = nextChar();
+	}
+	return list;
     }
 
     /**
@@ -290,7 +338,7 @@ public class TemplateParser {
      *	    buffer, so the next character to be read will be the character
      *	    following the given character.</p>
      *
-     *	@param	skipComments	<code>true</code> to ignore comments.
+     *	@param	skipComments	<code>true</code> to strip comments.
      */
     public String readUntil(int endingChar, boolean skipComments) throws IOException {
 	if (skipComments) {
