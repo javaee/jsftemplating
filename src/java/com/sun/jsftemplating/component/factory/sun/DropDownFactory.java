@@ -42,7 +42,7 @@ import javax.faces.context.FacesContext;
  *	UIComponent</code>.</p>
  *
  *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
- *	id for this factory is: "sun:jumpDropDown".</p>
+ *	id for this factory is: "sun:dropDown".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
