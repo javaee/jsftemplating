@@ -94,6 +94,9 @@
 	</copy>
 	<jar jarfile="${jsftemplating.jar}" update="true">
             <fileset dir="${build}" includes="**/*.class, **/*.map" />
+            <zipfileset dir="${src}"
+			prefix="" 
+			includes="**/*.properties" />
             <zipfileset dir="${jsftemplating.home}/layout/pages"
 			prefix="" 
 			includes="*.jsf" />
