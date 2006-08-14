@@ -24,6 +24,7 @@ package com.sun.jsftemplating.el;
 
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.util.LogUtil;
 
 //import com.sun.web.ui.util.ClientSniffer;
 //import com.sun.web.ui.util.ThemeUtilities;
@@ -35,6 +36,7 @@ import java.util.Iterator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Stack;
 
@@ -831,7 +833,14 @@ public class VariableResolver {
 	    ResourceBundle bundle = (ResourceBundle) obj;
 
 	    // Return the result of the ResouceBundle lookup
-	    value = bundle.getString(key.substring(separator + 1));
+	    try {
+		value = bundle.getString(key.substring(separator + 1));
+	    } catch (MissingResourceException ex) {
+// FIXME: I18N...
+		LogUtil.info("Unable to find key: "
+			+ key.substring(separator + 1), ex);
+		value = key;
+	    }
 	    if (value == null) {
 		value = key;
 	    }
