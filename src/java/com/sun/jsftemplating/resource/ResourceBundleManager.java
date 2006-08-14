@@ -27,6 +27,7 @@ import com.sun.jsftemplating.util.Util;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 
@@ -104,8 +105,15 @@ public class ResourceBundleManager {
     public ResourceBundle getBundle(String baseName, Locale locale) {
 	ResourceBundle bundle = getCachedBundle(baseName, locale);
 	if (bundle == null) {
-	    bundle = ResourceBundle.getBundle(baseName, locale,
+	    try {
+		bundle = ResourceBundle.getBundle(baseName, locale,
 		    Util.getClassLoader(baseName));
+	    } catch (MissingResourceException ex) {
+		// Use System.out.println b/c we don't want infinite loop and
+		// we're too lazy to do more...
+		System.out.println("Can't find bundle: " + baseName);
+		ex.printStackTrace();
+	    }
 	    if (bundle != null) {
 		addCachedBundle(baseName, locale, bundle);
 	    }
