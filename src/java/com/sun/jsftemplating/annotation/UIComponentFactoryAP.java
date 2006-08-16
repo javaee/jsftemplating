@@ -23,19 +23,14 @@
 package com.sun.jsftemplating.annotation;
 
 import com.sun.mirror.apt.AnnotationProcessor;
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
 import com.sun.mirror.declaration.AnnotationValue;
-import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.AnnotationMirror;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
