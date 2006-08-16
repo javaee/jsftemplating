@@ -29,6 +29,7 @@ import com.sun.jsftemplating.layout.event.AfterCreateEvent;
 import com.sun.jsftemplating.layout.event.AfterEncodeEvent;
 import com.sun.jsftemplating.layout.event.BeforeCreateEvent;
 import com.sun.jsftemplating.layout.event.BeforeEncodeEvent;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -289,19 +290,20 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
      *
      *	@return	A List of Handlers.
      */
-    public List getHandlers(String type, UIComponent comp) {
+    public List<Handler> getHandlers(String type, UIComponent comp) {
 	// 1st get list of handlers for definition of this LayoutElement
-	List handlers = null;
+	List<Handler> handlers = null;
 
 	// Now check to see if there are any on the UIComponent
 	if (comp != null) {
-	    List instHandlers = (List) comp.getAttributes().get(type);
+	    List<Handler> instHandlers =
+		    (List<Handler>) comp.getAttributes().get(type);
 	    if ((instHandlers != null) && (instHandlers.size() > 0)) {
 		// NOTE: Copy b/c this is <i>instance</i> + static
 		// Add the UIComponent instance handlers
-		handlers = new ArrayList(instHandlers);
+		handlers = new ArrayList<Handler>(instHandlers);
 
-		List defHandlers = getHandlers(type);
+		List<Handler> defHandlers = getHandlers(type);
 		if (defHandlers != null) {
 		    // Add the LayoutElement "definition" handlers, if any
 		    handlers.addAll(getHandlers(type));

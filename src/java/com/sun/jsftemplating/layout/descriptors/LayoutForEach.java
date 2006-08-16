@@ -105,7 +105,7 @@ public class LayoutForEach extends LayoutComponent {
      *
      *	return	The <code>List</code> of objects to iterate over
      */
-    protected List getList(FacesContext context) {
+    protected List<Object> getList(FacesContext context) {
 // FIXME: Pass in the UIComponent
 	Object value = resolveValue(
 		context, (UIComponent) null, (String) getOption("list"));
@@ -125,7 +125,7 @@ public class LayoutForEach extends LayoutComponent {
 	}
 
 	// Return the List
-	return (List) value;
+	return (List<Object>) value;
     }
 
     /**
@@ -144,7 +144,7 @@ public class LayoutForEach extends LayoutComponent {
      *	@param	index	    The current index number of the <code>Object</code>
      */
     protected void setCurrentForEachValue(FacesContext context, Object value, int index, String key) {
-	Map map = context.getExternalContext().getRequestMap();
+	Map<String, Object> map = context.getExternalContext().getRequestMap();
 	map.put(key, value);
 	map.put(key + "-index", "" + index);
     }
@@ -167,7 +167,7 @@ public class LayoutForEach extends LayoutComponent {
 
 	// Iterate over the values in the list and perform the requested
 	// action(s) per the body of the LayoutForEach
-	Iterator it = getList(context).iterator();
+	Iterator<Object> it = getList(context).iterator();
 	for (int index = 1; it.hasNext(); index++) {
 	    setCurrentForEachValue(context, it.next(), index, key);
 	    super.encode(context, component);

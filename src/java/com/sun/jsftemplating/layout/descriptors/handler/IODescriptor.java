@@ -173,7 +173,7 @@ public class IODescriptor implements java.io.Serializable {
     }
 
     //	The following provides some basic pre-defined types
-    private static Map		_typeMap		= new HashMap();
+    private static Map<String, Class> _typeMap = new HashMap<String, Class>();
     static {
 	_typeMap.put("boolean", Boolean.class);
 	_typeMap.put("Boolean", Boolean.class);

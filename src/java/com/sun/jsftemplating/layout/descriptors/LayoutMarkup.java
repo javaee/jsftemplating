@@ -55,7 +55,7 @@ public class LayoutMarkup extends LayoutElementBase implements LayoutElement {
 
 	// Add "afterEncode" handler to close the tag (if there is a close tag)
 	if (!type.equals(TYPE_OPEN)) {
-	    ArrayList handlers = new ArrayList();
+	    ArrayList<Handler> handlers = new ArrayList<Handler>();
 	    handlers.add(afterEncodeHandler);
 	    setHandlers(AFTER_ENCODE, handlers);
 	}

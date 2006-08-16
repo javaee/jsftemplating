@@ -25,6 +25,7 @@ package com.sun.jsftemplating.layout.descriptors;
 import com.sun.jsftemplating.component.TemplateComponent;
 import com.sun.jsftemplating.layout.event.DecodeEvent;
 import com.sun.jsftemplating.layout.event.InitPageEvent;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -229,9 +230,9 @@ public class LayoutDefinition extends LayoutElementBase {
      *
      *	@return	A List of Handlers.
      */
-    public List getHandlers(String type, UIComponent comp) {
+    public List<Handler> getHandlers(String type, UIComponent comp) {
 	// 1st get list of handlers for definition of this LayoutElement
-	List handlers = null;
+	List<Handler> handlers = null;
 
 	// Now check to see if there are any on the UIComponent (NOTE: We do
 	// not pull off handlers if the parent is a TemplateComponent b/c it
@@ -239,13 +240,14 @@ public class LayoutDefinition extends LayoutElementBase {
 	// its LayoutComponent.  If we do it here, it will happen 2x.)
 	if ((comp != null)
 		&& (!(comp.getParent() instanceof TemplateComponent))) {
-	    List instHandlers = (List) comp.getAttributes().get(type);
+	    List<Handler> instHandlers =
+		    (List<Handler>) comp.getAttributes().get(type);
 	    if ((instHandlers != null) && (instHandlers.size() > 0)) {
 		// NOTE: Copy b/c this is <i>instance</i> + static
 		// Add the UIComponent instance handlers
-		handlers = new ArrayList(instHandlers);
+		handlers = new ArrayList<Handler>(instHandlers);
 
-		List defHandlers = getHandlers(type);
+		List<Handler> defHandlers = getHandlers(type);
 		if (defHandlers != null) {
 		    // Add the LayoutElement "definition" handlers, if any
 		    handlers.addAll(getHandlers(type));

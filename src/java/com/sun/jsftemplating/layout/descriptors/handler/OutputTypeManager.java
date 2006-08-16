@@ -95,8 +95,7 @@ public class OutputTypeManager {
 	    return _defaultInstance;
 	}
 
-	OutputTypeManager ldm =
-	    (OutputTypeManager) _instances.get(className);
+	OutputTypeManager ldm = _instances.get(className);
 	if (ldm == null) {
 	    try {
 		ldm = (OutputTypeManager) Class.forName(className).
@@ -144,12 +143,12 @@ public class OutputTypeManager {
     /**
      *	<p> Cache different subclasses. </p>
      */
-    private static Map _outputTypes = new HashMap(8);
+    private static Map<String, OutputType> _outputTypes = new HashMap<String, OutputType>(8);
 
     /**
      *	<p> Cache different subclasses. </p>
      */
-    private static Map _instances = new HashMap(2);
+    private static Map<String, OutputTypeManager>_instances = new HashMap<String, OutputTypeManager>(2);
 
     /**
      *	<p> This is the default implementation of the OutputTypeManager, which
