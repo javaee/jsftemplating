@@ -85,7 +85,7 @@ public class ResourceBundleManager {
     protected void addCachedBundle(String baseName, Locale locale, ResourceBundle bundle) {
 	// Copy the old Map to prevent changing a Map while someone is
 	// accessing it.
-	Map map = new HashMap(_cache);
+	Map<String, ResourceBundle> map = new HashMap<String, ResourceBundle>(_cache);
 
 	// Add the new bundle
 	map.put(getCacheKey(baseName, locale), bundle);
@@ -148,5 +148,5 @@ public class ResourceBundleManager {
     /**
      *	<p> The cache of <code>ResourceBundle</code>s.</p>
      */
-    private Map	_cache = new HashMap();
+    private Map<String, ResourceBundle>	_cache = new HashMap<String, ResourceBundle>();
 }

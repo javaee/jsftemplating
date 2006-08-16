@@ -65,7 +65,7 @@ public class ResourceBundleFactory implements ResourceFactory {
 	// Get the id from the descriptor, this is the id that should be used
 	// to store it in the RequestScope
 	String id = descriptor.getId();
-	Map map = context.getExternalContext().getRequestMap();
+	Map<String, Object> map = context.getExternalContext().getRequestMap();
 	if (map.containsKey(id)) {
 	    // It is already set
 	    return map.get(id);

@@ -180,7 +180,7 @@ public class TypeConverter extends Object {
      * in this map may be arbitrary objects, but the values are of type
      * <code>TypeConversion</code>.
      */
-    public static Map getTypeConversions() {
+    public static Map<Object, TypeConversion> getTypeConversions() {
 	return typeConversions;
     }
 
@@ -250,7 +250,7 @@ public class TypeConverter extends Object {
 	}
 
 	// Find the type conversion object
-	TypeConversion conversion = (TypeConversion) typeConversions.get(typeKey);
+	TypeConversion conversion = typeConversions.get(typeKey);
 
 	// Convert the value
 	if (conversion != null) {
@@ -893,7 +893,8 @@ public class TypeConverter extends Object {
     // Class variables
     /////////////////////////////////////////////////////////////////////////
 
-    private static final Map typeConversions = new HashMap();
+    private static final Map<Object, TypeConversion> typeConversions =
+	    new HashMap<Object, TypeConversion>();
 
     /** Logical type name "null" */
     public static final String TYPE_UNKNOWN = "null";

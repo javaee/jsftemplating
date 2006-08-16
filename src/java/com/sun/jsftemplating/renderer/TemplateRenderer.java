@@ -87,10 +87,10 @@ public class TemplateRenderer extends Renderer {
 	LayoutDefinition def = tempComp.getLayoutDefinition(context);
 
 	// First ensure that our Resources are available
-	Iterator it = def.getResources().iterator();
+	Iterator<Resource> it = def.getResources().iterator();
 	Resource resource = null;
 	while (it.hasNext()) {
-	    resource = (Resource) it.next();
+	    resource = it.next();
 	    // Just calling getResource() puts it in the Request scope
 	    resource.getFactory().getResource(context, resource);
 	}
