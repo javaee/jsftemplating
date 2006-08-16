@@ -385,7 +385,7 @@ public abstract class LayoutElementBase implements LayoutElement {
      *	    will be ignored) and should contain entries that map to
      *	    <code>List</code>s of {@link Handler}s.
      */
-    public void setHandlersByTypeMap(Map map) {
+    public void setHandlersByTypeMap(Map<String, List<Handler>> map) {
 	if (map != null) {
 	    _handlersByType = map;
 	}
@@ -402,7 +402,7 @@ public abstract class LayoutElementBase implements LayoutElement {
      */
     public List<Handler> getHandlers(String type, UIComponent comp) {
 	// 1st get list of handlers for definition of this LayoutElement
-	List handlers = getHandlers(type);
+	List<Handler> handlers = getHandlers(type);
 
 	// NOTE: At this point, very few types should support "instance"
 	// NOTE: handlers (LayoutComponent, LayoutDefinition, more??).  To
@@ -421,7 +421,7 @@ public abstract class LayoutElementBase implements LayoutElement {
      *	@param	type	    The String type for the List of {@link Handler}s
      *	@param	handlers    The List of {@link Handler}s
      */
-    public void setHandlers(String type, List handlers) {
+    public void setHandlers(String type, List<Handler> handlers) {
 	_handlersByType.put(type, handlers);
     }
 
@@ -461,10 +461,9 @@ public abstract class LayoutElementBase implements LayoutElement {
 	if (component.getRendersChildren()) {
 	    component.encodeChildren(context);
 	} else {
-	    Iterator i = component.getChildren().iterator();
-	    while (i.hasNext()) {
-		UIComponent child = (UIComponent) i.next();
-		encodeChild(context, child);
+	    Iterator<UIComponent> it = component.getChildren().iterator();
+	    while (it.hasNext()) {
+		encodeChild(context, it.next());
 	    }
 	}
 	component.encodeEnd(context);
@@ -485,7 +484,7 @@ public abstract class LayoutElementBase implements LayoutElement {
      *	<p> <code>Map</code> containing <code>List</code>s of
      *	    {@link Handler}s.</p>
      */
-    private Map<String, List<Handler>> _handlersByType = new HashMap();
+    private Map<String, List<Handler>> _handlersByType = new HashMap<String, List<Handler>>();
 
     /**
      *	This stores the id for the LayoutElement
