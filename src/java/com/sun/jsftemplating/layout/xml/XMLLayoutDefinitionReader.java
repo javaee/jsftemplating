@@ -200,11 +200,11 @@ public class XMLLayoutDefinitionReader {
 	LayoutDefinition ld = new LayoutDefinition("");
 
 	// Do "resources" first, they are defined at the top of the document
-	List childElements = getChildElements(node, RESOURCES_ELEMENT);
-	Iterator it = childElements.iterator();
+	List<Node> childElements = getChildElements(node, RESOURCES_ELEMENT);
+	Iterator<Node> it = childElements.iterator();
 	if (it.hasNext()) {
 	    // Found the RESOURCES_ELEMENT, there is at most 1
-	    addResources(ld, (Node) it.next());
+	    addResources(ld, it.next());
 	}
 
 	// Do "types", they need to be defined before parsing the layout
@@ -212,7 +212,7 @@ public class XMLLayoutDefinitionReader {
 	it = childElements.iterator();
 	if (it.hasNext()) {
 	    // Found the TYPES_ELEMENT, there is at most 1
-	    addTypes(ld, (Node) it.next());
+	    addTypes(ld, it.next());
 	}
 
 	// Do "handlers" next, they need to be defined before parsing the layout
@@ -220,7 +220,7 @@ public class XMLLayoutDefinitionReader {
 	it = childElements.iterator();
 	if (it.hasNext()) {
 	    // Found the HANDLERS_ELEMENT, there is at most 1
-	    cacheHandlerDefs((Node) it.next());
+	    cacheHandlerDefs(it.next());
 	}
 
 	// Look to see if there is an EVENT_ELEMENT defined
@@ -229,12 +229,11 @@ public class XMLLayoutDefinitionReader {
 	if (it.hasNext()) {
 	    // Found the EVENT_ELEMENT, there is at most 1
 	    // Get the event type
-	    Node eventNode = (Node) it.next();
-	    String type = (String) getAttributes(eventNode).
-		get(TYPE_ATTRIBUTE);
+	    Node eventNode = it.next();
+	    String type = getAttributes(eventNode).get(TYPE_ATTRIBUTE);
 
 	    // Set the Handlers for the given event type (name)
-	    List handlers = ld.getHandlers(type);
+	    List<Handler> handlers = ld.getHandlers(type);
 	    ld.setHandlers(type, getHandlers(eventNode, handlers));
 	}
 
@@ -243,7 +242,7 @@ public class XMLLayoutDefinitionReader {
 	it = childElements.iterator();
 	if (it.hasNext()) {
 	    // Found the LAYOUT_ELEMENT, there is only 1
-	    addChildLayoutElements(ld, (Node) it.next());
+	    addChildLayoutElements(ld, it.next());
 	} else {
 	    throw new RuntimeException("A '" + LAYOUT_ELEMENT
 		    + "' element is required in the XML document!");
@@ -263,12 +262,12 @@ public class XMLLayoutDefinitionReader {
      */
     private void addResources(LayoutDefinition ld, Node node) {
 	// Get the child nodes
-	Iterator it = getChildElements(node, RESOURCE_ELEMENT).iterator();
+	Iterator<Node> it = getChildElements(node, RESOURCE_ELEMENT).iterator();
 
 	// Walk children (we only care about RESOURCE_ELEMENT)
 	while (it.hasNext()) {
 	    // Found a RESOURCE_ELEMENT
-	    ld.addResource(createResource((Node) it.next()));
+	    ld.addResource(createResource(it.next()));
 	}
     }
 
@@ -283,12 +282,10 @@ public class XMLLayoutDefinitionReader {
      */
     private Resource createResource(Node node) {
 	// Pull off the attributes
-	Map attributes = getAttributes(node);
-	String id = (String) attributes.get(ID_ATTRIBUTE);
-	String extraInfo =
-	    (String) attributes.get(EXTRA_INFO_ATTRIBUTE);
-	String factoryClass =
-	    (String) attributes.get(FACTORY_CLASS_ATTRIBUTE);
+	Map<String, String> attributes = getAttributes(node);
+	String id = attributes.get(ID_ATTRIBUTE);
+	String extraInfo = attributes.get(EXTRA_INFO_ATTRIBUTE);
+	String factoryClass = attributes.get(FACTORY_CLASS_ATTRIBUTE);
 
 	// Make sure required values are present
 	if ((factoryClass == null) || (id == null) || (extraInfo == null)
@@ -315,11 +312,12 @@ public class XMLLayoutDefinitionReader {
      */
     private void addTypes(LayoutDefinition ld, Node node) {
 	// Get the child nodes
-	Iterator it = getChildElements(node, COMPONENT_TYPE_ELEMENT).iterator();
+	Iterator<Node> it =
+		getChildElements(node, COMPONENT_TYPE_ELEMENT).iterator();
 
 	// Walk the COMPONENT_TYPE_ELEMENT elements
 	while (it.hasNext()) {
-	    ld.addComponentType(createComponentType((Node) it.next()));
+	    ld.addComponentType(createComponentType(it.next()));
 	}
     }
 
@@ -334,10 +332,9 @@ public class XMLLayoutDefinitionReader {
      */
     private ComponentType createComponentType(Node node) {
 	// Pull off the attributes
-	Map attributes = getAttributes(node);
-	String id = (String) attributes.get(ID_ATTRIBUTE);
-	String factoryClass =
-	    (String) attributes.get(FACTORY_CLASS_ATTRIBUTE);
+	Map<String, String> attributes = getAttributes(node);
+	String id = attributes.get(ID_ATTRIBUTE);
+	String factoryClass = attributes.get(FACTORY_CLASS_ATTRIBUTE);
 
 	// Make sure required values are present
 	if ((factoryClass == null) || (id == null)
@@ -363,11 +360,11 @@ public class XMLLayoutDefinitionReader {
 	HandlerDefinition def = null;
 
 	// Get the child nodes
-	Iterator it =
-	    getChildElements(node, HANDLER_DEFINITION_ELEMENT).iterator();
+	Iterator<Node> it =
+		getChildElements(node, HANDLER_DEFINITION_ELEMENT).iterator();
 	while (it.hasNext()) {
 	    // Found a HANDLER_DEFINITION_ELEMENT, cache it
-	    def = createHandlerDefinition((Node) it.next());
+	    def = createHandlerDefinition(it.next());
 	    _handlerDefs.put(def.getId(), def);
 	}
     }
@@ -392,18 +389,17 @@ public class XMLLayoutDefinitionReader {
     public HandlerDefinition createHandlerDefinition(Node node) {
 
 	// Create he HandlerDefinition
-	Map attributes = getAttributes(node);
-	String value = (String) attributes.get(ID_ATTRIBUTE);
+	Map<String, String> attributes = getAttributes(node);
+	String value = attributes.get(ID_ATTRIBUTE);
 	HandlerDefinition hd = new HandlerDefinition(value);
 
 // hd.setDescription(_description)
 
 	// Check for a className
-	value = (String) attributes.get(CLASS_NAME_ATTRIBUTE);
+	value = attributes.get(CLASS_NAME_ATTRIBUTE);
 	if ((value != null) && !value.equals("")) {
 	    // Found a className, now get the methodName
-	    String tmpStr =
-		(String) attributes.get(METHOD_NAME_ATTRIBUTE);
+	    String tmpStr = attributes.get(METHOD_NAME_ATTRIBUTE);
 	    if ((tmpStr == null) || tmpStr.equals("")) {
 		throw new IllegalArgumentException("You must provide a '"
 			+ METHOD_NAME_ATTRIBUTE + "' attribute on the '"
@@ -417,7 +413,7 @@ public class XMLLayoutDefinitionReader {
 	// Add child handlers to this HandlerDefinition.  This allows a
 	// HandlerDefinition to define handlers that should be invoked before
 	// the method defined by this handler definition is invoked.
-	List handlers = hd.getChildHandlers();
+	List<Handler> handlers = hd.getChildHandlers();
 	hd.setChildHandlers(getHandlers(node, handlers));
 
 	// Add InputDef objects to the HandlerDefinition
@@ -445,17 +441,17 @@ public class XMLLayoutDefinitionReader {
      *	@return	A <code>List</code> of {@link Handler} objects, empty
      *		<code>List</code> if no {@link Handler}s found
      */
-    private List getHandlers(Node node, List handlers) {
+    private List<Handler> getHandlers(Node node, List<Handler> handlers) {
 	// Get the child nodes
-	Iterator it = getChildElements(node, HANDLER_ELEMENT).iterator();
+	Iterator<Node> it = getChildElements(node, HANDLER_ELEMENT).iterator();
 
 	// Walk children (we only care about HANDLER_ELEMENT)
 	if (handlers == null) {
-	    handlers = new ArrayList();
+	    handlers = new ArrayList<Handler>();
 	}
 	while (it.hasNext()) {
 	    // Found a HANDLER_ELEMENT
-	    handlers.add(createHandler((Node) it.next()));
+	    handlers.add(createHandler(it.next()));
 	}
 
 	// Return the handlers
@@ -499,27 +495,26 @@ public class XMLLayoutDefinitionReader {
 	Handler handler =  new Handler(handlerDef);
 
 	// Add the inputs
-	Map attributes = null;
+	Map<String, String> attributes = null;
 	Node inputNode = null;
-	Iterator it = getChildElements(handlerNode, INPUT_ELEMENT).iterator();
+	Iterator<Node> it = getChildElements(handlerNode, INPUT_ELEMENT).iterator();
 	while (it.hasNext()) {
 	    // Processing an INPUT_ELEMENT
-	    inputNode = (Node) it.next();
+	    inputNode = it.next();
 	    attributes = getAttributes(inputNode);
-	    handler.setInputValue(
-		(String) attributes.get(NAME_ATTRIBUTE),
-		getValueFromNode(inputNode, attributes));
+	    handler.setInputValue(attributes.get(NAME_ATTRIBUTE),
+		    getValueFromNode(inputNode, attributes));
 	}
 
 	// Add the OutputMapping objects
 	it = getChildElements(handlerNode, OUTPUT_MAPPING_ELEMENT).iterator();
 	while (it.hasNext()) {
 	    // Processing an OUTPUT_MAPPING_ELEMENT
-	    attributes = getAttributes((Node) it.next());
+	    attributes = getAttributes(it.next());
 	    handler.setOutputMapping(
-		(String) attributes.get(OUTPUT_NAME_ATTRIBUTE),
-		(String) attributes.get(TARGET_KEY_ATTRIBUTE),
-		(String) attributes.get(TARGET_TYPE_ATTRIBUTE));
+		attributes.get(OUTPUT_NAME_ATTRIBUTE),
+		attributes.get(TARGET_KEY_ATTRIBUTE),
+		attributes.get(TARGET_TYPE_ATTRIBUTE));
 	}
 
 	// Return the newly created handler
@@ -559,12 +554,13 @@ public class XMLLayoutDefinitionReader {
      */
     private void addInputDefs(HandlerDefinition hd, Node hdNode) {
 	// Get the child nodes
-	Iterator it = getChildElements(hdNode, INPUT_DEF_ELEMENT).iterator();
+	Iterator<Node> it =
+		getChildElements(hdNode, INPUT_DEF_ELEMENT).iterator();
 
 	// Walk children (we only care about INPUT_DEF_ELEMENT)
 	while (it.hasNext()) {
 	    // Found a INPUT_DEF_ELEMENT
-	    hd.addInputDef(createIODescriptor((Node) it.next()));
+	    hd.addInputDef(createIODescriptor(it.next()));
 	}
     }
 
@@ -580,12 +576,13 @@ public class XMLLayoutDefinitionReader {
      */
     private void addOutputDefs(HandlerDefinition hd, Node hdNode) {
 	// Get the child nodes
-	Iterator it = getChildElements(hdNode, OUTPUT_DEF_ELEMENT).iterator();
+	Iterator<Node> it =
+		getChildElements(hdNode, OUTPUT_DEF_ELEMENT).iterator();
 
 	// Walk children (we only care about OUTPUT_DEF_ELEMENT)
 	while (it.hasNext()) {
 	    // Found a OUTPUT_DEF_ELEMENT
-	    hd.addOutputDef(createIODescriptor((Node) it.next()));
+	    hd.addOutputDef(createIODescriptor(it.next()));
 	}
     }
 
@@ -605,17 +602,17 @@ public class XMLLayoutDefinitionReader {
      */
     private IODescriptor createIODescriptor(Node node) {
 	// Get the attributes
-	Map attributes = getAttributes(node);
-	String name = (String) attributes.get(NAME_ATTRIBUTE);
+	Map<String, String> attributes = getAttributes(node);
+	String name = attributes.get(NAME_ATTRIBUTE);
 	if ((name == null) || name.equals("")) {
 	    throw new IllegalArgumentException("Name must be provided!");
 	}
-	String type = (String) attributes.get(TYPE_ATTRIBUTE);
+	String type = attributes.get(TYPE_ATTRIBUTE);
 	if ((type == null) || type.equals("")) {
 	    throw new IllegalArgumentException("Type must be provided!");
 	}
 	Object def = attributes.get(DEFAULT_ATTRIBUTE);
-	String req = (String) attributes.get(REQUIRED_ATTRIBUTE);
+	String req = attributes.get(REQUIRED_ATTRIBUTE);
 
 	// Create the IODescriptor
 	IODescriptor ioDesc = new IODescriptor(name, type);
@@ -637,7 +634,7 @@ public class XMLLayoutDefinitionReader {
      */
     private void addChildLayoutElements(LayoutElement layElt, Node node) {
 	// Get the child nodes
-	Iterator it = getChildElements(node).iterator();
+	Iterator<Node> it = getChildElements(node).iterator();
 
 	// Walk children (we care about IF_ELEMENT, ATTRIBUTE_ELEMENT,
 	// MARKUP_ELEMENT, FACET_ELEMENT, STATIC_TEXT_ELEMENT,
@@ -646,7 +643,7 @@ public class XMLLayoutDefinitionReader {
 	Node childNode = null;
 	String name = null;
 	while (it.hasNext()) {
-	    childNode = (Node) it.next();
+	    childNode = it.next();
 	    name = childNode.getNodeName();
 	    if (name.equalsIgnoreCase(IF_ELEMENT)) {
 		// Found a IF_ELEMENT
@@ -678,10 +675,9 @@ public class XMLLayoutDefinitionReader {
 	    } else if (name.equalsIgnoreCase(EVENT_ELEMENT)) {
 		// Found a EVENT_ELEMENT
 		// Get the event type
-		name = (String) getAttributes(childNode).
-		    get(TYPE_ATTRIBUTE);
+		name = getAttributes(childNode).get(TYPE_ATTRIBUTE);
 		// Set the Handlers for the given event type (name)
-		List handlers = layElt.getHandlers(name);
+		List<Handler> handlers = layElt.getHandlers(name);
 		layElt.setHandlers(name, getHandlers(childNode, handlers));
 	    } else if (name.equalsIgnoreCase(FOREACH_ELEMENT)) {
 		// Found a FOREACH_ELEMENT
@@ -808,8 +804,8 @@ public class XMLLayoutDefinitionReader {
      */
     private LayoutElement createLayoutAttribute(LayoutElement parent, Node node) {
 	// Pull off attributes...
-	Map attributes = getAttributes(node);
-	String name = (String) attributes.get(NAME_ATTRIBUTE);
+	Map<String, String> attributes = getAttributes(node);
+	String name = attributes.get(NAME_ATTRIBUTE);
 	if ((name == null) || (name.trim().equals(""))) {
 	    throw new RuntimeException("'" + NAME_ATTRIBUTE
 		    + "' attribute not found on '" + ATTRIBUTE_ELEMENT
@@ -829,8 +825,8 @@ public class XMLLayoutDefinitionReader {
 	    // Treat this as a LayoutComponent "option" instead of "attribute"
 	    addOption(comp, node);
 	} else {
-	    String value = (String) attributes.get(VALUE_ATTRIBUTE);
-	    String property = (String) attributes.get(PROPERTY_ATTRIBUTE);
+	    String value = attributes.get(VALUE_ATTRIBUTE);
+	    String property = attributes.get(PROPERTY_ATTRIBUTE);
 
 	    // Create new LayoutAttribute
 	    attributeElt = new LayoutAttribute(parent, name, value, property);
@@ -852,8 +848,8 @@ public class XMLLayoutDefinitionReader {
      */
     private LayoutElement createLayoutMarkup(LayoutElement parent, Node node) {
 	// Pull off attributes...
-	Map attributes = getAttributes(node);
-	String tag = (String) attributes.get(TAG_ATTRIBUTE);
+	Map<String, String> attributes = getAttributes(node);
+	String tag = attributes.get(TAG_ATTRIBUTE);
 	if ((tag == null) || (tag.trim().equals(""))) {
 	    throw new RuntimeException("'" + TAG_ATTRIBUTE
 		    + "' attribute not found on '" + MARKUP_ELEMENT
@@ -878,7 +874,7 @@ public class XMLLayoutDefinitionReader {
 	    addChildLayoutComponentChildren(markupComp, node);
 	} else {
 	    // Create new LayoutMarkup
-	    String type = (String) attributes.get(TYPE_ATTRIBUTE);
+	    String type = attributes.get(TYPE_ATTRIBUTE);
 	    markupElt =  new LayoutMarkup(parent, tag, type);
 
 	    // Add children...
@@ -939,9 +935,9 @@ public class XMLLayoutDefinitionReader {
      */
     private LayoutElement createLayoutComponent(LayoutElement parent, Node node) {
 	// Pull off attributes...
-	Map attributes = getAttributes(node);
-	String id = (String) attributes.get(ID_ATTRIBUTE);
-	String type = (String) attributes.get(TYPE_ATTRIBUTE);
+	Map<String, String> attributes = getAttributes(node);
+	String id = attributes.get(ID_ATTRIBUTE);
+	String type = attributes.get(TYPE_ATTRIBUTE);
 	if ((type == null) || (type.trim().equals(""))) {
 	    throw new RuntimeException("'" + TYPE_ATTRIBUTE
 		    + "' attribute not found on '" + COMPONENT_ELEMENT
@@ -953,7 +949,7 @@ public class XMLLayoutDefinitionReader {
 	    getComponentType(parent, type));
 
 	// Check for overwrite flag
-	String overwrite = (String) attributes.get(OVERWRITE_ATTRIBUTE);
+	String overwrite = attributes.get(OVERWRITE_ATTRIBUTE);
 	if ((overwrite != null) && (overwrite.length() > 0)) {
 	    component.setOverwrite(Boolean.valueOf(overwrite).booleanValue());
 	}
@@ -989,6 +985,7 @@ public class XMLLayoutDefinitionReader {
 		}
 		parent = parent.getParent();
 	    }
+
 	    // Set the facet name
 	    component.addOption(LayoutComponent.FACET_NAME, id);
 	}
@@ -1005,14 +1002,14 @@ public class XMLLayoutDefinitionReader {
      */
     private void addChildLayoutComponentChildren(LayoutComponent component, Node node) {
 	// Get the child nodes
-	Iterator it = getChildElements(node).iterator();
+	Iterator<Node> it = getChildElements(node).iterator();
 
 	// Walk children (we care about COMPONENT_ELEMENT, FACET_ELEMENT,
 	// OPTION_ELEMENT, EVENT_ELEMENT, MARKUP_ELEMENT, and EDIT_ELEMENT)
 	Node childNode = null;
 	String name = null;
 	while (it.hasNext()) {
-	    childNode = (Node) it.next();
+	    childNode = it.next();
 	    name = childNode.getNodeName();
 	    if (name.equalsIgnoreCase(COMPONENT_ELEMENT)) {
 		// Found a COMPONENT_ELEMENT
@@ -1028,11 +1025,10 @@ public class XMLLayoutDefinitionReader {
 	    } else if (name.equalsIgnoreCase(EVENT_ELEMENT)) {
 		// Found a EVENT_ELEMENT
 		// Get the event type
-		name = (String) getAttributes(childNode).
-		    get(TYPE_ATTRIBUTE);
+		name = getAttributes(childNode).get(TYPE_ATTRIBUTE);
 
 		// Set the Handlers for the given event type (name)
-		List handlers = component.getHandlers(name);
+		List<Handler> handlers = component.getHandlers(name);
 		component.setHandlers(name, getHandlers(childNode, handlers));
 	    } else if (name.equalsIgnoreCase(EDIT_ELEMENT)) {
 		// Found an EDIT_ELEMENT
@@ -1080,8 +1076,8 @@ public class XMLLayoutDefinitionReader {
 	parent = createEditPopupMenuLayoutComponent(parent, node);
 
 	// Pull off attributes...
-	Map attributes = getAttributes(node);
-	String id = (String) attributes.get(ID_ATTRIBUTE);
+	Map<String, String> attributes = getAttributes(node);
+	String id = attributes.get(ID_ATTRIBUTE);
 
 	// Create the LayoutComponent
 	ComponentType type = ensureEditAreaType(parent);
@@ -1107,8 +1103,8 @@ public class XMLLayoutDefinitionReader {
      */
     private LayoutElement createEditPopupMenuLayoutComponent(LayoutElement parent, Node node) {
 	// Pull off attributes...
-	Map attributes = getAttributes(node);
-	String id = (String) attributes.get(ID_ATTRIBUTE);
+	Map<String, String> attributes = getAttributes(node);
+	String id = attributes.get(ID_ATTRIBUTE);
 
 	// Create the LayoutComponent
 	ComponentType type = ensurePopupMenuType(parent);
@@ -1196,10 +1192,10 @@ public class XMLLayoutDefinitionReader {
      */
     private void addOption(LayoutComponent component, Node node) {
 	// Pull off the attributes
-	Map attributes = getAttributes(node);
+	Map<String, String> attributes = getAttributes(node);
 
 	// Get the name
-	String name = (String) attributes.get(NAME_ATTRIBUTE);
+	String name = attributes.get(NAME_ATTRIBUTE);
 	if ((name == null) || (name.trim().equals(""))) {
 	    throw new RuntimeException("'" + NAME_ATTRIBUTE
 		    + "' attribute not found on '" + OPTION_ELEMENT
@@ -1229,17 +1225,16 @@ public class XMLLayoutDefinitionReader {
      *	@return	The value (as a <code>String</code> or <code>List</code>), or
      *		<code>(null)</code> if not specified.
      */
-    private Object getValueFromNode(Node node, Map attributes) {
+    private Object getValueFromNode(Node node, Map<String, String> attributes) {
 	Object value = attributes.get(VALUE_ATTRIBUTE);
 	if (value == null) {
 	    // The value attribute may be null if multiple values are supplied.
 	    // Walk children (we only care about LIST_ELEMENT)
-	    List list = new ArrayList();
-	    Iterator it = getChildElements(node, LIST_ELEMENT).iterator();
+	    List<String> list = new ArrayList();
+	    Iterator<Node> it = getChildElements(node, LIST_ELEMENT).iterator();
 	    while (it.hasNext()) {
 		// Add a value to the List
-		list.add(getAttributes((Node) it.next()).
-		    get(VALUE_ATTRIBUTE));
+		list.add(getAttributes(it.next()).get(VALUE_ATTRIBUTE));
 	    }
 	    if (list.size() > 0) {
 		// Only use the list if it has values
@@ -1284,7 +1279,7 @@ public class XMLLayoutDefinitionReader {
      *	@return	<code>List</code> of child <code>Element</code>s found below
      *		the given <code>Node</code>.
      */
-    public List getChildElements(Node node) {
+    public List<Node> getChildElements(Node node) {
 	return getChildElements(node, null);
     }
 
@@ -1299,16 +1294,16 @@ public class XMLLayoutDefinitionReader {
      *	@return	List of child elements found below the given node matching
      *		the name (if provided).
      */
-    public List getChildElements(Node node, String name) {
+    public List<Node> getChildElements(Node node, String name) {
 	// Get the child nodes
 	NodeList nodes = node.getChildNodes();
 	if (nodes == null) {
 	    // No children, just return an empty List
-	    return new ArrayList(0);
+	    return new ArrayList<Node>(0);
 	}
 
 	// Create a new List to store the child Elements
-	List list = new ArrayList();
+	List<Node> list = new ArrayList<Node>();
 
 	// Add all the child Elements to the List
 	Node childNode = null;
@@ -1381,16 +1376,16 @@ public class XMLLayoutDefinitionReader {
      *	@return	<code>Map</code> of attributes found on the given
      *		<code>Node</code>.
      */
-    public Map getAttributes(Node node) {
+    public Map<String, String> getAttributes(Node node) {
 	// Get the attributes
 	NamedNodeMap attributes = node.getAttributes();
 	if ((attributes == null) || (attributes.getLength() == 0)) {
 	    // No attributes, just return an empty Map
-	    return new HashMap(0);
+	    return new HashMap<String, String>(0);
 	}
 
 	// Create a Map to contain the attributes
-	Map map = new HashMap();
+	Map<String, String> map = new HashMap<String, String>();
 
 	// Add all the attributes to the Map
 	Node attNode = null;

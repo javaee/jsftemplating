@@ -23,7 +23,9 @@
 package com.sun.jsftemplating.component.factory.tree;
 
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
@@ -143,7 +145,7 @@ public abstract class TreeAdaptorBase implements TreeAdaptor {
      *	    used). You must override this method in order to provide
      *	    facets.</p>
      */
-    public Map getFacets(Object nodeObject) {
+    public Map<String, UIComponent> getFacets(Object nodeObject) {
 	return null;
     }
 
@@ -161,9 +163,10 @@ public abstract class TreeAdaptorBase implements TreeAdaptor {
      *	<p> This implementation returns null.  This method must be overriden
      *	    to take advantage of this feature.</p>
      */
-    public Map getHandlersByType(Object nodeObject) {
+    public Map<String, List<Handler>> getHandlersByType(UIComponent comp, Object nodeObject) {
 	return null;
     }
+
 
     private Object	    _topNodeObject	= null;
     private LayoutComponent _layoutComponent	= null;

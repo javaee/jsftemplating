@@ -268,7 +268,7 @@ public class TemplateParser {
      *	    is whatever is passed in for <code>endChar</code> (shown as '}'
      *	    above).</p>
      */
-    protected List parseList(int endChar) throws IOException {
+    protected List<String> parseList(int endChar) throws IOException {
 	List<String> list = new ArrayList<String>();
 	skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
 	int next = nextChar();

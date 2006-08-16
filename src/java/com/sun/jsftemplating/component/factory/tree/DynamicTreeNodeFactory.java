@@ -24,10 +24,10 @@ package com.sun.jsftemplating.component.factory.tree;
 
 import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.ComponentUtil;
-import com.sun.jsftemplating.util.Util;
-
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.util.Util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -155,7 +155,7 @@ public class DynamicTreeNodeFactory extends ComponentFactoryBase {
 	String factoryClass = adaptor.getFactoryClass(currentObj);
 	// NOTE: Properties specify things such as:
 	//	 URL, Text, Image, Action, Expanded, ActionListener, etc.
-	Map props = adaptor.getFactoryOptions(currentObj);
+	Map<String, Object> props = adaptor.getFactoryOptions(currentObj);
 	Properties properties = Util.mapToProperties(props);
 
 	// Create TreeNode
@@ -175,9 +175,9 @@ public class DynamicTreeNodeFactory extends ComponentFactoryBase {
 	configureTreeNode(ctx, adaptor, node, currentObj);
 
 	// Walk TreeAdaptor and Create child TreeNodes
-	List children = adaptor.getChildTreeNodeObjects(currentObj);
+	List<Object> children = adaptor.getChildTreeNodeObjects(currentObj);
 	if (children != null) {
-	    Iterator it = children.iterator();
+	    Iterator<Object> it = children.iterator();
 	    while (it.hasNext()) {
 		currentObj = it.next();
 		// We can ignore the return value b/c the factory should
@@ -195,14 +195,14 @@ public class DynamicTreeNodeFactory extends ComponentFactoryBase {
      */
     protected void configureTreeNode(FacesContext ctx, TreeAdaptor adaptor, UIComponent treeNode, Object currentObj) {
 	// Add facets (such as "content" and "image")
-	Map facets = adaptor.getFacets(treeNode, currentObj);
-	Map treeNodeFacets = treeNode.getFacets();
+	Map<String, UIComponent> facets = adaptor.getFacets(treeNode, currentObj);
+	Map<String, UIComponent> treeNodeFacets = treeNode.getFacets();
 	if (facets != null) {
-	    Iterator it = facets.keySet().iterator();
+	    Iterator<String> it = facets.keySet().iterator();
 	    String facetName;
-	    Object facetValue;
+	    UIComponent facetValue;
 	    while (it.hasNext()) {
-		facetName = (String) it.next();
+		facetName = it.next();
 		facetValue = facets.get(facetName);
 		if (facetValue != null) {
 		    treeNodeFacets.put(facetName, facetValue);
@@ -211,16 +211,17 @@ public class DynamicTreeNodeFactory extends ComponentFactoryBase {
 	}
 
 	// Add instance handlers
-	Map handlersByType = adaptor.getHandlersByType(treeNode, currentObj);
+	Map<String, List<Handler>> handlersByType =
+	    adaptor.getHandlersByType(treeNode, currentObj);
 	if (handlersByType != null) {
-	    Iterator it = handlersByType.keySet().iterator();
+	    Iterator<String> it = handlersByType.keySet().iterator();
 	    if (it.hasNext()) {
 		String eventType = null;
-		Map compAttrs = treeNode.getAttributes();
+		Map<String, Object> compAttrs = treeNode.getAttributes();
 		while (it.hasNext()) {
 		    // Assign instance handlers to attribute for retrieval later
 		    //   (Retrieval must be explicit, see LayoutElementBase)
-		    eventType = (String) it.next();
+		    eventType = it.next();
 		    compAttrs.put(eventType, handlersByType.get(eventType));
 		}
 	    }

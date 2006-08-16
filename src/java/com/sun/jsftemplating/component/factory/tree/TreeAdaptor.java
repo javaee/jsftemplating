@@ -22,6 +22,8 @@
  */
 package com.sun.jsftemplating.component.factory.tree;
 
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +65,7 @@ public interface TreeAdaptor {
      *	<p> Returns child <code>TreeNode</code>s for the given
      *	    <code>TreeNode</code> model Object.</p>
      */
-    public List getChildTreeNodeObjects(Object nodeObject);
+    public List<Object> getChildTreeNodeObjects(Object nodeObject);
 
     /**
      *	<p> This method returns the <code>UIComponent</code> factory class
@@ -90,7 +92,7 @@ public interface TreeAdaptor {
      *
      *	<p> See Tree / TreeNode component documentation for more details.</p>
      */
-    public Map getFactoryOptions(Object nodeObject);
+    public Map<String, Object> getFactoryOptions(Object nodeObject);
 
     /**
      *	<p> This method returns the <code>id</code> for the given tree node
@@ -104,7 +106,7 @@ public interface TreeAdaptor {
      *	    model object.  Useful facets for the standard
      *	    <code>TreeNode</code> component are: "content" and "image".</p>
      */
-    public Map getFacets(UIComponent comp, Object nodeObject);
+    public Map<String, UIComponent> getFacets(UIComponent comp, Object nodeObject);
 
     /**
      *	<p> Advanced framework feature which provides better handling for
@@ -117,5 +119,5 @@ public interface TreeAdaptor {
      *	    to to the "event" in which the <code>Handler</code>s should be
      *	    invoked.</p>
      */
-    public Map getHandlersByType(UIComponent comp, Object nodeObject);
+    public Map<String, List<Handler>> getHandlersByType(UIComponent comp, Object nodeObject);
 }

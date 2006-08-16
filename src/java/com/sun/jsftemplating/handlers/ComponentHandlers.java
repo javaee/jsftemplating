@@ -71,7 +71,7 @@ public class ComponentHandlers {
 	    @HandlerOutput(name="size", type=Integer.class)})
     public static void getChildren(HandlerContext context) {
 	UIComponent parent = (UIComponent) context.getInputValue("parent");
-	List list = parent.getChildren();
+	List<UIComponent> list = parent.getChildren();
 	context.setOutputValue("children", list);
 	context.setOutputValue("size", new Integer(list.size()));
     }

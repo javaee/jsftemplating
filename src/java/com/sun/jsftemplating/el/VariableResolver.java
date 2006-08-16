@@ -206,7 +206,7 @@ public class VariableResolver {
 
 	    // Pull off the type...
 	    type = string.substring(startIndex + startTokenLen, delimIndex);
-	    DataSource ds = (DataSource) dataSourceMap.get(type);
+	    DataSource ds = dataSourceMap.get(type);
 	    if (ds == null) {
 		throw new IllegalArgumentException("Invalid type '" + type
 			+ "' in attribute value: '" + string + "'.");
@@ -276,10 +276,11 @@ public class VariableResolver {
 		VariableResolver.SUB_TYPE_DELIM,
 		VariableResolver.SUB_END);
 	} else if (value instanceof List) {
+// FIXME: Support arrays too!
 	    // Create a new List b/c invalid to change shared List
-	    List list = ((List) value);
+	    List<Object> list = ((List<Object>) value);
 	    int size = list.size();
-	    List newList = new ArrayList(size);
+	    List<Object> newList = new ArrayList<Object>(size);
 	    Iterator it = list.iterator();
 	    while (it.hasNext()) {
 		newList.add(VariableResolver.resolveVariables(
@@ -300,7 +301,7 @@ public class VariableResolver {
      *	@return	    The requested {@link VariableResolver.DataSource}
      */
     public static VariableResolver.DataSource getDataSource(String key) {
-	return (VariableResolver.DataSource) dataSourceMap.get(key);
+	return dataSourceMap.get(key);
     }
 
     /**
@@ -667,7 +668,7 @@ public class VariableResolver {
 	    if (value == null) {
 		// Not found, lets resolve it, duplicate the old Map to avoid
 		// sync problems
-		Map map = new HashMap(constantMap);
+		Map<String, Object> map = new HashMap<String, Object>(constantMap);
 		value = resolveValue(map, key);
 
 		// Replace the shared Map w/ this new one.
@@ -691,7 +692,7 @@ public class VariableResolver {
 	 *
 	 *  @return The value of the CONSTANT, or null if not found
 	 */
-	private Object resolveValue(Map map, String key) {
+	private Object resolveValue(Map<String, Object> map, String key) {
 	    int lastDot = key.lastIndexOf('.');
 	    if (lastDot == -1) {
 		throw new IllegalArgumentException("Unable to resolve '" + key
@@ -726,7 +727,7 @@ public class VariableResolver {
 	 *  @param  map	<code>Map</code> to store <code>cls</code>
 	 *  @param  cls	The <code>Class</code> to store in <code>map</code>
 	 */
-	private void addConstants(Map map, Class cls) {
+	private void addConstants(Map<String, Object> map, Class cls) {
 	    // Get the class name
 	    String className = cls.getName();
 
@@ -753,7 +754,7 @@ public class VariableResolver {
 	 *  This embedded Map caches constant value lookups.  It is static and
 	 *  is shared by all users.
 	 */
-	private static Map constantMap = new HashMap();
+	private static Map<String, Object> constantMap = new HashMap<String, Object>();
     }
 
     /**
@@ -1187,7 +1188,8 @@ public class VariableResolver {
      *	<p> Contains the {@link VariableResolver.DataSource}'s for
      *	    $&lt;type&gt;{&lt;variable&gt;} syntax.</p>
      */
-    private static Map dataSourceMap			= new HashMap();
+    private static Map<String, VariableResolver.DataSource> dataSourceMap =
+	    new HashMap<String, VariableResolver.DataSource>();
 
     /**
      *	<p> Defines "attribute" in $attribute{...}.  This allows you to

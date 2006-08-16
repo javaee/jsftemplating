@@ -143,10 +143,10 @@ ex.printStackTrace();
 
 	if (def != null) {
 	    // Ensure that our Resources are available
-	    Iterator it = def.getResources().iterator();
+	    Iterator<Resource> it = def.getResources().iterator();
 	    Resource resource = null;
 	    while (it.hasNext()) {
-		resource = (Resource) it.next();
+		resource = it.next();
 		// Just calling getResource() puts it in the Request scope
 		resource.getFactory().getResource(context, resource);
 	    }
@@ -267,9 +267,9 @@ ex.printStackTrace();
 	    comp.encodeChildren(context);
 	} else {
 	    UIComponent child = null;
-	    Iterator it = comp.getChildren().iterator();
+	    Iterator<UIComponent> it = comp.getChildren().iterator();
 	    while (it.hasNext()) {
-		child = (UIComponent) it.next();
+		child = it.next();
 		renderComponent(context, child);
 	    }
 	}

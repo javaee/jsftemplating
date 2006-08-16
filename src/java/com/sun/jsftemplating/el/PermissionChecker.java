@@ -354,7 +354,7 @@ public class PermissionChecker {
 		    + new String(arr) + "'.");
 	    }
 
-	    ArrayList arguments = new ArrayList();
+	    List<String> arguments = new ArrayList<String>();
 
 	    // Find the right Paren...
 	    while ((++idx < len) && (arr[idx] != RIGHT_PAREN)) {
@@ -401,7 +401,7 @@ public class PermissionChecker {
      */
     protected static Function getFunction(String functionName) {
 	// Get the Function class
-	Class functionClass = (Class) _functions.get(functionName);
+	Class functionClass = _functions.get(functionName);
 	if (functionClass == null) {
 	    return null;
 	}
@@ -488,7 +488,7 @@ public class PermissionChecker {
      */
     protected char [] generatePostfix(String infixStr) {
 	// Reset the _functionList
-	_functionList = new ArrayList();
+	_functionList = new ArrayList<Function>();
 
 	// Convert string to our parsable format
 	char[] result = preProcessString(infixStr);
@@ -562,7 +562,7 @@ public class PermissionChecker {
 	Stack result = new Stack();
 	result.push(FALSE_BOOLEAN_FUNCTION); // Default to false
 	boolean val1, val2;
-	Iterator it = _functionList.iterator();
+	Iterator<Function> it = _functionList.iterator();
 	Function func = null;
 
 	// Iterate through the postfix array
@@ -758,7 +758,7 @@ public class PermissionChecker {
     private String toString(char[] post) {
 	int len = post.length;
 	StringBuffer result = new StringBuffer("");
-	Iterator it = _functionList.iterator();
+	Iterator<Function> it = _functionList.iterator();
 
 	for (int idx = 0; idx < len; idx++) {
 	    switch (post[idx]) {
@@ -769,7 +769,7 @@ public class PermissionChecker {
 		    result.append(FALSE);
 		    break;
 		case FUNCTION_MARKER:
-		    result.append(((Function) it.next()).toString());
+		    result.append((it.next()).toString());
 		    break;
 		default:
 		    result.append(post[idx]);
@@ -815,13 +815,13 @@ public class PermissionChecker {
 	/**
 	 *  <p>	This method returns the List of arguments.</p>
 	 */
-	public List getArguments();
+	public List<String> getArguments();
 
 	/**
 	 *  <p>	This method is invoked be the PermissionChecker to set the
 	 *	arguments.</p>
 	 */
-	public void setArguments(List args);
+	public void setArguments(List<String> args);
 
 	/**
 	 *  <p>	This method is invoked by the PermissionCheck to evaluate the
@@ -854,14 +854,14 @@ public class PermissionChecker {
 	/**
 	 *  Not used.
 	 */
-	public List getArguments() {
+	public List<String> getArguments() {
 	    return null;
 	}
 
 	/**
 	 *  Not used.
 	 */
-	public void setArguments(List args) {
+	public void setArguments(List<String> args) {
 	}
 
 	/**
@@ -933,14 +933,14 @@ public class PermissionChecker {
 	/**
 	 *  <p> Not used.</p>
 	 */
-	public List getArguments() {
+	public List<String> getArguments() {
 	    return null;
 	}
 
 	/**
 	 *  <p> Not used.</p>
 	 */
-	public void setArguments(List args) {
+	public void setArguments(List<String> args) {
 	}
 
 	/**
@@ -1259,13 +1259,13 @@ public class PermissionChecker {
      *	<p> This is a Map of Class objects which are user-registered
      *	    functions.</p>
      */
-    private static Map _functions = new HashMap();
+    private static Map<String, Class> _functions = new HashMap<String, Class>();
 
     /**
      *	<p> This List holds the actual Function objects that correspond to the
      *	    'F' markers in the postfix string.</p>
      */
-    private List _functionList = null;
+    private List<Function> _functionList = null;
 
     /**
      *	<p> This List of functions maintains variableSubstitution Functions

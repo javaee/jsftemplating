@@ -28,6 +28,7 @@ import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -96,12 +97,12 @@ public class CommandActionListener implements ActionListener, Serializable {
 
 	// Look on the UIComponent for the CommandHandlers
 	LayoutElement desc = null;
-	List handlers = (List)
+	List<Handler> handlers = (List<Handler>)
 	    command.getAttributes().get(LayoutComponent.COMMAND);
 	if ((handlers != null) && (handlers.size() > 0)) {
 	    // This is needed for components that don't have corresponding
 	    // LayoutElements, it is also useful for dynamically defining
-	    // Handlers (advanced and not recommended unless you have  a good
+	    // Handlers (advanced and not recommended unless you have a good
 	    // reason).  May also happen if "id" for any component in
 	    // hierarchy is not a simple String.
 

@@ -639,7 +639,7 @@ public abstract class LayoutDefinitionManager {
      *
      *	<p> This method will find global resources by... FIXME: TBD...</p>
      */
-    public static List getGlobalResources() {
+    public static List<Resource> getGlobalResources() {
 // FIXME: TBD...
 	if (_globalResources == null) {
 	    _globalResources = new ArrayList<Resource>();

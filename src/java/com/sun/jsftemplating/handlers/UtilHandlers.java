@@ -139,7 +139,7 @@ public class UtilHandlers {
 	output={
 	    @HandlerOutput(name="iterator", type=Iterator.class)})
     public static void getIterator(HandlerContext context) {
-	List list = (List) context.getInputValue("list");
+	List<Object> list = (List<Object>) context.getInputValue("list");
 	context.setOutputValue("iterator", list.iterator());
     }
 
@@ -157,7 +157,7 @@ public class UtilHandlers {
 	output={
 	    @HandlerOutput(name="hasNext", type=Boolean.class)})
     public static void iteratorHasNext(HandlerContext context) {
-	Iterator it = (Iterator) context.getInputValue("iterator");
+	Iterator<Object> it = (Iterator<Object>) context.getInputValue("iterator");
 	context.setOutputValue("hasNext", Boolean.valueOf(it.hasNext()));
     }
 
@@ -175,7 +175,8 @@ public class UtilHandlers {
 	output={
 	    @HandlerOutput(name="next")})
     public static void iteratorNext(HandlerContext context) {
-	Iterator it = (Iterator) context.getInputValue("iterator");
+	Iterator<Object> it =
+		(Iterator<Object>) context.getInputValue("iterator");
 	context.setOutputValue("next", it.next());
     }
 
@@ -193,7 +194,7 @@ public class UtilHandlers {
 	    @HandlerOutput(name="result", type=List.class)})
     public static void createList(HandlerContext context) {
 	int size = ((Integer) context.getInputValue("size")).intValue();
-	List list = new ArrayList(size);
+	List<Object> list = new ArrayList<Object>(size);
 	for (int count = 0; count < size; count++) {
 	    list.add("");
 	}
