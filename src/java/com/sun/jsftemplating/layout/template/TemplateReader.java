@@ -149,7 +149,7 @@ public class TemplateReader {
 		get(TYPE_ATTRIBUTE);
 
 	    // Set the Handlers for the given event type (name)
-	    List handlers = ld.getHandlers(type);
+	    List<Handler> handlers = ld.getHandlers(type);
 	    ld.setHandlers(type, getHandlers(eventNode, handlers));
 	}
 */
@@ -431,78 +431,6 @@ public class TemplateReader {
 	}
     }
 
-
-    /**
-     *	<p> This method adds child <code>LayoutElement</code>s.</p>
-     *
-     *	@param	layElt	The parent <code>LayoutElment</code>.
-     */
-    private void addChildLayoutElements(LayoutElement layElt, boolean nested) {
-	/*
-	// Get the child nodes
-	Iterator it = getChildElements(node).iterator();
-
-	// Walk children (we care about IF_ELEMENT, ATTRIBUTE_ELEMENT,
-	// MARKUP_ELEMENT, FACET_ELEMENT, STATIC_TEXT_ELEMENT,
-	// COMPONENT_ELEMENT, EVENT_ELEMENT, FOREACH_ELEMENT, EDIT_ELEMENT, and
-	// WHILE_ELEMENT)
-	Node childNode = null;
-	String name = null;
-	while (it.hasNext()) {
-	    childNode = (Node) it.next();
-	    name = childNode.getNodeName();
-	    if (name.equalsIgnoreCase(IF_ELEMENT)) {
-		// Found a IF_ELEMENT
-		layElt.addChildLayoutElement(
-		    createLayoutIf(layElt, childNode));
-	    } else if (name.equalsIgnoreCase(ATTRIBUTE_ELEMENT)) {
-		// Found a ATTRIBUTE_ELEMENT
-		LayoutElement childElt =
-		    createLayoutAttribute(layElt, childNode);
-		if (childElt != null) {
-		    layElt.addChildLayoutElement(childElt);
-		}
-	    } else if (name.equalsIgnoreCase(MARKUP_ELEMENT)) {
-		// Found a MARKUP_ELEMENT
-		layElt.addChildLayoutElement(
-		    createLayoutMarkup(layElt, childNode));
-	    } else if (name.equalsIgnoreCase(FACET_ELEMENT)) {
-		// Found a FACET_ELEMENT
-		layElt.addChildLayoutElement(
-		    createLayoutFacet(layElt, childNode));
-	    } else if (name.equalsIgnoreCase(STATIC_TEXT_ELEMENT)) {
-		// Found a STATIC_TEXT_ELEMENT
-		layElt.addChildLayoutElement(
-		    createLayoutStaticText(layElt, childNode));
-	    } else if (name.equalsIgnoreCase(COMPONENT_ELEMENT)) {
-		// Found a COMPONENT_ELEMENT
-		layElt.addChildLayoutElement(
-		    createLayoutComponent(layElt, childNode));
-	    } else if (name.equalsIgnoreCase(EVENT_ELEMENT)) {
-		// Found a EVENT_ELEMENT
-		// Get the event type
-		name = (String) getAttributes(childNode).
-		    get(TYPE_ATTRIBUTE);
-		// Set the Handlers for the given event type (name)
-		List handlers = layElt.getHandlers(name);
-		layElt.setHandlers(name, getHandlers(childNode, handlers));
-	    } else if (name.equalsIgnoreCase(FOREACH_ELEMENT)) {
-		// Found a FOREACH_ELEMENT
-		layElt.addChildLayoutElement(
-		    createLayoutForEach(layElt, childNode));
-	    } else if (name.equalsIgnoreCase(WHILE_ELEMENT)) {
-		// Found a WHILE_ELEMENT
-		layElt.addChildLayoutElement(
-		    createLayoutWhile(layElt, childNode));
-	    } else {
-		throw new RuntimeException("Unknown Element Found: '"
-			+ childNode.getNodeName() + "' under '"
-			+ node.getNodeName() + "'.");
-	    }
-	}
-	*/
-    }
-
     /**
      *	<p> This method creates a new {@link LayoutForEach}
      *	    {@link LayoutElement}.</p>
@@ -663,136 +591,6 @@ public class TemplateReader {
      */
 
     /**
-     *	<p> This method is responsible for Creating a {@link LayoutFacet}
-     *	    {@link LayoutElement}.</p>
-     *
-     *	@param	parent	The parent {@link LayoutElement}.
-     *	@param	node	The {@link #FACET_ELEMENT} node to extract information
-     *			from when creating the {@link LayoutFacet}.
-     *
-     *	@return	The new {@link LayoutFacet} {@link LayoutElement}.
-    private LayoutElement createLayoutFacet(LayoutElement parent, Node node) {
-	// Pull off attributes...
-	// id
-	String id = (String) getAttributes(node).get(ID_ATTRIBUTE);
-	if ((id == null) || (id.trim().equals(""))) {
-	    throw new RuntimeException("'" + ID_ATTRIBUTE
-		    + "' attribute not found on '" + FACET_ELEMENT
-		    + "' Element!");
-	}
-
-	// Create new LayoutFacet
-	LayoutFacet facetElt =  new LayoutFacet(parent, id);
-
-	// Set isRendered
-	String rendered = (String) getAttributes(node).get(RENDERED_ATTRIBUTE);
-	boolean isRendered = true;
-	if ((rendered == null) || rendered.trim().equals("")
-		|| rendered.equals(AUTO_RENDERED)) {
-	    // Automatically determine if this LayoutFacet should be rendered
-	    isRendered = !LayoutElementUtil.isNestedLayoutComponent(facetElt);
-	} else {
-	    isRendered = Boolean.getBoolean(rendered);
-	}
-	facetElt.setRendered(isRendered);
-
-	// Add children...
-	addChildLayoutElements(facetElt, node);
-
-	// Return the LayoutFacet
-	return facetElt;
-    }
-     */
-
-    /**
-     *
-    private void addChildLayoutComponentChildren(LayoutComponent component, Node node) {
-	// Get the child nodes
-	Iterator it = getChildElements(node).iterator();
-
-	// Walk children (we care about COMPONENT_ELEMENT, FACET_ELEMENT,
-	// OPTION_ELEMENT, EVENT_ELEMENT, MARKUP_ELEMENT, and EDIT_ELEMENT)
-	Node childNode = null;
-	String name = null;
-	while (it.hasNext()) {
-	    childNode = (Node) it.next();
-	    name = childNode.getNodeName();
-	    if (name.equalsIgnoreCase(COMPONENT_ELEMENT)) {
-		// Found a COMPONENT_ELEMENT
-		component.addChildLayoutElement(
-			createLayoutComponent(component, childNode));
-	    } else if (name.equalsIgnoreCase(FACET_ELEMENT)) {
-		// Found a FACET_ELEMENT
-		component.addChildLayoutElement(
-			createLayoutFacet(component, childNode));
-	    } else if (name.equalsIgnoreCase(OPTION_ELEMENT)) {
-		// Found a OPTION_ELEMENT
-		addOption(component, childNode);
-	    } else if (name.equalsIgnoreCase(EVENT_ELEMENT)) {
-		// Found a EVENT_ELEMENT
-		// Get the event type
-		name = (String) getAttributes(childNode).
-		    get(TYPE_ATTRIBUTE);
-
-		// Set the Handlers for the given event type (name)
-		List handlers = component.getHandlers(name);
-		component.setHandlers(name, getHandlers(childNode, handlers));
-	    } else if (name.equalsIgnoreCase(MARKUP_ELEMENT)) {
-		// Found an MARKUP_ELEMENT
-		component.addChildLayoutElement(
-			createLayoutMarkup(component, childNode));
-	    } else if (name.equalsIgnoreCase(ATTRIBUTE_ELEMENT)) {
-		// Found a ATTRIBUTE_ELEMENT (actually in this case it will
-		// just add an "option" to the LayoutComponent), technically
-		// this case should only happen for LayoutMarkup components...
-		// this mess is caused by trying to support 2 .dtd's w/ 1 .dtd
-		// file... perhaps it's time to split.
-		createLayoutAttribute(component, childNode);
-	    } else {
-		throw new RuntimeException("Unknown Element Found: '"
-			+ childNode.getNodeName() + "' under '"
-			+ COMPONENT_ELEMENT + "'.");
-	    }
-	}
-    }
-     */
-
-    /**
-     *	<p> This method reads obtains the {@link #VALUE_ATTRIBUTE} from the
-     *	    given node, or from the child {@link #LIST_ELEMENT} element.  If
-     *	    neither are provided, <code>(null)</code> is returned.  The
-     *	    attribute takes precedence over the child {@link #LIST_ELEMENT}
-     *	    element.</p>
-     *
-     *	@param	node	    <code>Node</code> containing the value attribute
-     *			    or {@link #LIST_ELEMENT}
-     *	@param	attributes  <code>Map</code> of attributes which may contain
-     *			    {@link #VALUE_ATTRIBUTE}
-     *
-     *	@return	The value (as a <code>String</code> or <code>List</code>), or
-     *		<code>(null)</code> if not specified.
-    private Object getValueFromNode(Node node, Map attributes) {
-	Object value = attributes.get(VALUE_ATTRIBUTE);
-	if (value == null) {
-	    // The value attribute may be null if multiple values are supplied.
-	    // Walk children (we only care about LIST_ELEMENT)
-	    List list = new ArrayList();
-	    Iterator it = getChildElements(node, LIST_ELEMENT).iterator();
-	    while (it.hasNext()) {
-		// Add a value to the List
-		list.add(getAttributes((Node) it.next()).
-		    get(VALUE_ATTRIBUTE));
-	    }
-	    if (list.size() > 0) {
-		// Only use the list if it has values
-		value = list;
-	    }
-	}
-	return value;
-    }
-     */
-
-    /**
      *	<p> This method removes a tag from the Stack.  This should be called
      *	    outside of <code>TemplateReader</code> when writing
      *	    {@link ProcessingContext} code and a tag starts and ends in a
@@ -947,7 +745,7 @@ public class TemplateReader {
 	    NameValuePair nvp = null;
 	    HandlerDefinition def = null;
 	    Handler handler = null;
-	    ArrayList handlers = new ArrayList();
+	    ArrayList<Handler> handlers = new ArrayList<Handler>();
 	    TemplateReader reader = env.getReader();
 	    TemplateParser parser = reader.getTemplateParser();
 
