@@ -99,7 +99,7 @@ public class ComponentUtil {
 	// First search for facet
 	UIComponent child = null;
 	if (facetName != null) {
-	    child = (UIComponent) parent.getFacets().get(facetName);
+	    child = parent.getFacets().get(facetName);
 	    if (child != null) {
 		return child;
 	    }
@@ -107,9 +107,9 @@ public class ComponentUtil {
 
 	// Search for component by id
 	if (id != null) {
-	    Iterator it = parent.getChildren().iterator();
+	    Iterator<UIComponent> it = parent.getChildren().iterator();
 	    while (it.hasNext()) {
-		child = (UIComponent) it.next();
+		child = it.next();
 		if (id.equals(child.getId())) {
 		    return (child);
 		}
@@ -277,7 +277,8 @@ public class ComponentUtil {
 	if (type == null) {
 	    // Not in the cache... add it...
 	    type = new ComponentType(factoryClass, factoryClass);
-	    Map newMap = new HashMap(_types);
+	    Map<String, ComponentType> newMap =
+		    new HashMap<String, ComponentType>(_types);
 	    newMap.put(factoryClass, type);
 	    _types = newMap;
 	}
@@ -509,5 +510,6 @@ public class ComponentUtil {
     /**
      *	<p> This Map caches ComponentTypes by their factoryClass name.</p>
      */
-    private static Map	_types	= new HashMap();
+    private static Map<String, ComponentType> _types =
+	    new HashMap<String, ComponentType>();
 }

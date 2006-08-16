@@ -81,19 +81,19 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 
 	// Loop through all the options and set the values
 // FIXME: Figure a way to skip options that should not be set on the Component
-	Iterator it = desc.getOptions().keySet().iterator();
+	Iterator<String> it = desc.getOptions().keySet().iterator();
 	Object value = null;
 	String strVal = null;
 	String key = null;
 	while (it.hasNext()) {
 	    // Get next property
-	    key = (String) it.next();
+	    key = it.next();
 
 	    setOption(context, comp, key,
 		desc.getEvaluatedOption(context, key, comp));
 	}
 
-	// Check for "Command" handler...
+	// Check for "Command" handlers...
 	List<Handler> handlers = desc.getHandlers(LayoutComponent.COMMAND);
 	if ((handlers != null) && (comp instanceof ActionSource)) {
 	    ((ActionSource) comp).addActionListener(
@@ -128,7 +128,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	    comp.setValueBinding((String) key, vb);
 	} else {
 	    // In JSF, you must directly modify the attribute Map
-	    Map attributes = comp.getAttributes();
+	    Map<String, Object> attributes = comp.getAttributes();
 	    if (value == null) {
 		// Setting null, assume they want to remove the value
 		try {
@@ -139,9 +139,11 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 		    // throws an exception if you attempt to call put w/ null
 		    // and there is no property descriptor.  Either way you
 		    // MUST catch something and then handle the other case.
+// FIXME: Catch exception and log which key it was attempting to set... often an argument type mismatch is thrown while attempting to put a value.
 		    attributes.put(key, (Object) null);
 		}
 	    } else {
+// FIXME: Catch exception and log which key it was attempting to set... often an argument type mismatch is thrown while attempting to put a value.
 		attributes.put(key, value);
 	    }
 	}
@@ -176,14 +178,14 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	}
 
 	// Iterate over the instance handlers
-	Iterator it = desc.getHandlersByTypeMap().keySet().iterator();
+	Iterator<String> it = desc.getHandlersByTypeMap().keySet().iterator();
 	if (it.hasNext()) {
 	    String eventType = null;
-	    Map compAttrs = comp.getAttributes();
+	    Map<String, Object> compAttrs = comp.getAttributes();
 	    while (it.hasNext()) {
 		// Assign instance handlers to attribute for retrieval later
 		//   (NOTE: retrieval must be explicit, see LayoutElementBase)
-		eventType = (String) it.next();
+		eventType = it.next();
 		if (eventType.equals(LayoutComponent.BEFORE_CREATE)) {
 		    // This is handled directly, no need for instance handler
 		    continue;
