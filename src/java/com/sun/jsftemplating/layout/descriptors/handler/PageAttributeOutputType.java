@@ -22,32 +22,41 @@
  */
 package com.sun.jsftemplating.layout.descriptors.handler;
 
+import com.sun.jsftemplating.el.PageSessionResolver;
+
+import java.io.Serializable;
+import java.util.Map;
+
+import javax.faces.context.FacesContext;
+import javax.faces.component.UIViewRoot;
+
 
 /**
  *  <p>	This class implements the OutputType interface to provide a way to
- *	get/set Output values from a ServletRequest attribute Map.</p>
+ *	get/set Output values from the Page attribute Map (see
+ *	{@link PageSessionResolver}).</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-public class RequestAttributeOutputType implements OutputType {
+public class PageAttributeOutputType implements OutputType {
 
     /**
      *	<p> This method is responsible for retrieving the value of the Output
-     *	    from a Request attribute.  'key' may be null, if this occurs, a
-     *	    default name will be provided.  That name will follow the
+     *	    from a Page Session Attribute.  'key' may be null, if this occurs,
+     *	    a default name will be provided.  That name will follow the
      *	    following format:</p>
      *
      *	<p> [handler-id]:[output-name]</p>
      *
      *	@param	context	    The HandlerContext
      *
-     *	@param	outDesc	    The IODescriptor for this Output value in
+     *	@param	outDesc	    The {@link IODescriptor} for this Output value in
      *			    which to obtain the value
      *
      *	@param	key	    The optional 'key' to use when retrieving the
-     *			    value from the ServletRequest attribute Map.
+     *			    value from the Page Session Attribute Map.
      *
-     *	@return The requested value.
+     *	@return The requested value, <code>null</code> if not found.
      */
     public Object getValue(HandlerContext context, IODescriptor outDesc, String key) {
 	if (key == null) {
@@ -56,38 +65,56 @@ public class RequestAttributeOutputType implements OutputType {
 		+ ':' + outDesc.getName();
 	}
 
-	// Get it from the Request attribute map
-	return context.getFacesContext().getExternalContext().
-	    getRequestMap().get(key);
+	// Get the Page Session Map
+	Map<String, Serializable> map =
+	    PageSessionResolver.getPageSession(
+		context.getFacesContext(), (UIViewRoot) null);
+
+	// Get the value to return
+	Serializable value = null;
+	if (map != null) {
+	    value = map.get(key);
+	}
+
+	// Return it...
+	return value;
     }
 
     /**
      *	<p> This method is responsible for setting the value of the Output to
-     *	    a ServletRequest attribute.  'key' may be null, in this case, a
+     *	    a Page Session Attribute.  'key' may be null, in this case, a
      *	    default name will be provided.  That name will follow the
      *	    following format:</p>
      *
      *	<p> [handler-id]:[output-name]</p>
      *
-     *	@param	context	    The HandlerContext
+     *	@param	context	    The {@link HandlerContext}
      *
-     *	@param	outDesc	    The IODescriptor for this Output value in
+     *	@param	outDesc	    The {@link IODescriptor} for this Output value in
      *			    which to obtain the value
      *
      *	@param	key	    The optional 'key' to use when setting the
-     *			    value into the ServletRequest attribute Map
+     *			    value into the Page Session Attribute Map
      *
      *	@param	value	    The value to set
      */
     public void setValue(HandlerContext context, IODescriptor outDesc, String key, Object value) {
+	// Ensure we have a key...
 	if (key == null) {
-	    // Provide a reasonably unique default
+	    // We don't, provide a reasonably unique default
 	    key = context.getHandlerDefinition().getId()
 		+ ':' + outDesc.getName();
 	}
 
-	// Get it from the Request attribute map
-	context.getFacesContext().getExternalContext().
-	    getRequestMap().put(key, value);
+	// Get the Page Session Map
+	FacesContext ctx = context.getFacesContext();
+	Map<String, Serializable> map =
+	    PageSessionResolver.getPageSession(ctx, (UIViewRoot) null);
+	if (map == null) {
+	    map = PageSessionResolver.createPageSession(ctx, (UIViewRoot) null);
+	}
+
+	// Set the Page Session Attribute Map
+	map.put(key, (Serializable) value);
     }
 }

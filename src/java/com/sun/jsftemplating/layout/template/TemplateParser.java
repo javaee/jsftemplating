@@ -133,6 +133,7 @@ public class TemplateParser {
      *	    <li>keyName='keyValue'</li>
      *	    <li>keyName=&gt;$attribute{attributeKey}</li>
      *	    <li>keyName=&gt;$session{sessionKey}</li></ul>
+     *	    <li>keyName=&gt;$page{pageSessionKey}</li></ul>
      *	</code>
      *
      *	<p> In the first two formats, <code>keyName</code> must consist of
@@ -146,10 +147,11 @@ public class TemplateParser {
      *	    This is necessary when a handler returns a value so that the value
      *	    can be stored somewhere.  <code>keyName</code> in these cases is
      *	    the name of the return value to map.  The value after the dollar
-     *	    '$' character (which is either attribute or session) specifies
-     *	    the type of storage the value should be saved.  The value inside
-     *	    the curly braces "{}" specifies the key that should be used when
-     *	    saving the value as a request attribute or session attribute.</p>
+     *	    '$' character (which is either "attribute", "page", or "session")
+     *	    specifies the type of storage the value should be saved.  The
+     *	    value inside the curly braces "{}" specifies the key that should
+     *	    be used when saving the value as a request, page, or session
+     *	    attribute.</p>
      *
      *	<p> The return value is of type {@link NameValuePair}.  This object
      *	    contains the necessary information to interpret this NVP.</p>
@@ -185,6 +187,7 @@ public class TemplateParser {
 		// We are mapping an output value, this should look like:
 		//	    keyName => $attribute{attKey}
 		//	    keyName => $session{sessionKey}
+		//	    keyName => $page{pageSessionKey}
 
 		// First skip any whitespace after the '>'
 		skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
@@ -197,19 +200,22 @@ public class TemplateParser {
 			+ "=>'!  This NVP appears to be a mapping expression, and "
 			+ "therefor requires one of these formats:\n\t" + name
 			+ " => $attribute{attKey}\nor:\n\t" + name
-			+ " => $session{sessionKey}");
+			+ " => $session{sessionKey}\nor:\n\t" + name
+			+ " => $page{pageSessionKey}");
 		}
 
-		// Next look for "attribute" or "session"
+		// Next look for "attribute" or "pageSession" or "session"
 		target = readToken();
-		if (!target.equals("attribute") && !target.equals("session")) {
+		if (!target.equals("attribute") && !target.equals("page")
+			&& !target.equals("session")) {
 		    throw new IllegalArgumentException(
 			"'attribute' or 'session' type is missing for Name Value "
 			+ "Pair named: '" + name + "=>$'!  This NVP appears to "
 			+ "be a mapping expression, and therefor requires one of "
 			+ "these formats:\n\t" + name
 			+ " => $attribute{attKey}\nor:\n\t" + name
-			+ " => $session{sessionKey}");
+			+ " => $session{sessionKey}\nor:\n\t" + name
+			+ " => $page{pageSessionKey}");
 		}
 
 		// Skip whitespace again...

@@ -37,7 +37,7 @@ public class SessionAttributeOutputType implements OutputType {
      *	    default name will be provided.  That name will follow the
      *	    following format:</p>
      *
-     *	<p> [handler-id]:[key]</p>
+     *	<p> [handler-id]:[output-name]</p>
      *
      *	@param	context	    The HandlerContext
      *
@@ -67,7 +67,7 @@ public class SessionAttributeOutputType implements OutputType {
      *	    default name will be provided.  That name will follow the
      *	    following format:</p>
      *
-     *	<p> [handler-id]:[key]</p>
+     *	<p> [handler-id]:[output-name]</p>
      *
      *	@param	context	    The HandlerContext
      *
