@@ -246,7 +246,8 @@ public class ComponentUtil {
     private static UIComponent getChild(UIComponent parent, String id, ComponentType type, Properties properties, String facetName) {
 	LayoutComponent desc = new LayoutComponent(null, id, type);
 	if (properties != null) {
-	    desc.setOptions((Map<String, Object>) properties);
+		//Remove Generics for now. Check with Ken to change thisinto HashMap.
+	    desc.setOptions((Map) properties);
 	}
 	if (facetName != null) {
 	    // Add the facetName to use
