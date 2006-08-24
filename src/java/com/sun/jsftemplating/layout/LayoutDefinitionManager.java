@@ -506,8 +506,8 @@ public abstract class LayoutDefinitionManager {
 		props.load(url.openStream());
 		for (Map.Entry<Object, Object> entry : props.entrySet()) {
 		    if (((String) entry.getKey()).endsWith(".class")) {
-			// We will only process .class entries
-			readGlobalHandlerDefinition((Map<String, String>) props, entry);
+			// We will only process .class entries. Check with Ken to change this into HashMap
+			readGlobalHandlerDefinition((Map) props, entry);
 		    }
 		}
 	    }
