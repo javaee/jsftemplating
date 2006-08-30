@@ -105,15 +105,73 @@ public class DropDownHandlers {
 	    return null;
 	}
     }
+    
+    /**
+     *	<p> This handler returns the Lockhart version of Options of the drop-down
+     *	    of the given <code>labels</code> and <code>values</code>.
+     *	    <code>labels</code> and <code>values</code> arrays must be equal in
+     *	    size and in matching sequence.</p>
+     *
+     *	<p> Input value: <code>labels</code> -- Type:
+     *	    <code>java.util.Collection</code></p>
+     *
+     *	<p> Input value: <code>values</code> -- Type:
+     *	    <code>java.util.Collection</code></p>
+     *
+     *  <p> Output value: <code>options</code> -- Type:
+     *	    <code>SelectItem[] (castable to Option[])</code></p>
+     *
+     *	@param	context	The HandlerContext.
+     */
+    @Handler(id="getSunDropDownOptions",
+	input={
+	    @HandlerInput(name="labels", type=Collection.class, required=true),
+	    @HandlerInput(name="values", type=Collection.class, required=true)},
+	output={
+	    @HandlerOutput(name="options", type=SelectItem[].class)})
+    public static void getSunDropDownOptions(HandlerContext context) throws Exception {
+	Collection<String> labels = (Collection) context.getInputValue("labels");
+	Collection<String> values = (Collection) context.getInputValue("values");
+	if (labels.size() != values.size()) {
+	    throw new Exception("getSunDropDownOptions Handler input "
+		+ "incorrect: Input 'labels' and 'values' size must be equal. "
+		+ "'labels' size: " + labels.size() + " 'values' size: "
+		+ values.size());
+	}
+
+	SelectItem[] options =
+	    (SelectItem []) Array.newInstance(SUN_OPTION_CLASS, labels.size());
+	String[] labelsArray = (String[])labels.toArray(new String[labels.size()]);
+	String[] valuesArray = (String[])values.toArray(new String[values.size()]);
+	for (int i =0; i < labels.size(); i++) {
+	    SelectItem option = getSunOption(valuesArray[i], labelsArray[i]);
+	    options[i] = option;
+	}
+	context.setOutputValue("options", options);
+    }
+
+    private static SelectItem getSunOption(String value, String label) {
+	try {
+	    return (SelectItem) SUN_OPTION_CONSTRUCTOR.newInstance(value, label);
+	} catch (Exception ex) {
+	    return null;
+	}
+    }
 
     private static Class	     RAVE_OPTION_CLASS = null;
     private static Constructor RAVE_OPTION_CONSTRUCTOR = null;
+    private static Class	     SUN_OPTION_CLASS = null;
+    private static Constructor SUN_OPTION_CONSTRUCTOR = null;
 
     static {
 	try {
 	    RAVE_OPTION_CLASS =
 		Class.forName("com.sun.rave.web.ui.model.Option");
 	    RAVE_OPTION_CONSTRUCTOR = RAVE_OPTION_CLASS.
+		getConstructor(new Class[] {Object.class, String.class});
+            SUN_OPTION_CLASS =
+		Class.forName("com.sun.sun.web.ui.model.Option");
+	    SUN_OPTION_CONSTRUCTOR = SUN_OPTION_CLASS.
 		getConstructor(new Class[] {Object.class, String.class});
 	} catch (Exception ex) {
 	    // Ignore exception here, NPE will be thrown when attempting to
