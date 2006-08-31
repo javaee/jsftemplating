@@ -27,7 +27,7 @@
 			<event>
 			  <!beforeEncode
 			    getPageComponentNames(pageName="#{pagename}" displayNames=>$attribute{disp} qualifiedNames=>$attribute{long});
-			    getRaveDropDownOptions(labels="$attribute{disp}", values="$attribute{long}", options=>$attribute{opts});
+			    getRaveOptions(labels="$attribute{disp}", values="$attribute{long}", options=>$attribute{opts});
 
 			  />
 			</event>
@@ -38,7 +38,7 @@
 			<rave:listbox id="componentType" value="#{requestScope.componentType}" items="$attribute{types}" required="#{true}" label="Component Type" >
 			   <!beforeCreate
 			      getGlobalComponentTypeInformation(ids=>$attribute{ids});
-			      getRaveDropDownOptions(labels="$attribute{ids}", values="$attribute{ids}", options=>$attribute{types});
+			      getRaveOptions(labels="$attribute{ids}", values="$attribute{ids}", options=>$attribute{types});
 			    />
 			</rave:listbox>
 			"<br />
