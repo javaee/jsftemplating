@@ -166,16 +166,21 @@ public class OptionsHandlers {
     static {
 	try {
 	    RAVE_OPTION_CLASS =
-		Class.forName("com.sun.rave.web.ui.model.Option");
+	    	Class.forName("com.sun.rave.web.ui.model.Option");
 	    RAVE_OPTION_CONSTRUCTOR = RAVE_OPTION_CLASS.
-		getConstructor(new Class[] {Object.class, String.class});
-            SUN_OPTION_CLASS =
-		Class.forName("com.sun.sun.web.ui.model.Option");
-	    SUN_OPTION_CONSTRUCTOR = SUN_OPTION_CLASS.
-		getConstructor(new Class[] {Object.class, String.class});
+	    	getConstructor(new Class[] {Object.class, String.class});
 	} catch (Exception ex) {
 	    // Ignore exception here, NPE will be thrown when attempting to
 	    // use RAVE_OPTION_CONSTRUCTOR.
+	}
+	try {
+            SUN_OPTION_CLASS =
+		Class.forName("com.sun.web.ui.model.Option");
+	    SUN_OPTION_CONSTRUCTOR = SUN_OPTION_CLASS.
+                getConstructor(new Class[] {Object.class, String.class});
+	} catch (Exception ex) {
+	    // Ignore exception here, NPE will be thrown when attempting to
+	    // use SUN_OPTION_CONSTRUCTOR.
 	}
     }
 }
