@@ -38,6 +38,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.component.UIComponent;
 
@@ -300,5 +301,26 @@ public class UtilHandlers {
 	// Print it to stderr and return it
 	System.err.println(trace);
 	context.setOutputValue("stackTrace", trace);
+    }
+    
+    /**
+     *	<p> This handler prints out the contents of the given UIComponent's
+     *	    attribute map./p>
+     */
+    @Handler(id="dumpAttributeMap",
+	input={
+	    @HandlerInput(name="component", type=UIComponent.class)})
+    public static void dumpAttributeMap(HandlerContext context) {
+	UIComponent comp = (UIComponent) context.getInputValue("component");
+	if (comp != null) {
+            Map<String,Object> map = comp.getAttributes();
+            for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry me = (Map.Entry)iter.next();
+                System.out.println("key="+ me.getKey()+"'"+"value="+ me.getValue());
+            }
+        } else {
+            System.out.println("UIComponent is null");
+            
+        }
     }
 }
