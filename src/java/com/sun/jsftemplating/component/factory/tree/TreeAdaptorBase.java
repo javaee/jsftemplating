@@ -137,13 +137,15 @@ public abstract class TreeAdaptorBase implements TreeAdaptor {
 
     /**
      *	<p> This method returns any facets that should be applied to the
-     *	    <code>TreeNode</code> that is created for the given tree node
-     *	    model object.  Useful facets for the standard
+     *	    <code>TreeNode (comp)</code>.  Useful facets for the sun
      *	    <code>TreeNode</code> component are: "content" and "image".</p>
      *
-     *	<p> This implementation returns null (meaning no facets are to be
-     *	    used). You must override this method in order to provide
-     *	    facets.</p>
+     *	<p> Facets that already exist on <code>comp</code>, or facets that
+     *	    are directly added to <code>comp</code> do not need to be returned
+     *	    from this method.</p>
+     *
+     *	@param	comp	    The tree node <code>UIComponent</code>.
+     *	@param	nodeObject  The (model) object representing the tree node.
      */
     public Map<String, UIComponent> getFacets(Object nodeObject) {
 	return null;

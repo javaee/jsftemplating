@@ -196,8 +196,8 @@ public class DynamicTreeNodeFactory extends ComponentFactoryBase {
     protected void configureTreeNode(FacesContext ctx, TreeAdaptor adaptor, UIComponent treeNode, Object currentObj) {
 	// Add facets (such as "content" and "image")
 	Map<String, UIComponent> facets = adaptor.getFacets(treeNode, currentObj);
-	Map<String, UIComponent> treeNodeFacets = treeNode.getFacets();
 	if (facets != null) {
+	    Map<String, UIComponent> treeNodeFacets = treeNode.getFacets();
 	    Iterator<String> it = facets.keySet().iterator();
 	    String facetName;
 	    UIComponent facetValue;
