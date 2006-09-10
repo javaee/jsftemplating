@@ -26,9 +26,6 @@ import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.util.LogUtil;
 
-//import com.sun.web.ui.util.ClientSniffer;
-//import com.sun.web.ui.util.ThemeUtilities;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;

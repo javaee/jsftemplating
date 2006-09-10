@@ -27,7 +27,7 @@ import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 
 // FIXME:
-//import com.sun.web.ui.el.ConstantMethodBinding;
+//import com.sun.webui.jsf.el.ConstantMethodBinding;
 // OR:
 //import com.sun.faces.util.ConstantMethodBinding;
 
