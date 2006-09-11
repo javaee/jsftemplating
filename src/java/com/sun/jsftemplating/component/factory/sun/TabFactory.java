@@ -27,7 +27,7 @@ import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 
 // FIXME:
-//import com.sun.web.ui.el.ConstantMethodBinding;
+//import com.sun.webui.jsf.el.ConstantMethodBinding;
 // OR:
 //import com.sun.faces.util.ConstantMethodBinding;
 
@@ -85,5 +85,5 @@ public class TabFactory extends ComponentFactoryBase {
      *	    <code>faces-config.xml</code> file mapping to the UIComponent class
      *	    to use for this <code>UIComponent</code>.</p>
      */
-    public static final String COMPONENT_TYPE	= "com.sun.web.ui.Tab";
+    public static final String COMPONENT_TYPE	= "com.sun.webui.jsf.Tab";
 }

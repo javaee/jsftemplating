@@ -75,5 +75,5 @@ public class LegendFactory extends ComponentFactoryBase {
      *	    <code>faces-config.xml</code> file mapping to the UIComponent class
      *	    to use for this <code>UIComponent</code>.</p>
      */
-    public static final String COMPONENT_TYPE	= "com.sun.web.ui.Legend";
+    public static final String COMPONENT_TYPE	= "com.sun.webui.jsf.Legend";
 }

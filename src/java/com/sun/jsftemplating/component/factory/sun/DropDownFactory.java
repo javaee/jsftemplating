@@ -87,7 +87,7 @@ public class DropDownFactory extends ComponentFactoryBase {
 		// Use reflection (for now) to avoid a build dependency
 		// Find the Option constuctor...
 		Constructor optConst = Util.getClassLoader(this).
-		    loadClass("com.sun.web.ui.model.Option").
+		    loadClass("com.sun.webui.jsf.model.Option").
 		    getConstructor(Object.class, String.class);
 
 		if (values instanceof List) {
@@ -133,5 +133,5 @@ public class DropDownFactory extends ComponentFactoryBase {
      *	    <code>faces-config.xml</code> file mapping to the UIComponent class
      *	    to use for this <code>UIComponent</code>.</p>
      */
-    public static final String COMPONENT_TYPE	= "com.sun.web.ui.DropDown";
+    public static final String COMPONENT_TYPE	= "com.sun.webui.jsf.DropDown";
 }
