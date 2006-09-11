@@ -68,6 +68,12 @@ public class IfFactory extends ComponentFactoryBase {
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);
 
+	// (re)set the "condition" property to avoid using an evaluated version
+	Object val = descriptor.getOption("condition");
+	if (val != null) {
+	    comp.getAttributes().put("condition", val);
+	}
+
 	// Return the component
 	return comp;
     }
