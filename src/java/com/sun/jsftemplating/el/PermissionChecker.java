@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.el;
 
+import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 
 
 /**
@@ -888,8 +890,9 @@ public class PermissionChecker {
 	 *	String and returns the result.</p>
 	 */
 	public Object getEvaluatedValue() {
-	     return VariableResolver.resolveVariables(getLayoutElement(),
-		getUIComponent(), _value);
+	    return ComponentUtil.resolveValue(
+		    FacesContext.getCurrentInstance(),
+		    getLayoutElement(), getUIComponent(), _value);
 	}
 
 	/**
@@ -976,6 +979,19 @@ public class PermissionChecker {
 	    }
 	} else {
 	    boolean success = true;
+	    checker = new PermissionChecker(null, null, "false|false");
+	    System.out.println("Output:\n" + checker.toString() + " (" + checker.hasPermission() + ")");
+	    if (!checker.toString().equals("false|false = falsefalse|")) {
+		System.out.println("\tFAILED!");
+		System.out.println("Should have been:\n" + "true|false = truefalse|");
+		success = false;
+	    }
+	    if (checker.hasPermission()) {
+		System.out.println("\tFAILED!");
+		System.out.println("hasPermission(" + checker.toString(checker.getPostfixArr()) + ") returned the wrong result!");
+		success = false;
+	    }
+
 	    checker = new PermissionChecker(null, null, "true |false");
 	    System.out.println("Output:\n" + checker.toString() + " (" + checker.hasPermission() + ")");
 	    if (!checker.toString().equals("true|false = truefalse|")) {
