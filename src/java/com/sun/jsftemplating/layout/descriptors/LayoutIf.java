@@ -73,6 +73,9 @@ public class LayoutIf extends LayoutComponent {
 	super(parent, (String) null, type);
 	setFacetChild(false);
 	addOption("condition", condition);
+	if (condition.equals("$property{condition}")) {
+	    _doubleEval = true;
+	}
     }
 
     /**
@@ -85,12 +88,22 @@ public class LayoutIf extends LayoutComponent {
      *
      *	@return	true if children are to be rendered, false otherwise.
      */
-    public boolean encodeThis(FacesContext context, UIComponent component) {
-	PermissionChecker checker =
-	    new PermissionChecker(this, component,
-		(String) getOption("condition"));
+    public boolean encodeThis(FacesContext ctx, UIComponent comp) {
+	PermissionChecker checker = new PermissionChecker(
+	    this, comp, (_doubleEval) ?
+		(getEvaluatedOption(ctx, "condition", comp).toString()) :
+		((String) getOption("condition")));
 	return checker.hasPermission();
     }
 
-    private String _condition = null;
+    /**
+     *	<p> This flag is set to true when the condition equals
+     *	    "$property{condition}".  This is a special case where the value to
+     *	    be evaluated is not $property{condition}, but rather the value of
+     *	    this expression.  This requires double evaluation to correct
+     *	    interpret the expression.  For now this is a hack for this case
+     *	    only.  In the future we may want to support an $eval{} or something
+     *	    more general syntax for doing this declaratively.</p>
+     */
+    private boolean _doubleEval = false;
 }
