@@ -241,9 +241,13 @@ public abstract class LayoutElementBase implements LayoutElement {
      */
     public void encode(FacesContext context, UIComponent component) throws IOException {
 	// Invoke "before" handlers
-// FIXME: Consider true/false for skipping component
 	Object result = dispatchHandlers(context, BEFORE_ENCODE,
 	    new BeforeEncodeEvent(component));
+
+	if ((result != null) && (result.toString().equals("false"))) {
+	    // Skip...
+	    return;
+	}
 
 	// Do LayoutElement specific stuff...
 	boolean renderChildren = encodeThis(context, component);
