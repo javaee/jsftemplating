@@ -852,7 +852,7 @@ public class TemplateReader {
 	    // the condition.
 	    TemplateReader reader = env.getReader();
 	    TemplateParser parser = reader.getTemplateParser();
-	    String condition = parser.readUntil('>', true).trim();
+	    String condition = parser.readUntil('>', false).trim();
 
 	    // Create new LayoutIf
 	    LayoutElement parent = env.getParent();
@@ -882,7 +882,7 @@ public class TemplateReader {
 	    // appears in the condition.
 	    TemplateReader reader = env.getReader();
 	    TemplateParser parser = reader.getTemplateParser();
-	    String condition = parser.readUntil('>', true).trim();
+	    String condition = parser.readUntil('>', false).trim();
 
 	    // Create new LayoutWhile
 	    LayoutElement parent = env.getParent();
@@ -924,6 +924,7 @@ public class TemplateReader {
 
 	    // First get the key
 // FIXME: Don't do it this way... read until the '>' first then split the String.  This will allow detecting the missing ':' much more easily.
+// FIXME: Consider allowing #{} expressions -- they're interpretted as comments as written... fix this.
 	    String key = parser.readUntil(':', true).trim();
 	    String listExp = parser.readUntil('>', true).trim();
 
