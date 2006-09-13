@@ -175,7 +175,7 @@ public class OptionsHandlers {
 	}
 	try {
             SUN_OPTION_CLASS =
-		Class.forName("com.sun.web.ui.model.Option");
+		Class.forName("com.sun.webui.jsf.model.Option");
 	    SUN_OPTION_CONSTRUCTOR = SUN_OPTION_CLASS.
                 getConstructor(new Class[] {Object.class, String.class});
 	} catch (Exception ex) {
