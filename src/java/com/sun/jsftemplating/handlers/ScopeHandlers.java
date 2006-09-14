@@ -312,12 +312,13 @@ public class ScopeHandlers {
 	Formatter printf = new Formatter();
 	if (map == null) {
 	    printf.format("Map null.");
-	}
-	Iterator<Map.Entry<String, T>> it = map.entrySet().iterator();
-	Map.Entry<String, T> entry = null;
-	while (it.hasNext()) {
-	    entry = it.next();
-	    printf.format("%-20s = %s\n", entry.getKey(), entry.getValue());
+	} else {
+	    Iterator<Map.Entry<String, T>> it = map.entrySet().iterator();
+	    Map.Entry<String, T> entry = null;
+	    while (it.hasNext()) {
+		entry = it.next();
+		printf.format("%-20s = %s\n", entry.getKey(), entry.getValue());
+	    }
 	}
 	return printf.toString();
     }
