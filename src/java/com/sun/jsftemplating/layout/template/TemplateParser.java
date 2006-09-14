@@ -290,7 +290,7 @@ public class TemplateParser {
 	    }
 
 	    // Read everything inside the quotes
-	    list.add(readUntil(next, true));
+	    list.add(readUntil(next, false));
 
 	    // Skip white space (including the seperators ",:;");
 	    skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE + ",:;");
