@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -200,6 +201,40 @@ public class UtilHandlers {
 	    list.add("");
 	}
 	context.setOutputValue("result", list);
+    }
+
+    /**
+     *	<p> This method creates a <code>Map</code> (<code>HashMap</code>).
+     *	    The output value from this handler is "result".</p>
+     *
+     *	@param	context	The <code>HandlerContext<code>
+     */
+    @Handler(id="createMap",
+	output={
+	    @HandlerOutput(name="result", type=Map.class)})
+    public static void createMap(HandlerContext context) {
+	Map<Object, Object> map = new HashMap<Object, Object>();
+	context.setOutputValue("result", map);
+    }
+
+    /**
+     *	<p> This method adds a value to a </code>Map</code>.  You must supply
+     *	    <code>map</code> to use as well as the <code>key</code> and
+     *	    <code>value</code> to add.</p>
+     *
+     *	@param	context	The <code>HandlerContext<code>
+     */
+    @Handler(id="mapPut",
+	input={
+	    @HandlerInput(name="map", type=Map.class, required=true),
+	    @HandlerInput(name="key", type=Object.class, required=true),
+	    @HandlerInput(name="value", type=Object.class, required=true)}
+	)
+    public static void mapPut(HandlerContext context) {
+	Map map = (Map) context.getInputValue("map");
+	Object key = context.getInputValue("key");
+	Object value = context.getInputValue("value");
+	map.put(key, value);
     }
 
     /**
