@@ -31,7 +31,6 @@ import java.lang.reflect.Method;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.faces.component.UIComponent;
 
@@ -168,10 +167,8 @@ public class Handler implements java.io.Serializable {
 		component = (UIComponent) src;
 	    }
 	}
-	if ((value != null) && (value instanceof String)) {
-	    value = ComponentUtil.resolveValue(ctx.getFacesContext(),
-		    ctx.getLayoutElement(), component, "" + value);
-	}
+	value = ComponentUtil.resolveValue(
+	    ctx.getFacesContext(), ctx.getLayoutElement(), component, value);
 
 	// Make sure the value is the correct type...
 	value = TypeConverter.asType(inDesc.getType(), value);
