@@ -471,11 +471,11 @@ public class ComponentUtil {
      *	@param	parent	    The parent <code>UIComponent</code>.  This is used
      *			    because the current UIComponent is typically
      *			    unknown (or not even created yet).
-     *	@param	value	    The String to resolve.
+     *	@param	value	    The String (or List / Array) to resolve.
      *
      *	@return The evaluated value (may be null).
      */
-    public static Object resolveValue(FacesContext context, LayoutElement elt, UIComponent parent, String value) {
+    public static Object resolveValue(FacesContext context, LayoutElement elt, UIComponent parent, Object value) {
 	// Invoke our own EL.  This is needed b/c JSF's EL is designed for
 	// Bean getters only.  It does not get CONSTANTS or pull data from
 	// other sources without adding a custom VariableResolver and/or
