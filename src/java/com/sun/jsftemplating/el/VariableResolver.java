@@ -273,17 +273,25 @@ public class VariableResolver {
 		VariableResolver.SUB_TYPE_DELIM,
 		VariableResolver.SUB_END);
 	} else if (value instanceof List) {
-// FIXME: Support arrays too!
 	    // Create a new List b/c invalid to change shared List
 	    List<Object> list = ((List<Object>) value);
-	    int size = list.size();
-	    List<Object> newList = new ArrayList<Object>(size);
+	    List<Object> newList = new ArrayList<Object>(list.size());
 	    Iterator it = list.iterator();
 	    while (it.hasNext()) {
 		newList.add(VariableResolver.resolveVariables(
 			    ctx, desc, component, it.next()));
 	    }
 	    return newList;
+	} else if (value instanceof Object []) {
+	    // Create a new array b/c invalid to change shared array
+	    Object [] arr = (Object []) value;
+	    Object [] newArr = new Object[arr.length];
+	    int idx = 0;
+	    for (Object obj : arr) {
+		newArr[idx++] = VariableResolver.resolveVariables(
+			    ctx, desc, component, obj);
+	    }
+	    return newArr;
 	}
 	return value;
     }
