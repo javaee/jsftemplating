@@ -208,7 +208,7 @@ public abstract class LayoutElementBase implements LayoutElement {
      *
      *	@return The evaluated value (may be null).
      */
-    public Object resolveValue(FacesContext context, UIComponent parent, String value) {
+    public Object resolveValue(FacesContext context, UIComponent parent, Object value) {
 	return ComponentUtil.resolveValue(context, this, parent, value);
     }
 
