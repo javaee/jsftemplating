@@ -108,7 +108,7 @@ public class LayoutForEach extends LayoutComponent {
     protected List<Object> getList(FacesContext context) {
 // FIXME: Pass in the UIComponent
 	Object value = resolveValue(
-		context, (UIComponent) null, (String) getOption("list"));
+		context, (UIComponent) null, getOption("list"));
 
 	// Make sure we found something...
 	if (value == null) {
@@ -163,7 +163,7 @@ public class LayoutForEach extends LayoutComponent {
 	    new BeforeLoopEvent(component));
 
 	String key = resolveValue(
-		context, component, (String) getOption("key")).toString();
+		context, component, getOption("key")).toString();
 
 	// Iterate over the values in the list and perform the requested
 	// action(s) per the body of the LayoutForEach
