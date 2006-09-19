@@ -35,6 +35,7 @@ import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -357,5 +358,21 @@ public class UtilHandlers {
             System.out.println("UIComponent is null");
             
         }
+    }
+
+    /**
+     *	<p> This handler prints out the contents of the given UIComponent's
+     *	    attribute map./p>
+     */
+    @Handler(id="urlencode",
+	input={
+	    @HandlerInput(name="value", type=String.class)
+	},
+	output={
+	    @HandlerOutput(name="value", type=String.class)})
+    public static void urlencode(HandlerContext context) {
+	String value = (String) context.getInputValue("value");
+	value = URLEncoder.encode(value);
+	context.setOutputValue("value", value);
     }
 }
