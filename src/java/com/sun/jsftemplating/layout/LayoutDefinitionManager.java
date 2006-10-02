@@ -341,7 +341,7 @@ public abstract class LayoutDefinitionManager {
      *	@return	The {@link LayoutDefinition} or <code>null</code>.
      */
     public static LayoutDefinition getCachedLayoutDefinition(String key) {
-	if (DEBUG) {
+	if (isDebug()) {
 	    // Disable caching for debug mode
 	    return null;
 	}
@@ -655,6 +655,34 @@ public abstract class LayoutDefinitionManager {
 	_globalResources = null;
     }
 
+    /**
+     *	<p> Getter for the debug flag.</p>
+     */
+    public static boolean isDebug() {
+	if (_debug != null) {
+	    return _debug.booleanValue();
+	}
+	boolean flag = Boolean.getBoolean(DEBUG_FLAG);
+	if (!flag) {
+	    FacesContext ctx = FacesContext.getCurrentInstance();
+	    if (ctx != null) {
+		String initParam =
+		    ctx.getExternalContext().getInitParameter(DEBUG_FLAG);
+		if (initParam != null) {
+		    flag = Boolean.parseBoolean(initParam);
+		}
+	    }
+	}
+	_debug = Boolean.valueOf(flag);
+	return flag;
+    }
+
+    /**
+     *	<p> Setter for the debug flag.</p>
+     */
+    public static void setDebug(boolean flag) {
+	_debug = Boolean.valueOf(flag);
+    }
 
     /**
      *	<p> This map contains sub-class specific attributes that may be needed
@@ -724,8 +752,24 @@ public abstract class LayoutDefinitionManager {
     public static final String LAYOUT_DEFINITION_MANAGER_KEY =
 	"LayoutDefinitionManagerImpl";
 
-    public static final boolean DEBUG =
-	Boolean.getBoolean("com.sun.jsftemplating.DEBUG");
+    /**
+     *	<p> This is the name of the initParameter or JVM variable used to set
+     *	    the DEBUG flag.</p>
+     */
+    public static final String DEBUG_FLAG = "com.sun.jsftemplating.DEBUG";
+
+    /**
+     *	<p> DEBUG flag.  Not final so that it can be switch at runtime.</p>
+     */
+    private static Boolean _debug = null;
+
+    /**
+     *	<p> DEBUG flag.</p>
+     *
+     *	@deprecated Use isDebug() instead.  This value will not reflect
+     *		    runtime changes in this flag.
+     */
+    public static final boolean DEBUG = isDebug();
 
     /**
      *
