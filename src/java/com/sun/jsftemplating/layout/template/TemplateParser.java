@@ -134,6 +134,7 @@ public class TemplateParser {
      *	    <li>keyName=&gt;$attribute{attributeKey}</li>
      *	    <li>keyName=&gt;$session{sessionKey}</li></ul>
      *	    <li>keyName=&gt;$page{pageSessionKey}</li></ul>
+     *	    <li>keyName=&gt;$pageSession{pageSessionKey}</li></ul>
      *	</code>
      *
      *	<p> In the first two formats, <code>keyName</code> must consist of
@@ -147,11 +148,11 @@ public class TemplateParser {
      *	    This is necessary when a handler returns a value so that the value
      *	    can be stored somewhere.  <code>keyName</code> in these cases is
      *	    the name of the return value to map.  The value after the dollar
-     *	    '$' character (which is either "attribute", "page", or "session")
-     *	    specifies the type of storage the value should be saved.  The
-     *	    value inside the curly braces "{}" specifies the key that should
-     *	    be used when saving the value as a request, page, or session
-     *	    attribute.</p>
+     *	    '$' character (which is either "attribute", "page", "pageSession",
+     *	    or "session") specifies the type of storage the value should be
+     *	    saved.  The value inside the curly braces "{}" specifies the key
+     *	    that should be used when saving the value as a request, page, or
+     *	    session attribute.</p>
      *
      *	<p> The return value is of type {@link NameValuePair}.  This object
      *	    contains the necessary information to interpret this NVP.</p>
@@ -188,6 +189,7 @@ public class TemplateParser {
 		//	    keyName => $attribute{attKey}
 		//	    keyName => $session{sessionKey}
 		//	    keyName => $page{pageSessionKey}
+		//	    keyName => $pageSession{pageSessionKey}
 
 		// First skip any whitespace after the '>'
 		skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
@@ -201,12 +203,15 @@ public class TemplateParser {
 			+ "therefor requires one of these formats:\n\t" + name
 			+ " => $attribute{attKey}\nor:\n\t" + name
 			+ " => $session{sessionKey}\nor:\n\t" + name
+			+ " => $pageSession{pageSessionKey}\nor:\n\t" + name
 			+ " => $page{pageSessionKey}");
 		}
 
-		// Next look for "attribute" or "pageSession" or "session"
+// FIXME:  The allowable types should be dynamically read
+		// Next look for "attribute", "page", "pageSession" or "session"
 		target = readToken();
 		if (!target.equals("attribute") && !target.equals("page")
+			&& !target.equals("pageSession")
 			&& !target.equals("session")) {
 		    throw new IllegalArgumentException(
 			"'attribute' or 'session' type is missing for Name Value "
@@ -215,6 +220,7 @@ public class TemplateParser {
 			+ "these formats:\n\t" + name
 			+ " => $attribute{attKey}\nor:\n\t" + name
 			+ " => $session{sessionKey}\nor:\n\t" + name
+			+ " => $pageSession{pageSessionKey}\nor:\n\t" + name
 			+ " => $page{pageSessionKey}");
 		}
 
