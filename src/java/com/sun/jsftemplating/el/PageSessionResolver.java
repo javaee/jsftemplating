@@ -58,14 +58,28 @@ public class PageSessionResolver extends VariableResolver {
      */
     public Object resolveVariable(FacesContext context, String name) throws EvaluationException {
 	Object result = null;
-	if (_origVariableResolver != null) {
-	    result = _origVariableResolver.resolveVariable(context, name);
-	}
-	if (result == null) {
-	    Map<String, Serializable> map =
-		getPageSession(context, (UIViewRoot) null);
-	    if (map != null) {
-		result = map.get(name);
+	// Check to see if expression explicitly asks for PAGE_SESSION
+	if (name.equals(PAGE_SESSION)) {
+	    // It does, return the Map
+	    UIViewRoot root = context.getViewRoot();
+	    result = getPageSession(context, root);
+	    if (result == null) {
+		// No Map!  That's ok, create one...
+		result = createPageSession(context, root);
+	    }
+	} else {
+	    if (_origVariableResolver != null) {
+		// Not explicit, let original resolver do its thing first...
+		result = _origVariableResolver.resolveVariable(context, name);
+	    }
+
+	    if (result == null) {
+		// Original resolver couldn't find anything, check page session
+		Map<String, Serializable> map =
+		    getPageSession(context, (UIViewRoot) null);
+		if (map != null) {
+		    result = map.get(name);
+		}
 	    }
 	}
 	return result;
@@ -82,7 +96,7 @@ public class PageSessionResolver extends VariableResolver {
 	    root = ctx.getViewRoot();
 	}
 	return (Map<String, Serializable>)
-	    root.getAttributes().get(PAGE_SESSION);
+	    root.getAttributes().get(PAGE_SESSION_KEY);
     }
 
     /**
@@ -98,7 +112,7 @@ public class PageSessionResolver extends VariableResolver {
 	Map<String, Serializable> map = new HashMap<String, Serializable>(4);
 
 	// Store it...
-	root.getAttributes().put(PAGE_SESSION, map);
+	root.getAttributes().put(PAGE_SESSION_KEY, map);
 
 	// Return it...
 	return map;
@@ -112,5 +126,11 @@ public class PageSessionResolver extends VariableResolver {
     /**
      *	<p> The attribute key in which to store the "page" session Map.</p>
      */
-    public static final String PAGE_SESSION	= "_ps";
+    private static final String PAGE_SESSION_KEY	= "_ps";
+
+    /**
+     *	<p> The name an expression must use when it explicitly specifies page
+     *	    session. ("pageSession")</p>
+     */
+    public static final String PAGE_SESSION		= "pageSession";
 }
