@@ -26,6 +26,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.util.LogUtil;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ import javax.faces.event.ActionEvent;
  *	<li>{@link #INT} -- {@link IntDataSource}</li>
  *	<li>{@link #METHOD_BINDING} -- {@link MethodBindingDataSource}</li>
  *	<li>{@link #OPTION} -- {@link OptionDataSource}</li>
+ *	<li>{@link #PAGE_SESSION} -- {@link PageSessionDataSource}</li>
  *	<li>{@link #PROPERTY} -- {@link PropertyDataSource}</li>
  *	<li>{@link #REQUEST_PARAMETER} --
  *		{@link RequestParameterDataSource}</li>
@@ -407,6 +409,7 @@ public class VariableResolver {
      *	<p> This {@link VariableResolver.DataSource} provides access to
      *	    PageSession attributes.  It uses the data portion of the
      *	    substitution String as a key to the PageSession attribute Map.</p>
+    */
     public static class PageSessionDataSource implements DataSource {
 	/**
 	 *  <p>	See class JavaDoc.</p>
@@ -418,15 +421,17 @@ public class VariableResolver {
 	 *			<code>DataSource</code>.
 	 *
 	 *  @return The value resolved from key.
-	public Object getValue(FacesContext ctx, LayoutElement desc,
-		UIComponent component, String key) {
-	    while (desc.getParent() != null) {
-		desc = desc.getParent();
+	 */
+	public Object getValue(FacesContext ctx, LayoutElement desc, UIComponent component, String key) {
+	    Map<String, Serializable> map =
+		PageSessionResolver.getPageSession(ctx, ctx.getViewRoot());
+	    Serializable value = null;
+	    if (map != null) {
+		value = map.get(key);
 	    }
-	    return ((ViewBean)desc.getView(ctx)).getPageSessionAttribute(key);
+	    return value;
 	}
     }
-    */
 
     /**
      *	<p> This {@link VariableResolver.DataSource} provides access to
@@ -1220,8 +1225,8 @@ public class VariableResolver {
     /**
      *	<p> Defines "pageSession" in $pageSession{...}.  This allows you to
      *	    retrieve a PageSession attribute.</p>
-    public static final String	    PAGE_SESSION	= "pageSession";
     */
+    public static final String	    PAGE_SESSION	= "pageSession";
 
     /**
      *	<p> Defines "property" in $property{...}.  This allows you to
@@ -1325,7 +1330,7 @@ public class VariableResolver {
 	dataSourceMap.put("", attrDS);
 	dataSourceMap.put(ATTRIBUTE, attrDS);
 	dataSourceMap.put(OPTION, new OptionDataSource());
-//	dataSourceMap.put(PAGE_SESSION, new PageSessionDataSource());
+	dataSourceMap.put(PAGE_SESSION, new PageSessionDataSource());
 	dataSourceMap.put(PROPERTY, new PropertyDataSource());
 	dataSourceMap.put(HAS_PROPERTY, new HasPropertyDataSource());
 	dataSourceMap.put(HAS_FACET, new HasFacetDataSource());
