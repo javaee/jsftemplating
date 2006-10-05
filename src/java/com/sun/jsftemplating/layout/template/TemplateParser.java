@@ -622,6 +622,14 @@ public class TemplateParser {
 	    buf.replace(idx, idx+2, "\n");
 	    idx = buf.indexOf("\\n", idx+1);
 	}
+
+	// Check to see if '\' character is at eol, if so read next line too
+	int lastChar = buf.length() - 1;
+	if ((lastChar >= 0) && (buf.charAt(lastChar) == '\\')) {
+	    buf.deleteCharAt(lastChar);
+	    buf.append(readLine());
+	}
+
 	return buf.toString();
     }
 
