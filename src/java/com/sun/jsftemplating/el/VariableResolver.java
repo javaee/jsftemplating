@@ -839,19 +839,28 @@ public class VariableResolver {
 	    ResourceBundle bundle = (ResourceBundle) obj;
 
 	    // Return the result of the ResouceBundle lookup
+	    String str = null;
 	    try {
-		value = bundle.getString(key.substring(separator + 1));
+		str = bundle.getString(key.substring(separator + 1));
+		if (str == null) {
+		    str = key;
+		}
 	    } catch (MissingResourceException ex) {
-// FIXME: I18N...
-		LogUtil.info("Unable to find key: "
-			+ key.substring(separator + 1), ex);
-		value = key;
-	    }
-	    if (value == null) {
-		value = key;
+		if (LogUtil.configEnabled()) {
+		    LogUtil.config("Unable to find key: '"
+			+ key.substring(separator + 1)
+			+ "' in ResourceBundle '" + value
+			+ "'.  Perhaps this needs to be added?", ex);
+		} else if (LogUtil.infoEnabled()) {
+		    // Info log level, don't be verbose, just display a benign
+		    // warning.
+		    LogUtil.info("WEBUI0003",
+			new Object[] {key.substring(separator + 1), value});
+		}
+		str = key;
 	    }
 
-	    return value;
+	    return str;
 	}
     }
 
