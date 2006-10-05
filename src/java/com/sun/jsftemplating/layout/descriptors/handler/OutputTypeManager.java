@@ -171,13 +171,15 @@ public class OutputTypeManager {
     public static final String  REQUEST_ATTRIBUTE_TYPE	=   "attribute";
     public static final String  SESSION_ATTRIBUTE_TYPE	=   "session";
     public static final String  PAGE_ATTRIBUTE_TYPE	=   "page";
+    public static final String  PAGE_ATTRIBUTE_TYPE2	=   "pageSession";
 
     static {
 	_outputTypes.put(REQUEST_ATTRIBUTE_TYPE,
 		new RequestAttributeOutputType());
 	_outputTypes.put(SESSION_ATTRIBUTE_TYPE,
 		new SessionAttributeOutputType());
-	_outputTypes.put(PAGE_ATTRIBUTE_TYPE,
-		new PageAttributeOutputType());
+	PageAttributeOutputType pageType = new PageAttributeOutputType();
+	_outputTypes.put(PAGE_ATTRIBUTE_TYPE, pageType);
+	_outputTypes.put(PAGE_ATTRIBUTE_TYPE2, pageType);
     }
 }
