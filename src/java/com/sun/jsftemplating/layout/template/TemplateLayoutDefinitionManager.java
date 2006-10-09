@@ -117,6 +117,9 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 			    // and should be ignored for this format
 			    return false;
 			}
+		    } else if (ch == '%') {
+			// "<%@page ..."-type JSP stuff not valid
+			return false;
 		    }
 		    return true;
 		case '\"':
