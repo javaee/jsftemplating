@@ -77,6 +77,8 @@ public class UtilHandlers {
     /**
      *	<p> This handler writes using
      *	    <code>FacesContext.getResponseWriter()</code>.</p>
+     *
+     *	@param	context	The HandlerContext.
      */
     @Handler(id="write",
 	input={@HandlerInput(name="value", type=String.class, required=true)})
@@ -316,6 +318,8 @@ public class UtilHandlers {
      *	    stack trace.  The output will go to stderr and will also be
      *	    returned in the output value "stackTrace".  An optional message
      *	    may be provided to be included in the trace.</p>
+     *
+     *	@param	context	The HandlerContext.
      */
     @Handler(id="printStackTrace",
 	input={
@@ -341,7 +345,9 @@ public class UtilHandlers {
     
     /**
      *	<p> This handler prints out the contents of the given UIComponent's
-     *	    attribute map./p>
+     *	    attribute map.</p>
+     *
+     *	@param	context	The HandlerContext.
      */
     @Handler(id="dumpAttributeMap",
 	input={
@@ -362,7 +368,9 @@ public class UtilHandlers {
 
     /**
      *	<p> This handler prints out the contents of the given UIComponent's
-     *	    attribute map./p>
+     *	    attribute map.</p>
+     *
+     *	@param	context	The HandlerContext.
      */
     @Handler(id="urlencode",
 	input={
@@ -374,5 +382,63 @@ public class UtilHandlers {
 	String value = (String) context.getInputValue("value");
 	value = URLEncoder.encode(value);
 	context.setOutputValue("value", value);
+    }
+
+    /**
+     *	<p> This is a handler for my presentation demo.</p>
+     *
+     *	@param	context	The HandlerContext.
+     */
+    @Handler(id="getUserResponse",
+	input={
+	    @HandlerInput(name="userInput", type=String.class)
+	},
+	output={
+	    @HandlerOutput(name="response", type=String.class)})
+    public static void calculateResponse(HandlerContext context) {
+	// Get the input.
+	String in = (String) context.getInputValue("userInput");
+
+	// Do business logic...
+	String resp = "Type something and click 'Go!'";
+	if (in != null) {
+	    if (in.equals("abc")) {
+		resp = "Congratulations, you did it!";
+	    } else {
+		resp = "You typed " + in + ", try typing 'abc'.";
+	    }
+	}
+
+	// Set the output.
+	context.setOutputValue("response", resp);
+    }
+
+    /**
+     *	<p> This handler marks the response complete.  This means that no
+     *	    additional response will be sent.  This is useful if you've
+     *	    provided a response already and you don't want JSF to do it again
+     *	    (it may cause problems to do it 2x).</p>
+     *
+     *	@param	context	The HandlerContext.
+     */
+    @Handler(id="responseComplete")
+    public static void responseComplete(HandlerContext context) {
+	context.getFacesContext().responseComplete();
+    }
+
+    /**
+     *	<p> This handler indicates to JSF that the request should proceed
+     *	    immediately to the render response phase.  It will be ignored if
+     *	    rendering has already begun.  This is useful if you want to stop
+     *	    processing and jump to the response.  This is often the case when
+     *	    an error ocurrs or validation fails.  Typically the page the user
+     *	    is on will be reshown (although if navigation has already
+     *	    occurred, the new page will be shown.</p>
+     *
+     *	@param	context	The HandlerContext.
+     */
+    @Handler(id="renderResponse")
+    public static void renderResponse(HandlerContext context) {
+	context.getFacesContext().renderResponse();
     }
 }
