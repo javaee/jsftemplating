@@ -322,28 +322,34 @@ public abstract class LayoutElementBase implements LayoutElement {
      *	    This may be available as a static method in the future.</p>
      */
     public Object dispatchHandlers(HandlerContext handlerCtx, List<Handler> handlers) {
+	FacesContext ctx = handlerCtx.getFacesContext();
 	Object retVal = null;
 	Object result = null;
-	Handler handler = null;
-	Iterator<Handler> it = handlers.iterator();
-	while (it.hasNext()) {
-	    try {
-		// Get the Handler
-		handler = it.next();
-		handlerCtx.setHandler(handler);
+	// Only check for renderResponse if we're not already doing it
+	boolean checkRenderResp = !ctx.getRenderResponse();
 
+	// Iterate through the handlers...
+	for (Handler handler : handlers) {
+	    if (ctx.getResponseComplete() ||
+		    (checkRenderResp && ctx.getRenderResponse())) {
+		// If we shouldn't continue, just return the result.
+		// Should we throw an AbortProcessingException
+		return result;
+	    }
+	    handlerCtx.setHandler(handler);
+	    try {
 		// Delegate to the Handler to perform invocation
 		retVal = handler.invoke(handlerCtx);
-
-		// Check for return value
-		if (retVal != null) {
-		    result = retVal;
-		}
 	    } catch (Exception ex) {
 		throw new RuntimeException(
 		    ex.getClass().getName() + " while attempting to "
 		    + "process a '" + handlerCtx.getEventType()
 		    + "' event for '" + getId() + "'.", ex);
+	    }
+
+	    // Check for return value
+	    if (retVal != null) {
+		result = retVal;
 	    }
 	}
 
