@@ -2,10 +2,8 @@
 HOW TO BUILD jsftemplating.jar
 ==============================
 
-It is recommended that you use the version of ant included in the lib/ant
-directory.  This version includes the "apt" ant target needed by this
-project.  You may use your own version, see lib/external/README.txt for
-more information, you will need ant 1.6 or a more recent build.
+You must use ant 1.6.x or higher.  There is a version of ant included in the
+lib/ant directory of the jsftemplating project.
 
 1) From a terminal (or command prompt) window, "cd" to the jsftemplating
    root directory.  For example:
@@ -33,23 +31,18 @@ more information, you will need ant 1.6 or a more recent build.
 
 ** If you want to use netbeans to build this project, skip Step 4 and follow Step 5 instead.
 
-4) Run ant:
+4) From the "jsftemplating" directory, run ant:
 
-    lib/ant/bin/ant
+    ant clean build
+
+If you don't have any on your machine, there is a copy provided as part of
+jsftemplating, try:
+
+    lib/ant/bin/ant clean build
 
   windows:
 
-    lib\ant\bin\ant.bat
-
-  NOTE: You may want to put the ant "bin" directory in your path.  You should
-        also make sure ANT_HOME is not set, or is set to the ant that is
-	included with this project.
-
-  NOTE: On some machines with ant preinstalled, you may need to use the
-	--noconfig option to pick up the ant jar files under lib/ant when
-	building. e.g.:
-
-    ant --noconfig clean
+    lib\ant\bin\ant.bat clean build
 
 That's it!  The jsftemplating.jar file can be found in your "dist"
 directory. 
