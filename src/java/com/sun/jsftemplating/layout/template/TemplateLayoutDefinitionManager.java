@@ -25,6 +25,7 @@ package com.sun.jsftemplating.layout.template;
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.util.FileUtil;
 
 import java.io.IOException;
 import java.net.URL;
@@ -90,7 +91,7 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
      *	    exception is thrown, it will return <code>false</code>.</p>
      */
     public boolean accepts(String key) {
-	URL url = searchForFile(key);
+	URL url = FileUtil.searchForFile(key, ".jsf");
 	if (url == null) {
 	    return false;
 	}
@@ -153,7 +154,7 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 	// See if we already have this one.
 	LayoutDefinition ld = getCachedLayoutDefinition(key);
 	if (ld == null) {
-	    URL url = searchForFile(key);
+	    URL url = FileUtil.searchForFile(key, ".jsf");
 
 	    // Make sure we found the url
 	    if (url == null) {

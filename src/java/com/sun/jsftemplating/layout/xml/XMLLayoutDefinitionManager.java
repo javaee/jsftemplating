@@ -27,6 +27,7 @@ import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.template.TemplateParser;
 import com.sun.jsftemplating.util.ClasspathEntityResolver;
+import com.sun.jsftemplating.util.FileUtil;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -107,7 +108,7 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
      *	    key.</p>
      */
     public boolean accepts(String key) {
-	URL url = searchForFile(key);
+	URL url = FileUtil.searchForFile(key, ".jsf");
 	if (url == null) {
 	    return false;
 	}
@@ -144,7 +145,7 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 	// See if we already have this one.
 	LayoutDefinition ld = getCachedLayoutDefinition(key);
 	if (ld == null) {
-	    URL url = searchForFile(key);
+	    URL url = FileUtil.searchForFile(key, ".jsf");
 
 	    // Make sure we found the url
 	    if (url == null) {
@@ -221,7 +222,7 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 	String baseURI = (String) getAttribute(BASE_URI);
 	if (baseURI == null) {
 	    // Use docroot for the baseURI.
-	    baseURI = getResource("").toString();
+	    baseURI = FileUtil.getResource("").toString();
 	}
 	return baseURI;
     }
