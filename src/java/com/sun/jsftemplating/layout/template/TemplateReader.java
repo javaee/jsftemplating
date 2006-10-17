@@ -342,7 +342,7 @@ public class TemplateReader {
 // FIXME: An Illegal argument exception may be thrown, in this case the
 // FIXME: component name is not available and is hard to find.  Catch this
 // FIXME: error here and add more information so the stack trace is readable.
-	    nvp = parser.getNVP();
+	    nvp = parser.getNVP(null);
 	    if (nvp.getName().equals(ID_ATTRIBUTE)) {
 		// Found id... (id must be a String, not an array / List)
 		id = nvp.getValue().toString();
@@ -742,6 +742,8 @@ public class TemplateReader {
 	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String eventName) throws IOException {
 	    String handlerId = null;
 	    String target = null;
+	    String val = null;
+	    Map inputs = null;
 	    NameValuePair nvp = null;
 	    HandlerDefinition def = null;
 	    Handler handler = null;
@@ -774,6 +776,12 @@ public class TemplateReader {
 		handler = new Handler(def);
 		handlers.add(handler);
 
+		// Get the default name
+		inputs = def.getInputDefs();
+		if (inputs.size() == 1) {
+		    val = inputs.keySet().toArray()[0].toString();
+		}
+
 		// Ensure we have an opening parenthesis
 		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 		ch = parser.nextChar();
@@ -789,7 +797,12 @@ public class TemplateReader {
 		while ((ch != -1) && (ch != ')')) {
 		    // Read NVP
 		    parser.unread(ch);
-		    nvp = parser.getNVP();
+		    try {
+			nvp = parser.getNVP(val);
+		    } catch (SyntaxException ex) {
+			throw new SyntaxException("Unable to process handler '"
+				+ def.getId() + "'!", ex);
+		    }
 		    parser.skipCommentsAndWhiteSpace(
 			parser.SIMPLE_WHITE_SPACE + ",;");
 		    ch = parser.nextChar();

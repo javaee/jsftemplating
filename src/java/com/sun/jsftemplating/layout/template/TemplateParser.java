@@ -131,6 +131,8 @@ public class TemplateParser {
      *	<code>
      *	<ul><li>keyName="keyValue"</li>
      *	    <li>keyName='keyValue'</li>
+     *	    <li>"keyValue" (only if defName is supplied)</li>
+     *	    <li>'keyValue' (only if defName is supplied)</li>
      *	    <li>keyName=&gt;$attribute{attributeKey}</li>
      *	    <li>keyName=&gt;$session{sessionKey}</li></ul>
      *	    <li>keyName=&gt;$page{pageSessionKey}</li></ul>
@@ -144,7 +146,7 @@ public class TemplateParser {
      *	    may be useful if a backslash, single, or double quote exists in
      *	    the string.</p>
      *
-     *	<p> The last two formats are only used for mapping return values.
+     *	<p> The last four formats are only used for mapping return values.
      *	    This is necessary when a handler returns a value so that the value
      *	    can be stored somewhere.  <code>keyName</code> in these cases is
      *	    the name of the return value to map.  The value after the dollar
@@ -156,11 +158,22 @@ public class TemplateParser {
      *
      *	<p> The return value is of type {@link NameValuePair}.  This object
      *	    contains the necessary information to interpret this NVP.</p>
+     *
+     *	@param	defName	The default name to use if ommitted.  If
+     *			<code>null</code>, no default will be used -- a
+     *			{@link SyntaxException} will be generated.
      */
-    public NameValuePair getNVP() throws IOException {
-
+    public NameValuePair getNVP(String defName) throws IOException {
 	// Read the name
 	String name = readToken();
+
+	// Check for empty name
+	if (name.length() == 0) {
+	    if (defName != null) {
+		name = defName;	// Add a name
+		unread('=');	// Add an '=' character
+	    }
+	}
 
 	// Skip White Space
 	skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
@@ -168,10 +181,7 @@ public class TemplateParser {
 	// Ensure next character is '='
 	int next = nextChar();
 	if ((next != '=') && (next != ':')) {
-// FIXME: Improve error messages by providing some context
-// FIXME: Define own exceptions
-// FIXME: Localize exceptions
-	    throw new IllegalArgumentException(
+	    throw new SyntaxException(
 		"'=' or ':' missing for Name Value Pair: '" + name + "'!");
 	}
 
