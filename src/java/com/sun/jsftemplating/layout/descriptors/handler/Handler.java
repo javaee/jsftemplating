@@ -23,8 +23,10 @@
 package com.sun.jsftemplating.layout.descriptors.handler;
 
 import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.el.PermissionChecker;
 import com.sun.jsftemplating.layout.event.UIComponentHolder;
 import com.sun.jsftemplating.util.TypeConverter;
+import com.sun.jsftemplating.util.LogUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,13 +49,32 @@ import javax.faces.component.UIComponent;
  *	following method signature:</p>
  *
  *  <p> <BLOCKQUOTE>
- *	    </CODE>
- *		public void beginDisplay(HandlerContext handlerCtx)
+ *	    <CODE>
+ *		public void doSomething(HandlerContext handlerCtx)
  *	    </CODE>
  *	</BLOCKQUOTE></p>
  *
- *  <p>	<code>void</code> above can return a value.  Depending on the type of
+ *  <p>	<code>void</code> be replaced with any type.  Depending on the type of
  *	event, return values may be handled differently.</p>
+ *
+ *  <p>	It is advisable to use Java annotations when defining a <strong>handler
+ *	method</strong>.  See examples of annotations in the
+ *	{@link com.sun.jsftemplating.handlers} package.  Here is an example:</p>
+ *
+ *  <p> <BLOCKQUOTE>
+ *	    <CODE>
+ *		@Handler(id="abc:doSomething",
+ *		    input={
+ *			@HandlerInput(name="foo", type=Integer.class),
+ *			@HandlerInput(name="bar", type=My.class, required=true)
+ *		    },
+ *		    output={
+ *			@HandlerOutput(name="result", type=String.class)
+ *		    }
+ *		)
+ *		public void doSomething(HandlerContext handlerCtx)
+ *	    </CODE>
+ *	</BLOCKQUOTE></p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
@@ -291,10 +312,33 @@ public class Handler implements java.io.Serializable {
     }
 
     /**
-     *
+     *	<p> This method returns the {@link OutputMapping} for the given
+     *	    <code>name</code>.  If not found, it will return
+     *	    <code>null</code>.</p>
      */
     public OutputMapping getOutputValue(String name) {
 	return _outputs.get(name);
+    }
+
+    /**
+     *	<p> This method returns the condition that must be true in order for
+     *	    this <code>Handler</code> (or its child <code>Handler</code>s) to
+     *	    be invoked.  If this condition is empty ("") or <code>null</code>,
+     *	    it is considered to be true.</p>
+     */
+    public String getCondition() {
+	return _condition;
+    }
+
+    /**
+     *	<p> This method sets the condition that must evaluate to true in order
+     *	    for this <code>Handler</code> to be invoked.</p>
+     */
+    public void setCondition(String cond) {
+	if (cond != null) {
+	    cond = cond.trim();
+	}
+	_condition = cond;
     }
 
     /**
@@ -305,33 +349,49 @@ public class Handler implements java.io.Serializable {
     }
 
     /**
+     *	<p> This method is responsible for invoking this <code>Handler</code>
+     *	    as well as all child <code>Handler</code>s.  Neither will be
+     *	    invoked if this methods condition is non-null and unstatisfied
+     *	    (see {@link getCondition()}).  The method associated with this
+     *	    <code>Handler</code> will be invoked first, then any child
+     *	    <code>Handler</code>s.</p>
      *
+     *	@param	handlerContext	The {@link HandlerContext}.
      */
     public Object invoke(HandlerContext handlerContext) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-	Object retVal = null;
+	Object result = null;
 	HandlerDefinition handlerDef = getHandlerDefinition();
-	Method method = handlerDef.getHandlerMethod();
 
-	// First execute all child handlers
-	// A copy is provided of the HandlerContext to avoid the Handler being
-	// changed before we execute this Handler.
-	Object result = handlerContext.getLayoutElement().dispatchHandlers(
-		new HandlerContextImpl(handlerContext),
-		handlerDef.getChildHandlers());
+	// Invoke
+	if (hasPermission(handlerContext)) {
+	    // Only attempt to do this if there is a handler method, there
+	    // might only be child handlers
+	    Method method = handlerDef.getHandlerMethod();
+	    if (method != null) {
+		Object instance = null;
+		if (!isStatic()) {
+		    // Get the class that contains the method
+		    instance = method.getDeclaringClass().newInstance();
+		}
 
-	// Only attempt to do this if there is a handler method, there
-	// might only be child handlers
-	if (method != null) {
-	    Object instance = null;
-	    if (!isStatic()) {
-		// Get the class that contains the method
-		instance = method.getDeclaringClass().newInstance();
+		// Invoke the Method
+		result = method.invoke(instance, new Object[] {handlerContext});
 	    }
 
-	    // Invoke the Method
-	    retVal = method.invoke(instance, new Object[] {handlerContext});
+	    // Execute all child handlers
+	    // A copy is provided of the HandlerContext to avoid the Handler
+	    // being changed before we execute this Handler.
+	    Object retVal = handlerContext.getLayoutElement().dispatchHandlers(
+		    new HandlerContextImpl(handlerContext),
+		    handlerDef.getChildHandlers());
 	    if (retVal != null) {
 		result = retVal;
+	    }
+	} else {
+	    if (LogUtil.finerEnabled()) {
+		LogUtil.finer("Handler '" + handlerDef.getId()
+			+ "' skipped because condition not met: '"
+			+ getCondition() + "'.");
 	    }
 	}
 
@@ -339,11 +399,39 @@ public class Handler implements java.io.Serializable {
 	return result;
     }
 
+    /**
+     *	<p> This method determines if the condition
+     *	    (see {@link #getCondition()}) is satisfied.</p>
+     *
+     *	@return	true	if the condition is met.
+     */
+    public boolean hasPermission(HandlerContext handlerContext) {
+	String cond = getCondition();
+	if ((cond == null) || cond.equals("")) {
+	    return true;
+	}
+
+	// Try to get the UIComponent
+	UIComponent comp = null;
+	Object obj = handlerContext.getEventObject();
+	if (obj instanceof UIComponent) {
+	    comp = (UIComponent) obj;
+	}
+
+	// Create a PermissionChecker
+	PermissionChecker checker = new PermissionChecker(
+		handlerContext.getLayoutElement(), comp, cond);
+
+	// Return the result
+	return checker.hasPermission();
+    }
+
 
     private HandlerDefinition _handlerDef = null;
 
-    private Map<String, Object> _inputs = new HashMap<String, Object>();
+    private String _condition = null;
 
+    private Map<String, Object> _inputs = new HashMap<String, Object>();
     private Map<String, OutputMapping> _outputs =
 	new HashMap<String, OutputMapping>();
 }
