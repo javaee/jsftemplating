@@ -33,7 +33,6 @@ import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
 import com.sun.jsftemplating.util.Util;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -45,7 +44,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.faces.context.FacesContext;
-import javax.faces.component.UIComponent;
 
 
 /**
@@ -103,89 +101,6 @@ public abstract class LayoutDefinitionManager {
      *	    appropriate.</p>
      */
     public abstract boolean accepts(String key);
-
-    /**
-     *	<p> This method checks for the <code>relPath</code> in the docroot of
-     *	    the application.  This should work in both Portlet and Servlet
-     *	    environments.  If <code>FacesContext</code> is null, null will be
-     *	    returned.</p>
-     */
-    public static URL getResource(String relPath) {
-	FacesContext facesContext = FacesContext.getCurrentInstance();
-	if (facesContext == null) {
-	    return null;
-	}
-	Object ctx = facesContext.getExternalContext().getContext();
-	URL url = null;
-
-	// The following should work w/ a ServletContext or PortletContext
-	Method method = null;
-	try {
-	    method = ctx.getClass().getMethod(
-		    "getResource", GET_RESOURCE_ARGS);
-	} catch (NoSuchMethodException ex) {
-	    throw new LayoutDefinitionException("Unable to find "
-		+ "'getResource' method in this environment!", ex);
-	}
-	try {
-	    url = (URL) method.invoke(ctx, new Object [] {"/" + relPath});
-	} catch (IllegalAccessException ex) {
-	    throw new LayoutDefinitionException(ex);
-	} catch (InvocationTargetException ex) {
-	    throw new LayoutDefinitionException(ex);
-	}
-
-	return url;
-    }
-
-    /**
-     *	<p> This method searches for the given relative path filename.  It
-     *	    first looks relative the context root of the application, it
-     *	    then looks in the classpath, including relative to the
-     *	    <code>META-INF</code> folder.  If found a <code>URL</code> to the
-     *	    file will be returned.</p>
-     */
-    public static URL searchForFile(String relPath) {
-	// Remove leading '/' characters if needed
-	while (relPath.startsWith("/")) {
-	    relPath = relPath.substring(1);
-	}
-
-	// Check for file in docroot.
-	URL url = getResource(relPath);
-	if (url == null) {
-	    // Check the classpath for the file
-	    ClassLoader loader = Util.getClassLoader(relPath);
-	    url = loader.getResource(relPath);
-	    if (url == null) {
-		// Check w/ a leading '/'
-		url = loader.getResource("/" + relPath);
-		if (url == null) {
-		    // Check in "META-INF/"
-		    url = loader.getResource("META-INF/" + relPath);
-		    if (url == null) {
-			// Check to see if the extension is not .jsf, if not
-			// then try finding w/ the extension of .jsf
-			// This allows developers to write .jsf files and
-			// share them even if the FacesServlet is mapped
-			// differently
-			int idx = relPath.lastIndexOf('.');
-			if (idx != -1) {
-			    String ext = relPath.substring(idx);
-			    if (!ext.equalsIgnoreCase(".jsf")) {
-				return searchForFile(
-				    relPath.substring(0, idx) + ".jsf");
-			    }
-			} else {
-			    return searchForFile(
-				relPath + ".jsf");
-			}
-		    }
-		}
-	    }
-	}
-	return url;
-    }
 
     /**
      *	<p> This method should be used to obtain a {@link LayoutDefinition}.
@@ -770,10 +685,4 @@ public abstract class LayoutDefinitionManager {
      *		    runtime changes in this flag.
      */
     public static final boolean DEBUG = isDebug();
-
-    /**
-     *
-     */
-    private static final Class [] GET_RESOURCE_ARGS =
-	    new Class[] {String.class};
 }
