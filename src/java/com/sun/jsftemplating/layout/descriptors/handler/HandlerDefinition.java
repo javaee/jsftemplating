@@ -244,32 +244,41 @@ public class HandlerDefinition implements java.io.Serializable {
     }
 
     /**
-     *	This method adds a Handler to the list of child handlers.  Child
-     *	Handlers are executed PRIOR to this handler executing.
+     *	<p> This method adds a {@link Handler} to the list of child
+     *	    {@link Handler}s.  Child {@link Handler}s are executed AFTER this
+     *	    {@link Handler} is executed.</p>
      *
-     *	@param desc	The Handler to add
+     *	@param desc	The {@link Handler} to add.
      */
     public void addChildHandler(Handler desc) {
+	if (_childHandlers == _emptyList) {
+	    _childHandlers = new ArrayList();
+	}
 	_childHandlers.add(desc);
     }
 
     /**
-     *	This method sets the List of child Handlers for this HandlerDefinition.
+     *	<p> This method sets the <code>List</code> of child {@link Handler}s
+     *	    for this <code>HandlerDefinition</code>.
      *
-     *	@param childHandlers	The List of child Handler objects
+     *	@param childHandlers	The <code>List</code> of child
+     *				{@link Handler}s.
      */
     public void setChildHandlers(List<Handler> childHandlers) {
-	if (childHandlers == null) {
-	    throw new IllegalArgumentException(
-		"childHandlers cannot be null!");
+	if ((childHandlers == null) || (childHandlers.size() == 0)) {
+	    childHandlers = _emptyList;
 	}
 	_childHandlers = childHandlers;
     }
 
     /**
-     *	This method retrieves the List of child Handler.
+     *	<p> This method retrieves the <code>List</code> of child
+     *	    {@link Handler}s.  This <code>List</code> should not be changed
+     *	    directly.  Call {@link #addChildHandler()}, or make a copy and call
+     *	    {@link #setChildHandlers()}.</p>
      *
-     *	@return The List of child Handler for this handler.
+     *	@return The <code>List</code> of child {@link Handler}s for this
+     *		<code>HandlerDefinition</code>.
      */
     public List<Handler> getChildHandlers() {
 	return _childHandlers;
@@ -318,8 +327,9 @@ public class HandlerDefinition implements java.io.Serializable {
     private transient Method	_method		    = null;
     private Map<String, IODescriptor>	_inputDefs  = new HashMap<String, IODescriptor>(5);
     private Map<String, IODescriptor>	_outputDefs = new HashMap<String, IODescriptor>(5);
-    private List<Handler>	_childHandlers	    = new ArrayList<Handler>(5);
-    private transient Boolean	_static		     = null;
+    private List<Handler>	_childHandlers	    = _emptyList;
+    private transient Boolean	_static		    = null;
 
+    private static final List<Handler> _emptyList   = new ArrayList<Handler>(0);
     private static final long serialVersionUID = 0xA8B7C6D5E4F30211L;
 }
