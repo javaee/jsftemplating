@@ -27,7 +27,13 @@ import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
 import com.sun.jsftemplating.layout.descriptors.Resource;
+import com.sun.jsftemplating.util.Util;
+import com.sun.jsftemplating.util.LogUtil;
+import com.sun.jsftemplating.util.fileStreamer.Context;
+import com.sun.jsftemplating.util.fileStreamer.FacesStreamerContext;
+import com.sun.jsftemplating.util.fileStreamer.FileStreamer;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Iterator;
@@ -45,15 +51,16 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.RenderKit;
 import javax.faces.render.RenderKitFactory;
-
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 
 // FIXME: Things to consider:
 // FIXME:   - What is necessary to support Portlets...
 // FIXME:   - Should I attempt to clean up old unused UIComponents?
 // FIXME:   - f:view supported setting locale, I should too...
-
 
 /**
  *  <p>	This class provides a custom <code>ViewHandler</code> that is able to
@@ -93,6 +100,13 @@ public class LayoutViewHandler extends ViewHandler {
      *	    JSP pages.</p>
      */
     public UIViewRoot createView(FacesContext context, String viewId) {
+	// Check to see if this is a resource request
+	String path = getResourcePath(viewId);
+	if (path != null) {
+	    // Serve Resource
+	    return serveResource(context, path);
+	}
+
 	Locale locale = null;
 	String renderKitId = null;
 
@@ -157,6 +171,135 @@ ex.printStackTrace();
 
 	// Return the populated UIViewRoot
 	return viewRoot;
+    }
+
+    /**
+     *	<p> If this is a resource request, this method will handle the
+     *	    request.</p>
+     */
+    public UIViewRoot serveResource(FacesContext context, String path) {
+	// Mark the response complete so no more processing occurs
+	context.responseComplete();
+
+	// Create dummy UIViewRoot
+	UIViewRoot root = new UIViewRoot();
+	root.setRenderKitId("dummy");
+
+	// Setup the FacesStreamerContext
+	Context fsContext = new FacesStreamerContext(context);
+	fsContext.setAttribute("filePath", path);
+
+	// Get the HttpServletResponse
+	Object obj = context.getExternalContext().getResponse();
+	HttpServletResponse resp = null;
+	if (obj instanceof HttpServletResponse) {
+	    resp = (HttpServletResponse) obj;
+
+	    // We have an HttpServlet response, do some extra stuff...
+	    // Check the last modified time to see if we need to serve the resource
+	    long mod = fsContext.getContentSource().getLastModified(fsContext);
+	    if (mod != -1) {
+		long ifModifiedSince = ((HttpServletRequest)
+			context.getExternalContext().getRequest()).
+			getDateHeader("If-Modified-Since");
+		// Round down to the nearest second for a proper compare
+		if (ifModifiedSince < (mod / 1000 * 1000)) {
+		    // A ifModifiedSince of -1 will always be less
+		    resp.setDateHeader("Last-Modified", mod);
+		} else {
+		    // Set not modified header and complete response
+		    resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+		    return root;
+		}
+	    }
+	}
+
+	// Stream the content
+	try {
+	    FileStreamer.getFileStreamer().streamContent(fsContext);
+	} catch (FileNotFoundException ex) {
+	    if (LogUtil.infoEnabled()) {
+		LogUtil.info("WEBUI0004", (Object) path);
+	    }
+	    if (resp != null) {
+		try {
+		    ((HttpServletResponse) resp).sendError(
+			   HttpServletResponse.SC_NOT_FOUND);
+		} catch (IOException ioEx) {
+		    // Ignore
+		}
+	    }
+	} catch (IOException ex) {
+	    if (LogUtil.infoEnabled()) {
+		LogUtil.info("WEBUI0004", (Object) path);
+		if (LogUtil.fineEnabled()) {
+		    LogUtil.fine(
+			"Resource (" + path + ") not available!", ex);
+		}
+	    }
+	}
+
+	// Return dummy UIViewRoot to avoid NPE
+	return root;
+    }
+
+    /**
+     *	<p> This method checks the given viewId and returns a the path to the
+     *	    requested resource if it refers to a resource.  Resources are
+     *	    things like JavaScript files, images, etc.  Basically anything that
+     *	    is not a JSF page that you'd like to serve up via the FacesServlet.
+     *	    Serving resources this way allows you to bundle the resources in a
+     *	    jar file, this is useful if you want to package up part of an app
+     *	    (or a JSF component) in a single file.</p>
+     *
+     *	<p> A request for a resource must be prefixed by the resource prefix,
+     *	    see @{link #getResourcePrefix}.  This prefix must also be mapped to
+     *	    the <code>FacesServlet</code> in order for this class to handle the
+     *	    request.</p>
+     */
+    public String getResourcePath(String viewId) {
+	ExternalContext extCtx = FacesContext.getCurrentInstance().getExternalContext();
+// FIXME: Portlet
+	if (extCtx.getRequestServletPath().equals(getResourcePrefix())) {
+	    return extCtx.getRequestPathInfo();
+	}
+	return null;
+    }
+
+    /**
+     *	<p> This method returns the prefix that a URL must contain in order to
+     *	    retrieve a "resource" through this <code>ViewHandler</code>.</p>
+     *
+     *	<p> The prefix itself does not manifest itself in the file system /
+     *	    classpath.</p>
+     *
+     *	<p> If the prefix is not set, then an init parameter (see
+     *	    {@link #RESOURCE_PREFIX}) will be checked.  If that is still not
+     *	    specified, then the {@link DEFAULT_RESOURCE_PREFIX} will be
+     *	    used.</p>
+     */
+    public String getResourcePrefix() {
+	if (_resourcePrefix == null) {
+	    // Check to see if it's specified by a context param
+	    // Get context parameter map (initParams in JSF are context params)
+	    _resourcePrefix = (String) FacesContext.getCurrentInstance().
+		getExternalContext().getInitParameterMap().get(RESOURCE_PREFIX);
+	    if (_resourcePrefix == null) {
+		// Still not set, use default
+		_resourcePrefix = DEFAULT_RESOURCE_PREFIX;
+	    }
+	}
+	return _resourcePrefix;
+    }
+
+    /**
+     *	<p> This method allows a user to set the resource prefix which will be
+     *	    checked to obtain a resource via this <code>Viewhandler</code>.
+     *	    Currently, only 1 prefix is supported.  The prefix itself does not
+     *	    manifest itself in the file system / classpath.</p>
+     */
+    public void setResourcePrefix(String prefix) {
+	_resourcePrefix = prefix;
     }
 
     /**
@@ -287,6 +430,7 @@ ex.printStackTrace();
 	}
 
 	ExternalContext extCtx = context.getExternalContext();
+// FIXME: Portlet?
 	ServletResponse response = (ServletResponse) extCtx.getResponse();
 
 	RenderKitFactory renderFactory = (RenderKitFactory)
@@ -300,6 +444,7 @@ ex.printStackTrace();
 	} else if (!contentTypeList.toLowerCase().contains("text/html")) {
 	    contentTypeList += ",text/html;q=1.0";
 	}
+// FIXME: Portlet?
 	writer =
 	    renderKit.createResponseWriter(
 		new OutputStreamWriter(response.getOutputStream()),
@@ -417,6 +562,21 @@ ex.printStackTrace();
     public static final String AJAX_REQ_KEY		= "ajaxReq";
 
     public static final String RESTORE_VIEW_ID		= "_resViewID";
+
+    /**
+     *	<p> This is the default prefix that must be included on all requests
+     *	    for resources.</p>
+     */
+    public static final String DEFAULT_RESOURCE_PREFIX	= "/resource";
+
+    /**
+     *	<p> The name of the <code>context-param</code> to set the resource
+     *	    prefix.</p>
+     */
+    public static final String RESOURCE_PREFIX		=
+	"com.sun.jsftemplating.RESOURCE_PREFIX";
+
+    private String _resourcePrefix = null;
 
     private ViewHandler _oldViewHandler			= null;
     static final String AJAX_REQ_TARGET_KEY		= "_ajaxReqTarget";
