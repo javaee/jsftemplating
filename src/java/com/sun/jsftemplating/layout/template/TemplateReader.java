@@ -733,95 +733,62 @@ public class TemplateReader {
 // FIXME: UIComponent is used, create a panel group if not.
     }
 
-
     /**
      *	<p> This {@link CustomParserCommand} implementation processes event
      *	    declarations.</p>
      */
     public static class EventParserCommand implements CustomParserCommand {
 	public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String eventName) throws IOException {
-	    String handlerId = null;
-	    String target = null;
-	    String val = null;
-	    Map inputs = null;
-	    NameValuePair nvp = null;
-	    HandlerDefinition def = null;
 	    Handler handler = null;
 	    ArrayList<Handler> handlers = new ArrayList<Handler>();
 	    TemplateReader reader = env.getReader();
 	    TemplateParser parser = reader.getTemplateParser();
+	    Handler parentHandler = null;
+	    Stack<Handler> handlerStack = new Stack<Handler>();
 
 	    // Read the Handler(s)...
 	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 	    int ch = parser.nextChar();
 	    while ((ch != -1) && (ch != '/') && (ch != '>')) {
+		// Check for {}'s
+		if ((ch == LEFT_CURLY) || (ch == RIGHT_CURLY)) {
+		    if (ch == LEFT_CURLY) {
+			// We are defining child handlers
+			handlerStack.push(parentHandler);
+			parentHandler = handler;
+		    } else {
+			// We are DONE defining child handlers
+			if (handlerStack.empty()) {
+			    throw new SyntaxException("Encountered unmatched '"
+				+ RIGHT_CURLY + "' when parsing handlers for '"
+				+ eventName + "' event.");
+			}
+			parentHandler = handlerStack.pop();
+		    }
+
+		    // ';' or ',' characters may appear between handlers
+		    parser.skipCommentsAndWhiteSpace(
+			    parser.SIMPLE_WHITE_SPACE + ",;");
+
+		    // We need to "continue" b/c we need to check next ch again
+		    ch = parser.nextChar();
+		    continue;
+		}
+
 		// Get Handler ID / Definition
 		parser.unread(ch);
-		handlerId = parser.readToken();
-		def = LayoutDefinitionManager.
-		    getGlobalHandlerDefinition(handlerId);
-		if (def == null) {
-		    throw new SyntaxException("Handler '" + handlerId
-			+ "' in event '" + eventName + "' is not declared!  "
-			+ "Ensure the '@Handler' annotation has been defined "
-			+ "on the handler Java method, that it has been "
-			+ "compiled with the annotation processing tool, and "
-			+ "that the resulting"
-			+ " 'META-INF/jsftemplating/Handler.map' is located "
-			+ "in your classpath (you may need to do a clean "
-			+ "build).");
+
+		// Read a Handler
+		handler = readHandler(parser, eventName);
+
+		// Add the handler to the appropriate place
+		if (parentHandler == null) {
+		    handlers.add(handler);
+		} else {
+		    parentHandler.addChildHandler(handler);
 		}
 
-		// Create a Handler
-		handler = new Handler(def);
-		handlers.add(handler);
-
-		// Get the default name
-		inputs = def.getInputDefs();
-		if (inputs.size() == 1) {
-		    val = inputs.keySet().toArray()[0].toString();
-		}
-
-		// Ensure we have an opening parenthesis
-		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
-		ch = parser.nextChar();
-		if (ch != '(') {
-		    throw new SyntaxException("While processing '<!" + eventName
-			+ "...' the handler '" + handlerId
-			+ "' was missing the '(' character!");
-		}
-
-		// Read NVP(s)...
-		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
-		ch = parser.nextChar();
-		while ((ch != -1) && (ch != ')')) {
-		    // Read NVP
-		    parser.unread(ch);
-		    try {
-			nvp = parser.getNVP(val);
-		    } catch (SyntaxException ex) {
-			throw new SyntaxException("Unable to process handler '"
-				+ def.getId() + "'!", ex);
-		    }
-		    parser.skipCommentsAndWhiteSpace(
-			parser.SIMPLE_WHITE_SPACE + ",;");
-		    ch = parser.nextChar();
-
-		    // Store the NVP..
-		    target = nvp.getTarget();
-		    if (target != null) {
-			// We have an OutputMapping
-			// NOTE: 'value' must be a String for an OutputMapping
-			handler.setOutputMapping(
-			    nvp.getName(), nvp.getValue().toString(), target);
-		    } else {
-			// We have an Input
-			handler.setInputValue(nvp.getName(), nvp.getValue());
-		    }
-		}
-
-		// ';' or ',' characters may appear between handlers
-		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE + ",;");
+		// Look at the next character...
 		ch = parser.nextChar();
 	    }
 	    if (ch == -1) {
@@ -829,9 +796,14 @@ public class TemplateReader {
 		throw new SyntaxException("Unexpected EOF encountered while "
 		    + "parsing handlers for event '" + eventName + "'!");
 	    }
+
+	    // Do some checks to make sure everything is good...
+	    if (!handlerStack.empty()) {
+		throw new SyntaxException("Unmatched '" + LEFT_CURLY
+			+ "' when parsing handlers for '" + eventName
+			+ "' event.");
+	    }
 	    if (ch == '>') {
-// FIXME: Deal w/ nested Handlers
-		// Until we allow Handlers w/i Handlers, throw an exception
 		throw new SyntaxException("Handlers for event '" + eventName
 		    + "' did not end with '/>' but instead ended with '>'!");
 	    }
@@ -850,6 +822,84 @@ public class TemplateReader {
 
 	    // Set the Handlers on the parent...
 	    env.getParent().setHandlers(eventName, handlers);
+	}
+
+	/**
+	 *  <p>	This method parses and creates an individual
+	 *	<code>Handler</code>.</p>
+	 */
+	private Handler readHandler(TemplateParser parser, String eventName) throws IOException {
+	    String target = null;
+	    String defVal = null;
+	    NameValuePair nvp = null;
+	    HandlerDefinition def = null;
+
+	    String handlerId = parser.readToken();
+	    def = LayoutDefinitionManager.getGlobalHandlerDefinition(handlerId);
+	    if (def == null) {
+		throw new SyntaxException("Handler '" + handlerId
+		    + "' in event '" + eventName + "' is not declared!  "
+		    + "Ensure the '@Handler' annotation has been defined "
+		    + "on the handler Java method, that it has been "
+		    + "compiled with the annotation processing tool, and "
+		    + "that the resulting"
+		    + " 'META-INF/jsftemplating/Handler.map' is located "
+		    + "in your classpath (you may need to do a clean "
+		    + "build).");
+	    }
+
+	    // Create a Handler
+	    Handler handler = new Handler(def);
+
+	    // Get the default name
+	    Map inputs = def.getInputDefs();
+	    if (inputs.size() == 1) {
+		defVal = inputs.keySet().toArray()[0].toString();
+	    }
+
+	    // Ensure we have an opening parenthesis
+	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    int ch = parser.nextChar();
+	    if (ch != '(') {
+		throw new SyntaxException("While processing '<!" + eventName
+		    + "...' the handler '" + handlerId
+		    + "' was missing the '(' character!");
+	    }
+
+	    // Read NVP(s)...
+	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    ch = parser.nextChar();
+	    while ((ch != -1) && (ch != ')')) {
+		// Read NVP
+		parser.unread(ch);
+		try {
+		    nvp = parser.getNVP(defVal);
+		} catch (SyntaxException ex) {
+		    throw new SyntaxException("Unable to process handler '"
+			    + def.getId() + "'!", ex);
+		}
+		parser.skipCommentsAndWhiteSpace(
+		    parser.SIMPLE_WHITE_SPACE + ",;");
+		ch = parser.nextChar();
+
+		// Store the NVP..
+		target = nvp.getTarget();
+		if (target != null) {
+		    // We have an OutputMapping
+		    // NOTE: 'value' must be a String for an OutputMapping
+		    handler.setOutputMapping(
+			nvp.getName(), nvp.getValue().toString(), target);
+		} else {
+		    // We have an Input
+		    handler.setInputValue(nvp.getName(), nvp.getValue());
+		}
+	    }
+
+	    // ';' or ',' characters may appear between handlers
+	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE + ",;");
+
+	    // Return the Handler
+	    return handler;
 	}
     }
 
@@ -1021,6 +1071,9 @@ public class TemplateReader {
 	"id";
     public static final String OVERWRITE_ATTRIBUTE	    =
 	"overwrite";
+
+    public static final char LEFT_CURLY			    =	'{';
+    public static final char RIGHT_CURLY		    =	'}';
 
     public static final ProcessingContext LAYOUT_DEFINITION_CONTEXT	=
 	new LayoutDefinitionContext();
