@@ -25,13 +25,16 @@ package com.sun.jsftemplating.layout.descriptors.handler;
 import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.el.PermissionChecker;
 import com.sun.jsftemplating.layout.event.UIComponentHolder;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.util.TypeConverter;
 import com.sun.jsftemplating.util.LogUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
@@ -349,6 +352,46 @@ public class Handler implements java.io.Serializable {
     }
 
     /**
+     *	<p> This method adds a <code>Handler</code> to the list of child
+     *	    <code>Handler</code>s.  Child <code>Handler</code>s are executed
+     *	    AFTER this <code>Handler</code> is executed.</p>
+     *
+     *	@param desc	The <code>Handler</code> to add.
+     */
+    public void addChildHandler(Handler desc) {
+	if (_childHandlers == _emptyList) {
+	    _childHandlers = new ArrayList();
+	}
+	_childHandlers.add(desc);
+    }
+
+    /**
+     *	<p> This method sets the <code>List</code> of child
+     *	    <code>Handler</code>s.</p>
+     *
+     *	@param childHandlers	The <code>List</code> of child
+     *				<code>Handler</code>s.
+     */
+    public void setChildHandlers(List<Handler> childHandlers) {
+	if ((childHandlers == null) || (childHandlers.size() == 0)) {
+	    childHandlers = _emptyList;
+	}
+	_childHandlers = childHandlers;
+    }
+
+    /**
+     *	<p> This method retrieves the <code>List</code> of child
+     *	    {@link Handler}s.  This <code>List</code> should not be changed
+     *	    directly.  Call {@link #addChildHandler()}, or make a copy and call
+     *	    {@link #setChildHandlers()}.</p>
+     *
+     *	@return The <code>List</code> of child {@link Handler}s.
+     */
+    public List<Handler> getChildHandlers() {
+	return _childHandlers;
+    }
+
+    /**
      *	<p> This method is responsible for invoking this <code>Handler</code>
      *	    as well as all child <code>Handler</code>s.  Neither will be
      *	    invoked if this methods condition is non-null and unstatisfied
@@ -379,13 +422,26 @@ public class Handler implements java.io.Serializable {
 	    }
 
 	    // Execute all child handlers
-	    // A copy is provided of the HandlerContext to avoid the Handler
+	    // NOTE: 'handler' in handlerContext will change.
 	    // being changed before we execute this Handler.
-	    Object retVal = handlerContext.getLayoutElement().dispatchHandlers(
-		    new HandlerContextImpl(handlerContext),
-		    handlerDef.getChildHandlers());
-	    if (retVal != null) {
-		result = retVal;
+	    // FIRST: Execute handlerDef child handlers
+	    List<Handler> handlers = handlerDef.getChildHandlers();
+	    Object retVal = null;
+	    LayoutElement elt = handlerContext.getLayoutElement();
+	    if (handlers.size() > 0) {
+		retVal = elt.dispatchHandlers(handlerContext, handlers);
+		if (retVal != null) {
+		    result = retVal;
+		}
+	    }
+	    // NEXT: Execute instance child handlers
+	    // Useful for applying a condition to a group
+	    handlers = getChildHandlers();
+	    if (handlers.size() > 0) {
+		retVal = elt.dispatchHandlers(handlerContext, handlers);
+		if (retVal != null) {
+		    result = retVal;
+		}
 	    }
 	} else {
 	    if (LogUtil.finerEnabled()) {
@@ -431,7 +487,11 @@ public class Handler implements java.io.Serializable {
 
     private String _condition = null;
 
+    private List<Handler>	_childHandlers	    = _emptyList;
+
     private Map<String, Object> _inputs = new HashMap<String, Object>();
     private Map<String, OutputMapping> _outputs =
 	new HashMap<String, OutputMapping>();
+
+    private static final List<Handler> _emptyList   = new ArrayList<Handler>(0);
 }
