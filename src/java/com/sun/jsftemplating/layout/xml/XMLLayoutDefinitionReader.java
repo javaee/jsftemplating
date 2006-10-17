@@ -413,7 +413,7 @@ public class XMLLayoutDefinitionReader {
 	// Add child handlers to this HandlerDefinition.  This allows a
 	// HandlerDefinition to define handlers that should be invoked before
 	// the method defined by this handler definition is invoked.
-	List<Handler> handlers = hd.getChildHandlers();
+	List<Handler> handlers = new ArrayList(hd.getChildHandlers());
 	hd.setChildHandlers(getHandlers(node, handlers));
 
 	// Add InputDef objects to the HandlerDefinition
