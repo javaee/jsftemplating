@@ -60,6 +60,13 @@ public class UtilHandlers {
     public UtilHandlers() {
     }
 
+    @Handler(id="if",
+	input={@HandlerInput(name="condition", type=String.class, required=true)})
+    public static void ifHandler(HandlerContext context) {
+	// Do nothing, the purpose of this handler is to provide condition
+	// support which is handled by the parser / runtime.
+    }
+
     /**
      *	<p> This handler writes using <code>System.out.println</code>.  It
      *	    requires that <code>value</code> be supplied as a String input
