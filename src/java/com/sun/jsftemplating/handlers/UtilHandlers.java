@@ -61,7 +61,7 @@ public class UtilHandlers {
     }
 
     @Handler(id="if",
-	input={@HandlerInput(name="condition", type=String.class, required=true)})
+	input={@HandlerInput(name="condition", type=String.class)})
     public static void ifHandler(HandlerContext context) {
 	// Do nothing, the purpose of this handler is to provide condition
 	// support which is handled by the parser / runtime.

@@ -866,9 +866,21 @@ public class TemplateReader {
 		    + "' was missing the '(' character!");
 	    }
 
-	    // Read NVP(s)...
+	    // Move to the first char inside the parenthesis
 	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 	    ch = parser.nextChar();
+
+	    // Allow if() handlers to be more flexible...
+	    if (handlerId.equals(IF_HANDLER)
+		    && (ch != '\'') && (ch != '"') && (ch != 'c')) {
+		// We have an if() w/o a condition="" && w/o quotes...
+		// Take the entire value inside the ()'s to be the expression
+		parser.unread(ch);
+		handler.setCondition(parser.readUntil(')', false).trim());
+		ch = ')';
+	    }
+
+	    // Read NVP(s)...
 	    while ((ch != -1) && (ch != ')')) {
 		// Read NVP
 		parser.unread(ch);
@@ -876,7 +888,7 @@ public class TemplateReader {
 		    nvp = parser.getNVP(defVal);
 		} catch (SyntaxException ex) {
 		    throw new SyntaxException("Unable to process handler '"
-			    + def.getId() + "'!", ex);
+			    + handlerId + "'!", ex);
 		}
 		parser.skipCommentsAndWhiteSpace(
 		    parser.SIMPLE_WHITE_SPACE + ",;");
@@ -893,7 +905,8 @@ public class TemplateReader {
 		    // First check for special input value (condition)
 		    String name = nvp.getName();
 		    if (name.equals(CONDITION_ATTRIBUTE)
-			    && (inputs.get(CONDITION_ATTRIBUTE) == null)) {
+			    && ((inputs.get(CONDITION_ATTRIBUTE) == null)
+				|| (handlerId.equals(IF_HANDLER)))) {
 			// We have a Handler condition, set it
 			handler.setCondition(nvp.getValue().toString());
 		    } else {
@@ -1082,8 +1095,11 @@ public class TemplateReader {
     public static final String CONDITION_ATTRIBUTE	    =
 	"condition";
 
+    public static final String IF_HANDLER		    =	"if";
+
     public static final char LEFT_CURLY			    =	'{';
     public static final char RIGHT_CURLY		    =	'}';
+
 
     public static final ProcessingContext LAYOUT_DEFINITION_CONTEXT	=
 	new LayoutDefinitionContext();
