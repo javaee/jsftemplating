@@ -890,8 +890,16 @@ public class TemplateReader {
 		    handler.setOutputMapping(
 			nvp.getName(), nvp.getValue().toString(), target);
 		} else {
-		    // We have an Input
-		    handler.setInputValue(nvp.getName(), nvp.getValue());
+		    // First check for special input value (condition)
+		    String name = nvp.getName();
+		    if (name.equals(CONDITION_ATTRIBUTE)
+			    && (inputs.get(CONDITION_ATTRIBUTE) == null)) {
+			// We have a Handler condition, set it
+			handler.setCondition(nvp.getValue().toString());
+		    } else {
+			// We have an Input
+			handler.setInputValue(nvp.getName(), nvp.getValue());
+		    }
 		}
 	    }
 
@@ -1071,6 +1079,8 @@ public class TemplateReader {
 	"id";
     public static final String OVERWRITE_ATTRIBUTE	    =
 	"overwrite";
+    public static final String CONDITION_ATTRIBUTE	    =
+	"condition";
 
     public static final char LEFT_CURLY			    =	'{';
     public static final char RIGHT_CURLY		    =	'}';
