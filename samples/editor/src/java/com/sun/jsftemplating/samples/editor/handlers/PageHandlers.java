@@ -44,7 +44,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.layout.template.TemplateWriter;
 import com.sun.jsftemplating.util.LayoutElementUtil;
-import com.sun.jsftemplating.util.Util;
+import com.sun.jsftemplating.util.FileUtil;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -219,7 +219,7 @@ public class PageHandlers {
      *	    <code>ServletContext</code> or <code>PortletContext</code>.</p>
      */
     private static void writePage(Object context, String pageName, LayoutDefinition ld) {
-	String path = Util.getRealPath(context, pageName);
+	String path = FileUtil.getRealPath(context, pageName);
 	if (path == null) {
 	    throw new IllegalArgumentException(
 		"Unable to determine where to write '" + pageName

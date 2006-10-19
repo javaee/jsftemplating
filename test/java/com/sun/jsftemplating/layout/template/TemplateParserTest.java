@@ -106,7 +106,7 @@ public class TemplateParserTest extends TestCase {
 	    parser.nextChar(); parser.nextChar(); parser.nextChar(); parser.nextChar();
 	    parser.nextChar(); parser.nextChar(); parser.nextChar(); parser.nextChar();
 
-	    NameValuePair nvp = parser.getNVP();
+	    NameValuePair nvp = parser.getNVP(null);
 
 	    assertEquals("testNVP1", "ile", nvp.getName());
 	    assertEquals("testNVP2", "jsftemplating/js/jsftemplating.js", nvp.getValue());
@@ -141,7 +141,7 @@ public class TemplateParserTest extends TestCase {
 	    parser.readUntil('v', false);
 	    parser.unread('v');
 
-	    NameValuePair nvp = parser.getNVP();
+	    NameValuePair nvp = parser.getNVP(null);
 
 	    assertEquals("testNVP1", "value", nvp.getName());
 	    assertEquals("testNVP2", "val", nvp.getValue());
@@ -208,7 +208,7 @@ public class TemplateParserTest extends TestCase {
 	    parser.skipWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 
 	    // Test NVP
-	    NameValuePair nvp = parser.getNVP();
+	    NameValuePair nvp = parser.getNVP(null);
 
 	    // NVP should be setup correctly
 	    assertEquals("testNVP1", "file", nvp.getName());
