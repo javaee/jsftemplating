@@ -148,12 +148,13 @@ ex.printStackTrace();
 	    return _oldViewHandler.createView(context, viewId);
 	}
 
-	// FIXME: I should not set the view root here!  But some components
-	//	  may require this during creation of the UIComponent tree.
+	// Save the current viewRoot, temporarily set the new UIViewRoot so
+	// beforeCreate, afterCreate will function correctly
+	UIViewRoot currentViewRoot = context.getViewRoot(); 
+
+	// Set the View Root to the new viewRoot
 	// NOTE: This must happen after return _oldViewHandler.createView(...)
-	if (context.getViewRoot() == null) {
-	    context.setViewRoot(viewRoot);
-	}
+	context.setViewRoot(viewRoot);
 
 	if (def != null) {
 	    // Ensure that our Resources are available
@@ -167,6 +168,11 @@ ex.printStackTrace();
 
 	    // Get the Tree and pre-walk it
 	    buildUIComponentTree(context, viewRoot, def);
+	}
+
+	// Restore the current UIViewRoot
+	if (currentViewRoot != null) {
+	    context.setViewRoot(currentViewRoot);
 	}
 
 	// Return the populated UIViewRoot
