@@ -40,6 +40,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Set;
 
 
@@ -114,11 +115,17 @@ public class UIComponentFactoryAPFactory implements AnnotationProcessorFactory, 
     private PrintWriter getUIComponentFactoryMapWriter(AnnotationProcessorEnvironment env) throws IOException {
 	PrintWriter writer = null;
 	ClassLoader cl = this.getClass().getClassLoader();
-	URL url = cl.getResource(FACTORY_FILE);
-	if (url != null) {
-	    // Append to the existing file...
-	    writer = new PrintWriter(new FileOutputStream(url.getFile(), true));
-	} else {
+	URL url = null;
+	for (Enumeration<URL> urls = cl.getResources(FACTORY_FILE);
+		urls.hasMoreElements() && (writer == null); ) {
+	    url = urls.nextElement();
+	    if ((url != null) && new File(url.getFile()).canRead()) {
+		// Append to the existing file...
+		writer = new PrintWriter(new FileOutputStream(url.getFile(), true));
+	    }
+	}
+	if (writer == null) {
+	    // File not found, create a new one...
 	    writer = env.getFiler().createTextFile(Filer.Location.CLASS_TREE,
 		"", new File(FACTORY_FILE), (String) null);
 	}
