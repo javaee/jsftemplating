@@ -32,9 +32,11 @@ import com.sun.mirror.apt.RoundCompleteListener;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -97,12 +99,8 @@ public class HandlerAPFactory implements AnnotationProcessorFactory, RoundComple
 	env.addListener(this);
 
 	try {
-	    // Create factory mapping file
-	    _writer = env.getFiler().createTextFile(
-		Filer.Location.CLASS_TREE,
-		"",
-		new File(HANDLER_FILE),
-		(String) null);
+	    // Create handler mapping file
+	    _writer = getHandlerMapWriter(env);
 	} catch (IOException ex) {
 	    StringWriter buf = new StringWriter();
 	    ex.printStackTrace(new PrintWriter(buf));
@@ -114,6 +112,25 @@ public class HandlerAPFactory implements AnnotationProcessorFactory, RoundComple
 
 	_setup = true;
 	return true;
+    }
+
+    /**
+     *	<p> This method is responsible for creating (or finding) the
+     *	    "Handler.map" file.</p>
+     */
+    private PrintWriter getHandlerMapWriter(AnnotationProcessorEnvironment env) throws IOException {
+	PrintWriter writer = null;
+	ClassLoader cl = this.getClass().getClassLoader();
+	URL url = cl.getResource(HANDLER_FILE);
+	if (url != null) {
+	    // Append to the existing file...
+	    writer = new PrintWriter(new FileOutputStream(url.getFile(), true));
+	} else {
+	    // Create a new file...
+	    writer = env.getFiler().createTextFile(Filer.Location.CLASS_TREE,
+		"", new File(HANDLER_FILE), (String) null);
+	}
+	return writer;
     }
 
     /**

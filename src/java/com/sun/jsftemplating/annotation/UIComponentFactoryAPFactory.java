@@ -32,9 +32,11 @@ import com.sun.mirror.apt.RoundCompleteListener;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -89,13 +91,9 @@ public class UIComponentFactoryAPFactory implements AnnotationProcessorFactory, 
 	// Register our listener so we can do something at the end
 	env.addListener(this);
 
-	// FIXME: Read property file that we are going to overwrite
 	try {
-	    _writer = env.getFiler().createTextFile(
-		Filer.Location.CLASS_TREE,
-		"",
-		new File(FACTORY_FILE),
-		(String) null);
+	    // Create factory mapping file
+	    _writer = getUIComponentFactoryMapWriter(env);
 	} catch (IOException ex) {
 	    StringWriter buf = new StringWriter();
 	    ex.printStackTrace(new PrintWriter(buf));
@@ -107,6 +105,24 @@ public class UIComponentFactoryAPFactory implements AnnotationProcessorFactory, 
 
 	_setup = true;
 	return true;
+    }
+
+    /**
+     *	<p> This method is responsible for creating (or finding) the
+     *	    "UIComponentFactory.map" file.</p>
+     */
+    private PrintWriter getUIComponentFactoryMapWriter(AnnotationProcessorEnvironment env) throws IOException {
+	PrintWriter writer = null;
+	ClassLoader cl = this.getClass().getClassLoader();
+	URL url = cl.getResource(FACTORY_FILE);
+	if (url != null) {
+	    // Append to the existing file...
+	    writer = new PrintWriter(new FileOutputStream(url.getFile(), true));
+	} else {
+	    writer = env.getFiler().createTextFile(Filer.Location.CLASS_TREE,
+		"", new File(FACTORY_FILE), (String) null);
+	}
+	return writer;
     }
 
     /**
