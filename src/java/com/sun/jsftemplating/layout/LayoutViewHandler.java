@@ -444,12 +444,28 @@ ex.printStackTrace();
 	RenderKit renderKit =
 	    renderFactory.getRenderKit(context,
 		 context.getViewRoot().getRenderKitId());
-	String contentTypeList = (String) extCtx.getRequestHeaderMap().get("Accept");
-	if (contentTypeList == null) {
-	    contentTypeList = "text/html;q=1.0";
-	} else if (!contentTypeList.toLowerCase().contains("text/html")) {
-	    contentTypeList += ",text/html;q=1.0";
+
+	// See if the user (page author) specified a ContentType...
+	String contentTypeList = null;
+// FIXME: Provide a way for the user to specify this...
+// FIXME: Test multiple browsers against this code!!
+	String userContentType = "text/html";
+	boolean responseCTSet = false;
+	if ((userContentType != null) && (userContentType.length() > 0)) {
+	    // User picked this, use it...
+	    response.setContentType(userContentType);
+	    responseCTSet = true;
+	} else {
+	    // No explicit Content-type, find best match...
+	    contentTypeList = (String) extCtx.getRequestHeaderMap().get("Accept");
+	    if (contentTypeList == null) {
+		contentTypeList = "text/html;q=1.0";
+    // Ryan Lubke thinks I don't need this... taking out to see if it's true
+    //	} else if (!contentTypeList.toLowerCase().contains("text/html")) {
+    //	    contentTypeList += ",text/html;q=1.0";
+	    }
 	}
+
 // FIXME: Portlet?
 	writer =
 	    renderKit.createResponseWriter(
@@ -460,12 +476,12 @@ ex.printStackTrace();
 // Not setting the contentType here results in XHTML which formats differently
 // than text/html in Mozilla.. even though the documentation claims this
 // works, it doesn't (try viewing the Tree)
-        response.setContentType("text/html");
+//        response.setContentType("text/html");
 
 	// As far as I can tell JSF doesn't ever set the Content-type that it
 	// works so hard to calculate...  This is the code we should be
 	// calling, however we can't do this yet
-//	response.setContentType(writer.getContentType());
+	response.setContentType(writer.getContentType());
 
 	return writer;
     }
