@@ -309,9 +309,16 @@ ex.printStackTrace();
     }
 
     /**
+     *	<p> This method iterates over the child {@link LayoutElement}s of the
+     *	    given <code>elt</code> to create <code>UIComponent</code>s for each
+     *	    {@link LayoutComponent}.</p>
      *
+     *	@param	context	The <code>FacesContext</code>.
+     *	@param	parent	The parent <code>UIComponent</code> of the
+     *			<code>UIComponent</code> to be found or created.
+     *	@param	elt	The <code>LayoutElement</code> driving everything.
      */
-    protected void buildUIComponentTree(FacesContext context, UIComponent parent, LayoutElement elt) {
+    public static void buildUIComponentTree(FacesContext context, UIComponent parent, LayoutElement elt) {
 // FIXME: Consider processing *ALL* LayoutElements so that <if> and others
 // FIXME: have meaning when inside other components.
 	Iterator<LayoutElement> it = elt.getChildLayoutElements().iterator();
