@@ -31,7 +31,9 @@ import com.sun.jsftemplating.annotation.Handler;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.LayoutViewHandler;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 
@@ -153,5 +155,32 @@ public class MetaDataHandlers {
 	    }
 	    context.setOutputValue("info", buf.toString());
 	}
+    }
+
+    /**
+     *	<p> This Handler will attempt to build a [portion of a]
+     *	    <code>UIComponent</code> tree.  It needs the <em>parent</em>
+     *	    <code>UIComponent</code>, and a {@link LayoutElement} which
+     *	    describes the <code>UIComponent</code> and all its children.  It
+     *	    will walk the children to extract information and build the
+     *	    cooresponding <code>UIComponent</code> tree.</p>
+     *
+     *	<p> One possible use case for calling this method would be to have a
+     *	    dynamic "id" property of a {@link LayoutComponent}, call this
+     *	    method multiple times with different values set in the "id"
+     *	    property.  Remember, that you should not change a
+     *	    {@link LayoutComponent} (or any {@link LayoutElement}) directly.
+     *	    It is only safe to have dynamic values through EL bindings #{}.</p>
+     */
+    @Handler(id="buildUIComponentTree",
+	input={
+	    @HandlerInput(name="parent", type=UIComponent.class, required=true),
+	    @HandlerInput(name="layoutElement", type=LayoutElement.class, required=true)
+	})
+    public static void buildUIComponentTree(HandlerContext context) {
+	UIComponent parent = (UIComponent) context.getInputValue("parent");
+	LayoutElement elt = (LayoutElement) context.getInputValue("layoutElement");
+	LayoutViewHandler.buildUIComponentTree(
+		context.getFacesContext(), parent, elt);
     }
 }
