@@ -8,6 +8,8 @@ lib/ant directory of the jsftemplating project.
 1) From a terminal (or command prompt) window, "cd" to the jsftemplating
    root directory.  For example:
 
+  linux or solaris:
+
     cd /jsftemplating
 
   windows:
@@ -15,6 +17,8 @@ lib/ant directory of the jsftemplating project.
     cd \jsftemplating
 
 2) Copy build.properties.example to build.properties
+
+  linux or solaris:
 
     cp build.properties.example build.properties
 
@@ -33,7 +37,7 @@ lib/ant directory of the jsftemplating project.
 
 4) From the "jsftemplating" directory, run ant:
 
-    ant clean build
+    ant
 
 If you don't have any on your machine, there is a copy provided as part of
 jsftemplating, try:
@@ -52,6 +56,8 @@ directory.
     jsftemplating has been configurated as a netbeans project.  After following
     Steps 1-3 to setup your environment, you can open the project by pointing
     to the directory where you check out the source.
+
+    Note: The next paragraph may not be required anymore, I need to test this.
 
     You need to add ant-apt.jar to the ant classpath.  To do so, go to
     Tools->Options, select Miscellaneous on the left side, then Ant on the right
