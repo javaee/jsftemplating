@@ -317,11 +317,11 @@ public class TemplateParser {
 
     /**
      *	<p> This method reads while the stream contains letters, numbers, the
-     *	    colon character ':', or the underscore '_' character, and returns
-     *	    the result.</p>
+     *	    colon character ':', a dot '.', or the underscore '_' character,
+     *	    and returns the result.</p>
      */
     public String readToken() throws IOException {
-	return readToken("_:");
+	return readToken("_:.");
     }
 
     /**
