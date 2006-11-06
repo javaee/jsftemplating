@@ -24,6 +24,7 @@ package com.sun.jsftemplating.layout.descriptors;
 
 import com.sun.jsftemplating.el.VariableResolver;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.event.AfterLoopEvent;
 import com.sun.jsftemplating.layout.event.BeforeLoopEvent;
 
@@ -178,6 +179,16 @@ public class LayoutForEach extends LayoutComponent {
 	    new AfterLoopEvent(component));
     }
 
+    /**
+     *	<p> This method retrieves the Handlers for the requested type.  But
+     *	    does *NOT* includes any handlers that are associated with the
+     *	    instance (i.e. the UIComponent).  This is desired behavior when
+     *	    this is *not* a component.  I am not sure if this is correct if
+     *	    we support a foreach() component. FIXME: think about this.</p>
+     */
+    public List<Handler> getHandlers(String type, UIComponent comp) {
+	return super.getHandlers(type, null);
+    }
 
     /**
      *	<p> This is the event "type" for
