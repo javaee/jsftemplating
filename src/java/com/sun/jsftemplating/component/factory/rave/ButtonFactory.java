@@ -55,8 +55,14 @@ public class ButtonFactory extends ComponentFactoryBase {
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
-	UIComponent comp = context.getApplication().createComponent(COMPONENT_TYPE);
-	comp.getAttributes().put("primary", Boolean.TRUE);
+	UIComponent comp =
+	    context.getApplication().createComponent(COMPONENT_TYPE);
+	if (descriptor.getOption("primary") == null) {
+	    // Use ValueBinding vs. property so we don't set the local value
+	    // flag which will hide any future VB that is set on the component
+	    comp.setValueBinding("primary",
+		    context.getApplication().createValueBinding("#{true}"));
+	}
 
 	// This needs to be done here (before setOptions) so that $...{...}
 	// expressions can be resolved...
