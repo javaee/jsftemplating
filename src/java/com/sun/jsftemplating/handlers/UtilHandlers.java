@@ -392,35 +392,6 @@ public class UtilHandlers {
     }
 
     /**
-     *	<p> This is a handler for my presentation demo.</p>
-     *
-     *	@param	context	The HandlerContext.
-     */
-    @Handler(id="getUserResponse",
-	input={
-	    @HandlerInput(name="userInput", type=String.class)
-	},
-	output={
-	    @HandlerOutput(name="response", type=String.class)})
-    public static void calculateResponse(HandlerContext context) {
-	// Get the input.
-	String in = (String) context.getInputValue("userInput");
-
-	// Do business logic...
-	String resp = "Type something and click 'Go!'";
-	if (in != null) {
-	    if (in.equals("abc")) {
-		resp = "Congratulations, you did it!";
-	    } else {
-		resp = "You typed " + in + ", try typing 'abc'.";
-	    }
-	}
-
-	// Set the output.
-	context.setOutputValue("response", resp);
-    }
-
-    /**
      *	<p> This handler marks the response complete.  This means that no
      *	    additional response will be sent.  This is useful if you've
      *	    provided a response already and you don't want JSF to do it again
