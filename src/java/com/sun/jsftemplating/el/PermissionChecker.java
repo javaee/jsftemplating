@@ -78,6 +78,9 @@ public class PermissionChecker {
      *	This is the constructor method that is required to create this object.
      */
     public PermissionChecker(LayoutElement desc, UIComponent component, String infixStr) {
+	if (infixStr == null) {
+	    infixStr = "false";
+	}
 	setLayoutElement(desc);
 	setUIComponent(component);
 	setInfix(stripWhiteSpace(infixStr));
