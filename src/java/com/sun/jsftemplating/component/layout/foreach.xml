@@ -1,0 +1,51 @@
+<!--
+ The contents of this file are subject to the terms 
+ of the Common Development and Distribution License 
+ (the License).  You may not use this file except in
+ compliance with the License.
+
+ You can obtain a copy of the license at 
+ https://jsftemplating.dev.java.net/cddl1.html or
+ jsftemplating/cddl1.txt.
+ See the License for the specific language governing 
+ permissions and limitations under the License.
+
+ When distributing Covered Code, include this CDDL 
+ Header Notice in each file and include the License file 
+ at jsftemplating/cddl1.txt.  
+ If applicable, add the following below the CDDL Header, 
+ with the fields enclosed by brackets [] replaced by
+ you own identifying information: 
+ "Portions Copyrighted [year] [name of copyright owner]"
+
+ Copyright 2006 Sun Microsystems, Inc. All rights reserved.
+-->
+<!DOCTYPE layoutDefinition SYSTEM "/jsftemplating/layout.dtd" >
+
+<layoutDefinition>
+    <layout>
+	<foreach key="$attribute{_key}" list="$attribute{_list}">
+	    <event type="beforeLoop">
+		<handler id="setAttribute">
+		    <input name="key" value="_key" />
+		    <input name="value" value="$property{key}" />
+		</handler>
+		<handler id="setAttribute">
+		    <input name="key" value="_list" />
+		    <input name="value" value="$property{list}" />
+		</handler>
+	    </event>
+	    <!-- Loop through children -->
+	    <foreach key="_child" list="$attribute{_children}">
+		<event type="beforeLoop">
+		    <handler id="getUIComponentChildren">
+			<input name="parent" value="$this{component}" />
+			<outputMapping outputName="children" targetType="attribute" targetKey="_children" />
+		    </handler>
+		</event>
+		<!-- Add the child component -->
+		<component type="staticText" id="#{_child.id}" />
+	    </foreach>
+	</foreach>
+    </layout>
+</layoutDefinition>
