@@ -24,17 +24,7 @@
 
 <layoutDefinition>
     <layout>
-	<foreach key="$attribute{_key}" list="$attribute{_list}">
-	    <event type="beforeLoop">
-		<handler id="setAttribute">
-		    <input name="key" value="_key" />
-		    <input name="value" value="$property{key}" />
-		</handler>
-		<handler id="setAttribute">
-		    <input name="key" value="_list" />
-		    <input name="value" value="$property{list}" />
-		</handler>
-	    </event>
+	<foreach key="$property{key}" list="$property{list}">
 	    <!-- Loop through children -->
 	    <foreach key="_child" list="$attribute{_children}">
 		<event type="beforeLoop">
