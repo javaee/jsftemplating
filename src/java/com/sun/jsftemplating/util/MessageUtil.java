@@ -128,7 +128,7 @@ public class MessageUtil extends Object {
      * @param message The string used as a pattern for inserting arguments.
      * @param args The arguments to be inserted into the string.
      */
-    protected static String getFormattedMessage(String message, Object args[]) {
+    public static String getFormattedMessage(String message, Object args[]) {
 	// Sanity Check
 	if ((message == null) || (args == null) || (args.length == 0)) {
 	    return message;

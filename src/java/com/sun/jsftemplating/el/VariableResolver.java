@@ -25,6 +25,7 @@ package com.sun.jsftemplating.el;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.util.LogUtil;
+import com.sun.jsftemplating.util.MessageUtil;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Stack;
+import java.util.StringTokenizer;
 
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
@@ -842,14 +844,30 @@ public class VariableResolver {
 		    + obj.toString() + ")");
 	    }
 	    ResourceBundle bundle = (ResourceBundle) obj;
-
+            
 	    // Return the result of the ResouceBundle lookup
 	    String str = null;
+            int argSep = key.indexOf(",", separator);
 	    try {
-		str = bundle.getString(key.substring(separator + 1));
+                if (argSep > -1) {
+                    str = bundle.getString(key.substring(separator + 1, argSep));
+                } else {
+                    str = bundle.getString(key.substring(separator + 1));
+                }
 		if (str == null) {
 		    str = key;
-		}
+		} else {
+                     // Parse arguments
+                    if (argSep > -1) {
+                        StringTokenizer st = new StringTokenizer(key.substring(argSep), ",");
+                        String[] tokens = new String[st.countTokens()];
+                        int i = 0;
+                        while (st.hasMoreTokens()) {
+                            tokens[i++] = st.nextToken().trim();
+                        }
+                        str = MessageUtil.getFormattedMessage(str, tokens);
+                    }
+                }
 	    } catch (MissingResourceException ex) {
 		if (LogUtil.configEnabled()) {
 		    LogUtil.config("Unable to find key: '"
