@@ -77,6 +77,7 @@ public class LayoutIf extends LayoutComponent {
 	    _doubleEval = true;
 	}
     }
+// FIXME: getHandlers() may need to be overriden to prevent beforeEncode/afterEncode from being called multiple times in some cases.  I may also need to explicitly invoke these Handlers in some cases (in the Component??); See LayoutForEach for example of what may need to be done...
 
     /**
      *	This method returns true if the condition of this LayoutIf is met,
@@ -91,7 +92,7 @@ public class LayoutIf extends LayoutComponent {
     public boolean encodeThis(FacesContext ctx, UIComponent comp) {
 	PermissionChecker checker = new PermissionChecker(
 	    this, comp, (_doubleEval) ?
-		(getEvaluatedOption(ctx, "condition", comp).toString()) :
+		((String) getEvaluatedOption(ctx, "condition", comp)) :
 		((String) getOption("condition")));
 	return checker.hasPermission();
     }
@@ -104,6 +105,8 @@ public class LayoutIf extends LayoutComponent {
      *	    interpret the expression.  For now this is a hack for this case
      *	    only.  In the future we may want to support an $eval{} or something
      *	    more general syntax for doing this declaratively.</p>
+     *
+     *	See LayoutForEach also.
      */
     private boolean _doubleEval = false;
 }
