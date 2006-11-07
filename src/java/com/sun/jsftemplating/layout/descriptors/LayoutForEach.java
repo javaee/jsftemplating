@@ -75,6 +75,9 @@ public class LayoutForEach extends LayoutComponent {
 	setFacetChild(false);
 	addOption("list", listBinding);
 	addOption("key", key);
+	if (listBinding.equals("$property{list}")) {
+	    _doubleEval = true;
+	}
     }
 
 
@@ -106,10 +109,13 @@ public class LayoutForEach extends LayoutComponent {
      *
      *	return	The <code>List</code> of objects to iterate over
      */
-    protected List<Object> getList(FacesContext context) {
-// FIXME: Pass in the UIComponent
+    protected List<Object> getList(FacesContext context, UIComponent comp) {
 	Object value = resolveValue(
-		context, (UIComponent) null, getOption("list"));
+		context, comp, getOption("list"));
+	if (_doubleEval) {
+// FIXME: Generalize double evaluation... all $property{} calls from inside a component??
+	    value = resolveValue(context, comp, value);
+	}
 
 	// Make sure we found something...
 	if (value == null) {
@@ -168,7 +174,7 @@ public class LayoutForEach extends LayoutComponent {
 
 	// Iterate over the values in the list and perform the requested
 	// action(s) per the body of the LayoutForEach
-	Iterator<Object> it = getList(context).iterator();
+	Iterator<Object> it = getList(context, component).iterator();
 	for (int index = 1; it.hasNext(); index++) {
 	    setCurrentForEachValue(context, it.next(), index, key);
 	    super.encode(context, component);
@@ -205,4 +211,17 @@ public class LayoutForEach extends LayoutComponent {
      *	    (outside loop).</p>
      */
      public static final String BEFORE_LOOP =	"beforeLoop";
+
+    /**
+     *	<p> This flag is set to true when the condition equals
+     *	    "$property{condition}".  This is a special case where the value to
+     *	    be evaluated is not $property{condition}, but rather the value of
+     *	    this expression.  This requires double evaluation to correct
+     *	    interpret the expression.  For now this is a hack for this case
+     *	    only.  In the future we may want to support an $eval{} or something
+     *	    more general syntax for doing this declaratively.</p>
+     *
+     *	    See LayoutIf also.
+     */
+    private boolean _doubleEval = false;
 }
