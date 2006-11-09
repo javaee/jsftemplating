@@ -142,4 +142,23 @@ public class Util {
 	}
 	return buf.toString();
     }
+    /**
+     *	<p> This method strips leading delimeter. </p>
+	 *
+     */
+	 public static String stripLeadingDelimeter(String str, char ch) {
+		if(str == null || str.equals("")) {
+			return str;
+		}
+		int j = 0;
+		char[] strArr = str.toCharArray();
+		for(int i=0; i < strArr.length; i++) {
+            j=i;
+            if(strArr[i] != ch) {
+                break;
+            }
+        }
+		return str.substring(j);
+		
+	 }
 }

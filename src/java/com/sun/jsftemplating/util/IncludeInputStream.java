@@ -193,6 +193,10 @@ public class IncludeInputStream extends FilterInputStream {
 	} else {
 	    // Check Classpath?
 	    ClassLoader loader = Util.getClassLoader(this);
+		//Strip out leading '/'
+		if(filename.startsWith("/")) {
+			filename = Util.stripLeadingDelimeter(filename, '/');
+		}
 	    InputStream stream = loader.getResourceAsStream(filename);
 	    if (stream == null) {
 		stream = loader.getResourceAsStream("/" + filename);
