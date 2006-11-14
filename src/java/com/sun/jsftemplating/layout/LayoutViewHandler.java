@@ -141,8 +141,15 @@ public class LayoutViewHandler extends ViewHandler {
 	try {
 	    def = viewRoot.getLayoutDefinition(context);
 	} catch (LayoutDefinitionException ex) {
+	    if (LogUtil.configEnabled()) {
+		LogUtil.config("WEBUI0005", (Object) viewId);
+		if (LogUtil.finestEnabled()) {
+		    LogUtil.finest(
+			"File (" + viewId + ") not found!", ex);
+		}
+	    }
 // FIXME: Provide better feedback when no .jsf & no .jsp
-ex.printStackTrace();
+// FIXME: Difficult to tell at this stage if no .jsp is present
 
 	    // Not found, delegate to old ViewHandler
 	    return _oldViewHandler.createView(context, viewId);
