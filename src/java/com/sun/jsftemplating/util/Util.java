@@ -146,7 +146,7 @@ public class Util {
      *	<p> This method strips leading delimeter. </p>
 	 *
      */
-	 public static String stripLeadingDelimeter(String str, char ch) {
+	 protected static String stripLeadingDelimeter(String str, char ch) {
 		if(str == null || str.equals("")) {
 			return str;
 		}
