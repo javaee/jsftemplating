@@ -31,16 +31,16 @@ import javax.faces.context.FacesContext;
 
 
 /**
- *  <p>	This factory is responsible for instantiating a <code>Form
+ *  <p>	This factory is responsible for instantiating a <code>PanelGrid
  *	UIComponent</code>.</p>
  *
  *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
- *	id for this factory is: "h:form".</p>
+ *	id for this factory is: "h:panelGrid".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("h:form")
-public class FormFactory extends ComponentFactoryBase {
+@UIComponentFactory("h:panelGrid")
+public class PanelGridFactory extends ComponentFactoryBase {
 
     /**
      *	<p> This is the factory method responsible for creating the
@@ -51,7 +51,7 @@ public class FormFactory extends ComponentFactoryBase {
      *			    with the requested <code>UIComponent</code>.
      *	@param	parent	    The parent <code>UIComponent</code>
      *
-     *	@return	The newly created <code>Form</code>.
+     *	@return	The newly created <code>PanelGrid</code>.
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
@@ -75,5 +75,5 @@ public class FormFactory extends ComponentFactoryBase {
      *	    <code>faces-config.xml</code> file mapping to the UIComponent class
      *	    to use for this <code>UIComponent</code>.</p>
      */
-    public static final String COMPONENT_TYPE	= "javax.faces.Form";
+    public static final String COMPONENT_TYPE	= "javax.faces.HtmlPanelGrid";
 }
