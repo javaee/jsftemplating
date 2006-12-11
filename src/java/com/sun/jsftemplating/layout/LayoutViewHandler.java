@@ -195,7 +195,7 @@ public class LayoutViewHandler extends ViewHandler {
 	context.responseComplete();
 
 	// Create dummy UIViewRoot
-	UIViewRoot root = new UIViewRoot();
+	UIViewRoot root = new LayoutViewRoot();
 	root.setRenderKitId("dummy");
 
 	// Setup the FacesStreamerContext
