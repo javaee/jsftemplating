@@ -35,7 +35,7 @@ import javax.faces.context.FacesContext;
  *	UIComponent</code>.</p>
  *
  *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
- *	id for this factory is: "sun:Breadcrumbs".</p>
+ *	id for this factory is: "sun:breadcrumbs".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
