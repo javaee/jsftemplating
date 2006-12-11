@@ -141,6 +141,15 @@ public class VariableResolver {
 	for (int startIndex = string.lastIndexOf(startToken); startIndex != -1;
 		 startIndex = string.lastIndexOf(startToken, startIndex - 1)) {
 
+	    // Make sure the startToken isn't escaped
+	    if ((startIndex > 0) && (string.charAt(startIndex-1) == ESCAPE_CHAR)) {
+		string = string.substring(0, startIndex-1) // Before '\\'
+			 + string.substring(startIndex); // After
+		stringLen--;
+		startIndex--;
+		continue;
+	    }
+
 	    // Find first typeDelim
 	    delimIndex = string.indexOf(typeDelim, startIndex + startTokenLen);
 	    if (delimIndex == -1) {
@@ -1054,7 +1063,7 @@ public class VariableResolver {
 		StringBuffer buf = new StringBuffer();
 		buf.append("view");
 		while (!stack.empty()) {
-		    buf.append("." + stack.pop());
+		    buf.append("['" + stack.pop() + "']");
 		}
 		value = buf.toString();
 	    } else {
@@ -1369,6 +1378,11 @@ public class VariableResolver {
      *	Constant defining the arguments required for a Action MethodBinding.
      */
     private static Class[] actionArgs = {ActionEvent.class};
+
+    /**
+     *	Escape character.
+     */
+    public static final char   ESCAPE_CHAR	= '\\';
 
     /**
      *	The '$' character marks the beginning of a substituion in a String.
