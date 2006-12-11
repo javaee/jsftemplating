@@ -36,6 +36,7 @@ import java.util.Map;
 
 import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding; // JSF 1.1
 import javax.faces.event.ActionListener;
@@ -210,7 +211,14 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      *	@param	child	    The child <code>UIComponent</code>
      */
     protected void addChild(FacesContext context, LayoutComponent descriptor, UIComponent parent, UIComponent child) {
-	if (descriptor.isFacetChild()) {
+	// I added a check for UIViewRoot here so that UIViewRoot children will
+	// never be facets.  This allows normal tree traversal to work.  The
+	// reason I have children as facets when they're really not facets is
+	// for component support.  When a renderer / component uses another
+	// component, you do not want it to be part of the UIComponent tree, a
+	// facet is a convenient spot.  So I do need to continue to add
+	// children as facets for that use case.
+	if ((descriptor.isFacetChild()) && !(parent instanceof UIViewRoot)) {
 	    String name = (String) descriptor.getEvaluatedOption(
 		    context, LayoutComponent.FACET_NAME, child);
 	    if (name != null) {
