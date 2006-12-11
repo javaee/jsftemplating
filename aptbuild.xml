@@ -15,6 +15,7 @@
 	<pathelement location="${servlet-api.jar}" />
 	<pathelement location="${jsf-api.jar}" />
 	<pathelement location="${jsftemplating-dt.jar}" />
+	<pathelement location="${jsftemplating-dynafaces.jar}" />
     </path>
 
     <target name="compile">

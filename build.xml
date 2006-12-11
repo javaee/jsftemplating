@@ -76,7 +76,7 @@
 
     <target name="compile" depends="jar-apt-files">
 	<mkdir dir="${build}/." />
-	<echo message="ant or ant.bat will be found depending on your platform, this is normal and good. ${execute.ant}" />
+	<echo message="Looking for ant or ant.bat... found: ${execute.ant}" />
 
 	<exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="false">
 	    <!-- We do this to add the ant-apt.jar to the lib path -->
@@ -92,6 +92,7 @@
                 <include name="**/*.js"/>
             </fileset>
 	</copy>
+	<copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" />
 	<jar jarfile="${jsftemplating.jar}" update="true">
             <fileset dir="${build}" includes="**/*.class, **/*.map" />
             <zipfileset dir="${src}"
