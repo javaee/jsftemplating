@@ -24,6 +24,9 @@ test=test
 jsftemplating.jar=${dist}/jsftemplating.jar
 jsftemplating-dt.jar=${dist}/jsftemplating-dt.jar
 
+## Dynamic Faces jar file for JSFTemplating
+jsftemplating-dynafaces.jar=${lib}/external/jsftemplating-dynafaces-0.1.jar
+
 jsftemplating.home=${src}/com/sun/jsftemplating
 
 
