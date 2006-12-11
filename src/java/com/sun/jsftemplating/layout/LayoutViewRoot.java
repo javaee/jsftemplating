@@ -36,6 +36,9 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+// Dynamic Faces Classes
+import com.sun.faces.extensions.avatar.components.PartialTraversalViewRoot;
+
 
 /**
  *  <p>	This is a <code>UIViewRoot</code> implemenation that allows the
@@ -49,7 +52,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
-public class LayoutViewRoot extends UIViewRoot {
+public class LayoutViewRoot extends PartialTraversalViewRoot {
 
     /**
      *	<p> Constructor.</p>
