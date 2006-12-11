@@ -66,6 +66,7 @@
 			includes="**/*.properties" />
 	</jar>
 	<copy file="${jsftemplating.jar}" todir="WEB-INF/lib/." />
+	<copy file="${jsftemplating-dynafaces.jar}" todir="WEB-INF/lib/." />
     </target>
 
     <target name="javadoc" depends="compile">
@@ -94,5 +95,6 @@
 	<delete dir="${javadoc}" />
 	<delete file="${app.jar}" />
 	<delete file="WEB-INF/lib/jsftemplating.jar" />
+	<delete file="WEB-INF/lib/jsftemplating-dynafaces-0.1.jar" />
     </target>
 </project>
