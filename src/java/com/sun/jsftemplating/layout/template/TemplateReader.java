@@ -208,7 +208,7 @@ public class TemplateReader {
 			if (isTagStackEmpty()) {
 			    parser.skipCommentsAndWhiteSpace(
 				parser.SIMPLE_WHITE_SPACE + '!');
-			    throw new SyntaxException("Found end tag '</"
+			    throw new SyntaxException("Found end tag '&lt;/"
 				+ parser.readToken()
 				+ "...' but did not find matching begin tag!");
 			}
@@ -229,19 +229,21 @@ public class TemplateReader {
 			    tmpstr = parser.readToken();
 			    if (!startTag.contains(tmpstr)) {
 				throw new SyntaxException(
-				    "Expected to find closing tag '</"
-				    + startTag + "...' but instead found '</'"
+				    "Expected to find closing tag '&lt;/"
+				    + startTag
+				    + "...&gt;' but instead found '&lt;/'"
 				    + ((ch == '!') ? '!' : "")
-				    + tmpstr + "...'.");
+				    + tmpstr + "...&gt;'.");
 			    }
 			    ctx.endSpecial(env, tmpstr);
 			} else {
 			    tmpstr = parser.readToken();
 			    if (!startTag.equals(tmpstr)) {
 				throw new SyntaxException(
-				    "Expected to find closing tag '</"
-				    + startTag + "...' but instead found '</'"
-				    + tmpstr + "...'.");
+				    "Expected to find closing tag '&lt;/"
+				    + startTag
+				    + "...&gt;' but instead found '&lt;/'"
+				    + tmpstr + "...&gt;'.");
 			    }
 			    ctx.endComponent(env, tmpstr);
 			}
@@ -251,8 +253,8 @@ public class TemplateReader {
 			ch = parser.nextChar(); // Throw away '>' character
 			if (ch != '>') {
 			    throw new SyntaxException(
-				"While processing closing tag '</" + tmpstr
-				+ "...' expected to encounter closing '>' but"
+				"While processing closing tag '&lt;/" + tmpstr
+				+ "...' expected to encounter closing '&gt;' but"
 				+ " found '" + (char) ch + "' instead!");
 			}
 		    } else if (ch == '!') {
@@ -331,7 +333,7 @@ public class TemplateReader {
 		ch = parser.nextChar();
 		if (ch != '>') {
 		    throw new SyntaxException("'" + type + "' tag contained "
-			+ "'/' that was not followed by a '>' character!");
+			+ "'/' that was not followed by a '&gt;' character!");
 		}
 
 		// We're at the end of the parameters and the component
@@ -805,14 +807,14 @@ public class TemplateReader {
 	    }
 	    if (ch == '>') {
 		throw new SyntaxException("Handlers for event '" + eventName
-		    + "' did not end with '/>' but instead ended with '>'!");
+		    + "' did not end with '/&gt;' but instead ended with '&gt;'!");
 	    }
 	    if (ch == '/') {
 		// Make sure we have a "/>"...
 		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 		ch = parser.nextChar();
 		if (ch != '>') {
-		    throw new SyntaxException("Expected '/>' a end of '"
+		    throw new SyntaxException("Expected '/&gt;' a end of '"
 			+ eventName + "' event.  But found '/"
 			+ (char) ch + "'.");
 		}
@@ -861,18 +863,22 @@ public class TemplateReader {
 	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 	    int ch = parser.nextChar();
 	    if (ch != '(') {
-		throw new SyntaxException("While processing '<!" + eventName
+		throw new SyntaxException("While processing '&lt;!" + eventName
 		    + "...' the handler '" + handlerId
 		    + "' was missing the '(' character!");
 	    }
 
 	    // Move to the first char inside the parenthesis
+// FIXME: if (#{test}) {...} will not work because # is a comment according to
+// FIXME: the next line
 	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 	    ch = parser.nextChar();
 
 	    // Allow if() handlers to be more flexible...
 	    if (handlerId.equals(IF_HANDLER)
 		    && (ch != '\'') && (ch != '"') && (ch != 'c')) {
+// FIXME: check for "condition", otherwise expressions starting with 'c' will
+// FIXME: not parse correctly
 		// We have an if() w/o a condition="" && w/o quotes...
 		// Take the entire value inside the ()'s to be the expression
 		parser.unread(ch);
