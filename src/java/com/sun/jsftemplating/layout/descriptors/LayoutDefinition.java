@@ -27,6 +27,7 @@ import com.sun.jsftemplating.layout.event.DecodeEvent;
 import com.sun.jsftemplating.layout.event.InitPageEvent;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -216,7 +217,15 @@ public class LayoutDefinition extends LayoutElementBase {
      *
      *	@return	true.
      */
-    protected boolean encodeThis(FacesContext context, UIComponent component) {
+    protected boolean encodeThis(FacesContext context, UIComponent component) throws IOException {
+	if (component instanceof javax.faces.component.UIViewRoot) {
+	    // The following is required for Dynamic Faces.  It overrides the
+	    // ViewRoot encodeAll method to implement its functionality. :( Ken
+	    // FIXME: Consider doing this ONLY for Dynamic Faces AJAX requests.
+	    component.encodeAll(context);
+	    //encodeChild(context, component);
+	    return false;
+	}
 	return true;
     }
 
