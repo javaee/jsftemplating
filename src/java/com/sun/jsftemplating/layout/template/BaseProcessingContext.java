@@ -49,8 +49,8 @@ public class BaseProcessingContext implements ProcessingContext {
 	// We have a UIComponent tag... first get the parser
 	// Skip white Space
 	TemplateReader reader = env.getReader();
-	reader.getTemplateParser().skipCommentsAndWhiteSpace(
-		TemplateParser.SIMPLE_WHITE_SPACE);
+	TemplateParser parser = reader.getTemplateParser();
+	parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 
 // tagStack.push(content);
 	// Create the LayoutComponent
@@ -61,7 +61,6 @@ public class BaseProcessingContext implements ProcessingContext {
 
 	// See if this is a single tag or if there is a closing tag
 	boolean single = false;
-	TemplateParser parser = reader.getTemplateParser();
 	int ch = parser.nextChar();
 	if (ch == '/') {
 	    // Single Tag
