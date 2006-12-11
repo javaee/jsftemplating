@@ -86,6 +86,48 @@ public class NavigationHandlers {
     }
 
     /**
+     *	<p> This method gives you a "resource URL" as defined by the
+     *	    <code>ViewHandler</code>'s <code>getActionURL(String
+     *	    url)</code> method.</p>
+     *
+     *	@param	context	The {@link HandlerContext}.
+     */
+    @Handler(id="getActionURL",
+	input={
+	    @HandlerInput(name="url", type=String.class, required=true)
+	},
+	output={
+	    @HandlerOutput(name="url", type=String.class)
+	})
+    public static void getActionURL(HandlerContext handlerCtx) {
+	String url = (String) handlerCtx.getInputValue("url");
+	FacesContext ctx = handlerCtx.getFacesContext();
+	handlerCtx.setOutputValue("url", ctx.getApplication().getViewHandler().
+		getActionURL(ctx, url));
+    }
+    
+    /**
+     *	<p> This method gives you a "resource URL" as defined by the
+     *	    <code>ViewHandler</code>'s <code>getResourceURL(String
+     *	    url)</code> method.</p>
+     *
+     *	@param	context	The {@link HandlerContext}.
+     */
+    @Handler(id="getResourceURL",
+	input={
+	    @HandlerInput(name="url", type=String.class, required=true)
+	},
+	output={
+	    @HandlerOutput(name="url", type=String.class)
+	})
+    public static void getResourceURL(HandlerContext handlerCtx) {
+	String url = (String) handlerCtx.getInputValue("url");
+	FacesContext ctx = handlerCtx.getFacesContext();
+	handlerCtx.setOutputValue("url", ctx.getApplication().getViewHandler().
+		getResourceURL(ctx, url));
+    }
+    
+    /**
      *	<p> This handler navigates to the given page.  <code>page</code> may
      *	    either be a <code>UIViewRoot</code> or a <code>String</code>
      *	    representing a <code>UIViewRoot</code>.  Passing in a
