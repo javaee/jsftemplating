@@ -31,7 +31,7 @@ import javax.faces.context.FacesContext;
 
 
 /**
- *  <p>	This factory is responsible for instantiating a <code>StaticText
+ *  <p>	This factory is responsible for instantiating a <code>jMaki
  *	UIComponent</code>.</p>
  *
  *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
@@ -58,7 +58,7 @@ public class AjaxWrapperFactory extends ComponentFactoryBase {
 	UIComponent comp = context.getApplication().createComponent(COMPONENT_TYPE);
 
 	// This needs to be done here (before setOptions) so that $...{...}
-	// expressions can be resolved... may want to defer these?
+	// expressions can be resolved...
 	if (parent != null) {
 	    addChild(context, descriptor, parent, comp);
 	}
