@@ -144,8 +144,18 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 		    attributes.put(key, (Object) null);
 		}
 	    } else {
-// FIXME: Catch exception and log which key it was attempting to set... often an argument type mismatch is thrown while attempting to put a value.
-		attributes.put(key, value);
+		try {
+		    attributes.put(key, value);
+		} catch (IllegalArgumentException ex) {
+		    throw new IllegalArgumentException(
+			"Failed to set property (" + key + ") with value ("
+			+ value + "), which is of type ("
+			+ ((value == null) ?
+			    "null" : value.getClass().getName())
+			+ ").  This occured on the component named ("
+			+ comp.getId() + ") of type ("
+			+ comp.getClass().getName() + ").", ex);
+		}
 	    }
 	}
     }
