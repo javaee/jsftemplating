@@ -325,7 +325,7 @@ public abstract class LayoutDefinitionManager {
     public static Map<String, ComponentType> getGlobalComponentTypes() {
 	if (_globalComponentTypes == null) {
 	    // We haven't initialized the global ComponentTypes yet
-	    _globalComponentTypes = new HashMap<String, ComponentType>();
+	    Map types = new HashMap<String, ComponentType>();
 
 	    try {
 		Properties props = null;
@@ -333,7 +333,7 @@ public abstract class LayoutDefinitionManager {
 		String id = null;
 		// Get all the properties files that define them
 		Enumeration<URL> urls =
-		    Util.getClassLoader(_globalComponentTypes).
+		    Util.getClassLoader(types).
 			getResources(UIComponentFactoryAPFactory.FACTORY_FILE);
 		while (urls.hasMoreElements()) {
 		    url = urls.nextElement();
@@ -343,10 +343,11 @@ public abstract class LayoutDefinitionManager {
 		    for (Map.Entry<Object, Object> entry : props.entrySet()) {
 			// Add each property entry (key, ComponentType)
 			id = (String) entry.getKey();
-			_globalComponentTypes.put(id,
+			types.put(id,
 			    new ComponentType(id, (String) entry.getValue()));
 		    }
 		}
+		_globalComponentTypes = types;
 	    } catch (IOException ex) {
 		throw new RuntimeException(ex);
 	    }
