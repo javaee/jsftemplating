@@ -140,8 +140,18 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 		    // throws an exception if you attempt to call put w/ null
 		    // and there is no property descriptor.  Either way you
 		    // MUST catch something and then handle the other case.
-// FIXME: Catch exception and log which key it was attempting to set... often an argument type mismatch is thrown while attempting to put a value.
-		    attributes.put(key, (Object) null);
+		    try {
+			attributes.put(key, (Object) null);
+		    } catch (IllegalArgumentException iae) {
+			// We'll make this non-fatal, but log a message
+			if (LogUtil.infoEnabled()) {
+			    LogUtil.info("WEBUI0006", new Object[] {
+				key, comp.getId(), comp.getClass().getName()});
+			    if (LogUtil.fineEnabled()) {
+				LogUtil.fine("Unable to set (" + key + ").", iae);
+			    }
+			}
+		    }
 		}
 	    } else {
 		try {
