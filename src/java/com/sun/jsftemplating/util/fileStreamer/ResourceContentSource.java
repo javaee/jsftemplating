@@ -22,13 +22,16 @@
  */
 package com.sun.jsftemplating.util.fileStreamer;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.util.FileUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
 
+import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -63,21 +66,8 @@ public class ResourceContentSource implements ContentSource {
 	    return in;
 	}
 
-	// Check the ctx for the path...
-	String path = (String) ctx.getAttribute("filePath");
-	if (path == null) {
-	    if (ctx instanceof ServletStreamerContext) {
-		// Not found, but we're in a Servlet, keep looking...
-		HttpServletRequest request = (HttpServletRequest)
-		    ((ServletStreamerContext) ctx).getServletRequest();
-		path = request.getPathInfo();
-		if (path == null || path.length() == 0) {
-		    return null;
-		}
-	    } else {
-		return null;
-	    }
-	}
+	// Get the path...
+	String path = getResourcePath(ctx);
 
 	// Find the file...
 	URL url = FileUtil.searchForFile(path, null);
@@ -97,6 +87,27 @@ public class ResourceContentSource implements ContentSource {
 
 	// Return an InputStream to the file
 	return in;
+    }
+
+    /**
+     *	<p> This method returns the path of the resource that was
+     *	    requested.</p>
+     */
+    public String getResourcePath(Context ctx) {
+	// Check the ctx for the path...
+	String path = (String) ctx.getAttribute("filePath");
+	if (path == null) {
+	    if (ctx instanceof ServletStreamerContext) {
+		// Not found, but we're in a Servlet, keep looking...
+		HttpServletRequest request = (HttpServletRequest)
+		    ((ServletStreamerContext) ctx).getServletRequest();
+		path = request.getPathInfo();
+		if (path == null || path.length() == 0) {
+		    path = null;
+		}
+	    }
+	}
+	return path;
     }
 
     /**
@@ -125,7 +136,28 @@ public class ResourceContentSource implements ContentSource {
      *	    used for caching.</p>
      */
     public long getLastModified(Context context) {
-// FIXME: Possibily disable caching for DEBUG mode...
+	if (LayoutDefinitionManager.isDebug()) {
+	    // When in debug mode, don't cache resources... otherwise always
+	    // allow browser to always cache them
+	    FacesContext fc = FacesContext.getCurrentInstance();
+	    if (fc != null) {
+		// Check to see if this resource exists in the FileSystem, if
+		// it doesn't we will let the browser cache it b/c it can't be
+		// changed.
+		String path = getResourcePath(context);
+		path = FileUtil.getRealPath(
+		    fc.getExternalContext().getContext(), path);
+		if (path != null) {
+		    long time = new File(path).lastModified();
+		    if (time > 0) {
+			// Send the timestamp so it will only be cached by
+			// the browser if it hasn't changed
+			return time;
+		    }
+		}
+	    }
+	}
+
 	// This will enable caching on all files served through this code path
 	return DEFAULT_MODIFIED_DATE;
     }
