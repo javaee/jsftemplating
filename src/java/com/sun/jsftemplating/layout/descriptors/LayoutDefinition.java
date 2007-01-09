@@ -36,7 +36,7 @@ import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.component.UIComponent;
-
+import javax.faces.component.UIViewRoot;
 
 /**
  *  <p>	This represents the top-level {@link LayoutElement}, it is the
@@ -207,6 +207,22 @@ public class LayoutDefinition extends LayoutElementBase {
 	_attributes.put(key, value);
     }
 
+
+    /**
+     *	<p> This function overrides the superclass in order to call
+     *	    encodeBegin / encodeEnd on the UIViewRoot (and only for UIViewRoot
+     *	    instances).  This is especially important for DynamicFaces.</p>
+     */
+    @Override
+    public void encode(FacesContext context, UIComponent component) throws IOException {
+	if (component instanceof UIViewRoot) {
+	    component.encodeBegin(context);
+	    super.encode(context, component);
+	    component.encodeEnd(context);
+	} else {
+	    super.encode(context, component);
+	}
+    }
 
     /**
      *	<p> The <code>LayoutDefinition</code> does not encode anything for
