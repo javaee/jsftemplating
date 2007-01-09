@@ -22,6 +22,8 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
+import com.sun.faces.extensions.avatar.lifecycle.AsyncResponse;
+
 import com.sun.jsftemplating.component.TemplateComponent;
 import com.sun.jsftemplating.layout.event.DecodeEvent;
 import com.sun.jsftemplating.layout.event.InitPageEvent;
@@ -217,7 +219,11 @@ public class LayoutDefinition extends LayoutElementBase {
     public void encode(FacesContext context, UIComponent component) throws IOException {
 	if (component instanceof UIViewRoot) {
 	    component.encodeBegin(context);
-	    super.encode(context, component);
+	    AsyncResponse async = AsyncResponse.getInstance(false);
+	    if ((async == null) || !async.isAjaxRequest() || async.isRenderAll()) {
+		// This is not an ajax request... behave normal
+		super.encode(context, component);
+	    }
 	    component.encodeEnd(context);
 	} else {
 	    super.encode(context, component);
