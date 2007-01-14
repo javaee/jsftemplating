@@ -62,7 +62,7 @@ public class DropDownFactory extends ComponentFactoryBase {
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
-	UIComponent comp = context.getApplication().createComponent(COMPONENT_TYPE);
+	UIComponent comp = context.getApplication().createComponent(getComponentType());
 
 	// This needs to be done here (before setOptions) so that $...{...}
 	// expressions can be resolved... may want to defer these?
@@ -126,6 +126,15 @@ public class DropDownFactory extends ComponentFactoryBase {
 
 	// Return the component
 	return comp;
+    }
+
+    /**
+     *	<p> This method returns the ComponentType of this component.  It is
+     *	    implemented this way to allow subclasses to easily provide a
+     *	    different ComponentType.</p>
+     */
+    protected String getComponentType() {
+	return COMPONENT_TYPE;
     }
 
     /**

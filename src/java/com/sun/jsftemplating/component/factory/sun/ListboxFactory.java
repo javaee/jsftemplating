@@ -40,34 +40,14 @@ import javax.faces.context.FacesContext;
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 @UIComponentFactory("sun:listbox")
-public class ListboxFactory extends ComponentFactoryBase {
+public class ListboxFactory extends DropDownFactory {
 
     /**
-     *	<p> This is the factory method responsible for creating the
-     *	    <code>UIComponent</code>.</p>
-     *
-     *	@param	context	    The <code>FacesContext</code>
-     *	@param	descriptor  The {@link LayoutComponent} descriptor associated
-     *			    with the requested <code>UIComponent</code>.
-     *	@param	parent	    The parent <code>UIComponent</code>
-     *
-     *	@return	The newly created <code>Listbox</code>.
+     *	<p> This method overrides the parent class to return a different
+     *	    ComponentType.</p>
      */
-    public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
-	// Create the UIComponent
-	UIComponent comp = context.getApplication().createComponent(COMPONENT_TYPE);
-
-	// This needs to be done here (before setOptions) so that $...{...}
-	// expressions can be resolved... may want to defer these?
-	if (parent != null) {
-	    addChild(context, descriptor, parent, comp);
-	}
-
-	// Set all the attributes / properties
-	setOptions(context, descriptor, comp);
-
-	// Return the component
-	return comp;
+    protected String getComponentType() {
+	return COMPONENT_TYPE;
     }
 
     /**
