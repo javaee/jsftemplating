@@ -31,6 +31,7 @@ import com.sun.jsftemplating.el.VariableResolver;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.util.LogUtil;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,6 +44,7 @@ import java.util.Properties;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.el.EvaluationException;
 import javax.faces.el.ValueBinding; // JSF 1.1
 import javax.faces.webapp.UIComponentTag;
 
@@ -498,9 +500,16 @@ public class ComponentUtil {
 		result = ve.getValue(elctx);
 */
 		// JSF 1.1 VB:
-		ValueBinding vb =
-		    context.getApplication().createValueBinding(strVal);
-		result = vb.getValue(context);
+		try {
+		    ValueBinding vb =
+			context.getApplication().createValueBinding(strVal);
+		    result = vb.getValue(context);
+		} catch (EvaluationException ex) {
+		    if (LogUtil.infoEnabled()) {
+			LogUtil.info("WEBUI0007", new Object[] {strVal});
+		    }
+		    throw ex;
+		}
 	    }
 	}
 
