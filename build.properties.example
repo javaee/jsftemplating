@@ -2,9 +2,16 @@
 ##  This is an example build.properties file, you should modify it to match
 ##  your environment.  It should be saved as file called "build.properties".
 ##
+##  NOTE to Windows Users: Use forward slashes (/) instead of back-slashes
+##	(\).  For example:
+##
+##	glassfish-home=C:/Sun/AppServer
+##
 
 
-## glassfish-home is only used w/i this file
+## glassfish-home is the only variable you need to change if you are using
+## GlassFish.  glassfish-home is only used w/i this file, so if you don't have
+## GlassFish, you only need to replace the references to GlassFish here.
 glassfish-home=/opt/SUNWappserver
 servlet-api.jar=${glassfish-home}/lib/javaee.jar
 junit.jar=test/junit/junit.jar
