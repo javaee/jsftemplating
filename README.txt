@@ -33,6 +33,11 @@ lib/ant directory of the jsftemplating project.
    https://glassfish.dev.java.net and set glassfish-home to your
    installation directory.
 
+   NOTE to windows users:  When specifying paths in this file, use forward
+	slashes.  For example:
+
+	glassfish-home=C:/Sun/AppServer
+
 ** If you want to use netbeans to build this project, skip Step 4 and follow Step 5 instead.
 
 4) From the "jsftemplating" directory, run ant:
