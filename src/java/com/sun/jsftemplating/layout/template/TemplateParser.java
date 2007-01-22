@@ -165,7 +165,7 @@ public class TemplateParser {
      */
     public NameValuePair getNVP(String defName) throws IOException {
 	// Read the name
-	String name = readToken();
+	String name = readToken("_.");
 
 	// Check for empty name
 	if (name.length() == 0) {
