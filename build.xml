@@ -78,7 +78,7 @@
 	<mkdir dir="${build}/." />
 	<echo message="Looking for ant or ant.bat... found: ${execute.ant}" />
 
-	<exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="false">
+	<exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
 	    <!-- We do this to add the ant-apt.jar to the lib path -->
 	    <arg line="-f aptbuild.xml -lib lib/external/ant-apt.jar compile" />
 	</exec>
