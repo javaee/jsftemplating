@@ -33,6 +33,7 @@ import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.LayoutViewHandler;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
@@ -158,29 +159,37 @@ public class MetaDataHandlers {
     }
 
     /**
-     *	<p> This Handler will attempt to build a [portion of a]
-     *	    <code>UIComponent</code> tree.  It needs the <em>parent</em>
-     *	    <code>UIComponent</code>, and a {@link LayoutElement} which
-     *	    describes the <code>UIComponent</code> and all its children.  It
-     *	    will walk the children to extract information and build the
-     *	    cooresponding <code>UIComponent</code> tree.</p>
+     *	<p> This handler finds the (closest) requested
+     *	    <code>LayoutComponent</code> for the given <code>viewId</code> /
+     *	    <code>clientId</code>.  If the <code>viewId</code> is not supplied,
+     *	    the current <code>UIViewRoot</code> will be used (NOTE: it must be
+     *	    a {@link LayoutViewRoot}).  The {@link LayoutComponent} is returned
+     *	    via the <code>component</code> output parameter.  If an exact match
+     *	    is not found, it will return the last {@link LayoutComponent}
+     *	    found while searching the tree -- this should be the last
+     *	    {@link LayoutComponent} in the hierarchy of the specified
+     *	    component.</p>
      *
-     *	<p> One possible use case for calling this method would be to have a
-     *	    dynamic "id" property of a {@link LayoutComponent}, call this
-     *	    method multiple times with different values set in the "id"
-     *	    property.  Remember, that you should not change a
-     *	    {@link LayoutComponent} (or any {@link LayoutElement}) directly.
-     *	    It is only safe to have dynamic values through EL bindings #{}.</p>
+     *	<p> This is not an easy process since JSF components may not all be
+     *	    <code>NamingContainer</code>s, so the clientId is not sufficient to
+     *	    find it.  This is unfortunate, but we we have to deal with it.</p>
      */
-    @Handler(id="buildUIComponentTree",
+    @Handler(id="getLayoutComponent",
 	input={
-	    @HandlerInput(name="parent", type=UIComponent.class, required=true),
-	    @HandlerInput(name="layoutElement", type=LayoutElement.class, required=true)
-	})
-    public static void buildUIComponentTree(HandlerContext context) {
-	UIComponent parent = (UIComponent) context.getInputValue("parent");
-	LayoutElement elt = (LayoutElement) context.getInputValue("layoutElement");
-	LayoutViewHandler.buildUIComponentTree(
-		context.getFacesContext(), parent, elt);
+	    @HandlerInput(name="viewId", type=String.class, required=false),
+	    @HandlerInput(name="clientId", type=String.class, required=true)},
+	output={
+	    @HandlerOutput(name="component", type=LayoutComponent.class)})
+    public static void getLayoutComponent(HandlerContext ctx) {
+	// First get the clientId that we are going to attempt to walk.
+	String viewId = (String) ctx.getInputValue("viewId");
+	String clientId = (String) ctx.getInputValue("clientId");
+
+	// Next, find it
+	LayoutComponent result = LayoutDefinitionManager.getLayoutComponent(
+		ctx.getFacesContext(), viewId, clientId);
+
+	// Set the result
+	ctx.setOutputValue("component", result);
     }
 }
