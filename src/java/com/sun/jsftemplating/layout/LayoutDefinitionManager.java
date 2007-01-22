@@ -26,7 +26,9 @@ import com.sun.jsftemplating.annotation.UIComponentFactoryAPFactory;
 import com.sun.jsftemplating.annotation.HandlerAPFactory;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
@@ -42,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 import javax.faces.context.FacesContext;
 
@@ -131,6 +134,115 @@ public abstract class LayoutDefinitionManager {
 	return def;
     }
 
+    /**
+     *	<p> This method finds the (closest) requested
+     *	    <code>LayoutComponent</code> for the given <code>clientId</code>.
+     *	    If the <code>viewId</code> is not supplied, the current
+     *	    <code>UIViewRoot</code> will be used (NOTE: it must be a
+     *	    {@link LayoutViewRoot}).  If an exact match is not found, it will
+     *	    return the last {@link LayoutComponent} found while walking the
+     *	    tree -- this represents the last {@link LayoutComponent} in the
+     *	    hierarchy of the specified component.  If nothing matches the
+     *	    given <code>clientId</code>, <code>null</code> will be returned.</p>
+     *
+     *	<p> This is not an easy process since JSF components may not all be
+     *	    <code>NamingContainer</code>s, so the clientId is not sufficient to
+     *	    find it.  This is unfortunate, but we we have to deal with it.</p>
+     *
+     *	@param	ctx	    The <code>FacesContext</code>.
+     *
+     *	@param	ldKey	    The {@link LayoutDefinition} key to identify the
+     *			    {@link LayoutDefinition} tree to be searched.
+     *
+     *	@param	clientId    The component <code>clientId</code> for which to
+     *			    obtain a {@link LayoutComponent}.
+     */
+    public static LayoutComponent getLayoutComponent(FacesContext ctx, String ldKey, String clientId) throws LayoutDefinitionException {
+	// Find the page first...
+	LayoutElement layElt = null;
+	if (ldKey != null) {
+	    layElt = getLayoutDefinition(ctx, ldKey);
+	    if (layElt == null) {
+		throw new LayoutDefinitionException(
+			"Unable to find LayoutDefinition ('" + ldKey + "')");
+	    }
+	} else {
+	    layElt = ((LayoutViewRoot) ctx.getViewRoot()).getLayoutDefinition(ctx);
+	}
+
+	// Create a StringTokenizer over the clientId
+	StringTokenizer tok = new StringTokenizer(clientId, ":");
+
+	// Walk the LD looking for the individual id's specified in the
+	// clientId.
+	String id = null;
+	LayoutElement match = null;
+	while (tok.hasMoreTokens()) {
+	    // I don't want to create a bunch of objects to check for
+	    // instanceof NamingContainer.  I can't check the class file b/c
+	    // there is no way for me to know what class gets created before
+	    // actually creating the UIComponent.  This is because either the
+	    // ComponentFactory can decide how to create the UIComponent, which
+	    // it often uses the Application.  The Application is driven off
+	    // the faces-config.xml file(s).
+	    //
+	    // I will instead do a brute force search for a match.  This has
+	    // the potential to fail if non-naming containers have the same
+	    // id's as naming containers.  It may also fail for components with
+	    // dynamic id's.
+	    id = tok.nextToken();
+	    match = findById(ctx, layElt, id);
+	    if (match == null) {
+		// Can't go any further! We're as close as we're going to get.
+		break;
+	    }
+	    layElt = match;
+	}
+
+	// Make sure we're not still at the LayoutDefinition, if so do NOT
+	// accept this as a match.
+	if (layElt instanceof LayoutDefinition) {
+	    layElt = null;
+	}
+
+	// Return the closest match (or null if nothing found)
+	return (LayoutComponent) layElt;
+    }
+
+    /**
+     *	<p> This method performs a breadth-first search for a child
+     *	    {@link LayoutComponent} with the given <code>id</code> of the given
+     *	    {@link LayoutElement} (<code>elt</code>).  It will return null if
+     *	    none of the children (or children's children, etc.) equal the given
+     *	    <code>id</code>.</p>
+     */
+    private static LayoutComponent findById(FacesContext ctx, LayoutElement elt, String id) {
+	// First search the direct child LayoutElement
+	for (LayoutElement child : elt.getChildLayoutElements()) {
+	    // I am *NOT* providing the parent UIComponent as it may not be
+	    // available, this function is *not* guaranteed to work for
+	    // dynamic ids
+	    if (child.getId(ctx, null).equals(id)
+		    && (child instanceof LayoutComponent)) {
+		// Found it!
+		return (LayoutComponent) child;
+	    }
+	}
+
+	// Not found directly under it, search children...
+	// NOTE: Must do a breadth first search, so 2 loops are necessary
+	LayoutComponent comp = null;
+	for (LayoutElement child : elt.getChildLayoutElements()) {
+	    comp = findById(ctx, child, id);
+	    if (comp != null) {
+		// Found it!
+		break;
+	    }
+	}
+
+	// Return the result, or null if not found
+	return comp;
+    }
 
     /**
      *	<p> This method obtains the <code>LayoutDefinitionManager</code> that
