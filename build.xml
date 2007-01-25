@@ -41,13 +41,13 @@
     </path>
 
 	<target name="init" description="sets ant to execute">
-		<condition property="execute.ant" value="lib/ant/bin/ant.bat" else="lib/ant/bin/ant">
+		<condition property="execute.ant" value="ant.bat" else="ant">
 			<os family="windows" />
 		</condition>
 		<echo message="${execute.ant}" />
 	</target>
 
-    <target name="build" depends="init, jar" />
+    <target name="build" depends="jar" />
     
     <target name="all" depends="build, build-samples" />
     
@@ -74,7 +74,7 @@
 	</jar>
     </target>
 
-    <target name="compile" depends="jar-apt-files">
+    <target name="compile" depends="init, jar-apt-files">
 	<mkdir dir="${build}/." />
 	<echo message="Looking for ant or ant.bat... found: ${execute.ant}" />
 
@@ -113,7 +113,7 @@
 	</jar>
     </target>
 
-    <target name="javadoc" depends="compile">
+    <target name="javadoc" depends="build">
 	<!-- Generate javadoc -->
 	<javadoc destdir="${docs}"
 		private="no"
