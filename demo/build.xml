@@ -44,11 +44,11 @@
 	<echo message="${execute.ant}" />
     </target>
 
-    <target name="build" depends="init, jar" />
+    <target name="build" depends="jar" />
     
     <target name="all" depends="build" />
     
-    <target name="compile">
+    <target name="compile" depends="init">
 	<mkdir dir="${build}/." />
 	<echo message="ant or ant.bat should be found depending on your platform: ${execute.ant}" />
 
@@ -82,7 +82,7 @@
 	    <footer><![CDATA[<a href="https://jsftemplating.dev.java.net">https://jsftemplating.dev.java.net</a>]]></footer>
 
     	    <fileset dir="${src}">
-		<include name="src/**/*.java" />
+		<include name="**/*.java" />
 	    </fileset>
 
 	    <classpath refid="javadoc-dependencies" />
