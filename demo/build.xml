@@ -44,7 +44,7 @@
 	<echo message="${execute.ant}" />
     </target>
 
-    <target name="build" depends="jar" />
+    <target name="build" depends="createwar" />
     
     <target name="all" depends="build" />
     
@@ -88,6 +88,14 @@
 	    <classpath refid="javadoc-dependencies" />
 	</javadoc>
     </target>
+
+    <target name="createwar" depends="jar">
+	<echo message="Creating '${war.name}'." />
+	<jar jarfile="${war.name}" update="true">
+            <fileset dir="${docroot}" includes="**/*.jsf, **/*.jsp, **/*.inc, **/*.gif, **/*.jpg, **/*.js, WEB-INF/web.xml, WEB-INF/faces-config.xml, WEB-INF/lib/*.jar" />
+	</jar>
+    </target>
+
 
     <target name="clean">
 	<!-- Delete the build / dist directories ;-->
