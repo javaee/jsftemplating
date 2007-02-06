@@ -40,12 +40,18 @@
 	<pathelement location="${junit.jar}" />
     </path>
 
-	<target name="init" description="sets ant to execute">
-		<condition property="execute.ant" value="ant.bat" else="ant">
-			<os family="windows" />
-		</condition>
-		<echo message="${execute.ant}" />
-	</target>
+    <target name="init" description="sets ant to execute">
+        <condition property="execute.ant" value="${ant.home}/bin/ant.bat" else="${ant.home}/bin/ant">
+                <os family="windows" />
+        </condition>
+        <echo message="Using ${execute.ant}" />
+        <echo message="java.home=${java.home}"/>
+        <echo message="ant.home=${ant.home}" />
+        <exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
+            <!-- We do this to add the ant-apt.jar to the lib path -->
+            <arg line="-version" />
+        </exec>
+    </target>
 
     <target name="build" depends="jar" />
     
@@ -76,8 +82,6 @@
 
     <target name="compile" depends="init, jar-apt-files">
 	<mkdir dir="${build}/." />
-	<echo message="Looking for ant or ant.bat... found: ${execute.ant}" />
-
 	<exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
 	    <!-- We do this to add the ant-apt.jar to the lib path -->
 	    <arg line="-f aptbuild.xml -lib lib/external/ant-apt.jar compile" />

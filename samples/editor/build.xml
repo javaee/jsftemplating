@@ -13,16 +13,25 @@
         description="Compile all the sources and build the war file">  
     </target>
     
+    <target name="init" description="sets ant to execute">
+        <condition property="execute.ant" value="${ant.home}/bin/ant.bat" else="${ant.home}/bin/ant">
+                <os family="windows" />
+        </condition>
+        <echo message="Using ${execute.ant}" />
+        <echo message="java.home=${java.home}"/>
+        <echo message="ant.home=${ant.home}" />
+        <exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
+            <!-- We do this to add the ant-apt.jar to the lib path -->
+            <arg line="-version" />
+        </exec>
+    </target>
+    
     <!-- Compile the java code from ${src.java.dir} into ${classes.dir} -->
-    <target name="compile" >
+    <target name="compile" depends="init" >
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${classes.dir}"/>
-	<echo message="ant or ant.bat will not be found depending on your platform, this is normal and good." />
-	<exec dir="." executable="ant" failonerror="true" failifexecutionfails="false">
-	    <!-- We do this to add the ant-apt.jar to the lib path -->
-	    <arg line="-f aptbuild.xml -lib ../../lib/external/ant-apt.jar compile" />
-	</exec>
-	<exec dir="." executable="ant.bat" failonerror="true" failifexecutionfails="false">
+        <echo message="using: ${execute.ant}" />
+	<exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
 	    <!-- We do this to add the ant-apt.jar to the lib path -->
 	    <arg line="-f aptbuild.xml -lib ../../lib/external/ant-apt.jar compile" />
 	</exec>
@@ -49,6 +58,7 @@
     </target> 
 
     <target name="war" depends="assemble-war" >
+        <echo message="Creating '${appname}'." />
 	<jar destfile="${appname}" basedir="${assemble.dir}" />
     </target>
     
