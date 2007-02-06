@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<project name="DemoNBProject" default="build" basedir=".">
+
+<!-- ========== Initialize Properties =================================== -->
+    <property file="./nbproject/project.properties"/>
+    <property file="./nbproject/private/private.properties"/>
+
+    <taskdef name="apt" classname="org.apache.tools.ant.taskdefs.Apt" />
+
+    <!-- Compile the java code from ${src.dir} into ${build.classes.dir} -->
+    <target name="compile" >
+	<apt	
+            srcdir="${src.dir}"
+            fork="true"
+            destdir="${build.classes.dir}/."
+            debug="${javac.debug}"
+            deprecation="${javac.deprecation}"
+            classpath="${javac.classpath};${j2ee.platform.classpath}"
+            />
+    </target>
+
+</project>
