@@ -452,6 +452,7 @@ public class LayoutViewHandler extends ViewHandler {
 	ExternalContext extCtx = context.getExternalContext();
 // FIXME: Portlet?
 	ServletResponse response = (ServletResponse) extCtx.getResponse();
+	ServletRequest request = (ServletRequest) extCtx.getRequest();
 
 	RenderKitFactory renderFactory = (RenderKitFactory)
 	    FactoryFinder.getFactory(FactoryFinder.RENDER_KIT_FACTORY);
@@ -465,27 +466,31 @@ public class LayoutViewHandler extends ViewHandler {
 // FIXME: Test multiple browsers against this code!!
 	String userContentType = "text/html";
 	boolean responseCTSet = false;
-	if ((userContentType != null) && (userContentType.length() > 0)) {
-	    // User picked this, use it...
-	    response.setContentType(userContentType);
-	    responseCTSet = true;
-	} else {
-	    // No explicit Content-type, find best match...
-	    contentTypeList = (String) extCtx.getRequestHeaderMap().get("Accept");
-	    if (contentTypeList == null) {
-		contentTypeList = "text/html;q=1.0";
-    // Ryan Lubke thinks I don't need this... taking out to see if it's true
-    //	} else if (!contentTypeList.toLowerCase().contains("text/html")) {
-    //	    contentTypeList += ",text/html;q=1.0";
-	    }
+	if((userContentType != null) && (userContentType.length() > 0)) {
+		// User picked this, use it...
+		response.setContentType(userContentType);
+		responseCTSet = true;
+	}
+	else {
+		// No explicit Content-type, find best match...
+		contentTypeList = (String) extCtx.getRequestHeaderMap().get("Accept");
+		if (contentTypeList == null) {
+			contentTypeList = "text/html;q=1.0";
+		}
+	}
+	String encType = request.getCharacterEncoding();
+	if(encType != null && encType.length() > 0) {
+		response.setCharacterEncoding(encType);
+	}
+	else {
+		response.setCharacterEncoding("UTF-8");
 	}
 
 // FIXME: Portlet?
 	writer =
 	    renderKit.createResponseWriter(
 		new OutputStreamWriter(response.getOutputStream()),
-		contentTypeList,
-		((ServletRequest) extCtx.getRequest()).getCharacterEncoding());
+		contentTypeList, request.getCharacterEncoding());
 	context.setResponseWriter(writer);
 // Not setting the contentType here results in XHTML which formats differently
 // than text/html in Mozilla.. even though the documentation claims this
