@@ -25,9 +25,11 @@ package com.sun.jsftemplating.component.factory.sun;
 import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.Util;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,13 +85,23 @@ public class TableRowGroupFactory extends ComponentFactoryBase {
 	    if ((((List) data).size() > 0) &&
 		    !(((List) data).get(0) instanceof List)) {
 		Object obj = ((List) data).get(0);
-		obj = (obj == null) ? "(null)" : obj.getClass().getName();
-		// We don't have a List of List of Object!
-		throw new IllegalArgumentException("TableRowGroupFactory "
-			+ "expects a List<List<Object>>.  Where the outer List"
-			+ " should be a List of sources, and the inner List "
-			+ "should be a List of rows.  However, the following "
-			+ "was passed in: List<" + obj + ">.");
+		if (obj == null) {
+		    // In this case, treat this as an empty List and log a
+		    // warning... this prevents some cases from blowing up
+		    // just b/c there is no data.
+		    if (LogUtil.configEnabled()) {
+			LogUtil.config("WEBUI0008");
+		    }
+		    ((List) data).set(0, new ArrayList());
+		} else {
+		    obj = obj.getClass().getName();
+		    // We don't have a List of List of Object!
+		    throw new IllegalArgumentException("TableRowGroupFactory "
+			    + "expects a List<List<Object>>.  Where the outer "
+			    + "List should be a List of sources, and the inner"
+			    + " List should be a List of rows.  However, the "
+			    + "following was passed in: List<" + obj + ">.");
+		}
 	    }
 	    List<List<Object>> lists = (List<List<Object>>) data;
 	    Object dataProvider = createDataProvider(lists);
