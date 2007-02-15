@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.component.factory;
 
+import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.event.CommandActionListener;
@@ -38,8 +39,6 @@ import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding; // JSF 1.1
-import javax.faces.event.ActionListener;
-import javax.faces.webapp.UIComponentTag;
 
 
 /**
@@ -113,7 +112,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
     protected void setOption(FacesContext context, UIComponent comp, String key, Object value) {
 	// Next check to see if the value contains a ValueExpression
 	String strVal = "" + value;
-	if (UIComponentTag.isValueReference(strVal)) {
+	if (ComponentUtil.isValueReference(strVal)) {
 	    /*
 	    1.2+
 	    ValueExpression ve =
