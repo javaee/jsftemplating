@@ -22,7 +22,6 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
-import com.sun.jsftemplating.el.VariableResolver;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.event.AfterLoopEvent;
@@ -33,14 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-// JSF 1.2 specific... don't do this yet...
-//import javax.el.ELContext;
-//import javax.el.ValueExpression;
-
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.el.ValueBinding; // JSF 1.1
-import javax.faces.webapp.UIComponentTag;
 
 
 /**
@@ -48,8 +41,6 @@ import javax.faces.webapp.UIComponentTag;
  *	LayoutForEach provides the functionality necessary to iteratively
  *	display a portion of the layout tree.  The list property contains
  *	the <code>List</code> of items to iterate over.</p>
- *
- *  @see VariableResolver
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
