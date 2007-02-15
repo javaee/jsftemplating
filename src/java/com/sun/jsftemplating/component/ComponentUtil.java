@@ -46,7 +46,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.ValueBinding; // JSF 1.1
-import javax.faces.webapp.UIComponentTag;
 
 
 /**
@@ -437,7 +436,7 @@ public class ComponentUtil {
 
 	// Next check to see if the value contains a JSF ValueExpression
 	String strVal = value.toString();
-	if (UIComponentTag.isValueReference(strVal)) {
+	if (ComponentUtil.isValueReference(strVal)) {
 /*
 1.2+
 	    ValueExpression ve =
@@ -490,7 +489,7 @@ public class ComponentUtil {
 	// Next check to see if the value contains a JSF ValueExpression
 	if (result != null) {
 	    String strVal = result.toString();
-	    if (UIComponentTag.isValueReference(strVal)) {
+	    if (ComponentUtil.isValueReference(strVal)) {
 /*
 1.2+
 		ELContext elctx = context.getELContext();
@@ -515,6 +514,21 @@ public class ComponentUtil {
 
 	// Return the result
 	return result;
+    }
+
+    /**
+     *	<p> Returns true if this expression looks like an EL expression.</p>
+     */
+    public static boolean isValueReference(String value) {
+	if (value == null) {
+	    return false;
+	}
+// FIXME: Consider adding logic to look for "matching" {}'s
+	int start = value.indexOf("#{");
+	if ((start != -1) && (start < value.indexOf('}'))) {
+            return true;
+        }
+        return false;
     }
 
     /**
