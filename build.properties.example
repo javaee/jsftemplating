@@ -18,6 +18,7 @@ junit.jar=test/junit/junit.jar
 
 ## This is already available for GlassFish in javaee.jar
 jsf-api.jar=
+el-api.jar=
 
 ## You don't need to change these:
 aptbuild=aptbuild
