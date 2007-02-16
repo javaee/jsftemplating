@@ -36,11 +36,13 @@ import javax.faces.context.FacesContext;
  *	"$...{...}" type expressions to substitute in values.</p>
  *
  *  <p>	Depending on its environment, this {@link LayoutElement} can represent
- *	an {@link If} <code>UIComponent</code> or simply exist as a
- *	{@link LayoutElement}.  When its {@link #encode} method is called, the
- *	if functionality will act as a {@link LayoutElement}.  When the
+ *	an {@link com.sun.jsftemplating.component.If} <code>UIComponent</code>
+ *	or simply exist as a {@link LayoutElement}.  When its {@link #encode}
+ *	method is called, the if functionality will act as a
+ *	{@link LayoutElement}.  When the
  *	{@link LayoutComponent#getChild(FacesContext, UIComponent)} method is
- *	called, it will create an {@link If} <code>UIComponent</code>.</p>
+ *	called, it will create an {@link com.sun.jsftemplating.component.If}
+ *	<code>UIComponent</code>.</p>
  *
  *  @see com.sun.jsftemplating.el.VariableResolver
  *  @see com.sun.jsftemplating.el.PermissionChecker
@@ -84,8 +86,8 @@ public class LayoutIf extends LayoutComponent {
      *	false otherwise.  This provides the functionality for conditionally
      *	displaying a portion of the layout tree.
      *
-     *	@param	context	    The FacesContext
-     *	@param	component   The UIComponent
+     *	@param	ctx    The FacesContext
+     *	@param	comp   The UIComponent
      *
      *	@return	true if children are to be rendered, false otherwise.
      */

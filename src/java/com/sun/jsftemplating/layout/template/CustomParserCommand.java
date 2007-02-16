@@ -29,7 +29,7 @@ import java.io.IOException;
  *  <p>	This interface provides a way to process "custom" parser commands.
  *	These commands are in the format: "&lt;![custom command name] ...".
  *	They must be registered with the TemplateParser to be recognized.
- *	See {@link TemplateReader#setCustomParserCommand(String)}.</p>
+ *	See {@link TemplateReader#setCustomParserCommand(String, CustomParserCommand)}.</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
@@ -43,7 +43,7 @@ public interface CustomParserCommand {
      *	    parameter.</p>
      *
      *	<p> The {@link ProcessingContext} and
-     *	    {@link ProcessingContextEnvironment) are both available.</p>
+     *	    {@link ProcessingContextEnvironment} are both available.</p>
      */
     void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException;
 }
