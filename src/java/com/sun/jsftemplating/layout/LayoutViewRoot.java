@@ -38,6 +38,7 @@ import javax.faces.context.FacesContext;
 
 // Dynamic Faces Classes
 import com.sun.faces.extensions.avatar.components.PartialTraversalViewRoot;
+import com.sun.faces.extensions.avatar.components.PartialTraversalViewRootHelper;
 
 
 /**
@@ -52,13 +53,14 @@ import com.sun.faces.extensions.avatar.components.PartialTraversalViewRoot;
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
-public class LayoutViewRoot extends PartialTraversalViewRoot {
+public class LayoutViewRoot extends UIViewRoot implements PartialTraversalViewRoot {
 
     /**
      *	<p> Constructor.</p>
      */
     public LayoutViewRoot() {
 	super();
+	helper = new PartialTraversalViewRootHelper(this);
     }
 
     /**
@@ -78,6 +80,13 @@ public class LayoutViewRoot extends PartialTraversalViewRoot {
      *	    any registered handlers.</p>
      */
     public void processDecodes(FacesContext context) {
+	// PartialTraversalViewRootHelper may call us in an attempt to call
+	// super.processDecodes(), detect this...
+	if (!(new RuntimeException().getStackTrace()[1].getClassName().equals(HELPER_NAME)) &&
+		!helper.processDecodes(context)) {
+	    // Request already handled...
+	    return;
+	}
 
 // BEGIN EXPERIMENTAL CODE...
 	ExternalContext extCtx = context.getExternalContext();
@@ -115,6 +124,58 @@ public class LayoutViewRoot extends PartialTraversalViewRoot {
 		def.decode(context, this);
 	    }
 	    super.processDecodes(context);
+	}
+    }
+
+    /**
+     *	<p> Overridden to support Dynamic Faces.</p>
+     */
+    public void processValidators(FacesContext context) {
+	if (helper.processValidators(context)) {
+            super.processValidators(context);
+	}
+    }
+
+    /**
+     *	<p> Overridden to support Dynamic Faces.</p>
+     */
+    public void processUpdates(FacesContext context) {
+	if (helper.processUpdates(context)) {
+            super.processUpdates(context);
+	}
+    }
+
+    /**
+     *	<p> Overridden to support Dynamic Faces.</p>
+     */
+    public boolean getRendersChildren() {
+	return helper.getRendersChildren(super.getRendersChildren());
+    }
+
+    /**
+     *	<p> Overridden to support Dynamic Faces.</p>
+     */
+    public void encodeBegin(FacesContext context) throws IOException {
+	if (helper.encodeBegin(context)) {
+            super.encodeBegin(context);
+	}
+    }       
+
+    /**
+     *	<p> Overridden to support Dynamic Faces.</p>
+     */
+    public void encodeChildren(FacesContext context) throws IOException {
+	if (helper.encodeChildren(context)) {
+            super.encodeChildren(context);
+	}
+    }
+
+    /**
+     *	<p> Overridden to support Dynamic Faces.</p>
+     */
+    public void encodeEnd(FacesContext context) throws IOException {
+	if (helper.encodeEnd(context)) {
+            super.encodeEnd(context);
 	}
     }
 
@@ -282,6 +343,37 @@ public class LayoutViewRoot extends PartialTraversalViewRoot {
     }
 
 
+    ///////////////////////////////////////////////////////////////////////
+    //	These methods provide a PartialTraversalViewRoot implementation.
+    //	This implementation simply delegates to the DynamicFaces impl.
+    ///////////////////////////////////////////////////////////////////////
+
+    /**
+     *
+     */
+    public void encodePartialResponseBegin(FacesContext context) throws IOException {
+	helper.encodePartialResponseBegin(context);
+    }
+
+    /**
+     *
+     */
+    public void encodePartialResponseEnd(FacesContext context) throws IOException {
+	helper.encodePartialResponseEnd(context);
+    }
+
+    /**
+     *
+     */
+    public void postExecuteCleanup(FacesContext context) {
+	helper.postExecuteCleanup(context);
+    }
+
+    private PartialTraversalViewRootHelper	helper	= null;;
+
     private String _ldmKey = null;
     private transient LayoutDefinition _layoutDefinition = null;
+
+    private static final String HELPER_NAME =
+	    PartialTraversalViewRootHelper.class.getName();
 }
