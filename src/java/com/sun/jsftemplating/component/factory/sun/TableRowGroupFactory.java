@@ -90,7 +90,7 @@ public class TableRowGroupFactory extends ComponentFactoryBase {
 		    // warning... this prevents some cases from blowing up
 		    // just b/c there is no data.
 		    if (LogUtil.configEnabled()) {
-			LogUtil.config("WEBUI0008");
+			LogUtil.config("JSFT0008");
 		    }
 		    ((List) data).set(0, new ArrayList());
 		} else {

@@ -142,7 +142,7 @@ public class LayoutViewHandler extends ViewHandler {
 	    def = viewRoot.getLayoutDefinition(context);
 	} catch (LayoutDefinitionException ex) {
 	    if (LogUtil.configEnabled()) {
-		LogUtil.config("WEBUI0005", (Object) viewId);
+		LogUtil.config("JSFT0005", (Object) viewId);
 		if (LogUtil.finestEnabled()) {
 		    LogUtil.finest(
 			"File (" + viewId + ") not found!", ex);
@@ -232,7 +232,7 @@ public class LayoutViewHandler extends ViewHandler {
 	    FileStreamer.getFileStreamer().streamContent(fsContext);
 	} catch (FileNotFoundException ex) {
 	    if (LogUtil.infoEnabled()) {
-		LogUtil.info("WEBUI0004", (Object) path);
+		LogUtil.info("JSFT0004", (Object) path);
 	    }
 	    if (resp != null) {
 		try {
@@ -244,7 +244,7 @@ public class LayoutViewHandler extends ViewHandler {
 	    }
 	} catch (IOException ex) {
 	    if (LogUtil.infoEnabled()) {
-		LogUtil.info("WEBUI0004", (Object) path);
+		LogUtil.info("JSFT0004", (Object) path);
 		if (LogUtil.fineEnabled()) {
 		    LogUtil.fine(
 			"Resource (" + path + ") not available!", ex);

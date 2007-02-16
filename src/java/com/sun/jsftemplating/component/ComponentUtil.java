@@ -505,7 +505,7 @@ public class ComponentUtil {
 		    result = vb.getValue(context);
 		} catch (EvaluationException ex) {
 		    if (LogUtil.infoEnabled()) {
-			LogUtil.info("WEBUI0007", new Object[] {strVal});
+			LogUtil.info("JSFT0007", new Object[] {strVal});
 		    }
 		    throw ex;
 		}

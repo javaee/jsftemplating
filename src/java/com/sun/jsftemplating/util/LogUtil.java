@@ -1252,7 +1252,7 @@ public class LogUtil {
     /**
      *	<p> This is the default log key.</p>
      */
-    public static final String	DEFAULT_LOG_KEY = "WEBUI0001";
+    public static final String	DEFAULT_LOG_KEY = "JSFT0001";
 
     /**
      *	<p> This is the default logger name.</p>
@@ -1264,7 +1264,7 @@ public class LogUtil {
      *	<p> This key is used when the requested key is not found to inform the
      *	    developer they forgot to add a key.</p>
      */
-    public static final String KEY_NOT_FOUND_KEY    = "WEBUI0002";
+    public static final String KEY_NOT_FOUND_KEY    = "JSFT0002";
 
 
     /**

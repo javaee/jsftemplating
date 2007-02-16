@@ -886,7 +886,7 @@ public class VariableResolver {
 		} else if (LogUtil.infoEnabled()) {
 		    // Info log level, don't be verbose, just display a benign
 		    // warning.
-		    LogUtil.info("WEBUI0003",
+		    LogUtil.info("JSFT0003",
 			new Object[] {key.substring(separator + 1), value});
 		}
 		str = key;

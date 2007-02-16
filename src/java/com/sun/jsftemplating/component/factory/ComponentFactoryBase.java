@@ -143,7 +143,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 		    } catch (IllegalArgumentException iae) {
 			// We'll make this non-fatal, but log a message
 			if (LogUtil.infoEnabled()) {
-			    LogUtil.info("WEBUI0006", new Object[] {
+			    LogUtil.info("JSFT0006", new Object[] {
 				key, comp.getId(), comp.getClass().getName()});
 			    if (LogUtil.fineEnabled()) {
 				LogUtil.fine("Unable to set (" + key + ").", iae);
