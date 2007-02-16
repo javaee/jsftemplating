@@ -196,4 +196,29 @@ public class NavigationHandlers {
 		"Unable to navigate to page '" + page + "'!", ex);
 	}
     }
+
+    /**
+     *	<p> This handler forwards to the given page.  Normally you will want
+     *	    to do {@link #navigate} as that follows JSF patterns.  This uses
+     *	    the raw dispatcher forward mechanism (via the ExternalContext).</p>
+     *
+     *	<p> Input value: "url" -- Type: <code>String</code></p>
+     *
+     *	@param	context	The {@link HandlerContext}.
+     */
+    @Handler(id="dispatch",
+	input={
+	    @HandlerInput(name="path", type=String.class, required=true)
+	})
+    public static void dispatch(HandlerContext context) {
+	String path = (String) context.getInputValue("path");
+	FacesContext ctx = context.getFacesContext();
+	try {
+	    ctx.getExternalContext().dispatch(path);
+	    ctx.responseComplete();
+	} catch (IOException ex) {
+	    throw new RuntimeException(
+		"Unable to navigate to path '" + path + "'!", ex);
+	}
+    }
 }
