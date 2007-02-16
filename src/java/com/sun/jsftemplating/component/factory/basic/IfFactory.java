@@ -23,7 +23,6 @@
 package com.sun.jsftemplating.component.factory.basic;
 
 import com.sun.jsftemplating.annotation.UIComponentFactory;
-import com.sun.jsftemplating.component.If;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 
