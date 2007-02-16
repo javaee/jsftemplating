@@ -51,7 +51,7 @@ public interface ContentSource {
      *  <p> This method is responsible for generating the content and returning
      *	    an InputStream to that content.  It is also responsible for setting
      *	    any attribute values in the {@link Context}, such as
-     *	    {@link EXTENSION} or {@link CONTENT_TYPE}.</p>
+     *	    {@link Context#EXTENSION} or {@link Context#CONTENT_TYPE}.</p>
      */
     public InputStream getInputStream(Context ctx) throws IOException;
 

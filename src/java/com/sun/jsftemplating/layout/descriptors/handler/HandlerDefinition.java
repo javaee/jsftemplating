@@ -274,8 +274,8 @@ public class HandlerDefinition implements java.io.Serializable {
     /**
      *	<p> This method retrieves the <code>List</code> of child
      *	    {@link Handler}s.  This <code>List</code> should not be changed
-     *	    directly.  Call {@link #addChildHandler()}, or make a copy and call
-     *	    {@link #setChildHandlers()}.</p>
+     *	    directly.  Call {@link #addChildHandler(Handler)}, or make a copy
+     *	    and call {@link #setChildHandlers(List)}.</p>
      *
      *	@return The <code>List</code> of child {@link Handler}s for this
      *		<code>HandlerDefinition</code>.
