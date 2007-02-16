@@ -24,6 +24,7 @@
     <path id="javadoc-dependencies">
 	<path refid="dependencies" />
 	<path refid="apt-dependencies" />
+	<pathelement location="${jsftemplating-dynafaces.jar}" />
     </path>
 
     <path id="test-dependencies">
