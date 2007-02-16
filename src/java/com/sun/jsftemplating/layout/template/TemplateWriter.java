@@ -60,7 +60,8 @@ public class TemplateWriter {
     /**
      *	<p> Constructor.</p>
      *
-     *	@param	url	<code>URL</code> to the {@link LayoutDefinition} file.
+     *	@param	stream	<code>OutputStream</code> to the
+     *			{@link LayoutDefinition} file.
      */
     public TemplateWriter(OutputStream stream) {
 	_writer = new PrintWriter(stream);

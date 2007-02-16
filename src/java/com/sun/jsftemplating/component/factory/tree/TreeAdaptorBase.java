@@ -144,7 +144,6 @@ public abstract class TreeAdaptorBase implements TreeAdaptor {
      *	    are directly added to <code>comp</code> do not need to be returned
      *	    from this method.</p>
      *
-     *	@param	comp	    The tree node <code>UIComponent</code>.
      *	@param	nodeObject  The (model) object representing the tree node.
      */
     public Map<String, UIComponent> getFacets(Object nodeObject) {

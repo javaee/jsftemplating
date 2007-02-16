@@ -288,7 +288,7 @@ public class LayoutViewHandler extends ViewHandler {
      *
      *	<p> If the prefix is not set, then an init parameter (see
      *	    {@link #RESOURCE_PREFIX}) will be checked.  If that is still not
-     *	    specified, then the {@link DEFAULT_RESOURCE_PREFIX} will be
+     *	    specified, then the {@link #DEFAULT_RESOURCE_PREFIX} will be
      *	    used.</p>
      */
     public String getResourcePrefix() {
