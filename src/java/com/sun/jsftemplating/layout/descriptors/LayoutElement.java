@@ -116,7 +116,7 @@ public interface LayoutElement extends java.io.Serializable {
      *	    defined on the <code>LayoutElement</code>.</p>
      *
      *	@param	type	The event type of {@link Handler}s to retrieve.
-     *	@param	event	The associated <code>UIComponent</code> (or null).
+     *	@param	comp	The associated <code>UIComponent</code> (or null).
      *
      *	@return	A List of {@link Handler}s.
      */

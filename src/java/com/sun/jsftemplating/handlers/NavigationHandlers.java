@@ -90,7 +90,7 @@ public class NavigationHandlers {
      *	    <code>ViewHandler</code>'s <code>getActionURL(String
      *	    url)</code> method.</p>
      *
-     *	@param	context	The {@link HandlerContext}.
+     *	@param	handlerCtx	The {@link HandlerContext}.
      */
     @Handler(id="getActionURL",
 	input={
@@ -111,7 +111,7 @@ public class NavigationHandlers {
      *	    <code>ViewHandler</code>'s <code>getResourceURL(String
      *	    url)</code> method.</p>
      *
-     *	@param	context	The {@link HandlerContext}.
+     *	@param	handlerCtx	The {@link HandlerContext}.
      */
     @Handler(id="getResourceURL",
 	input={

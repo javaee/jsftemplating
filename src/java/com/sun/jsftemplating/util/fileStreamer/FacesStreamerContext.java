@@ -131,7 +131,7 @@ public class FacesStreamerContext extends BaseContext {
      *  <p> This returns the <code>FacesContext</code>.  This is the same
      *	    as calling:</p>
      *
-     *  <p> <code>getAttribute({@link FACES_CONTEXT})</code></p>
+     *  <p> <code>getAttribute({@link #FACES_CONTEXT})</code></p>
      */
     public FacesContext getFacesContext() {
 	return (FacesContext) getAttribute(FACES_CONTEXT);
@@ -141,7 +141,7 @@ public class FacesStreamerContext extends BaseContext {
      *  <p> This sets the <code>FacesContext</code>.  This is the same as
      *	    calling:</p>
      *
-     *  <p> <code>setAttribute({@link FACES_CONTEXT}, ctx)</code></p>
+     *  <p> <code>setAttribute({@link #FACES_CONTEXT}, ctx)</code></p>
      */
     protected void setFacesContext(FacesContext ctx) {
 	setAttribute(FACES_CONTEXT, ctx);
@@ -160,7 +160,7 @@ public class FacesStreamerContext extends BaseContext {
      *	    <code>ContentSource</code> implementation's <code>getId()</code>
      *	    method.</p>
      *
-     *	<p> In many cases, the {@link DEFAULT_CONTENT_SOURCE_ID} is sufficient,
+     *	<p> In many cases, the {@link #DEFAULT_CONTENT_SOURCE_ID} is sufficient,
      *	    which is used by default.</p>
      */
     public static final String CONTENT_SOURCE_ID    = "contentSourceId";

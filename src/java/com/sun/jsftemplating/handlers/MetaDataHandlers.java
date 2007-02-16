@@ -163,12 +163,12 @@ public class MetaDataHandlers {
      *	    <code>LayoutComponent</code> for the given <code>viewId</code> /
      *	    <code>clientId</code>.  If the <code>viewId</code> is not supplied,
      *	    the current <code>UIViewRoot</code> will be used (NOTE: it must be
-     *	    a {@link LayoutViewRoot}).  The {@link LayoutComponent} is returned
-     *	    via the <code>component</code> output parameter.  If an exact match
-     *	    is not found, it will return the last {@link LayoutComponent}
-     *	    found while searching the tree -- this should be the last
-     *	    {@link LayoutComponent} in the hierarchy of the specified
-     *	    component.</p>
+     *	    a {@link com.sun.jsftemplating.layout.LayoutViewRoot}).  The
+     *	    {@link LayoutComponent} is returned via the <code>component</code>
+     *	    output parameter.  If an exact match is not found, it will return
+     *	    the last {@link LayoutComponent} found while searching the tree --
+     *	    this should be the last {@link LayoutComponent} in the hierarchy
+     *	    of the specified component.</p>
      *
      *	<p> This is not an easy process since JSF components may not all be
      *	    <code>NamingContainer</code>s, so the clientId is not sufficient to

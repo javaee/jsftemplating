@@ -283,8 +283,9 @@ public abstract class LayoutElementBase implements LayoutElement {
      *	    one.  A {@link HandlerContext} will be created to pass to each
      *	    {@link Handler}.  The {@link HandlerContext} object is reused
      *	    across all {@link Handler}s that are invoked; the
-     *	    {@link #setHandler(Handler)} method is invoked with the correct
-     *	    {@link Handler} descriptor before the handler is executed.</p>
+     *	    {@link HandlerContext#setHandler(Handler)} method is invoked with
+     *	    the correct {@link Handler} descriptor before the handler is
+     *	    executed.</p>
      *
      *	@param	context	    The <code>FacesContext</code>
      *	@param	eventType   The event type which is being fired
