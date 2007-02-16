@@ -62,19 +62,19 @@ import javax.faces.component.UIComponent;
  *
  *  <p>	It is advisable to use Java annotations when defining a <strong>handler
  *	method</strong>.  See examples of annotations in the
- *	{@link com.sun.jsftemplating.handlers} package.  Here is an example:</p>
+ *	<code>com.sun.jsftemplating.handlers package</code>.  Here is an
+ *	example:</p>
  *
  *  <p> <BLOCKQUOTE>
  *	    <CODE>
- *		@Handler(id="abc:doSomething",
- *		    input={
- *			@HandlerInput(name="foo", type=Integer.class),
- *			@HandlerInput(name="bar", type=My.class, required=true)
- *		    },
- *		    output={
- *			@HandlerOutput(name="result", type=String.class)
- *		    }
- *		)
+ *		&#64;Handler(id="abc:doSomething",<br />
+ *		    input={<br />
+ *			&#64;HandlerInput(name="foo", type=Integer.class),<br />
+ *			&#64;HandlerInput(name="bar", type=My.class, required=true)<br />
+ *		    },<br />
+ *		    output={<br />
+ *			&#64;HandlerOutput(name="result", type=String.class)<br />
+ *		    })<br />
  *		public void doSomething(HandlerContext handlerCtx)
  *	    </CODE>
  *	</BLOCKQUOTE></p>
@@ -133,7 +133,7 @@ public class Handler implements java.io.Serializable {
      *	    found.  It will not attempt to resolve $...{...} expressions or
      *	    do modifications of any kind.  If you are looking for a method to
      *	    do these types of operations, try
-     *	    {@link #getInputValue(FacesContext, String)}. </p>
+     *	    {@link #getInputValue(HandlerContext, String)}. </p>
      *
      *	@param	name	The name used to identify the input value.
      */
@@ -382,8 +382,8 @@ public class Handler implements java.io.Serializable {
     /**
      *	<p> This method retrieves the <code>List</code> of child
      *	    {@link Handler}s.  This <code>List</code> should not be changed
-     *	    directly.  Call {@link #addChildHandler()}, or make a copy and call
-     *	    {@link #setChildHandlers()}.</p>
+     *	    directly.  Call {@link #addChildHandler(Handler)}, or make a copy
+     *	    and call {@link #setChildHandlers(List)}.</p>
      *
      *	@return The <code>List</code> of child {@link Handler}s.
      */
@@ -395,7 +395,7 @@ public class Handler implements java.io.Serializable {
      *	<p> This method is responsible for invoking this <code>Handler</code>
      *	    as well as all child <code>Handler</code>s.  Neither will be
      *	    invoked if this methods condition is non-null and unstatisfied
-     *	    (see {@link getCondition()}).  The method associated with this
+     *	    (see {@link #getCondition()}).  The method associated with this
      *	    <code>Handler</code> will be invoked first, then any child
      *	    <code>Handler</code>s.</p>
      *
