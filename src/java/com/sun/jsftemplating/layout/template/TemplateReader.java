@@ -266,6 +266,15 @@ public class TemplateReader {
 			// Open tag
 			parser.unread(ch);
 			tmpstr = parser.readToken();
+			if (tmpstr.equals("f:verbatim")) {
+			    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+			    parser.nextChar();	// Get rid of '>'
+			    tmpstr = parser.readUntil("</f:verbatim>", false);
+			    tmpstr = tmpstr.substring(0,
+				    tmpstr.length() - "</f:verbatim>".length());
+			    ctx.staticText(env, tmpstr);
+			    break;
+			}
 			pushTag(tmpstr);
 			ctx.beginComponent(env, tmpstr);
 		    }
