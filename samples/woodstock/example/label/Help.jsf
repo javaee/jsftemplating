@@ -1,0 +1,29 @@
+<sun:page>
+  <f:loadBundle basename="com.sun.webui.jsf.example.resources.Resources" var="msgs" />
+  <sun:html>  
+    <sun:head title="#{msgs.label_helpWindowTitle}" />                        
+    <sun:body>
+      <sun:form id="Form"> 
+
+	<!-- Masthead -->
+	<sun:masthead id="Masthead" secondary="#{true}" />
+
+	<!-- Content Page Title -->
+	<sun:title id="ContentPageTitle" 
+	   title="#{msgs.label_helpWindowTitle}">
+	  <!facet "pageButtonsBottom">
+	    <sun:button text="#{msgs.label_close}"
+	       primary="#{true}"
+	       onClick="window.close()" />   
+	  </facet>
+									
+	  <sun:markup tag="div" styleClass="#{themeStyles.CONTENT_MARGIN}">            
+	    <sun:staticText id="StaticText"
+	      escape="#{false}"  
+	      text="#{msgs.label_helpWindowText}" />
+	  </sun:markup>                                
+	</sun:title>             
+      </sun:form>
+    </sun:body>
+  </sun:html>  
+</sun:page>
