@@ -22,6 +22,8 @@
 
 package com.sun.webui.jsf.example.index;
 
+import com.sun.jsftemplating.util.FileUtil;
+
 import javax.faces.context.FacesContext;
 import javax.faces.component.UIComponent;
 
@@ -45,8 +47,7 @@ public class ShowCodeBackingBean implements Serializable {
     private String fileName; 
     
     // relative path to java and properties resources
-    private static final String RELATIVE_PATH =
-            "/WEB-INF/classes/com/sun/webui/jsf/example/";    
+    private static final String RELATIVE_PATH = "com/sun/webui/jsf/example/";
     
     /** Default constructor */
     public ShowCodeBackingBean() {       
@@ -91,12 +92,10 @@ public class ShowCodeBackingBean implements Serializable {
 	    }
 
 	    // Get the source file input stream
-            FacesContext context = FacesContext.getCurrentInstance();
-            ServletContext servletContext =                     
-                     (ServletContext) context.getExternalContext().getContext();             
-	    InputStream is = servletContext.getResourceAsStream(sourceName);
-	    if (is == null)
+	    InputStream is = FileUtil.searchForFile(sourceName, null).openStream();
+	    if (is == null) {
 		throw new Exception("Resource not found: " + sourceName);
+	    }
 
 	    InputStreamReader reader = new InputStreamReader(is);
 	    StringWriter writer = new StringWriter();
