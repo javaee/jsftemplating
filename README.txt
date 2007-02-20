@@ -44,14 +44,14 @@ lib/ant directory of the jsftemplating project.
 
     ant
 
-If you don't have any on your machine, there is a copy provided as part of
+If you don't have any on your machine, you can download it from here:
 jsftemplating, try:
 
-    lib/ant/bin/ant clean build
+http://ant.apache.org
 
   windows:
 
-    lib\ant\bin\ant.bat clean build
+    ant.bat clean build
 
 That's it!  The jsftemplating.jar file can be found in your "dist"
 directory. 
