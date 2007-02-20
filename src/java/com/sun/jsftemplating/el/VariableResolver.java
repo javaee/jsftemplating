@@ -70,6 +70,7 @@ import javax.faces.event.ActionEvent;
  *	<li>{@link #HAS_PROPERTY} -- {@link HasPropertyDataSource}</li>
  *	<li>{@link #INT} -- {@link IntDataSource}</li>
  *	<li>{@link #METHOD_BINDING} -- {@link MethodBindingDataSource}</li>
+ *	<li>{@link #METHOD_EXPRESSION} -- {@link MethodExpressionDataSource}</li>
  *	<li>{@link #OPTION} -- {@link OptionDataSource}</li>
  *	<li>{@link #PAGE_SESSION} -- {@link PageSessionDataSource}</li>
  *	<li>{@link #PROPERTY} -- {@link PropertyDataSource}</li>
@@ -779,10 +780,47 @@ public class VariableResolver {
     }
 
     /**
+     *	<p> This {@link VariableResolver.DataSource} creates a MethodExpression
+     *	    from the supplied key.  Example:</p>
+     *
+     *	<p> $methodExpression{#{bean.key}}</p>
+     */
+    public static class MethodExpressionDataSource implements DataSource {
+	/**
+	 *  <p>	See class JavaDoc.</p>
+	 *
+	 *  @param  ctx		The <code>FacesContext</code>
+	 *  @param  desc	The <code>LayoutElement</code>
+	 *  @param  component	The <code>UIComponent</code>
+	 *  @param  key		The key used to obtain information from this
+	 *			<code>DataSource</code>.
+	 *
+	 *  @return The value resolved from key.
+	 */
+	public Object getValue(FacesContext ctx, LayoutElement desc,
+		UIComponent component, String key) {
+	    Class [] args = EMPTY_CLASS_ARRAY;
+	    key = key.trim();
+	    int commaIdx = key.lastIndexOf(',');
+	    if (commaIdx != -1) {
+		if (key.endsWith("true")) {
+		    args = ACTION_ARGS;
+		    key = key.substring(0, commaIdx);
+		} else if (key.endsWith("false")) {
+		    key = key.substring(0, commaIdx);
+		}
+	    }
+	    return ctx.getApplication().getExpressionFactory().
+		createMethodExpression(
+			ctx.getELContext(), key, Object.class, args);
+	}
+    }
+
+    /**
      *	<p> This {@link VariableResolver.DataSource} creates a MethodBinding
      *	    from the supplied key.  Example:</p>
      *
-     *	<p> $methodBinding{#{bean.bundleKey}}</p>
+     *	<p> $methodBinding{#{bean.key}}</p>
      */
     public static class MethodBindingDataSource implements DataSource {
 	/**
@@ -798,7 +836,7 @@ public class VariableResolver {
 	 */
 	public Object getValue(FacesContext ctx, LayoutElement desc,
 		UIComponent component, String key) {
-	    return ctx.getApplication().createMethodBinding(key, actionArgs);
+	    return ctx.getApplication().createMethodBinding(key, ACTION_ARGS);
 	}
     }
 
@@ -1334,9 +1372,15 @@ public class VariableResolver {
 
     /**
      *	<p> Defines "methodBinding" in $methodBinding{...}.  This allows
-     *	    MethodBindings in to be created.</p>
+     *	    MethodBindings to be created.</p>
      */
     public static final String	    METHOD_BINDING	= "methodBinding";
+
+    /**
+     *	<p> Defines "methodExpression" in $methodExpression{...}.  This allows
+     *	    MethodExpressions to be created.</p>
+     */
+    public static final String	    METHOD_EXPRESSION	= "methodExpression";
 
     /**
      *	<p> Defines "constant" in $constant{...}.  This allows constants
@@ -1372,12 +1416,18 @@ public class VariableResolver {
 	dataSourceMap.put(CONSTANT, new ConstantDataSource());
 	dataSourceMap.put(RESOURCE, new ResourceBundleDataSource());
 	dataSourceMap.put(METHOD_BINDING, new MethodBindingDataSource());
+	dataSourceMap.put(METHOD_EXPRESSION, new MethodExpressionDataSource());
     }
 
     /**
      *	Constant defining the arguments required for a Action MethodBinding.
      */
-    private static Class[] actionArgs = {ActionEvent.class};
+    private static final Class[] ACTION_ARGS = {ActionEvent.class};
+
+    /**
+     *	Empty <code>Class[]</code> for methods that take no arguments.
+     */
+    private static final Class[] EMPTY_CLASS_ARRAY = {};
 
     /**
      *	Escape character.
