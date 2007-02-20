@@ -32,13 +32,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-// JSF 1.2 specific... don't do this yet...
-//import javax.el.ValueExpression;
+import javax.el.ValueExpression;
 
 import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.el.ValueBinding; // JSF 1.1
 
 
 /**
@@ -113,18 +111,11 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	// Next check to see if the value contains a ValueExpression
 	String strVal = "" + value;
 	if (ComponentUtil.isValueReference(strVal)) {
-	    /*
-	    1.2+
 	    ValueExpression ve =
 		context.getApplication().getExpressionFactory().
 		    createValueExpression(
 			    context.getELContext(), strVal, Object.class);
 	    comp.setValueExpression((String) key, ve);
-	    */
-	    // JSF 1.1 VB:
-	    ValueBinding vb =
-		context.getApplication().createValueBinding(strVal);
-	    comp.setValueBinding((String) key, vb);
 	} else {
 	    // In JSF, you must directly modify the attribute Map
 	    Map<String, Object> attributes = comp.getAttributes();
@@ -248,5 +239,42 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	    // Add this as an actual child
 	    parent.getChildren().add(child);
 	}
+    }
+
+    /**
+     *	<p> This method instantiates the <code>UIComponent</code> given its
+     *	    <code>ComponentType</code>.  It will respect the
+     *	    <code>binding</code> property so that a <code>UIComponent</code>
+     *	    can be created via the <code>binding</code> property.  While a
+     *	    custom {@link ComponentFactory} can do a better job, at times it
+     *	    may be desirable to use <code>binding</code> instead.</p>
+     */
+    protected UIComponent createComponent(FacesContext ctx, String componentType, LayoutComponent desc, UIComponent parent) {
+	UIComponent comp = null;
+
+	// Check for the "binding" property
+	String binding = (String)
+	    desc.getEvaluatedOption(ctx, "binding", parent);
+	if ((binding != null) && ComponentUtil.isValueReference(binding)) {
+	    // Create a ValueExpression
+	    ValueExpression ve =
+		ctx.getApplication().getExpressionFactory().
+		    createValueExpression(
+			    ctx.getELContext(), binding, UIComponent.class);
+	    // Create / get the UIComponent
+	    comp = ctx.getApplication().createComponent(
+		    ve, ctx, componentType);
+	} else {
+	    // No binding, do the normal way...
+	    comp = ctx.getApplication().createComponent(componentType);
+	}
+
+	// Parent the new component
+	if (parent != null) {
+	    addChild(ctx, desc, parent, comp);
+	}
+
+	// Return it...
+	return comp;
     }
 }
