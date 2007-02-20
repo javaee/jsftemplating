@@ -23,10 +23,16 @@
 package com.sun.jsftemplating.component.factory.ri;
 
 import com.sun.jsftemplating.annotation.UIComponentFactory;
+import com.sun.jsftemplating.component.EventComponent;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.util.HandlerUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.faces.component.UIComponent;
@@ -71,16 +77,29 @@ public class LoadBundleFactory extends ComponentFactoryBase {
      *	@return	<code>parent</code>.
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
+	// Create an Event component for this
+	EventComponent event = new EventComponent();
+	if (parent != null) {
+	    addChild(context, descriptor, parent, event);
+	}
+
 	// Get the inputs
 	String baseName = (String) descriptor.getEvaluatedOption(context, "basename", parent);
 	String var = (String) descriptor.getEvaluatedOption(context, "var", parent);
 	Locale locale = (Locale) descriptor.getEvaluatedOption(context, "locale", parent);
 
-	// Fire the handler
-	HandlerUtil.dispatchHandler("setResourceBundle", descriptor,
-		"key", var, "bundle", baseName, "locale", locale);
+	// Create a handler (needed to execute code each time displayed)...
+	HandlerDefinition def = LayoutDefinitionManager.
+		getGlobalHandlerDefinition("setResourceBundle");
+	Handler handler = new Handler(def);
+	handler.setInputValue("bundle", baseName);
+	handler.setInputValue("key", var);
+	handler.setInputValue("locale", locale);
+	List<Handler> handlers = new ArrayList<Handler>();
+	handlers.add(handler);
+	event.getAttributes().put("beforeEncode", handlers);
 
 	// Return (parent)
-	return parent;
+	return event;
     }
 }
