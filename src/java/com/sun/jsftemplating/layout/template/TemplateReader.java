@@ -1061,6 +1061,20 @@ public class TemplateReader {
 		singleTag = true;
 	    }
 
+	    // Check to see if the 'id' is wrapped in quotes.
+	    char first = id.charAt(0);
+	    if ((first == '"') || (first == '\'')) {
+		if (id.indexOf('>') != -1) {
+		    // Means we didn't have an ending quote before '>'
+		    throw new SyntaxException("Unable to find ending (" + first
+			    + ") on !facet declaration with id ("
+			    + id.substring(0, id.indexOf('>'))
+			    + ") on component ("
+			    + env.getParent().getUnevaluatedId() + ").");
+		}
+		id = id.substring(1, id.length() - 1).trim();
+	    }
+
 	    // Create new LayoutFacet
 	    LayoutElement parent = env.getParent();
 	    LayoutFacet facetElt =  new LayoutFacet(parent, id);
