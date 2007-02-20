@@ -57,8 +57,7 @@ public class GenericFactory extends ComponentFactoryBase {
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Determine the componentType
-	String componentType = (String)
-	    descriptor.getEvaluatedOption(context, COMPONENT_TYPE, parent);
+	String componentType = (String) descriptor.getEvaluatedOption(context, COMPONENT_TYPE, parent);
 	if (componentType == null) {
 	    throw new IllegalArgumentException(
 		    "\"&gt;component&lt;\" requires a \"" + COMPONENT_TYPE
@@ -67,14 +66,7 @@ public class GenericFactory extends ComponentFactoryBase {
 	}
 
 	// Create the UIComponent
-	UIComponent comp =
-	    context.getApplication().createComponent(componentType);
-
-	// This needs to be done here (before setOptions) so that $...{...}
-	// expressions can be resolved... may want to defer these?
-	if (parent != null) {
-	    addChild(context, descriptor, parent, comp);
-	}
+	UIComponent comp = createComponent(context, componentType, descriptor, parent);
 
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);

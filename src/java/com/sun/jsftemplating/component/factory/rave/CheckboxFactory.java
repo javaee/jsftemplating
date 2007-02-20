@@ -55,13 +55,7 @@ public class CheckboxFactory extends ComponentFactoryBase {
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
-	UIComponent comp = context.getApplication().createComponent(COMPONENT_TYPE);
-
-	// This needs to be done here (before setOptions) so that $...{...}
-	// expressions can be resolved... may want to defer these?
-	if (parent != null) {
-	    addChild(context, descriptor, parent, comp);
-	}
+	UIComponent comp = createComponent(context, COMPONENT_TYPE, descriptor, parent);
 
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);

@@ -60,18 +60,15 @@ public class TabFactory extends ComponentFactoryBase {
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
-	UIComponent comp = context.getApplication().createComponent(COMPONENT_TYPE);
+	UIComponent comp = createComponent(context, COMPONENT_TYPE, descriptor, parent);
+
+/*
 	String actionString = (String) descriptor.getOption("actionString");
 	if (null != actionString) {
 // FIXME: Add back when we have a ConstantMethodBinding class to use
 //	    comp.setAction(new ConstantMethodBinding(actionString));
 	}
-
-	// This needs to be done here (before setOptions) so that $...{...}
-	// expressions can be resolved... may want to defer these?
-	if (parent != null) {
-	    addChild(context, descriptor, parent, comp);
-	}
+*/
 
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);

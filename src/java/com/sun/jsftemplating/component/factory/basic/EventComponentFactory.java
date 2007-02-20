@@ -56,18 +56,14 @@ public class EventComponentFactory extends ComponentFactoryBase {
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
-	EventComponent eventComp = new EventComponent();
-
-	// This needs to be done here (before setOptions) so that $...{...}
-	// expressions can be resolved... may want to defer these?
-	if (parent != null) {
-	    addChild(context, descriptor, parent, eventComp);
-	}
+	UIComponent comp = createComponent(context, COMPONENT_TYPE, descriptor, parent);
 
 	// Set all the attributes / properties
-	setOptions(context, descriptor, eventComp);
+	setOptions(context, descriptor, comp);
 
 	// Return the component
-	return eventComp;
+	return comp;
     }
+
+    public static final String	COMPONENT_TYPE	= "com.sun.jsftemplating.EventComponent";
 }

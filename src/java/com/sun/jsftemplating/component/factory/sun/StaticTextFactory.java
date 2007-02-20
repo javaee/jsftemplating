@@ -55,13 +55,7 @@ public class StaticTextFactory extends ComponentFactoryBase {
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
-	UIComponent comp = context.getApplication().createComponent(COMPONENT_TYPE);
-
-	// This needs to be done here (before setOptions) so that $...{...}
-	// expressions can be resolved... may want to defer these?
-	if (parent != null) {
-	    addChild(context, descriptor, parent, comp);
-	}
+	UIComponent comp = createComponent(context, COMPONENT_TYPE, descriptor, parent);
 
 	// Set escape as false by default, don't call setEscape() b/c then
 	// ValueExpressions won't get evaluated
