@@ -223,6 +223,9 @@ public class LayoutDefinition extends LayoutElementBase {
 	    if ((async == null) || !async.isAjaxRequest() || async.isRenderAll()) {
 		// This is not an ajax request... behave normal
 		super.encode(context, component);
+	    } else {
+		// Dynamic Faces is now overriding this, so this is required...
+		component.encodeChildren(context);
 	    }
 	    component.encodeEnd(context);
 	} else {
