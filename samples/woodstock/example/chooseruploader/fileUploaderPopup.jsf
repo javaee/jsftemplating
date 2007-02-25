@@ -4,6 +4,7 @@
 	<sun:head id="popupUploaderHead" title="#{msgs.uploaderPopup_title}">
 	  <sun:link rel="shortcut icon" url="/images/favicon.ico" type="image/x-icon" />
 	</sun:head>
+
 	<sun:body>
 				   
 	<sun:form id="uploaderFormPopup">
@@ -70,9 +71,9 @@
 
 		<!--Select Folder button - opens folder chooser in popup window. -->
 		    <sun:button primary="#{true}"  text="#{msgs.uploader_buttonTextFolder}" id="folder"  
-			       onClick="javascript: var win = window.open('../faces/chooseruploader/folderChooserPopup.jsf',
-					'folderchooserPopup','height=630,width=750,top='+((screen.height-(screen.height/1.618))-(500/2))+',
-					left='+((screen.width-650)/2)+',scrollbars,resizable');win.focus();return false" 
+			       onClick="javascript: var win = window.open('../chooseruploader/folderChooserPopup.jsf',
+					'folderchooserPopup','height=630,width=750,top='+((screen.height-(screen.height/1.618))-(500/2))
+					+ ', left='+((screen.width-650)/2)+',scrollbars,resizable');win.focus();return false" 
 				toolTip="#{msgs.uploader_folderButtonToolTip}"/>
 <f:verbatim>
 		 </td></tr>
@@ -93,9 +94,9 @@
 		    
 		    <!-- File Chooser hyper link - opens file chooser in a popup window.-->
 		    <sun:hyperlink  id="popupFile" text="#{msgs.uploader_fileChooserLink}" toolTip="#{msgs.uploader_fileChooserLinkTooltip}" 
-				   onClick="javascript: var win = window.open('../faces/chooseruploader/fileChooserPopup.jsf',
-					    'filechooserPopup','height=630,width=750,top='+((screen.height-(screen.height/1.618))-(500/2))+',
-					    left='+((screen.width-650)/2)+',scrollbars,resizable'); win.focus(); return false" />
+				   onClick="javascript: var win = window.open('../chooseruploader/fileChooserPopup.jsf',
+					    'filechooserPopup','height=630,width=750,top='+((screen.height-(screen.height/1.618))-(500/2))
+					    + ', left='+((screen.width-650)/2)+',scrollbars,resizable'); win.focus(); return false" />
 		    <sun:label id="textLabel2" text="#{msgs.uploader_fileChooserText2}" />
 "		  </td></tr></table>
 		  </sun:markup>
