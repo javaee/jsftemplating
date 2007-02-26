@@ -63,7 +63,7 @@ public class DropDownFactory extends ComponentFactoryBase {
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
-	UIComponent comp = createComponent(context, COMPONENT_TYPE, descriptor, parent);
+	UIComponent comp = createComponent(context, getComponentType(), descriptor, parent);
 
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);
