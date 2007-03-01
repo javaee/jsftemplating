@@ -36,7 +36,9 @@ import com.sun.jsftemplating.util.fileStreamer.FileStreamer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -100,6 +102,7 @@ public class LayoutViewHandler extends ViewHandler {
      *	    JSP pages.</p>
      */
     public UIViewRoot createView(FacesContext context, String viewId) {
+//_time = new java.util.Date();
 	// Check to see if this is a resource request
 	String path = getResourcePath(viewId);
 	if (path != null) {
@@ -136,6 +139,18 @@ public class LayoutViewHandler extends ViewHandler {
 	}
 	viewRoot.setRenderKitId(renderKitId);
 
+	// Save the current viewRoot, temporarily set the new UIViewRoot so
+	// beforeCreate, afterCreate will function correctly
+	UIViewRoot currentViewRoot = context.getViewRoot(); 
+
+	// Set the View Root to the new viewRoot
+	// NOTE: This must happen after return _oldViewHandler.createView(...)
+	// NOTE2: However, we really want the UIViewRoot available during
+	//	  initPage events which are fired during
+	//	  getLayoutDefinition()... so we need to set this, then unset
+	//	  it if we go through _oldViewHandler.createView(...)
+	context.setViewRoot(viewRoot);
+
 	// Initialize Resources / Create Tree
 	LayoutDefinition def = null;
 	try {
@@ -148,20 +163,28 @@ public class LayoutViewHandler extends ViewHandler {
 			"File (" + viewId + ") not found!", ex);
 		}
 	    }
+
+	    // Restore original ViewRoot, we set it prematurely
+	    if (currentViewRoot != null) {
+// FIXME: Talk to Ryan about restoring the ViewRoot to null!!
+		context.setViewRoot(currentViewRoot);
+	    }
+
 // FIXME: Provide better feedback when no .jsf & no .jsp
 // FIXME: Difficult to tell at this stage if no .jsp is present
 
 	    // Not found, delegate to old ViewHandler
 	    return _oldViewHandler.createView(context, viewId);
+	} catch (RuntimeException ex) {
+	    // Restore original ViewRoot, we set it prematurely
+	    if (currentViewRoot != null) {
+// FIXME: Talk to Ryan about restoring the ViewRoot to null!!
+		context.setViewRoot(currentViewRoot);
+	    }
+
+	    // Allow error to be thrown (this isn't the normal code path)
+	    throw ex;
 	}
-
-	// Save the current viewRoot, temporarily set the new UIViewRoot so
-	// beforeCreate, afterCreate will function correctly
-	UIViewRoot currentViewRoot = context.getViewRoot(); 
-
-	// Set the View Root to the new viewRoot
-	// NOTE: This must happen after return _oldViewHandler.createView(...)
-	context.setViewRoot(viewRoot);
 
 	if (def != null) {
 	    // Ensure that our Resources are available
@@ -250,6 +273,7 @@ public class LayoutViewHandler extends ViewHandler {
 			"Resource (" + path + ") not available!", ex);
 		}
 	    }
+// FIXME: send 404?
 	}
 
 	// Return dummy UIViewRoot to avoid NPE
@@ -266,15 +290,19 @@ public class LayoutViewHandler extends ViewHandler {
      *	    (or a JSF component) in a single file.</p>
      *
      *	<p> A request for a resource must be prefixed by the resource prefix,
-     *	    see @{link #getResourcePrefix}.  This prefix must also be mapped to
+     *	    see @{link #getResourcePrefixes}.  This prefix must also be mapped to
      *	    the <code>FacesServlet</code> in order for this class to handle the
      *	    request.</p>
      */
     public String getResourcePath(String viewId) {
 	ExternalContext extCtx = FacesContext.getCurrentInstance().getExternalContext();
-// FIXME: Portlet
-	if (extCtx.getRequestServletPath().equals(getResourcePrefix())) {
-	    return extCtx.getRequestPathInfo();
+// FIXME: Portlet!
+	String servletPath = extCtx.getRequestServletPath();
+	Iterator<String> it = getResourcePrefixes().iterator();
+	while (it.hasNext()) {
+	    if (servletPath.equals(it.next())) {
+		return extCtx.getRequestPathInfo();
+	    }
 	}
 	return null;
     }
@@ -291,16 +319,22 @@ public class LayoutViewHandler extends ViewHandler {
      *	    specified, then the {@link #DEFAULT_RESOURCE_PREFIX} will be
      *	    used.</p>
      */
-    public String getResourcePrefix() {
+    public List<String> getResourcePrefixes() {
 	if (_resourcePrefix == null) {
+	    ArrayList<String> list = new ArrayList<String>();
+
 	    // Check to see if it's specified by a context param
 	    // Get context parameter map (initParams in JSF are context params)
-	    _resourcePrefix = (String) FacesContext.getCurrentInstance().
+	    String initParam = (String) FacesContext.getCurrentInstance().
 		getExternalContext().getInitParameterMap().get(RESOURCE_PREFIX);
-	    if (_resourcePrefix == null) {
-		// Still not set, use default
-		_resourcePrefix = DEFAULT_RESOURCE_PREFIX;
+	    if (initParam != null) {
+		list.add(initParam);
 	    }
+// FIXME: Support more...
+
+	    // Add default...
+	    list.add(DEFAULT_RESOURCE_PREFIX);
+	    _resourcePrefix = list;
 	}
 	return _resourcePrefix;
     }
@@ -311,7 +345,7 @@ public class LayoutViewHandler extends ViewHandler {
      *	    Currently, only 1 prefix is supported.  The prefix itself does not
      *	    manifest itself in the file system / classpath.</p>
      */
-    public void setResourcePrefix(String prefix) {
+    public void setResourcePrefixes(List<String> prefix) {
 	_resourcePrefix = prefix;
     }
 
@@ -371,6 +405,7 @@ public class LayoutViewHandler extends ViewHandler {
      *	<p> ...</p>
      */
     public UIViewRoot restoreView(FacesContext context, String viewId) {
+//_time = new java.util.Date();
 	Map<String, Object> map = context.getExternalContext().getRequestMap();
 	if (map.get(RESTORE_VIEW_ID) == null) {
 	    map.put(RESTORE_VIEW_ID, viewId);
@@ -418,6 +453,7 @@ public class LayoutViewHandler extends ViewHandler {
 	    // End document
 	    writer.endDocument();
 	}
+//System.out.println("PROCESSING TIME: " + (new java.util.Date().getTime() - _time.getTime()));
     }
 
     private static void renderComponent(FacesContext context, UIComponent comp) throws IOException {
@@ -617,7 +653,8 @@ public class LayoutViewHandler extends ViewHandler {
     public static final String RESOURCE_PREFIX		=
 	"com.sun.jsftemplating.RESOURCE_PREFIX";
 
-    private String _resourcePrefix = null;
+    private List<String> _resourcePrefix = null;
+//private transient java.util.Date _time = null;
 
     private ViewHandler _oldViewHandler			= null;
     static final String AJAX_REQ_TARGET_KEY		= "_ajaxReqTarget";
