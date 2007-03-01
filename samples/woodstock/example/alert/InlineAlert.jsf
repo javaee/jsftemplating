@@ -44,7 +44,7 @@
 		  rendered="#{InlineAlertBean.linkRendered}"
 		  icon="HREF_LINK"
 		  target="help_window"
-		  url="HelpAlert.jsp"
+		  url="HelpAlert.jsf"
 		  text="#{msgs.alert_helpLinkText}"
 		  toolTip="#{msgs.alert_helpLinkTooltip}"
 		  onMouseOver="javascript:window.status='#{msgs.alert_helpLinkMouseOver}'; return true;"

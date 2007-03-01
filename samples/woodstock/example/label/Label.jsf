@@ -54,7 +54,7 @@
 	      <sun:imageHyperlink id="pageHelpLink2"
 		icon="HREF_LINK"
 		target="help_window"
-		url="Help.jsp"
+		url="Help.jsf"
 		toolTip="#{msgs.label_helpTooltip}"
 		text="#{msgs.label_morePageHelp}"
 		onMouseOver="javascript:window.status='#{msgs.label_helpTooltip  }'; return true;"
