@@ -30,17 +30,23 @@ package com.sun.jsftemplating.handlers;
 import com.sun.jsftemplating.annotation.Handler;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
+import com.sun.jsftemplating.util.Util;
+import com.sun.jsftemplating.el.PageSessionResolver;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Serializable;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.faces.context.FacesContext;
+import javax.faces.component.UIViewRoot;
 
 import javax.faces.component.UIComponent;
 
@@ -371,6 +377,34 @@ public class UtilHandlers {
             System.out.println("UIComponent is null");
             
         }
+    }
+
+    /**
+     *	<p> This handler sets the encoding type of the given UIComponent's
+     *	    attribute map.</p>
+     *
+     *	@param	context	The HandlerContext.
+     */
+    @Handler(id="setEncoding",
+	input={
+	    @HandlerInput(name="value", type=Serializable.class)
+	})
+    public static void setEncoding(HandlerContext context) {
+	String value = (String) context.getInputValue("value");
+	FacesContext fctxt = context.getFacesContext();
+	if(fctxt != null) {
+		UIViewRoot root = fctxt.getViewRoot();
+		// Get the Page Session Map
+		Map<String, Serializable> map =
+	    PageSessionResolver.getPageSession(fctxt, root);
+		if (map == null) {
+	    	map = PageSessionResolver.createPageSession(fctxt, root);
+		}
+
+		// Set the page session value
+		map.put(Util.ENCODING_TYPE ,
+	    (Serializable) context.getInputValue("value"));
+	}
     }
 
     /**

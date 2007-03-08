@@ -514,13 +514,15 @@ public class LayoutViewHandler extends ViewHandler {
 			contentTypeList = "text/html;q=1.0";
 		}
 	}
-	String encType = request.getCharacterEncoding();
-	if(encType != null && encType.length() > 0) {
-		response.setCharacterEncoding(encType);
+	String encType = Util.getEncoding(context);
+	if(encType == null)  {
+		encType = request.getCharacterEncoding();
+		if(encType == null) {
+			//default encoding type
+			encType="UTF-8";
+		}	
 	}
-	else {
-		response.setCharacterEncoding("UTF-8");
-	}
+	response.setCharacterEncoding(encType);
 
 // FIXME: Portlet?
 	writer =
