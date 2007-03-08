@@ -527,8 +527,8 @@ public class LayoutViewHandler extends ViewHandler {
 // FIXME: Portlet?
 	writer =
 	    renderKit.createResponseWriter(
-		new OutputStreamWriter(response.getOutputStream()),
-		contentTypeList, request.getCharacterEncoding());
+		new OutputStreamWriter(response.getOutputStream(), encType),
+		contentTypeList, encType);
 	context.setResponseWriter(writer);
 // Not setting the contentType here results in XHTML which formats differently
 // than text/html in Mozilla.. even though the documentation claims this
