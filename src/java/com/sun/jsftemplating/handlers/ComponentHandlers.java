@@ -324,6 +324,16 @@ public class ComponentHandlers {
     public static void getUIComponentProperty(HandlerContext context) {
 	UIComponent comp = (UIComponent) context.getInputValue("component");
 	String name = (String) context.getInputValue("name");
+	if ((comp == null) || (name == null)) {
+	    throw new IllegalArgumentException("This Handler requires non-null"
+		    + " values for 'component' and 'name'.  'component' was"
+		    + " specified as '"
+		    + context.getHandler().getInputValue("component")
+		    + "' and evaluated to '" + comp + "'. 'name' was"
+		    + " specified as '"
+		    + context.getHandler().getInputValue("name")
+		    + "' and evaluated to '" + name + "'.");
+	}
 	Object value = comp.getAttributes().get(name);
 	context.setOutputValue("value", value);
     }
