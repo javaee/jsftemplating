@@ -43,7 +43,6 @@ import java.util.StringTokenizer;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
@@ -63,6 +62,7 @@ import javax.faces.event.ActionEvent;
  *  <p>	Below are the pre-registered types: </p>
  *
  *  <ul><li>{@link #ATTRIBUTE} -- {@link AttributeDataSource}</li>
+ *	<li>{@link #APPLICATION} -- {@link ApplicationDataSource}</li>
  *	<li>{@link #BOOLEAN} -- {@link BooleanDataSource}</li>
  *	<li>{@link #CONSTANT} -- {@link ConstantDataSource}</li>
  *	<li>{@link #ESCAPE} -- {@link EscapeDataSource}</li>
@@ -360,6 +360,29 @@ public class VariableResolver {
 	 */
 	Object getValue(FacesContext ctx, LayoutElement desc,
 		UIComponent component, String key);
+    }
+
+    /**
+     *	<p> This {@link VariableResolver.DataSource} provides access to
+     *	    Application-scoped attributes.  It uses the data portion of the
+     *	    substitution String as a key to the Map.</p>
+     */
+    public static class ApplicationDataSource implements DataSource {
+	/**
+	 *  <p>	See class JavaDoc.</p>
+	 *
+	 *  @param  ctx		The <code>FacesContext</code>
+	 *  @param  desc	The <code>LayoutElement</code>
+	 *  @param  component	The <code>UIComponent</code>
+	 *  @param  key		The key used to obtain information from this
+	 *			<code>DataSource</code>.
+	 *
+	 *  @return The value resolved from key.
+	 */
+	public Object getValue(FacesContext ctx, LayoutElement desc,
+		UIComponent component, String key) {
+	    return ctx.getExternalContext().getApplicationMap().get(key);
+	}
     }
 
     /**
@@ -1282,6 +1305,12 @@ public class VariableResolver {
     public static final String	    ATTRIBUTE		= "attribute";
 
     /**
+     *	<p> Defines "application" in $application{...}.  This allows you to
+     *	    retrieve an application-scoped attribute.</p>
+     */
+    public static final String	    APPLICATION		= "application";
+
+    /**
      *	<p> Defines "option" in $option{...}.  This allows you to obtain an
      *	    "option" that is defined in a {@link LayoutComponent}.</p>
      */
@@ -1400,6 +1429,7 @@ public class VariableResolver {
 	AttributeDataSource attrDS = new AttributeDataSource();
 	dataSourceMap.put("", attrDS);
 	dataSourceMap.put(ATTRIBUTE, attrDS);
+	dataSourceMap.put(APPLICATION, new ApplicationDataSource());
 	dataSourceMap.put(OPTION, new OptionDataSource());
 	dataSourceMap.put(PAGE_SESSION, new PageSessionDataSource());
 	dataSourceMap.put(PROPERTY, new PropertyDataSource());
