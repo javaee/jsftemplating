@@ -91,21 +91,6 @@ public class BaseProcessingContext implements ProcessingContext {
      *	    should not effect the parser position.</p>
      */
     public void endComponent(ProcessingContextEnvironment env, String content) throws IOException {
-// if (!tagStack.pop().equals(content)) {
-//  throw SyntaxException(...);
-// }
-/*
-		ch = parser.nextChar();
-// FIXME: ':' is no longer used to indicate resevered... ! is... don't require this on end tag???
-		if (ch == ':') {
-		    // We have an end reserved tag...
-		    str2 = parser.readToken();
-		} else {
-		    // We have an end UIComponent tag...
-		    parser.unread(ch);
-// FIXME: pop UIcomponent name off stack
-		}
-*/
     }
 
     /**
