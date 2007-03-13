@@ -23,17 +23,21 @@
 package com.sun.jsftemplating.annotation;
 
 import com.sun.mirror.apt.AnnotationProcessor;
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
+import com.sun.mirror.apt.AnnotationProcessorFactory;
+import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
 import com.sun.mirror.declaration.AnnotationValue;
-import com.sun.mirror.declaration.MemberDeclaration;
-import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
-import com.sun.mirror.declaration.AnnotationMirror;
+import com.sun.mirror.declaration.MemberDeclaration;
+import com.sun.mirror.declaration.MethodDeclaration;
+import com.sun.mirror.declaration.Modifier;
+import com.sun.mirror.declaration.ParameterDeclaration;
+import com.sun.mirror.declaration.TypeDeclaration;
 
 import java.io.PrintWriter;
+import java.lang.annotation.AnnotationFormatError;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -49,9 +53,6 @@ import java.util.Set;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class HandlerAP implements AnnotationProcessor {
-
-// FIXME: Add additional checks to make sure Handler methods are valid (i.e.
-// FIXME: correct method signature)
 
     /**
      *	<p> This is the constructor for the {@link Handler}
@@ -120,25 +121,67 @@ public class HandlerAP implements AnnotationProcessor {
 			}
 		    }
 
-		    // Make sure we have an id... if so record this Handler
-		    if (id != null) {
-			// Record class / method names (and javadoc comment)
-			_writer.println(formatComment(dec.getDocComment()));
-			_writer.println(id + ".class="
+		    // Sanity Check
+		    if (id == null) {
+			_env.getMessager().printError(
+			    dec.getPosition(),
+			    "'id' not specified for annotation of method: '"
 			    + ((MemberDeclaration) dec).getDeclaringType().
-				getQualifiedName());
-			_writer.println(id + ".method=" + dec.getSimpleName());
-
-			// Now record inputs for this handler...
-			if (input != null) {
-			    writeIOProperties(id, "input", input);
-			}
-
-			// Now record outputs for this handler...
-			if (output != null) {
-			    writeIOProperties(id, "output", output);
-			}
+				getQualifiedName()
+			    + "." + dec.getSimpleName() + "'.");
 		    }
+
+		    // Record class / method names (and javadoc comment)
+		    _writer.println(formatComment(dec.getDocComment()));
+		    _writer.println(id + ".class="
+			+ ((MemberDeclaration) dec).getDeclaringType().
+			    getQualifiedName());
+		    _writer.println(id + ".method=" + dec.getSimpleName());
+
+		    // Now record inputs for this handler...
+		    if (input != null) {
+			writeIOProperties(id, "input", input);
+		    }
+
+		    // Now record outputs for this handler...
+		    if (output != null) {
+			writeIOProperties(id, "output", output);
+		    }
+
+		    // Method signature checks...
+		    // Make sure method is accessible (public)
+		    if (!dec.getModifiers().contains(Modifier.PUBLIC)) {
+			_env.getMessager().printError(
+			    dec.getPosition(),
+			    "Annotated method: '"
+			    + ((MemberDeclaration) dec).getDeclaringType().
+				getQualifiedName()
+			    + "." + dec.getSimpleName()
+			    + "' should be declared public.");
+		    }
+
+		    // Make sure correct args are specified
+		    Collection<ParameterDeclaration> params =
+			((MethodDeclaration) dec).getParameters();
+		    if ((params.size() != 1) || !params.iterator().next().
+			    getType().toString().equals(
+			    "com.sun.jsftemplating.layout.descriptors.handler.HandlerContext")) {
+			_env.getMessager().printError(
+			    dec.getPosition(),
+			    "Annotated method: '"
+			    + ((MemberDeclaration) dec).getDeclaringType().
+				getQualifiedName()
+			    + "." + dec.getSimpleName()
+			    + "' must contain a single parameter of type 'com."
+			    + "sun.jsftemplating.layout.descriptors.handler."
+			    + "HandlerContext'.");
+		    }
+
+// FIXME: Consider an alternate method declaration that annotates a pojo method
+//	    @Handler(id="foo")
+//	    public String method(String a, String b, String c)
+//		annotates a handler "foo" with 3 inputs (a:String, b:String, c:String) and 1 output "result:String"
+//		Will need a special way to invoke this.
 		}
 	    }
 	}
