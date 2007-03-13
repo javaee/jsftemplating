@@ -27,7 +27,11 @@ import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.event.CommandActionListener;
 import com.sun.jsftemplating.util.LogUtil;
+import com.sun.jsftemplating.util.TypeConverter;
 
+import java.lang.reflect.Method;
+
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -144,19 +148,95 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 		}
 	    } else {
 		try {
+		    // Attempt to set the value as given...
 		    attributes.put(key, value);
 		} catch (IllegalArgumentException ex) {
-		    throw new IllegalArgumentException(
-			"Failed to set property (" + key + ") with value ("
-			+ value + "), which is of type ("
-			+ ((value == null) ?
-			    "null" : value.getClass().getName())
-			+ ").  This occured on the component named ("
-			+ comp.getId() + ") of type ("
-			+ comp.getClass().getName() + ").", ex);
+		    // Ok, try a little harder...
+		    Class type = findPropertyType(comp, key);
+		    if (type != null) {
+			try {
+			    attributes.put(key, TypeConverter.asType(type, value));
+			} catch (IllegalArgumentException ex2) {
+			    throw new IllegalArgumentException(
+				"Failed to set property (" + key + ") with "
+				+ "value (" + value + "), which is of type ("
+				+ value.getClass().getName() + ").  Expected "
+				+ "type (" + type.getName() + ").  This "
+				+ "occured on the component named ("
+				+ comp.getId() + ") of type ("
+				+ comp.getClass().getName() + ").", ex2);
+			}
+		    } else {
+			throw new IllegalArgumentException(
+			    "Failed to set property (" + key + ") with value ("
+			    + value + "), which is of type ("
+			    + value.getClass().getName() + ").  This occured "
+			    + "on the component named (" + comp.getId()
+			    + ") of type (" + comp.getClass().getName()
+			    + ").", ex);
+		    }
 		}
 	    }
 	}
+    }
+
+    /**
+     *	<p> This method attempts to resolve the expected type for the given
+     *	    property <code>key</code> and <code>UIComponent</code>.</p>
+     */
+    private static Class findPropertyType(UIComponent comp, String key) {
+	// First check to see if we've done this before...
+	Class compClass = comp.getClass();
+	String cacheKey = compClass.getName() + ';' + key;
+	if (_typeCache.containsKey(cacheKey)) {
+	    // May return null if method previously executed unsuccessfully
+	    return _typeCache.get(cacheKey);
+	}
+
+	// Search a little...
+	Class val = null;
+	Method meth = null;
+	String methodName = getGetterName(key);
+	try {
+	    meth = compClass.getMethod(methodName);
+	} catch (NoSuchMethodException ex) {
+	    // May fail if we have a boolean property that has an "is" getter.
+	    try { 
+		// Try again, replace "get" with "is"
+		meth = compClass.getMethod(
+		    "is" + methodName.substring(3));
+	    } catch (NoSuchMethodException ex2) {
+		// Still not found, must not have getter / setter
+		ex2.printStackTrace();
+	    }
+	}
+	if (meth != null) {
+	    val = meth.getReturnType();
+	} else {
+	    Object obj = comp.getAttributes().get("key");
+	    if (val != null) {
+		val = obj.getClass();
+	    }
+	}
+
+	// Save the value for future calls for the same information
+	// NOTE: We do it this way to avoid modifying a shared Map
+	Map<String, Class> newTypeCache =
+		new HashMap<String, Class>(_typeCache);
+	newTypeCache.put(cacheKey, val);
+	_typeCache = newTypeCache;
+
+	// Return the result
+	return val;
+    }
+
+    /**
+     *	<p> This method converts the given <code>name</code> to a bean getter
+     *	    method name.  In other words, it capitalizes the first letter and
+     *	    prepends "get".</p>
+     */
+    private static String getGetterName(String name) {
+	return "get" + ((char) (name.charAt(0) & 0xFFDF)) + name.substring(1);
     }
 
     /**
@@ -277,4 +357,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	// Return it...
 	return comp;
     }
+
+    private static Map<String, Class> _typeCache =
+	    new HashMap<String, Class>();
 }
