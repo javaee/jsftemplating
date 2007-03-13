@@ -23,7 +23,9 @@
 package com.sun.jsftemplating.layout.descriptors.handler;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
@@ -36,7 +38,6 @@ import javax.faces.context.FacesContext;
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public class OutputTypeManager {
-
 
     /**
      *	Constructor.
@@ -120,6 +121,16 @@ public class OutputTypeManager {
     }
 
     /**
+     *	<p> This method retrieves a <code>List</code> of {@link OutputType}.
+     *	    Changes to this <code>List</code> have no effect.</p>
+     *
+     *	@return	The {@link OutputType}s.
+     */
+    public List<OutputType> getOutputTypes() {
+	return new ArrayList<OutputType>(_outputTypes.values());
+    }
+
+    /**
      *	<p> This method retrieves an OutputType.</p>
      *
      *	@param	name	The name of the OutputType.
@@ -127,7 +138,7 @@ public class OutputTypeManager {
      *	@return	The requested OutputType.
      */
     public OutputType getOutputType(String name) {
-	return (OutputType) _outputTypes.get(name);
+	return _outputTypes.get(name);
     }
 
     /**
@@ -169,17 +180,20 @@ public class OutputTypeManager {
 	"outputTypeManagerImpl";
 
     public static final String  REQUEST_ATTRIBUTE_TYPE	=   "attribute";
-    public static final String  SESSION_ATTRIBUTE_TYPE	=   "session";
     public static final String  PAGE_ATTRIBUTE_TYPE	=   "page";
     public static final String  PAGE_ATTRIBUTE_TYPE2	=   "pageSession";
+    public static final String  SESSION_ATTRIBUTE_TYPE	=   "session";
+    public static final String	APP_ATTRIBUTE_TYPE	=   "application";
 
     static {
 	_outputTypes.put(REQUEST_ATTRIBUTE_TYPE,
 		new RequestAttributeOutputType());
-	_outputTypes.put(SESSION_ATTRIBUTE_TYPE,
-		new SessionAttributeOutputType());
 	PageAttributeOutputType pageType = new PageAttributeOutputType();
 	_outputTypes.put(PAGE_ATTRIBUTE_TYPE, pageType);
 	_outputTypes.put(PAGE_ATTRIBUTE_TYPE2, pageType);
+	_outputTypes.put(SESSION_ATTRIBUTE_TYPE,
+		new SessionAttributeOutputType());
+	_outputTypes.put(APP_ATTRIBUTE_TYPE,
+		new ApplicationAttributeOutputType());
     }
 }
