@@ -63,8 +63,6 @@ public class StaticTextFactory extends ComponentFactoryBase {
 	    setOption(context, comp, "escape", "#{false}");
 	}
 
-// FIXME: Deal w/ type conversion... setAttribute("false") fails
-
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);
 
