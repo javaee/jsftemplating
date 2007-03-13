@@ -24,13 +24,10 @@ package com.sun.jsftemplating.component.factory.sun;
 
 import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
-import com.sun.jsftemplating.el.VariableResolver;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-
-import java.util.Map;
 
 
 /**
@@ -63,35 +60,9 @@ public class HyperlinkFactory extends ComponentFactoryBase {
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);
 
-	// FIXME: Hack!  This is a hack to fix the Hyperlink component.  This
-	//	  component adds a hidden field to the form after it submits.
-	//	  This hack is here to remove this hidden field so that it does
-	//	  not mess things up in the case of a frames environment (or
-	//	  any environment where the result is not itself).  Hopefully
-	//	  this will be fixed soon making this hack unnecessary.
-	Map<String, Object> options = descriptor.getOptions();
-	if ((options.get("target") != null) && (options.get("url") == null)) {
-	    // This is a submit hyperlink that may target a different window
-	    Object onClick = options.get("onClick");
-	    onClick = (onClick == null) ? HACK_JS :
-		(onClick.toString() + "; " + HACK_JS);
-	    comp.getAttributes().put("onClick",
-		VariableResolver.resolveVariables(
-		    context, descriptor, comp, onClick));
-	}
-
 	// Return the component
 	return comp;
     }
-
-    /**
-     *	<p> JavaScript to Hack Hyperlink to do the right thing when submitting
-     *	    a form.  Remove when Hyperlink component is fixed.</p>
-     */
-    private static final String HACK_JS	=
-	"setTimeout('var child = document.getElementById("
-	+ "\"$this{clientid}_submittedField\"); "
-	+ "child.parentNode.removeChild(child);', 500);";
 
     /**
      *	<p> The <code>UIComponent</code> type that must be registered in the
