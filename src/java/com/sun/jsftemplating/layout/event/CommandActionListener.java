@@ -29,6 +29,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.util.LogUtil;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -171,7 +172,11 @@ public class CommandActionListener implements ActionListener, Serializable {
 		    LayoutDefinitionManager.
 			getLayoutDefinition(ctx, layoutDefKey), clientId);
 	} catch (LayoutDefinitionException ex) {
-// FIXME: Report a low priority warning, returning null is fine
+	    if (LogUtil.configEnabled()) {
+		LogUtil.config("Unable to resolve client id '" + clientId
+			+ "' for LayoutDefinition key: '"
+			+ layoutDefKey + "'.", ex);
+	    }
 	}
 	return result;
     }
@@ -201,7 +206,11 @@ public class CommandActionListener implements ActionListener, Serializable {
 		    LayoutDefinitionManager.
 			getLayoutDefinition(ctx, layoutDefKey), id);
 	} catch (LayoutDefinitionException ex) {
-// FIXME: Report a low priority warning, returning null is fine
+	    if (LogUtil.configEnabled()) {
+		LogUtil.config("Unable to resolve id '" + id
+			+ "' for LayoutDefinition key: '"
+			+ layoutDefKey + "'.", ex);
+	    }
 	}
 	return result;
     }
