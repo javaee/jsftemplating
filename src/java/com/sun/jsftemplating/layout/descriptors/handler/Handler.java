@@ -185,7 +185,7 @@ public class Handler implements java.io.Serializable {
 	UIComponent component = null;
 	if (event instanceof UIComponentHolder) {
 	    component = ((UIComponentHolder) event).getUIComponent();
-	} else {
+	} else if (event != null) {
 	    Object src = event.getSource();
 	    if (src instanceof UIComponent) {
 		component = (UIComponent) src;
