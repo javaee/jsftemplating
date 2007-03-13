@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout.template;
 
 import com.sun.jsftemplating.layout.SyntaxException;
+import com.sun.jsftemplating.layout.descriptors.handler.OutputTypeManager;
 import com.sun.jsftemplating.util.IncludeInputStream;
 import com.sun.jsftemplating.util.LogUtil;
 
@@ -197,8 +198,8 @@ public class TemplateParser {
 	    case '>':
 		// We are mapping an output value, this should look like:
 		//	    keyName => $attribute{attKey}
+		//	    keyName => $application{appKey}
 		//	    keyName => $session{sessionKey}
-		//	    keyName => $page{pageSessionKey}
 		//	    keyName => $pageSession{pageSessionKey}
 
 		// First skip any whitespace after the '>'
@@ -209,29 +210,27 @@ public class TemplateParser {
 		if (next != '$') {
 		    throw new IllegalArgumentException(
 			"'$' missing for Name Value Pair named: '" + name
-			+ "=>'!  This NVP appears to be a mapping expression, and "
-			+ "therefor requires one of these formats:\n\t" + name
+			+ "=>'!  This NVP appears to be a mapping expression, "
+			+ "therefor requires a format similar to:\n\t" + name
 			+ " => $attribute{attKey}\nor:\n\t" + name
+			+ " => $application{applicationKey}\nor:\n\t" + name
 			+ " => $session{sessionKey}\nor:\n\t" + name
-			+ " => $pageSession{pageSessionKey}\nor:\n\t" + name
-			+ " => $page{pageSessionKey}");
+			+ " => $pageSession{pageSessionKey}");
 		}
 
-// FIXME:  The allowable types should be dynamically read
-		// Next look for "attribute", "page", "pageSession" or "session"
+		// Next look for valid type...
 		target = readToken();
-		if (!target.equals("attribute") && !target.equals("page")
-			&& !target.equals("pageSession")
-			&& !target.equals("session")) {
+		OutputTypeManager otm = OutputTypeManager.getInstance();
+		if (otm.getOutputType(target) == null) {
 		    throw new IllegalArgumentException(
-			"'attribute' or 'session' type is missing for Name Value "
-			+ "Pair named: '" + name + "=>$'!  This NVP appears to "
-			+ "be a mapping expression, and therefor requires one of "
-			+ "these formats:\n\t" + name
+			"Invalid OutputType ('" + target + "') for Name Value "
+			+ "Pair named: '" + name + "=>$" + target + "{...}'!  "
+			+ "This NVP appears to be a mapping expression, "
+			+ "therefor requires a format similar to:\n\t" + name
 			+ " => $attribute{attKey}\nor:\n\t" + name
+			+ " => $application{applicationKey}\nor:\n\t" + name
 			+ " => $session{sessionKey}\nor:\n\t" + name
-			+ " => $pageSession{pageSessionKey}\nor:\n\t" + name
-			+ " => $page{pageSessionKey}");
+			+ " => $pageSession{pageSessionKey}");
 		}
 
 		// Skip whitespace again...
