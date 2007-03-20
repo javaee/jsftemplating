@@ -33,8 +33,11 @@
 			<outputMapping outputName="children" targetType="attribute" targetKey="_children" />
 		    </handler>
 		</event>
-		<!-- Add the child component -->
-		<component type="staticText" id="#{_child.id}" />
+		<if condition="#{_child.id}">
+		    <!-- Add the child component -->
+		    <component type="staticText" id="#{_child.id}" />
+		</if>
+		<!-- FIXME: Log a message if _child.id == null -->
 	    </foreach>
 	</if>
     </layout>
