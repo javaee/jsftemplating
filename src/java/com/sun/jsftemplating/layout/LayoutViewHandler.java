@@ -32,6 +32,7 @@ import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.fileStreamer.Context;
 import com.sun.jsftemplating.util.fileStreamer.FacesStreamerContext;
 import com.sun.jsftemplating.util.fileStreamer.FileStreamer;
+import com.sun.jsftemplating.el.PageSessionResolver;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -83,6 +84,8 @@ import javax.servlet.http.HttpServletResponse;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutViewHandler extends ViewHandler {
+
+	public static final String ENCODING_TYPE="com.sun.jsftemplating.ENCODING";
 
     /**
      *	<p> Constructor.</p>
@@ -279,6 +282,37 @@ public class LayoutViewHandler extends ViewHandler {
 	// Return dummy UIViewRoot to avoid NPE
 	return root;
     }
+
+    /**
+     *	<p> Returns the current encoding type.</p>
+     */
+
+    public static String getEncoding(FacesContext ctx) {
+		String encType = null;
+		if (ctx != null) {
+			UIViewRoot root = ctx.getViewRoot();
+			Map map = PageSessionResolver.getPageSession(ctx, root);
+			if(map != null) {
+				//check for page session
+				encType = (String)map.get(ENCODING_TYPE);
+			}
+			if(encType == null || encType.equals("")) {
+				//check for application level
+				encType = ctx.getExternalContext().getInitParameter(ENCODING_TYPE);
+			}
+			if(encType == null || encType.equals(""))  {
+				ExternalContext extCtx = ctx.getExternalContext();
+				// FIXME: Portlet?
+				ServletRequest request = (ServletRequest) extCtx.getRequest();
+				encType = request.getCharacterEncoding();
+				if(encType == null || encType.equals("")) {
+				//default encoding type
+					encType="UTF-8";
+				}	
+			}
+		}
+		return encType;
+	}
 
     /**
      *	<p> This method checks the given viewId and returns a the path to the
@@ -514,14 +548,7 @@ public class LayoutViewHandler extends ViewHandler {
 			contentTypeList = "text/html;q=1.0";
 		}
 	}
-	String encType = Util.getEncoding(context);
-	if(encType == null)  {
-		encType = request.getCharacterEncoding();
-		if(encType == null) {
-			//default encoding type
-			encType="UTF-8";
-		}	
-	}
+	String encType = getEncoding(context);
 	response.setCharacterEncoding(encType);
 
 // FIXME: Portlet?

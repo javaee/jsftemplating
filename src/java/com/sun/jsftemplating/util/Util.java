@@ -29,7 +29,6 @@ import java.util.Properties;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
-import com.sun.jsftemplating.el.PageSessionResolver;
 
 
 /**
@@ -39,7 +38,6 @@ import com.sun.jsftemplating.el.PageSessionResolver;
  */
 public class Util {
 
-	public static final String ENCODING_TYPE="com.sun.jsftemplating.ENCODING";
 
     /**
      *	<p> This method returns the ContextClassLoader unless it is null, in
@@ -101,27 +99,6 @@ public class Util {
 	// Return the result
 	return props;
     }
-    /**
-     *	<p> Returns the current encoding type.</p>
-     */
-
-    public static String getEncoding(FacesContext ctx) {
-		String encType = null;
-		if (ctx != null) {
-			UIViewRoot root = ctx.getViewRoot();
-			Map map = PageSessionResolver.getPageSession(ctx, root);
-			if(map != null) {
-				//check for page session
-				encType = (String)map.get(ENCODING_TYPE);
-			}
-			if(encType == null) {
-				//check for application level
-				encType = ctx.getExternalContext().getInitParameter(ENCODING_TYPE);
-			}
-		}
-		return encType;
-	}
-
     /**
      *	<p> Help obtain the current <code>Locale</code>.</p>
      */

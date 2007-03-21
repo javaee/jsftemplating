@@ -30,7 +30,7 @@ package com.sun.jsftemplating.handlers;
 import com.sun.jsftemplating.annotation.Handler;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
-import com.sun.jsftemplating.util.Util;
+import com.sun.jsftemplating.layout.LayoutViewHandler;
 import com.sun.jsftemplating.el.PageSessionResolver;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 
@@ -380,14 +380,14 @@ public class UtilHandlers {
     }
 
     /**
-     *	<p> This handler sets the encoding type of the given UIComponent's
+     *	<p> This handler sets the encoding type of the given UIViewRoot's
      *	    attribute map.</p>
      *
      *	@param	context	The HandlerContext.
      */
     @Handler(id="setEncoding",
 	input={
-	    @HandlerInput(name="value", type=Serializable.class)
+	    @HandlerInput(name="value", type=String.class)
 	})
     public static void setEncoding(HandlerContext context) {
 	String value = (String) context.getInputValue("value");
@@ -402,8 +402,7 @@ public class UtilHandlers {
 		}
 
 		// Set the page session value
-		map.put(Util.ENCODING_TYPE ,
-	    (Serializable) context.getInputValue("value"));
+		map.put(LayoutViewHandler.ENCODING_TYPE , value);
 	}
     }
 
