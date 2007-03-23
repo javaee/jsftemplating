@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout;
 
 import com.sun.jsftemplating.annotation.UIComponentFactoryAPFactory;
+import com.sun.jsftemplating.annotation.FormatDefinitionAPFactory;
 import com.sun.jsftemplating.annotation.HandlerAPFactory;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
@@ -35,6 +36,8 @@ import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
 import com.sun.jsftemplating.util.Util;
 
 import java.lang.reflect.InvocationTargetException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -129,6 +132,7 @@ public abstract class LayoutDefinitionManager {
 	    // ensure we invoke "initPage" handlers
 	    def.dispatchInitPageHandlers(ctx, def);
 	}
+// FIXME: Flag a page as *not found* for performance reasons when JSP is used (or other view technologies)
 
 	// Return the LD
 	return def;
@@ -289,24 +293,52 @@ public abstract class LayoutDefinitionManager {
     public static List<String> getLayoutDefinitionManagers(FacesContext ctx) {
 	if (_ldmKeys == null) {
 	    List<String> keys = new ArrayList<String>();
+	    String def = "";
 
 	    // Check to see what the default should be...
 	    if (ctx != null) {
 		Map initParams = ctx.getExternalContext().getInitParameterMap();
-		String def = DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL;
 		if (initParams.containsKey(LAYOUT_DEFINITION_MANAGER_KEY)) {
-		    def = (String) initParams.get(LAYOUT_DEFINITION_MANAGER_KEY);
+		    def = ((String)
+			initParams.get(LAYOUT_DEFINITION_MANAGER_KEY)).trim();
+		    keys.add(def);
 		}
-		keys.add(def);
 	    }
-// FIXME: Populate this from an external source!!
-// while (...) {
-//  if (!key.equals(def)) {
-//	keys.add(key);
-//  }
-// }
-	    keys.add("com.sun.jsftemplating.layout.xml.XMLLayoutDefinitionManager");
-	    keys.add("com.sun.jsftemplating.layout.template.TemplateLayoutDefinitionManager");
+
+	    try {
+		// Get all the files that define them
+		BufferedReader rdr = null;
+		String line = null;
+		Enumeration<URL> urls = Util.getClassLoader(ctx).
+		    getResources(FormatDefinitionAPFactory.FACTORY_FILE);
+		while (urls.hasMoreElements()) {
+		    // Add all lines in each file to the list of LDMs
+		    rdr = new BufferedReader(new InputStreamReader(
+				urls.nextElement().openStream()));
+		    line = rdr.readLine();
+		    while (line != null) {
+			line = line.trim();
+
+			if (line.equals("") || line.startsWith("#")) {
+			    // Skip comments
+			    continue;
+			}
+			if (line.equals(def)) {
+			    // Skip the default one so that it doesn't get
+			    // added again (we want it first)
+			    continue;
+			}
+
+			// Add it!
+			keys.add(line);
+
+			// Get the next line
+			line = rdr.readLine();
+		    }
+		}
+	    } catch (IOException ex) {
+		throw new RuntimeException(ex);
+	    }
 
 	    _ldmKeys = keys;
 	}
@@ -764,13 +796,6 @@ public abstract class LayoutDefinitionManager {
      *	<p> This is the default input and output type.</p>
      */
     public static final String	DEFAULT_TYPE	= "Object";
-
-    /**
-     *	<p> This constant defines the default
-     *	    <code>LayoutDefinitionManager</code> implementation class name.</p>
-     */
-    public static final String DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL =
-	"com.sun.jsftemplating.layout.xml.XMLLayoutDefinitionManager";
 
     /**
      *	<p> This constant defines the <code>LayoutDefinitionManager</code>
