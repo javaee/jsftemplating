@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.layout.xml;
 
+import com.sun.jsftemplating.annotation.FormatDefinition;
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
@@ -36,7 +37,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 import javax.faces.context.FacesContext;
-import javax.faces.component.UIComponent;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
@@ -68,6 +68,7 @@ import org.xml.sax.SAXParseException;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
+@FormatDefinition
 public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 
     /**

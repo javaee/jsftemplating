@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.layout.template;
 
+import com.sun.jsftemplating.annotation.FormatDefinition;
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
@@ -31,7 +32,6 @@ import java.io.IOException;
 import java.net.URL;
 
 import javax.faces.context.FacesContext;
-import javax.faces.component.UIComponent;
 
 
 /**
@@ -48,6 +48,7 @@ import javax.faces.component.UIComponent;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
+@FormatDefinition
 public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 
     /**
