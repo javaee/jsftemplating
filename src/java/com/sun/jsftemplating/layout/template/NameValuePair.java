@@ -22,16 +22,6 @@
  */
 package com.sun.jsftemplating.layout.template;
 
-import com.sun.jsftemplating.util.IncludeInputStream;
-import com.sun.jsftemplating.util.LogUtil;
-
-import java.io.IOException;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.LinkedList;
-
 
 /**
  *  <p> This class is used to represent NVP information.  This information
