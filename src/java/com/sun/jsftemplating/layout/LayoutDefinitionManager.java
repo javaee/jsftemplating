@@ -634,7 +634,7 @@ public abstract class LayoutDefinitionManager {
 		}
 
 		// default?
-		value = map.get(key + "." + inOrOut + " [ " + count + "].defaultValue");
+		value = map.get(key + "." + inOrOut + "[" + count + "].defaultValue");
 		if ((value != null) && !value.equals(HandlerInput.DEFAULT_DEFAULT_VALUE)) {
 		    desc.setDefault(value);
 		}
