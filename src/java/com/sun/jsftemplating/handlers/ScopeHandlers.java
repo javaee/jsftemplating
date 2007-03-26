@@ -46,7 +46,8 @@ import java.util.ResourceBundle;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -360,5 +361,78 @@ public class ScopeHandlers {
 
 	// Return it
 	context.setOutputValue("bundle", bundle);
+    }
+
+    /**
+     *	<p> This method provides access to the named cookie.</p>
+     *
+     *	@param	context	The {@link HandlerContext}.
+     */
+    @Handler(id="getCookie",
+	input={
+	    @HandlerInput(name="key", type=String.class, required=true)},
+	output={
+	    @HandlerOutput(name="value", type=String.class)})
+    public static void getCookie(HandlerContext context) {
+	Map<String, Object> cookies = context.getFacesContext().
+	    getExternalContext().getRequestCookieMap();
+	context.setOutputValue("value",
+	    ((Cookie) cookies.get(context.getInputValue("key"))).getValue());
+    }
+
+    /**
+     *	<p> This method set the named cookie with the given value.  Because
+     *	    cookies are set via a response header, this method must be called
+     *	    before the content rendering has begun (before the rendering
+     *	    phase).  This method is not valid for Portlets and will do nothing
+     *	    if called in a Portlet environment.</p>
+     *
+     *	@param	context	The {@link HandlerContext}.
+     */
+    @Handler(id="setCookie",
+	input={
+	    @HandlerInput(name="key", type=String.class, required=true),
+	    @HandlerInput(name="value", type=String.class, required=true),
+	    @HandlerInput(name="maxAge", type=Integer.class, defaultValue="-1", required=false),
+	    @HandlerInput(name="domain", type=String.class, required=false),
+	    @HandlerInput(name="path", type=String.class, required=false),
+	    @HandlerInput(name="secure", type=Boolean.class, defaultValue="false", required=false),
+	    @HandlerInput(name="version", type=Integer.class, required=false)
+	    })
+    public static void setCookie(HandlerContext context) {
+	Object resp = context.getFacesContext().getExternalContext().getResponse();
+	if (resp instanceof HttpServletResponse) {
+	    // Create a Cookie
+	    Cookie cookie = new Cookie(
+		    (String) context.getInputValue("key"),
+		    (String) context.getInputValue("value"));
+
+	    // Set Max Age
+	    cookie.setMaxAge((Integer) context.getInputValue("maxAge"));
+
+	    // Set Domain
+	    String domain = (String) context.getInputValue("domain");
+	    if (domain != null) {
+		cookie.setDomain(domain);
+	    }
+
+	    // Set Path
+	    String path = (String) context.getInputValue("path");
+	    if (path != null) {
+		cookie.setPath(path);
+	    }
+
+	    // Set Secure Flag
+	    cookie.setSecure((Boolean) context.getInputValue("secure"));
+
+	    // Set version (0 = orig Netscape; 1= RFC 2109)
+	    Integer version = (Integer) context.getInputValue("version");
+	    if (version != null) {
+		cookie.setVersion(version);
+	    }
+
+	    // Add the cookie
+	    ((HttpServletResponse) resp).addCookie(cookie);
+	}
     }
 }
