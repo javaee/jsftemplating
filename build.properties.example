@@ -35,6 +35,9 @@ jsftemplating-dt.jar=${dist}/jsftemplating-dt.jar
 ## Dynamic Faces jar file for JSFTemplating
 jsftemplating-dynafaces.jar=${lib}/external/jsftemplating-dynafaces-0.1.jar
 
+## Woodstock specific jar files
+dataprovider.jar=lib/external/woodstock/dataprovider.jar
+
 jsftemplating.home=${src}/com/sun/jsftemplating
 
 
