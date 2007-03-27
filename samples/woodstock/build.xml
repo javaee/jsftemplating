@@ -73,6 +73,9 @@
 			prefix="" 
 			includes="**/*.properties" />
 	</jar>
+	<jar jarfile="${app-src.jar}" update="true">
+            <fileset dir="${src}" includes="**/*.java" />
+	</jar>
 	<copy file="${jsftemplating.jar}" todir="${WEB-INF_lib}/." />
 	<copy file="${jsftemplating-dynafaces.jar}" todir="${WEB-INF_lib}/." />
 	<copy file="${webui-jsf.jar}" todir="${WEB-INF_lib}/." />
