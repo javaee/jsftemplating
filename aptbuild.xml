@@ -17,6 +17,7 @@
 	<pathelement location="${el-api.jar}" />
 	<pathelement location="${jsftemplating-dt.jar}" />
 	<pathelement location="${jsftemplating-dynafaces.jar}" />
+	<pathelement location="${dataprovider.jar}" />
     </path>
 
     <target name="compile">
