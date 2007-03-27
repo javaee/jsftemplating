@@ -24,11 +24,10 @@ package com.sun.jsftemplating.component.factory.sun;
 
 import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
+import com.sun.jsftemplating.component.dataprovider.MultipleListDataProvider;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.util.LogUtil;
-import com.sun.jsftemplating.util.Util;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +97,7 @@ public class TableRowGroupFactory extends ComponentFactoryBase {
 		}
 	    }
 	    List<List<Object>> lists = (List<List<Object>>) data;
-	    Object dataProvider = createDataProvider(lists);
+	    Object dataProvider = new MultipleListDataProvider(lists);
 
 	    // Remove the data object from the UIComponent, not needed
 	    Map<String, Object> atts = comp.getAttributes();
@@ -109,36 +108,6 @@ public class TableRowGroupFactory extends ComponentFactoryBase {
 
 	// Return the component
 	return comp;
-    }
-
-    /**
-     *	<p> This is a factory method for creating an appropriate
-     *	    DataProvider.</p>
-     */
-    private Object createDataProvider(List<List<Object>> data) {
-	// Use reflection (for now) to avoid a build dependency
-	// Find the Option constuctor...
-	try {
-	    return Util.getClassLoader(data).
-//		loadClass("com.sun.data.provider.impl.ObjectListDataProvider").
-		loadClass("com.sun.enterprise.tools.admingui.dataprovider.MultipleListDataProvider").
-		getConstructor(List.class, Boolean.TYPE).
-		newInstance(data, false);
-	} catch (ClassNotFoundException ex) {
-	    throw new RuntimeException("Unable to find DataProvider API's!  "
-		    + "Ensure dataprovider.jar is present.", ex);
-	} catch (NoSuchMethodException ex) {
-	    throw new RuntimeException("Unable to create DataProvider!  "
-		    + "Ensure correct dataprovider.jar is present.", ex);
-	} catch (InstantiationException ex) {
-	    throw new RuntimeException("Unable to create DataProvider!  "
-		    + "Ensure correct dataprovider.jar is present.", ex);
-	} catch (IllegalAccessException ex) {
-	    throw new RuntimeException("Unable to create DataProvider!  "
-		    + "Ensure correct dataprovider.jar is accessible.", ex);
-	} catch (InvocationTargetException ex) {
-	    throw new RuntimeException("Unable to create DataProvider!", ex);
-	}
     }
 
     /**
