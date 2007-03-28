@@ -12,6 +12,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -21,6 +22,7 @@ import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
@@ -82,8 +84,7 @@ public class FaceletsLayoutDefinitionReader {
             element = new LayoutStaticText(parent, "", node.getNodeValue());
             break;
         case Node.ELEMENT_NODE:
-            ComponentType componentType = LayoutDefinitionManager.  getGlobalComponentType(node.getNodeName());
-            element = new LayoutComponent(parent, "", componentType);
+            element = createComponent(parent, node);
             break;
         default:
             // just because... :P
@@ -98,6 +99,24 @@ public class FaceletsLayoutDefinitionReader {
         if (parent != null) {
             parent.addChildLayoutElement(element);
         }
+        return element;
+    }
+    
+    private LayoutElement createComponent(LayoutElement parent, Node node) {
+        LayoutElement element = null;
+        String nodeName = node.getNodeName();
+        
+        if ("ui:composition".equals(nodeName)) {
+            LayoutComposition lc = new LayoutComposition(parent, "");
+            NamedNodeMap attrs = node.getAttributes();
+            String template = ((Node)attrs.getNamedItem("template")).getNodeValue();
+            lc.setTemplate(template);
+            element = lc;
+        } else {
+            ComponentType componentType = LayoutDefinitionManager.  getGlobalComponentType(nodeName);
+            element = new LayoutComponent(parent, "", componentType);
+        }
+        
         return element;
     }
 }
