@@ -27,16 +27,13 @@ import com.sun.jsftemplating.layout.SyntaxException;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
-import com.sun.jsftemplating.layout.descriptors.LayoutAttribute;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
 import com.sun.jsftemplating.layout.descriptors.LayoutForEach;
 import com.sun.jsftemplating.layout.descriptors.LayoutIf;
-import com.sun.jsftemplating.layout.descriptors.LayoutMarkup;
 import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
-import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.util.LayoutElementUtil;
 import com.sun.jsftemplating.util.LogUtil;
 
@@ -189,7 +186,7 @@ public class TemplateReader {
 	TemplateParser parser = getTemplateParser();
 
 	// Skip White Space...
-	parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 
 	ProcessingContextEnvironment env = new ProcessingContextEnvironment(
 		this, parent, nested);
@@ -201,16 +198,16 @@ public class TemplateReader {
 	    switch (ch) {
 		case '<' :
 		    parser.skipCommentsAndWhiteSpace(   // Skip white space
-			parser.SIMPLE_WHITE_SPACE);
+			TemplateParser.SIMPLE_WHITE_SPACE);
 		    ch = parser.nextChar();
 		    if (ch == '/') {
 			// Closing tag
 			parser.skipCommentsAndWhiteSpace(   // Skip white space
-			    parser.SIMPLE_WHITE_SPACE);
+			    TemplateParser.SIMPLE_WHITE_SPACE);
 			// Get the expected String
 			if (isTagStackEmpty()) {
 			    parser.skipCommentsAndWhiteSpace(
-				parser.SIMPLE_WHITE_SPACE + '!');
+				TemplateParser.SIMPLE_WHITE_SPACE + '!');
 			    throw new SyntaxException("Found end tag '&lt;/"
 				+ parser.readToken()
 				+ "...' but did not find matching begin tag!");
@@ -224,7 +221,7 @@ public class TemplateReader {
 			    if (ch == '!') {
 				// Ignore '!', but skip white space after it
 				parser.skipCommentsAndWhiteSpace(
-				    parser.SIMPLE_WHITE_SPACE);
+				    TemplateParser.SIMPLE_WHITE_SPACE);
 			    } else {
 				// No optional '!', push back extra read char
 				parser.unread(ch);
@@ -252,7 +249,7 @@ public class TemplateReader {
 			}
 			finished = true; // Indicate done with this context
 			parser.skipCommentsAndWhiteSpace(   // Skip white space
-			    parser.SIMPLE_WHITE_SPACE);
+			    TemplateParser.SIMPLE_WHITE_SPACE);
 			ch = parser.nextChar(); // Throw away '>' character
 			if (ch != '>') {
 			    throw new SyntaxException(
@@ -270,7 +267,7 @@ public class TemplateReader {
 			parser.unread(ch);
 			tmpstr = parser.readToken();
 			if (tmpstr.equals("f:verbatim")) {
-			    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+			    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 			    parser.nextChar();	// Get rid of '>'
 			    tmpstr = parser.readUntil("</f:verbatim>", false);
 			    tmpstr = tmpstr.substring(0,
@@ -298,7 +295,7 @@ public class TemplateReader {
 		// Done w/ this context...
 		return parent;
 	    }
-	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 	    ch = parser.nextChar();
 	}
 
@@ -334,14 +331,14 @@ public class TemplateReader {
 	boolean single = false;
 	TemplateParser parser = getTemplateParser();
 	while (ch != -1) {
-	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 	    ch = parser.nextChar();
 	    if (ch == '>') {
 		// We're at the end of the parameters.
 		break;
 	    }
 	    if (ch == '/') {
-		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+		parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 		ch = parser.nextChar();
 		if (ch != '>') {
 		    throw new SyntaxException("'" + type + "' tag contained "
@@ -761,7 +758,7 @@ public class TemplateReader {
 	    Stack<Handler> handlerStack = new Stack<Handler>();
 
 	    // Read the Handler(s)...
-	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 	    int ch = parser.nextChar();
 	    while ((ch != -1) && (ch != '/') && (ch != '>')) {
 		// Check for {}'s
@@ -782,7 +779,7 @@ public class TemplateReader {
 
 		    // ';' or ',' characters may appear between handlers
 		    parser.skipCommentsAndWhiteSpace(
-			    parser.SIMPLE_WHITE_SPACE + ",;");
+                            TemplateParser.SIMPLE_WHITE_SPACE + ",;");
 
 		    // We need to "continue" b/c we need to check next ch again
 		    ch = parser.nextChar();
@@ -823,7 +820,7 @@ public class TemplateReader {
 	    }
 	    if (ch == '/') {
 		// Make sure we have a "/>"...
-		parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+		parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 		ch = parser.nextChar();
 		if (ch != '>') {
 		    throw new SyntaxException("Expected '/&gt;' a end of '"
@@ -873,7 +870,7 @@ public class TemplateReader {
 	    }
 
 	    // Ensure we have an opening parenthesis
-	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 	    int ch = parser.nextChar();
 	    if (ch != '(') {
 		throw new SyntaxException("While processing '&lt;!" + eventName
@@ -882,7 +879,7 @@ public class TemplateReader {
 	    }
 
 	    // Move to the first char inside the parenthesis
-	    parser.skipWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    parser.skipWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 	    ch = parser.nextChar();
 
 	    // We should not ignore '#' characters for 'if' (Issue #5)
@@ -915,7 +912,7 @@ public class TemplateReader {
 			    + handlerId + "'!", ex);
 		}
 		parser.skipCommentsAndWhiteSpace(
-		    parser.SIMPLE_WHITE_SPACE + ",;");
+		    TemplateParser.SIMPLE_WHITE_SPACE + ",;");
 		ch = parser.nextChar();
 
 		// Store the NVP..
@@ -941,7 +938,7 @@ public class TemplateReader {
 	    }
 
 	    // ';' or ',' characters may appear between handlers
-	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE + ",;");
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE + ",;");
 
 	    // Return the Handler
 	    return handler;
