@@ -27,7 +27,7 @@ public class TemplateReaderTest extends TestCase {
     public void testRead1() {
 	try {
 	    TemplateReader reader =
-		new TemplateReader(new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new TemplateReader("foo", new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
 	    LayoutDefinition ld = reader.read();
 	    assertEquals("LayoutDefinition.unevaluatedId", "id1", ld.getUnevaluatedId());
 	} catch (Exception ex) {
@@ -42,7 +42,7 @@ public class TemplateReaderTest extends TestCase {
     public void testReadAccuracy() {
 	try {
 	    TemplateReader reader =
-		new TemplateReader(new URL("file:exampleapp/index.jsf"));
+		new TemplateReader("bar", new URL("file:exampleapp/index.jsf"));
 	    LayoutDefinition ld = reader.read();
 	    List<LayoutElement> children = ld.getChildLayoutElements();
 	    if (children.size() < 5) {

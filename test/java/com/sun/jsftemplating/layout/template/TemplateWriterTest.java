@@ -29,7 +29,7 @@ public class TemplateWriterTest extends TestCase {
 	try {
 	    // First read some data
 	    TemplateReader reader =
-		new TemplateReader(new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new TemplateReader("foo", new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
 	    LayoutDefinition ld = reader.read();
 	    assertEquals("LayoutDefinition.unevaluatedId", "id2", ld.getUnevaluatedId());
 	    ByteArrayOutputStream stream = new ByteArrayOutputStream();
