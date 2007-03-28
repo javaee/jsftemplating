@@ -69,11 +69,13 @@ public class TemplateReader {
      *
      *	@param	url	<code>URL</code> to the {@link LayoutDefinition} file.
      */
-    public TemplateReader(URL url) {
-	_tpl = new TemplateParser(url);
-	if (_parserCmds == null) {
-	    initCustomParserCommands();
+    public TemplateReader(String id, URL url) {
+	if (id == null) {
+	    throw new IllegalArgumentException(
+		    "Template id's may not be null!");
 	}
+	_id = id;
+	_tpl = new TemplateParser(url);
     }
 
     /**
@@ -82,7 +84,8 @@ public class TemplateReader {
      *	@param	parser	{@link TemplateParser} ready to read the
      *			{@link LayoutDefinition}.
      */
-    public TemplateReader(TemplateParser parser) {
+    public TemplateReader(String id, TemplateParser parser) {
+	_id = id;
 	_tpl = parser;
     }
 
@@ -125,7 +128,7 @@ public class TemplateReader {
      */
     private LayoutDefinition readLayoutDefinition() throws IOException {
 	// Create a new LayoutDefinition (the id is not propagated here)
-	LayoutDefinition ld = new LayoutDefinition("");
+	LayoutDefinition ld = new LayoutDefinition(_id);
 
 	// For now we will only support global resources.  In the future, we
 	// may want to allow resources to be overriden at the page level and /
@@ -660,15 +663,15 @@ public class TemplateReader {
     /**
      *	<p> This method initializes the {@link CustomParserCommand}s.</p>
      */
-    protected static void initCustomParserCommands() {
+    protected static Map<String, CustomParserCommand> initCustomParserCommands() {
+// FIXME: Do initialization via @annotations??
 	Map<String, CustomParserCommand> map =
 	    new HashMap<String, CustomParserCommand>();
 	map.put("if", new IfParserCommand());
 	map.put("while", new WhileParserCommand());
 	map.put("foreach", new ForeachParserCommand());
 	map.put("facet", new FacetParserCommand());
-// FIXME: Do initialization via @annotations??
-	_parserCmds = map;
+	return map;
     }
 
 
@@ -864,6 +867,7 @@ public class TemplateReader {
 
 	    // Get the default name
 	    Map inputs = def.getInputDefs();
+// FIXME: Allow for HandlerDefs to declare their default input
 	    if (inputs.size() == 1) {
 		defVal = inputs.keySet().toArray()[0].toString();
 	    }
@@ -878,10 +882,15 @@ public class TemplateReader {
 	    }
 
 	    // Move to the first char inside the parenthesis
-// FIXME: if (#{test}) {...} will not work because # is a comment according to
-// FIXME: the next line
-	    parser.skipCommentsAndWhiteSpace(parser.SIMPLE_WHITE_SPACE);
+	    parser.skipWhiteSpace(parser.SIMPLE_WHITE_SPACE);
 	    ch = parser.nextChar();
+
+	    // We should not ignore '#' characters for 'if' (Issue #5)
+	    if ((ch != '#') || !handlerId.equals(IF_HANDLER)) {
+		parser.unread(ch);
+		parser.skipCommentsAndWhiteSpace(""); // Already skipped white
+		ch = parser.nextChar();
+	    }
 
 	    // Allow if() handlers to be more flexible...
 	    if (handlerId.equals(IF_HANDLER)
@@ -1152,7 +1161,8 @@ public class TemplateReader {
     public static CustomParserCommand EVENT_PARSER_COMMAND =
 	new EventParserCommand();
 
-    private static Map<String, CustomParserCommand> _parserCmds	= null;
+    private static Map<String, CustomParserCommand> _parserCmds	=
+	initCustomParserCommands();
 
     /**
      *	<p> This <code>Stack</code> keep track of the nesting.</p>
@@ -1161,4 +1171,5 @@ public class TemplateReader {
 
     private TemplateParser  _tpl    = null;
     private int _idNumber	    = 1;
+    private String _id		    = null; // The id of the LayoutDefinition
 }

@@ -165,7 +165,7 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 
 	    // Read the template file
 	    try {
-		ld  = new TemplateReader(url).read();
+		ld  = new TemplateReader(key, url).read();
 	    } catch (IOException ex) {
 		throw new LayoutDefinitionException(
 		    "Unable to process '" + url.toString() + "'.", ex);
