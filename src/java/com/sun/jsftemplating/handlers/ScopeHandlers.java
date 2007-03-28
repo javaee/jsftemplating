@@ -364,7 +364,8 @@ public class ScopeHandlers {
     }
 
     /**
-     *	<p> This method provides access to the named cookie.</p>
+     *	<p> This method provides access to the named cookie.  If the cookie doesn't exist, the value
+     *      will be set to "" </p>
      *
      *	@param	context	The {@link HandlerContext}.
      */
@@ -376,8 +377,8 @@ public class ScopeHandlers {
     public static void getCookie(HandlerContext context) {
 	Map<String, Object> cookies = context.getFacesContext().
 	    getExternalContext().getRequestCookieMap();
-	context.setOutputValue("value",
-	    ((Cookie) cookies.get(context.getInputValue("key"))).getValue());
+        Cookie cookie = (Cookie) cookies.get(context.getInputValue("key"));
+	context.setOutputValue("value", (cookie == null) ? "" : cookie.getValue());
     }
 
     /**
