@@ -24,6 +24,7 @@ package com.sun.jsftemplating.util.fileStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Set;
 
 
 /**
@@ -53,7 +54,7 @@ public interface Context {
 
     /**
      *	<p> This method may be used to manage arbitrary information between the
-     *	    coding invoking the {@link FileStreamer} and the
+     *	    code invoking the {@link FileStreamer} and the
      *	    <code>ContentSource</code>.  This method retrieves an attribute.</p>
      *
      *	<p> See individual {@link ContentSource} implementations for more
@@ -62,8 +63,16 @@ public interface Context {
     public Object getAttribute(String name);
 
     /**
+     *	<p> This provides access to all attributes in this Context.</p>
+     *
+     *	<p> See individual {@link ContentSource} implementations for more
+     *	    details on supported / required attributes.</p>
+     */
+    public Set<String> getAttributeKeys();
+
+    /**
      *	<p> This method may be used to manage arbitrary information between the
-     *	    coding invoking the {@link FileStreamer} and the
+     *	    code invoking the {@link FileStreamer} and the
      *	    <code>ContentSource</code>.  This method sets an attribute.</p>
      *
      *	<p> See individual {@link ContentSource} implementations for more
@@ -98,4 +107,12 @@ public interface Context {
      *	    fails, the {@link FileStreamer#getDefaultMimeType} is used.</p>
      */
     public static final String CONTENT_TYPE = "ContentType";
+
+    /**
+     *	<p> The value for the "Content-Disposition" ("Filename"). This is the
+     *	    {@link Context} attribute used to specify an explicit "Filename".
+     *	    It may be set by the {@link ContentSource}.  If not specified,
+     *	    nothing will be set.</p>
+     */
+    public static final String CONTENT_FILENAME = "Filename";
 }
