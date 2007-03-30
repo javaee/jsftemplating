@@ -24,6 +24,7 @@ package com.sun.jsftemplating.util.fileStreamer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -41,7 +42,7 @@ public abstract class BaseContext implements Context {
 
     /**
      *	<p> This method may be used to manage arbitrary information between the
-     *	    coding invoking the {@link FileStreamer} and the
+     *	    code invoking the {@link FileStreamer} and the
      *	    <code>ContentSource</code>.  This method retrieves an attribute.</p>
      *
      *	<p> See individual {@link ContentSource} implementations for more
@@ -57,8 +58,18 @@ public abstract class BaseContext implements Context {
     }
 
     /**
+     *	<p> This provides access to all attributes in this Context.</p>
+     *
+     *	<p> See individual {@link ContentSource} implementations for more
+     *	    details on supported / required attributes.</p>
+     */
+    public Set<String> getAttributeKeys() {
+	return _att.keySet();
+    }
+
+    /**
      *	<p> This method may be used to manage arbitrary information between the
-     *	    coding invoking the {@link FileStreamer} and the
+     *	    code invoking the {@link FileStreamer} and the
      *	    <code>ContentSource</code>.  This method sets an attribute.</p>
      *
      *	<p> See individual {@link ContentSource} implementations for more
