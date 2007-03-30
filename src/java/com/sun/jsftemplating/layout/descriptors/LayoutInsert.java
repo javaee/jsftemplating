@@ -12,7 +12,7 @@ import javax.faces.context.FacesContext;
  * @author Jason Lee
  *
  */
-public class LayoutDefine extends LayoutElementBase {
+public class LayoutInsert extends LayoutElementBase {
     private static final long serialVersionUID = 1L;
     private String name;
 
@@ -20,7 +20,7 @@ public class LayoutDefine extends LayoutElementBase {
      * @param parent
      * @param id
      */
-    public LayoutDefine(LayoutElement parent, String id) {
+    public LayoutInsert(LayoutElement parent, String id) {
         super(parent, id);
         // TODO Auto-generated constructor stub
     }
@@ -33,6 +33,9 @@ public class LayoutDefine extends LayoutElementBase {
         this.name = name;
     }
 
+    /**
+     * @see com.sun.jsftemplating.layout.descriptors.LayoutElementBase#encodeThis(javax.faces.context.FacesContext, javax.faces.component.UIComponent)
+     */
     @Override
     protected boolean encodeThis(FacesContext context, UIComponent component)
             throws IOException {

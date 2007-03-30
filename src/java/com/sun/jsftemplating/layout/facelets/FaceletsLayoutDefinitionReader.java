@@ -23,8 +23,10 @@ import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefine;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.descriptors.LayoutInsert;
 import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
 
 /**
@@ -75,7 +77,7 @@ public class FaceletsLayoutDefinitionReader {
         if (value != null) {
             value = value.trim();
         } else {
-//            value = "";
+//          value = "";
         }
         System.out.println(node.getNodeName() + ":  '" + node.getNodeType() + "' = '" + value + "'");
         // TODO:  find out what "name" should be in the ctors
@@ -90,33 +92,56 @@ public class FaceletsLayoutDefinitionReader {
             // just because... :P
         }
 
+        if (element != null) {
+            if (parent != null) {
+                parent.addChildLayoutElement(element);
+            }
 
-        NodeList nodeList = node.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            process(element, nodeList.item(i));
+            NodeList nodeList = node.getChildNodes();
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                process(element, nodeList.item(i));
+            }
         }
 
-        if (parent != null) {
-            parent.addChildLayoutElement(element);
-        }
         return element;
     }
-    
+
     private LayoutElement createComponent(LayoutElement parent, Node node) {
         LayoutElement element = null;
         String nodeName = node.getNodeName();
-        
+
         if ("ui:composition".equals(nodeName)) {
             LayoutComposition lc = new LayoutComposition(parent, "");
             NamedNodeMap attrs = node.getAttributes();
             String template = ((Node)attrs.getNamedItem("template")).getNodeValue();
             lc.setTemplate(template);
             element = lc;
+        } else if ("ui:define".equals(nodeName)) {
+            LayoutDefine ld = new LayoutDefine(parent, "");
+            NamedNodeMap attrs = node.getAttributes();
+            String name = ((Node)attrs.getNamedItem("name")).getNodeValue();
+            ld.setName(name);
+            element = ld;
+        } else if ("ui:insert".equals(nodeName)) {
+            LayoutInsert li = new LayoutInsert(parent, "");
+            NamedNodeMap attrs = node.getAttributes();
+            String name = ((Node)attrs.getNamedItem("name")).getNodeValue();
+            li.setName(name);
+            element = li;
+        } else if ("ui:component".equals(nodeName)) {
+        } else if ("ui:debug".equals(nodeName)) {
+        } else if ("ui:decorate".equals(nodeName)) {
+        } else if ("ui:fragment".equals(nodeName)) {
+        } else if ("ui:include".equals(nodeName)) {
+        } else if ("ui:param".equals(nodeName)) {
+        } else if ("ui:remove".equals(nodeName)) {
+            // Let the element remain null
+        } else if ("ui:repeat".equals(nodeName)) {
         } else {
             ComponentType componentType = LayoutDefinitionManager.  getGlobalComponentType(nodeName);
             element = new LayoutComponent(parent, "", componentType);
         }
-        
+
         return element;
     }
 }
