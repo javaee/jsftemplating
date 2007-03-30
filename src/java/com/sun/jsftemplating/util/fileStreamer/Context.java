@@ -109,10 +109,29 @@ public interface Context {
     public static final String CONTENT_TYPE = "ContentType";
 
     /**
-     *	<p> The value for the "Content-Disposition" ("Filename"). This is the
-     *	    {@link Context} attribute used to specify an explicit "Filename".
-     *	    It may be set by the {@link ContentSource}.  If not specified,
-     *	    nothing will be set.</p>
+     *	<p> The value for the "Content-Disposition" ("disposition"). This is
+     *	    the {@link Context} attribute used to specify the content
+     *	    disposition.  The content disposition tells the browser how to
+     *	    handle the content.  The two standard values for this are:</p>
+     *
+     *	<ul><li>inline</li>
+     *	    <li>attachment</li></ul>
+     *
+     *	<p> See RFC 2183 for more information.  This value may be set by the
+     *	    {@link ContentSource}.  If not specified, nothing will be set.
+     *	    This value may be used in conjunction with the
+     *	    {@link #CONTENT_FILENAME} attribute, or the entire content
+     *	    disposition may be specified with this attribute.</p>
      */
-    public static final String CONTENT_FILENAME = "Filename";
+    public static final String CONTENT_DISPOSITION = "disposition";
+
+    /**
+     *	<p> The value for the "Content-Disposition" ("filename"). This is the
+     *	    {@link Context} attribute used to specify an explicit "filename".
+     *	    It may be set by the {@link ContentSource}.  If not specified,
+     *	    nothing will be set.  If {@link #CONTENT_DISPOSITION} is also set,
+     *	    this method will append the file name.  If not set, it will set
+     *	    the contentDisposition to "attachment".</p>
+     */
+    public static final String CONTENT_FILENAME = "filename";
 }

@@ -37,8 +37,10 @@ import javax.servlet.http.HttpServletResponse;
  *  <p>	This implementation will look for the following attributes
  *	({@link BaseContext#setAttribute(String, Object)}):</p>
  *
- *  <ul><li>{@link #CONTENT_TYPE} -- The "Content-type:" of the response.</li>
- *	<li>{@link #EXTENSION} -- The file extension of the response.</li>
+ *  <ul><li>{@link Context#CONTENT_TYPE} -- The "Content-type:" of the response.</li>
+ *	<li>{@link Context#CONTENT_DISPOSITION} -- Disposition of the streamed content.</li>
+ *	<li>{@link Context#CONTENT_FILENAME} -- Filename of the streamed content.</li>
+ *	<li>{@link Context#EXTENSION} -- The file extension of the response.</li>
  *	</ul>
  */
 public class FacesStreamerContext extends BaseContext {
@@ -115,6 +117,24 @@ public class FacesStreamerContext extends BaseContext {
 	    }
 	}
 	((HttpServletResponse) resp).setHeader("Content-type", contentType);
+
+	// Check disposition/filename to associate a name with the stream
+	String disposition = (String) getAttribute(CONTENT_DISPOSITION);
+	String filename = (String) getAttribute(CONTENT_FILENAME);
+	if (disposition == null) {
+	    // No disposition set, see if we have a filename
+	    if (filename != null) {
+		((HttpServletResponse) resp).setHeader("Content-Disposition",
+		       DEFAULT_DISPOSITION + ";filename=\"" + filename + "\"");
+	    }
+	} else {
+	    // Disposition set, see if we also have a filename
+	    if (filename != null) {
+		disposition += ";filename=\"" + filename + "\"";
+	    }
+	    ((HttpServletResponse) resp).setHeader("Content-Disposition",
+		       disposition);
+	}
     }
 
     /**
@@ -171,4 +191,15 @@ public class FacesStreamerContext extends BaseContext {
      */
     public static final String DEFAULT_CONTENT_SOURCE_ID =
 	    ResourceContentSource.ID;
+
+    /**
+     *	<p> The default Content-Disposition.  It is only used when a filename
+     *	    is provided, but a disposition is not.  The default is
+     *	    "attachment".  This will normally cause a browser to prompt the
+     *	    user to save the file.  This is the default since setting a
+     *	    filename implies that the user may want to save this file.  You
+     *	    must explicitly set the disposition for "inline" behavior with a
+     *	    filename.</p>
+     */
+    public static final String DEFAULT_DISPOSITION =	"attachment";
 }
