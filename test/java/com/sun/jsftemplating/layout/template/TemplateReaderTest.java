@@ -1,3 +1,25 @@
+/*
+ * The contents of this file are subject to the terms 
+ * of the Common Development and Distribution License 
+ * (the License).  You may not use this file except in
+ * compliance with the License.
+ * 
+ * You can obtain a copy of the license at 
+ * https://jsftemplating.dev.java.net/cddl1.html or
+ * jsftemplating/cddl1.txt.
+ * See the License for the specific language governing 
+ * permissions and limitations under the License.
+ * 
+ * When distributing Covered Code, include this CDDL 
+ * Header Notice in each file and include the License file 
+ * at jsftemplating/cddl1.txt.  
+ * If applicable, add the following below the CDDL Header, 
+ * with the fields enclosed by brackets [] replaced by
+ * you own identifying information: 
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
+ */
 package com.sun.jsftemplating.layout.template;
 
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
@@ -27,9 +49,9 @@ public class TemplateReaderTest extends TestCase {
     public void testRead1() {
 	try {
 	    TemplateReader reader =
-		new TemplateReader("foo", new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new TemplateReader("foo", new URL("file:test/files/TemplateFormat.jsf"));
 	    LayoutDefinition ld = reader.read();
-	    assertEquals("LayoutDefinition.unevaluatedId", "id1", ld.getUnevaluatedId());
+//	    assertEquals("LayoutDefinition.unevaluatedId", "id1", ld.getUnevaluatedId());
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	    fail(ex.getMessage());
@@ -42,7 +64,7 @@ public class TemplateReaderTest extends TestCase {
     public void testReadAccuracy() {
 	try {
 	    TemplateReader reader =
-		new TemplateReader("bar", new URL("file:exampleapp/index.jsf"));
+		new TemplateReader("bar", new URL("file:test/files/readTest1.jsf"));
 	    LayoutDefinition ld = reader.read();
 	    List<LayoutElement> children = ld.getChildLayoutElements();
 	    if (children.size() < 5) {
