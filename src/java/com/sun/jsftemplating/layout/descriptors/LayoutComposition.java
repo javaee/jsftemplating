@@ -15,6 +15,7 @@ import javax.faces.context.FacesContext;
 public class LayoutComposition extends LayoutElementBase {
     private static final long serialVersionUID = 1L;
     private String template;
+    private boolean trimming = true;
 
     /**
      * @param parent
@@ -22,15 +23,27 @@ public class LayoutComposition extends LayoutElementBase {
      */
     public LayoutComposition(LayoutElement parent, String id) {
         super(parent, id);
-        // TODO Auto-generated constructor stub
+    }
+
+    public LayoutComposition(LayoutElement parent, String id, boolean trimming) {
+        super(parent, id);
+        this.trimming = trimming;
     }
 
     public String getTemplate() {
         return template;
     }
 
+    public boolean isTrimming() {
+        return trimming;
+    }
+
     public void setTemplate(String template) {
         this.template = template;
+    }
+
+    public void setTrimming(boolean trimming) {
+        this.trimming = trimming;
     }
 
     @Override

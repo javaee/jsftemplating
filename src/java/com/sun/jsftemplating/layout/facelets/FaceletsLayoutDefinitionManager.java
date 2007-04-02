@@ -21,14 +21,20 @@ import com.sun.jsftemplating.util.FileUtil;
  */
 @FormatDefinition
 public class FaceletsLayoutDefinitionManager extends LayoutDefinitionManager {
+    private static String defaultSuffix;
 
     public FaceletsLayoutDefinitionManager() {
         super();
+//        defaultSuffix = 
+//            FacesContext.getCurrentInstance().getExternalContext().getInitParameter(ViewHandler.DEFAULT_SUFFIX_PARAM_NAME);
+        if (defaultSuffix == null) {
+            defaultSuffix = ".xhtml";
+        }
     }
 
     @Override
     public boolean accepts(String key) {
-        URL url = FileUtil.searchForFile(key, ".jsf");
+        URL url = FileUtil.searchForFile(key, defaultSuffix);
         if (url == null) {
             return false;
         }
@@ -38,7 +44,7 @@ public class FaceletsLayoutDefinitionManager extends LayoutDefinitionManager {
         TemplateParser parser = new TemplateParser(url);
         try {
             parser.open();
-            parser.readUntil("<ui:composition", true);
+            parser.readUntil("=\"http://java.sun.com/jsf/facelets\"", true);
         } catch (Exception ex) {
             // Didn't work...
             return false;
@@ -65,7 +71,7 @@ public class FaceletsLayoutDefinitionManager extends LayoutDefinitionManager {
         // See if we already have this one.
         LayoutDefinition ld = getCachedLayoutDefinition(key);
         if (ld == null) {
-            URL url = FileUtil.searchForFile(key, ".jsf");
+            URL url = FileUtil.searchForFile(key, defaultSuffix);
 
             // Make sure we found the url
             if (url == null) {
@@ -113,8 +119,8 @@ public class FaceletsLayoutDefinitionManager extends LayoutDefinitionManager {
 
     public static void main(String... args) {
         FaceletsLayoutDefinitionManager ldm = new  FaceletsLayoutDefinitionManager();
-        if (ldm.accepts("/com/sun/jsftemplating/layout/facelets/index.xhtml")) {
-            LayoutDefinition ld = ldm.getLayoutDefinition("/com/sun/jsftemplating/layout/facelets/index.xhtml");
+        if (ldm.accepts("/facelets.jsf")) {
+            LayoutDefinition ld = ldm.getLayoutDefinition("facelets.jsf");
             System.out.println(ld);
         }
     }

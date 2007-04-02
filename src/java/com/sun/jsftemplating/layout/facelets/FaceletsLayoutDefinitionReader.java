@@ -4,6 +4,7 @@
 package com.sun.jsftemplating.layout.facelets;
 
 import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -28,6 +29,8 @@ import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutInsert;
 import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
+import com.sun.jsftemplating.layout.template.TemplateWriter;
+import com.sun.jsftemplating.util.LayoutElementUtil;
 
 /**
  * @author Jason Lee
@@ -67,23 +70,38 @@ public class FaceletsLayoutDefinitionReader {
         for (int i = 0; i < nodeList.getLength(); i++) {
             process(ld, nodeList.item(i));
         }
+        FileOutputStream os = new FileOutputStream("c:\\temp\\template.out.txt");
+        TemplateWriter writer = new TemplateWriter(os);
+        writer.write(ld);
+        os.close();
+        dumpLayoutElementTree(ld, "");
         return ld;
     }
+    
+    private void dumpLayoutElementTree(LayoutElement element, String padding) {
+        String value = element.toString();
+        if (element instanceof LayoutStaticText) {
+            value = ((LayoutStaticText)element).getValue();
+        } else if (element instanceof LayoutComponent) {
+            value = ((LayoutComponent)element).getType().toString();
+        }
+        System.out.println (padding + element.getUnevaluatedId() + ":  " + value);
+        for (LayoutElement child : element.getChildLayoutElements()) {
+            dumpLayoutElementTree (child, padding+"    ");
+        }
+    }
 
-    public LayoutElement process(LayoutElement parent, Node node) throws IOException {
+    public void process(LayoutElement parent, Node node) throws IOException {
         LayoutElement element = null;
 
         String value = node.getNodeValue();
-        if (value != null) {
-            value = value.trim();
-        } else {
-//          value = "";
-        }
         System.out.println(node.getNodeName() + ":  '" + node.getNodeType() + "' = '" + value + "'");
         // TODO:  find out what "name" should be in the ctors
         switch (node.getNodeType()) {
         case Node.TEXT_NODE :
-            element = new LayoutStaticText(parent, "", node.getNodeValue());
+            element = new LayoutStaticText(parent, 
+                    LayoutElementUtil.getGeneratedId(node.getNodeName()), 
+                    node.getNodeValue());
             break;
         case Node.ELEMENT_NODE:
             element = createComponent(parent, node);
@@ -93,37 +111,34 @@ public class FaceletsLayoutDefinitionReader {
         }
 
         if (element != null) {
-            if (parent != null) {
-                parent.addChildLayoutElement(element);
-            }
+            parent.addChildLayoutElement(element);
 
             NodeList nodeList = node.getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
                 process(element, nodeList.item(i));
             }
         }
-
-        return element;
     }
 
     private LayoutElement createComponent(LayoutElement parent, Node node) {
         LayoutElement element = null;
         String nodeName = node.getNodeName();
+        String id = LayoutElementUtil.getGeneratedId(node.getNodeName());
 
         if ("ui:composition".equals(nodeName)) {
-            LayoutComposition lc = new LayoutComposition(parent, "");
+            LayoutComposition lc = new LayoutComposition(parent, id);
             NamedNodeMap attrs = node.getAttributes();
             String template = ((Node)attrs.getNamedItem("template")).getNodeValue();
             lc.setTemplate(template);
             element = lc;
         } else if ("ui:define".equals(nodeName)) {
-            LayoutDefine ld = new LayoutDefine(parent, "");
+            LayoutDefine ld = new LayoutDefine(parent, id);
             NamedNodeMap attrs = node.getAttributes();
             String name = ((Node)attrs.getNamedItem("name")).getNodeValue();
             ld.setName(name);
             element = ld;
         } else if ("ui:insert".equals(nodeName)) {
-            LayoutInsert li = new LayoutInsert(parent, "");
+            LayoutInsert li = new LayoutInsert(parent, id);
             NamedNodeMap attrs = node.getAttributes();
             String name = ((Node)attrs.getNamedItem("name")).getNodeValue();
             li.setName(name);
@@ -131,6 +146,11 @@ public class FaceletsLayoutDefinitionReader {
         } else if ("ui:component".equals(nodeName)) {
         } else if ("ui:debug".equals(nodeName)) {
         } else if ("ui:decorate".equals(nodeName)) {
+            LayoutComposition lc = new LayoutComposition(parent, id, true);
+            NamedNodeMap attrs = node.getAttributes();
+            String template = ((Node)attrs.getNamedItem("template")).getNodeValue();
+            lc.setTemplate(template);
+            element = lc;
         } else if ("ui:fragment".equals(nodeName)) {
         } else if ("ui:include".equals(nodeName)) {
         } else if ("ui:param".equals(nodeName)) {
@@ -138,8 +158,27 @@ public class FaceletsLayoutDefinitionReader {
             // Let the element remain null
         } else if ("ui:repeat".equals(nodeName)) {
         } else {
-            ComponentType componentType = LayoutDefinitionManager.  getGlobalComponentType(nodeName);
-            element = new LayoutComponent(parent, "", componentType);
+            /*
+16:01 <@KenPaulsen>         ComponentType componentType = LayoutDefinitionManager.
+16:01 <@KenPaulsen>             getGlobalComponentType(type);
+16:01 <@KenPaulsen>         if (componentType == null) {
+16:01 <@KenPaulsen>             throw new IllegalArgumentException("ComponentType '" + type
+16:01 <@KenPaulsen>                     + "' not defined!");
+16:01 <@KenPaulsen>         }
+             */
+            ComponentType componentType = LayoutDefinitionManager.getGlobalComponentType(nodeName);
+            if (componentType == null) {
+                String value = node.getNodeValue();
+                if (value == null) {
+                    value = "";
+                }
+                element = new LayoutStaticText(parent, id, value);
+                System.out.println("***** static text:  " + ((LayoutStaticText)element).getValue());
+//                throw new IllegalArgumentException("ComponentType '" + nodeName
+//                        + "' not defined!");
+            } else {
+                element = new LayoutComponent(parent, id, componentType);
+            }
         }
 
         return element;
