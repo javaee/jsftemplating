@@ -15,8 +15,8 @@ public class TemplateParserTest extends TestCase {
     public void testURL() {
 	try {
 	    TemplateParser parser = new TemplateParser(
-		new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
-	    assertEquals("URL", "file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt", parser.getURL().toString());
+		new URL("file:test/files/TemplateFormat.jsf"));
+	    assertEquals("URL", "file:test/files/TemplateFormat.jsf", parser.getURL().toString());
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	    fail(ex.getMessage());
@@ -26,7 +26,7 @@ public class TemplateParserTest extends TestCase {
     public void testOpenClose() {
 	try {
 	    TemplateParser parser = new TemplateParser(
-		new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new URL("file:test/files/TemplateFormat.jsf"));
 	    parser.open();
 	    parser.close();
 	} catch (Exception ex) {
@@ -43,7 +43,7 @@ public class TemplateParserTest extends TestCase {
     public void testNextChar1() {
 	try {
 	    TemplateParser parser = new TemplateParser(
-		new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new URL("file:test/files/TemplateFormat.jsf"));
 	    parser.open();
 	    assertEquals("testNextChar1-1", '#', parser.nextChar());
 	    assertEquals("testNextChar1-2", ' ', parser.nextChar());
@@ -64,7 +64,7 @@ public class TemplateParserTest extends TestCase {
     public void testUnread() {
 	try {
 	    TemplateParser parser = new TemplateParser(
-		new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new URL("file:test/files/TemplateFormat.jsf"));
 	    parser.open();
 	    assertEquals("testNextChar1-1", '#', parser.nextChar());
 	    assertEquals("testNextChar1-2", ' ', parser.nextChar());
@@ -92,7 +92,7 @@ public class TemplateParserTest extends TestCase {
     public void testNVP() {
 	try {
 	    TemplateParser parser = new TemplateParser(
-		new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new URL("file:test/files/TemplateFormat.jsf"));
 	    parser.open();
 	    // Read some lines
 	    parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine();
@@ -122,7 +122,7 @@ public class TemplateParserTest extends TestCase {
     public void testNVP2() {
 	try {
 	    TemplateParser parser = new TemplateParser(
-		new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new URL("file:test/files/TemplateFormat.jsf"));
 	    parser.open();
 
 	    // Read 49 lines
@@ -157,7 +157,7 @@ public class TemplateParserTest extends TestCase {
     public void testReadLine() {
 	try {
 	    TemplateParser parser = new TemplateParser(
-		new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new URL("file:test/files/TemplateFormat.jsf"));
 	    parser.open();
 	    // Read some lines
 	    parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine();
@@ -190,7 +190,7 @@ public class TemplateParserTest extends TestCase {
     public void testReadToken() {
 	try {
 	    TemplateParser parser = new TemplateParser(
-		new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new URL("file:test/files/TemplateFormat.jsf"));
 	    parser.open();
 	    // Read some lines
 	    parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine();
@@ -228,7 +228,7 @@ public class TemplateParserTest extends TestCase {
     public void testReadUntilStr() {
 	try {
 	    TemplateParser parser = new TemplateParser(
-		new URL("file:src/java/com/sun/jsftemplating/layout/template/TemplateFormat.txt"));
+		new URL("file:test/files/TemplateFormat.jsf"));
 	    parser.open();
 	    // Read some lines
 	    parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine(); parser.readLine();
