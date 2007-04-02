@@ -288,14 +288,18 @@ public class PermissionChecker {
 	} else {
 	    // Not a registered function...
 	    idx--; // In this case, there are no ()'s to consume, backup 1
+	    /*
 	    if ((str.charAt(0) == FUNCTION_MARKER) && (str.length() == 1)
 		    && !_tmpFunctionStack.empty()) {
 		// We have a function added during the subtitute() phase
 		function = (Function) _tmpFunctionStack.pop();
 	    } else {
+	    */
 		// Create a StringFunction
 		function = new StringFunction(str);
+	    /*
 	    }
+	    */
 	}
 
 	// Add the function to the function list
@@ -1199,7 +1203,7 @@ public class PermissionChecker {
      *	    placed into the actual _functionList when the are encountered
      *	    during the preProcessing.</p>
      */
-    private Stack _tmpFunctionStack = null;
+//    private Stack _tmpFunctionStack = null;
     private LayoutElement _desc = null;
     private UIComponent _component = null;
 }
