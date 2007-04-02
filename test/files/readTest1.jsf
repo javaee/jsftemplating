@@ -1,0 +1,17 @@
+/*
+ *  This file is used to test the TemplateReader, it is not meant to serve
+ *  as a best-practice example
+ */
+'<br /> Hello <b>World</b>&copy;!
+"<br /> Hello <b>World</b>&copy;!
+<sun:staticText id="y" value="abcd" />
+<sun:tree id="hhh" text="some tree">
+    <sun:treeNode id="treeNode1" style="border: 1px solid blue;" text="abc">
+    </sun:treeNode>
+</sun:tree>
+<sun:form id="theform" style="border: 1px solid red;">
+<sun:markup id="mark" tag="div">
+    <sun:textField value="bc" id="foo" style="border: 2px dashed blue;" />
+    <sun:passwordField value="123" id="bar" style='border: 2px dotted green;' />
+</sun:markup>
+</sun:form>
