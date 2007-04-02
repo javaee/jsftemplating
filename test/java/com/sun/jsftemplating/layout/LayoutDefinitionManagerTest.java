@@ -31,7 +31,8 @@ public class LayoutDefinitionManagerTest extends TestCase {
 	    assertTrue("eventNull", event != null);
 	    assertTrue("eventNotEqualStaticText", staticText != event);
 	    assertTrue("staticTextType", staticText.getFactory() instanceof StaticTextFactory);
-	    assertTrue("eventCreation", event.getFactory().create(null, null, null) instanceof EventComponent);
+	    // The following requires a FacesContext b/c it uses the application to create it.
+//	    assertTrue("eventCreation", event.getFactory().create(null, null, null) instanceof EventComponent);
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	    fail(ex.getMessage());
