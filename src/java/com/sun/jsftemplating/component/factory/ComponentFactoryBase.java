@@ -333,8 +333,11 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	UIComponent comp = null;
 
 	// Check for the "binding" property
-	String binding = (String)
-	    desc.getEvaluatedOption(ctx, "binding", parent);
+	String binding = null;
+	if (desc != null) {
+	    binding =
+		(String) desc.getEvaluatedOption(ctx, "binding", parent);
+	}
 	if ((binding != null) && ComponentUtil.isValueReference(binding)) {
 	    // Create a ValueExpression
 	    ValueExpression ve =
