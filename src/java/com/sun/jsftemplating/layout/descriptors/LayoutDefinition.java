@@ -60,7 +60,7 @@ public class LayoutDefinition extends LayoutElementBase {
      *	<p> Constructor.</p>
      */
     public LayoutDefinition(String id) {
-	// LayoutDefinition objects do not have a parent or an id
+	// LayoutDefinition objects do not have a parent
 	super(null, id);
 
 	// Set the default StaticText ComponentType
