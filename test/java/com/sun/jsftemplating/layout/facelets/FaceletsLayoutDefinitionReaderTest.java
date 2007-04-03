@@ -21,84 +21,144 @@
  * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
  */
 package com.sun.jsftemplating.layout.facelets;
-
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-
 import java.net.URL;
-import java.util.List;
-
-import junit.framework.*;
-
-
+import junit.framework.TestCase;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 /**
- *  <p>	Tests for the {@link FaceletsLayoutDefinitionReader}.</p>
+ * 
+ * <p>
+ * Tests for the {@link FaceletsLayoutDefinitionReader}.
+ * </p>
+ * 
  */
 public class FaceletsLayoutDefinitionReaderTest extends TestCase {
-
     /**
-     *
+     * 
+     * 
+     * 
      */
     protected void setUp() {
     }
-
     /**
-     *	<p> Simple test to ensure we can read a facelets file.</p>
+     * 
+     * <p>
+     * Simple test to ensure we can read a facelets file.
+     * </p>
+     * 
      */
     public void testRead1() {
-	try {
-	    FaceletsLayoutDefinitionReader reader =
-		new FaceletsLayoutDefinitionReader("foo", new URL("file:test/files/simple.xhtml"));
-	    LayoutDefinition ld = reader.read();
-	    assertEquals("LayoutDefinition.unevaluatedId", "foo", ld.getUnevaluatedId());
-	} catch (Exception ex) {
-	    ex.printStackTrace();
-	    fail(ex.getMessage());
-	}
+        try {
+            FaceletsLayoutDefinitionReader reader =
+                new FaceletsLayoutDefinitionReader("foo", new URL(
+                "file:test/files/simple.xhtml"));
+            LayoutDefinition ld = reader.read();
+            assertEquals("LayoutDefinition.unevaluatedId", "foo", ld
+                    .getUnevaluatedId());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            fail(ex.getMessage());
+        }
     }
-
+    
     /**
-     *	<p> This tests the accuracy of what was read.</p>
-    public void testReadAccuracy() {
-	try {
-	    FaceletsLayoutDefinitionReader reader =
-		new FaceletsLayoutDefinitionReader("bar", new URL("file:test/files/readTest1.jsf"));
-	    LayoutDefinition ld = reader.read();
-	    List<LayoutElement> children = ld.getChildLayoutElements();
-	    if (children.size() < 5) {
-		throw new RuntimeException("Not enough children!");
-	    }
-	    assertEquals("testReadAccuracy.id.y",
-		"y", children.get(2).getUnevaluatedId());
-	    assertEquals("testReadAccuracy.value.abcd",
-		"abcd", ((LayoutComponent) children.get(2)).getOption("value"));
-
-	    assertEquals("testReadAccuracy.id.hhh",
-		"hhh", children.get(3).getUnevaluatedId());
-	    assertEquals("testReadAccuracy.text.some tree",
-		"some tree",
-		((LayoutComponent) children.get(3)).getOption("text"));
-	    assertEquals("testReadAccuracy.hhh:treeNode1.id",
-		"treeNode1",
-		children.get(3).getChildLayoutElements().get(0).getUnevaluatedId());
-	    assertEquals("testReadAccuracy.hhh:treeNode1.text",
-		"abc",
-		((LayoutComponent) children.get(3).getChildLayoutElements().get(0)).getOption("text"));
-
-	    assertEquals("testReadAccuracy.id.theform",
-		"theform", children.get(4).getUnevaluatedId());
-	    assertEquals("testReadAccuracy.style1",
-		"border: 1px solid red;",
-		((LayoutComponent) children.get(4)).getOption("style"));
-
-	    for (LayoutElement elt : children.get(4).getChildLayoutElements()) {
-		System.out.println(elt.getUnevaluatedId());
-	    }
-	} catch (Exception ex) {
-	    ex.printStackTrace();
-	    fail(ex.getMessage());
-	}
+     * Test a more complex file
+     *
+     */
+    public void testNestedRead() {
+        try {
+            FaceletsLayoutDefinitionReader reader =
+                new FaceletsLayoutDefinitionReader("foo", new URL(
+                "file:test/files/facelets.xhtml"));
+            LayoutDefinition ld = reader.read();
+            assertEquals("LayoutDefinition.unevaluatedId", "foo", ld
+                    .getUnevaluatedId());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            fail(ex.getMessage());
+        }
     }
+    /**
+     * 
+     * <p>
+     * This tests the accuracy of what was read.
+     * </p>
+     * 
+     * public void testReadAccuracy() {
+     * 
+     * try {
+     * 
+     * FaceletsLayoutDefinitionReader reader =
+     * 
+     * new FaceletsLayoutDefinitionReader("bar", new
+     * URL("file:test/files/readTest1.jsf"));
+     * 
+     * LayoutDefinition ld = reader.read();
+     * 
+     * List<LayoutElement> children = ld.getChildLayoutElements();
+     * 
+     * if (children.size() < 5) {
+     * 
+     * throw new RuntimeException("Not enough children!");
+     *  }
+     * 
+     * assertEquals("testReadAccuracy.id.y",
+     * 
+     * "y", children.get(2).getUnevaluatedId());
+     * 
+     * assertEquals("testReadAccuracy.value.abcd",
+     * 
+     * "abcd", ((LayoutComponent) children.get(2)).getOption("value"));
+     * 
+     * 
+     * 
+     * assertEquals("testReadAccuracy.id.hhh",
+     * 
+     * "hhh", children.get(3).getUnevaluatedId());
+     * 
+     * assertEquals("testReadAccuracy.text.some tree",
+     * 
+     * "some tree",
+     * 
+     * ((LayoutComponent) children.get(3)).getOption("text"));
+     * 
+     * assertEquals("testReadAccuracy.hhh:treeNode1.id",
+     * 
+     * "treeNode1",
+     * 
+     * children.get(3).getChildLayoutElements().get(0).getUnevaluatedId());
+     * 
+     * assertEquals("testReadAccuracy.hhh:treeNode1.text",
+     * 
+     * "abc",
+     * 
+     * ((LayoutComponent)
+     * children.get(3).getChildLayoutElements().get(0)).getOption("text"));
+     * 
+     * 
+     * 
+     * assertEquals("testReadAccuracy.id.theform",
+     * 
+     * "theform", children.get(4).getUnevaluatedId());
+     * 
+     * assertEquals("testReadAccuracy.style1",
+     * 
+     * "border: 1px solid red;",
+     * 
+     * ((LayoutComponent) children.get(4)).getOption("style"));
+     * 
+     * 
+     * 
+     * for (LayoutElement elt : children.get(4).getChildLayoutElements()) {
+     * 
+     * System.out.println(elt.getUnevaluatedId());
+     *  }
+     *  } catch (Exception ex) {
+     * 
+     * ex.printStackTrace();
+     * 
+     * fail(ex.getMessage());
+     *  }
+     *  }
+     * 
      */
 }

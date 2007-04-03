@@ -127,7 +127,7 @@ public class BaseProcessingContext implements ProcessingContext {
 	    content);
 	child.addOption("value", content);
 	child.setNested(env.isNested());
-	TemplateReader.checkForFacetChild(parent, child);
+        LayoutElementUtil.checkForFacetChild(parent, child);
 
 	parent.addChildLayoutElement(child);
     }

@@ -116,12 +116,4 @@ public class FaceletsLayoutDefinitionManager extends LayoutDefinitionManager {
     static class SingletonHolder {
         static FaceletsLayoutDefinitionManager instance = new FaceletsLayoutDefinitionManager();
     }
-
-    public static void main(String... args) {
-        FaceletsLayoutDefinitionManager ldm = new  FaceletsLayoutDefinitionManager();
-        if (ldm.accepts("/facelets.jsf")) {
-            LayoutDefinition ld = ldm.getLayoutDefinition("facelets.jsf");
-            System.out.println(ld);
-        }
-    }
 }

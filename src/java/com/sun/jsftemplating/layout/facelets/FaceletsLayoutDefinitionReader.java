@@ -69,7 +69,7 @@ public class FaceletsLayoutDefinitionReader {
         LayoutDefinition ld = new LayoutDefinition(key);
         NodeList nodeList = document.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
-            process(ld, nodeList.item(i));
+            process(ld, nodeList.item(i), false);
         }
         FileOutputStream os = new FileOutputStream("c:\\temp\\template.out.txt");
         TemplateWriter writer = new TemplateWriter(os);
@@ -86,13 +86,13 @@ public class FaceletsLayoutDefinitionReader {
         } else if (element instanceof LayoutComponent) {
             value = ((LayoutComponent)element).getType().toString();
         }
-//        System.out.println (padding + element.getUnevaluatedId() + ":  " + value);
+        System.out.println (padding + element.getUnevaluatedId() + ":  " + value);
         for (LayoutElement child : element.getChildLayoutElements()) {
             dumpLayoutElementTree (child, padding+"    ");
         }
     }
 
-    public void process(LayoutElement parent, Node node) throws IOException {
+    public void process(LayoutElement parent, Node node, boolean nested) throws IOException {
         LayoutElement element = null;
         LayoutElement newParent = parent;
 	boolean endElement = false;
@@ -109,7 +109,8 @@ public class FaceletsLayoutDefinitionReader {
 	    }
             break;
         case Node.ELEMENT_NODE:
-            element = createComponent(parent, node);
+            nested = true;
+            element = createComponent(parent, node, nested);
 	    if (element instanceof LayoutStaticText) {
 		// We have a element node that needs to be static text
 		endElement = true;
@@ -126,7 +127,7 @@ public class FaceletsLayoutDefinitionReader {
 
             NodeList nodeList = node.getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
-                process(newParent, nodeList.item(i));
+                process(newParent, nodeList.item(i), nested);
             }
 
 	    if (endElement) {
@@ -137,7 +138,7 @@ public class FaceletsLayoutDefinitionReader {
         }
     }
 
-    private LayoutElement createComponent(LayoutElement parent, Node node) {
+    private LayoutElement createComponent(LayoutElement parent, Node node, boolean nested) {
         LayoutElement element = null;
         String nodeName = node.getNodeName();
         String id = LayoutElementUtil.getGeneratedId(nodeName);
@@ -181,18 +182,27 @@ public class FaceletsLayoutDefinitionReader {
                 if (value == null) {
                     value = "";
                 }
-// FIXME: This needs to account for beginning and ending tags.... it also needs to account for attributes on the tag, etc.
+// FIXME: This needs to account for beginning and ending tags....
                 element = new LayoutStaticText(parent, id, 
                         "<" + nodeName + buildAttributeList(node) + ">");
-//                System.out.println("***** static text:  " + ((LayoutStaticText)element).getValue());
-//                throw new IllegalArgumentException("ComponentType '" + nodeName
-//                        + "' not defined!");
             } else {
-                element = new LayoutComponent(parent, id, componentType);
+                LayoutComponent lc = new LayoutComponent(parent, id, componentType);
+                addAttributesToComponent(lc, node);
+                lc.setNested(nested);
+                LayoutElementUtil.checkForFacetChild(parent, lc);
+                element = lc;
             }
         }
 
         return element;
+    }
+    
+    private void addAttributesToComponent (LayoutComponent lc, Node node) {
+        NamedNodeMap map = node.getAttributes();
+        for (int i = 0; i < map.getLength(); i++) {
+            Node attr = map.item(i);
+            lc.addOption(attr.getNodeName(), attr.getNodeValue());
+        }
     }
     
     private String buildAttributeList(Node node) {

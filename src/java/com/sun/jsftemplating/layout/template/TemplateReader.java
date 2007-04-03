@@ -395,7 +395,7 @@ public class TemplateReader {
 	component.setNested(nested);
 
 	// Set facet id if needed
-	checkForFacetChild(parent, component);
+	LayoutElementUtil.checkForFacetChild(parent, component);
 
 	// Let calling method see if this is a single tag, or if there should
 	// be a closing tag as well
@@ -405,41 +405,6 @@ public class TemplateReader {
 	}
 
 	return component;
-    }
-
-    /**
-     *	<p> This method checks to see if the given <code>component</code> is
-     *	    sitting inside a facet or not.  If it is, it will use the facet
-     *	    name for its id so that it will be found correctly.  However, if
-     *	    the facet tag exists outside a component, then it is not a facet
-     *	    -- its a place holder for a facet.  In this case it will not use
-     *	    the id of the place holder.</p>
-     */
-    public static void checkForFacetChild(LayoutElement parent, LayoutComponent component) {
-	// Figure out if this should be stored as a facet, if so under what id
-	if (LayoutElementUtil.isLayoutComponentChild(component)) {
-	    component.setFacetChild(false);
-	} else {
-	    // Need to add this so that it has the correct facet name
-	    // Check to see if this LayoutComponent is inside a LayoutFacet
-	    String id = component.getUnevaluatedId();
-	    while (parent != null) {
-		if (parent instanceof LayoutFacet) {
-		    // Inside a LayoutFacet, use its id... only if this facet
-		    // is a child of a LayoutComponent (otherwise, it is a
-		    // layout facet used for layout, not for defining a facet
-		    // of a UIComponent)
-		    if (LayoutElementUtil.isLayoutComponentChild(parent)) {
-			id = parent.getUnevaluatedId();
-		    }
-		    break;
-		}
-		parent = parent.getParent();
-	    }
-
-	    // Set the facet name
-	    component.addOption(LayoutComponent.FACET_NAME, id);
-	}
     }
 
     /**
