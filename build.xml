@@ -5,53 +5,53 @@
     <property file="build.properties" />
     <property file="user.properties" />
     <!--
-    <property environment="env" />
-    <property file="${user.home}/build.properties" />
+        <property environment="env" />
+        <property file="${user.home}/build.properties" />
     -->
 
     <path id="dependencies">
-	<pathelement location="${servlet-api.jar}" />
-	<pathelement location="${jsf-api.jar}" />
-	<pathelement location="${el-api.jar}" />
-	<pathelement location="${jsftemplating-dt.jar}" />
+        <pathelement location="${servlet-api.jar}" />
+        <pathelement location="${jsf-api.jar}" />
+        <pathelement location="${el-api.jar}" />
+        <pathelement location="${jsftemplating-dt.jar}" />
     </path>
 
     <path id="apt-dependencies">
-	<pathelement location="${java.home}/lib/tools.jar" />
-	<pathelement location="${java.home}/../lib/tools.jar" />
+        <pathelement location="${java.home}/lib/tools.jar" />
+        <pathelement location="${java.home}/../lib/tools.jar" />
     </path>
 
     <path id="javadoc-dependencies">
-	<path refid="dependencies" />
-	<path refid="apt-dependencies" />
-	<pathelement location="${jsftemplating-dynafaces.jar}" />
+        <path refid="dependencies" />
+        <path refid="apt-dependencies" />
+        <pathelement location="${jsftemplating-dynafaces.jar}" />
     </path>
 
     <path id="test-dependencies">
-	<pathelement location="${servlet-api.jar}" />
-	<pathelement location="${jsf-api.jar}" />
-	<pathelement location="${el-api.jar}" />
-	<pathelement location="${jsftemplating.jar}" />
-	<pathelement location="${junit.jar}" />
-	<pathelement location="${test}/build" />
-	<pathelement location="${test}/files" />
-	<pathelement location="${jsftemplating-dynafaces.jar}" />
+        <pathelement location="${servlet-api.jar}" />
+        <pathelement location="${jsf-api.jar}" />
+        <pathelement location="${el-api.jar}" />
+        <pathelement location="${jsftemplating.jar}" />
+        <pathelement location="${junit.jar}" />
+        <pathelement location="${test}/build" />
+        <pathelement location="${test}/files" />
+        <pathelement location="${jsftemplating-dynafaces.jar}" />
     </path>
 
     <path id="test-compile-dependencies">
-	<pathelement location="${servlet-api.jar}" />
-	<pathelement location="${jsf-api.jar}" />
-	<pathelement location="${el-api.jar}" />
-	<pathelement location="${jsftemplating.jar}" />
-	<pathelement location="${junit.jar}" />
+        <pathelement location="${servlet-api.jar}" />
+        <pathelement location="${jsf-api.jar}" />
+        <pathelement location="${el-api.jar}" />
+        <pathelement location="${jsftemplating.jar}" />
+        <pathelement location="${junit.jar}" />
     </path>
 
     <target name="init" description="sets ant to execute">
         <condition property="execute.ant" value="${ant.home}/bin/ant.bat" else="${ant.home}/bin/ant">
-                <os family="windows" />
+            <os family="windows" />
         </condition>
         <echo message="Using ${execute.ant}" />
-        <echo message="java.home=${java.home}"/>
+        <echo message="java.home=${java.home}" />
         <echo message="ant.home=${ant.home}" />
         <exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
             <!-- We do this to add the ant-apt.jar to the lib path -->
@@ -60,123 +60,113 @@
     </target>
 
     <target name="build" depends="jar" />
-    
+
     <target name="all" depends="build, build-samples" />
-    
+
     <!-- This target builds the custom processors for apt -->
     <target name="compile-apt-files">
-	<mkdir dir="${aptbuild}/." />
-	<echo message="${java.home}" />
+        <mkdir dir="${aptbuild}/." />
+        <echo message="${java.home}" />
 
-	<!-- Compile the java code from ${src} into ${aptbuild} -->
-	<javac srcdir="${src}" destdir="${aptbuild}/."
-		includes="**/annotation/**.java" debug="${compile.debug}" deprecation="${compile.deprecation}"
-		optimize="${compile.optimize}">
-	    <classpath refid="apt-dependencies" />
-	</javac>
+        <!-- Compile the java code from ${src} into ${aptbuild} -->
+        <javac srcdir="${src}" destdir="${aptbuild}/." includes="**/annotation/**.java" debug="${compile.debug}"
+            deprecation="${compile.deprecation}" optimize="${compile.optimize}">
+            <classpath refid="apt-dependencies" />
+        </javac>
     </target>
 
     <target name="jar-apt-files" depends="compile-apt-files">
-	<mkdir dir="${dist}/." />
-	<jar jarfile="${jsftemplating-dt.jar}" update="true">
+        <mkdir dir="${dist}/." />
+        <jar jarfile="${jsftemplating-dt.jar}" update="true">
             <fileset dir="${aptbuild}" includes="**/*.class" />
-            <zipfileset dir="${jsftemplating.home}/annotation"
-			prefix="META-INF/services" 
-			includes="com.sun.mirror.apt.AnnotationProcessorFactory" />
-	</jar>
+            <zipfileset dir="${jsftemplating.home}/annotation" prefix="META-INF/services"
+                includes="com.sun.mirror.apt.AnnotationProcessorFactory" />
+        </jar>
     </target>
 
     <target name="compile" depends="init, jar-apt-files">
-	<mkdir dir="${build}/." />
-	<exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
-	    <!-- We do this to add the ant-apt.jar to the lib path -->
-	    <arg line="-f aptbuild.xml -lib lib/external/ant-apt.jar compile" />
-	</exec>
+        <mkdir dir="${build}/." />
+        <exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
+            <!-- We do this to add the ant-apt.jar to the lib path -->
+            <arg line="-f aptbuild.xml -lib lib/external/ant-apt.jar compile" />
+        </exec>
     </target>
 
     <target name="jar" depends="compile">
-	<mkdir dir="${dist}/." />
-	<!-- Copy JS file also b/c currently it needs to be out of .jar -->
-	<copy todir="${dist}/.">
-            <fileset dir="${src}/com/sun/jsftemplating/component/resources/" >
-                <include name="**/*.js"/>
+        <mkdir dir="${dist}/." />
+        <!-- Copy JS file also b/c currently it needs to be out of .jar -->
+        <copy todir="${dist}/.">
+            <fileset dir="${src}/com/sun/jsftemplating/component/resources/">
+                <include name="**/*.js" />
             </fileset>
-	</copy>
-	<copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" />
-	<jar jarfile="${jsftemplating.jar}" update="true">
+        </copy>
+        <copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" />
+        <jar jarfile="${jsftemplating.jar}" update="true">
             <fileset dir="${build}" includes="**/*.class, **/*.map" />
-            <zipfileset dir="${src}"
-			prefix="" 
-			includes="**/*.properties" />
-            <zipfileset dir="${jsftemplating.home}/layout/pages"
-			prefix="" 
-			includes="*.jsf" />
-            <zipfileset dir="${jsftemplating.home}/component/layout"
-			prefix="META-INF/jsftemplating" 
-			includes="*.xml" />
-            <zipfileset dir="${jsftemplating.home}/layout/xml"
-			prefix="META-INF/jsftemplating" 
-			includes="*.dtd" />
-            <zipfileset dir="${jsftemplating.home}"
-			prefix="META-INF" 
-			includes="faces-config.xml" />
-	</jar>
+            <zipfileset dir="${src}" prefix="" includes="**/*.properties" />
+            <zipfileset dir="${jsftemplating.home}/layout/pages" prefix="" includes="*.jsf" />
+            <zipfileset dir="${jsftemplating.home}/component/layout" prefix="META-INF/jsftemplating" includes="*.xml" />
+            <zipfileset dir="${jsftemplating.home}/layout/xml" prefix="META-INF/jsftemplating" includes="*.dtd" />
+            <zipfileset dir="${jsftemplating.home}" prefix="META-INF" includes="faces-config.xml" />
+        </jar>
     </target>
 
     <target name="javadoc" depends="build">
-	<!-- Generate javadoc -->
-	<javadoc destdir="${docs}"
-		private="no"
-		author="true"
-		version="true"
-		use="true"
-		windowtitle="Templating for JavaServer Faces Technology (https://jsftemplating.dev.java.net)"
-		serialwarn="false">
-	    <doctitle><![CDATA[<h1><a href="https://jsftemplating.dev.java.net">Templating for JavaServer Faces Technology</a></h1>]]></doctitle>
-	    <header><![CDATA[<h2>Templating for JavaServer Faces Technology</h2>]]></header>
-	    <footer><![CDATA[<a href="https://jsftemplating.dev.java.net">https://jsftemplating.dev.java.net</a>]]></footer>
+        <!-- Generate javadoc -->
+        <javadoc destdir="${docs}" private="no" author="true" version="true" use="true"
+            windowtitle="Templating for JavaServer Faces Technology (https://jsftemplating.dev.java.net)"
+            serialwarn="false">
+            <doctitle>
+                <![CDATA[<h1><a href="https://jsftemplating.dev.java.net">Templating for JavaServer Faces Technology</a></h1>]]>
+            </doctitle>
+            <header>
+                <![CDATA[<h2>Templating for JavaServer Faces Technology</h2>]]>
+            </header>
+            <footer>
+                <![CDATA[<a href="https://jsftemplating.dev.java.net">https://jsftemplating.dev.java.net</a>]]>
+            </footer>
 
-    	    <fileset dir="${src}">
-		<include name="com/sun/jsftemplating/**/*.java" />
-	    </fileset>
+            <fileset dir="${src}">
+                <include name="com/sun/jsftemplating/**/*.java" />
+            </fileset>
 
-	    <classpath refid="javadoc-dependencies" />
-	</javadoc>
+            <classpath refid="javadoc-dependencies" />
+        </javadoc>
     </target>
 
     <target name="-set-proxy" if="proxy.host">
         <echo>***** Setting proxy to ${proxy.host}:${proxy.port}</echo>
-        <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" proxyuser="${proxy.user}" proxypassword="${proxy.pass}"/>
+        <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" proxyuser="${proxy.user}"
+            proxypassword="${proxy.pass}" />
     </target>
-    
+
     <target name="test" depends="compileTest,-set-proxy">
-	<java classname="com.sun.jsftemplating.UnitTests" fork="false" >
-	    <classpath refid="test-dependencies" />
-	</java>
+        <java classname="com.sun.jsftemplating.UnitTests" fork="false">
+            <classpath refid="test-dependencies" />
+        </java>
     </target>
 
 
     <target name="compileTest" depends="jar">
-	<mkdir dir="${test}/build/." />
+        <mkdir dir="${test}/build/." />
 
-	<!-- Compile the java code from ${src} into ${build} -->
-	<javac srcdir="${test}/java" destdir="${test}/build/."
-		debug="${compile.debug}" deprecation="${compile.deprecation}"
-		optimize="${compile.optimize}">
-	    <classpath refid="test-compile-dependencies" />
-	</javac>
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${test}/java" destdir="${test}/build/." debug="${compile.debug}"
+            deprecation="${compile.deprecation}" optimize="${compile.optimize}">
+            <classpath refid="test-compile-dependencies" />
+        </javac>
     </target>
 
     <target name="clean">
-	<!-- Delete the build / dist directories ;-->
-	<delete dir="${aptbuild}" />
-	<delete dir="${build}" />
-	<delete dir="${dist}" />
-	<delete dir="${test}/build" />
-	<delete dir="${docs}" />
+        <!-- Delete the build / dist directories ;-->
+        <delete dir="${aptbuild}" />
+        <delete dir="${build}" />
+        <delete dir="${dist}" />
+        <delete dir="${test}/build" />
+        <delete dir="${docs}" />
         <ant dir="samples" target="clean" />
     </target>
-   
+
     <target name="build-samples">
         <!-- build all sample apps under the samples directory -->
         <ant dir="samples" target="build" />
