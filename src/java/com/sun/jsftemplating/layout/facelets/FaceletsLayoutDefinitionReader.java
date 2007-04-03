@@ -86,7 +86,7 @@ public class FaceletsLayoutDefinitionReader {
         } else if (element instanceof LayoutComponent) {
             value = ((LayoutComponent)element).getType().toString();
         }
-        System.out.println (padding + element.getUnevaluatedId() + ":  " + value);
+//        System.out.println (padding + element.getUnevaluatedId() + ":  " + value);
         for (LayoutElement child : element.getChildLayoutElements()) {
             dumpLayoutElementTree (child, padding+"    ");
         }
@@ -94,18 +94,28 @@ public class FaceletsLayoutDefinitionReader {
 
     public void process(LayoutElement parent, Node node) throws IOException {
         LayoutElement element = null;
+        LayoutElement newParent = parent;
+	boolean endElement = false;
 
         String value = node.getNodeValue();
-        System.out.println(node.getNodeName() + ":  '" + node.getNodeType() + "' = '" + value + "'");
+//        System.out.println(node.getNodeName() + ":  '" + node.getNodeType() + "' = '" + value + "'");
         // TODO:  find out what "name" should be in the ctors
         switch (node.getNodeType()) {
         case Node.TEXT_NODE :
-            element = new LayoutStaticText(parent, 
+	    if (!value.trim().equals("")) {
+		element = new LayoutStaticText(parent, 
                     LayoutElementUtil.getGeneratedId(node.getNodeName()), 
-                    node.getNodeValue());
+                    value);
+	    }
             break;
         case Node.ELEMENT_NODE:
             element = createComponent(parent, node);
+	    if (element instanceof LayoutStaticText) {
+		// We have a element node that needs to be static text
+		endElement = true;
+	    } else {
+		newParent = element;
+	    }
             break;
         default:
             // just because... :P
@@ -116,15 +126,21 @@ public class FaceletsLayoutDefinitionReader {
 
             NodeList nodeList = node.getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
-                process(element, nodeList.item(i));
+                process(newParent, nodeList.item(i));
             }
+
+	    if (endElement) {
+		String nodeName = node.getNodeName();
+		element = new LayoutStaticText(parent, LayoutElementUtil.getGeneratedId(nodeName), "</" + nodeName + ">");
+		parent.addChildLayoutElement(element);
+	    }
         }
     }
 
     private LayoutElement createComponent(LayoutElement parent, Node node) {
         LayoutElement element = null;
         String nodeName = node.getNodeName();
-        String id = LayoutElementUtil.getGeneratedId(node.getNodeName());
+        String id = LayoutElementUtil.getGeneratedId(nodeName);
 
         if ("ui:composition".equals(nodeName)) {
             LayoutComposition lc = new LayoutComposition(parent, id);
@@ -173,8 +189,9 @@ public class FaceletsLayoutDefinitionReader {
                 if (value == null) {
                     value = "";
                 }
-                element = new LayoutStaticText(parent, id, value);
-                System.out.println("***** static text:  " + ((LayoutStaticText)element).getValue());
+// FIXME: This needs to account for beginning and ending tags.... it also needs to account for attributes on the tag, etc.
+                element = new LayoutStaticText(parent, id, "<" + nodeName + ">");
+//                System.out.println("***** static text:  " + ((LayoutStaticText)element).getValue());
 //                throw new IllegalArgumentException("ComponentType '" + nodeName
 //                        + "' not defined!");
             } else {
