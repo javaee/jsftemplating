@@ -34,6 +34,7 @@
 	<pathelement location="${jsftemplating.jar}" />
 	<pathelement location="${junit.jar}" />
 	<pathelement location="${test}/build" />
+	<pathelement location="${test}/files" />
 	<pathelement location="${jsftemplating-dynafaces.jar}" />
     </path>
 
