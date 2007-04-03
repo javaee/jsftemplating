@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout;
 
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
@@ -408,7 +409,16 @@ public class LayoutViewHandler extends ViewHandler {
 		}
 		// NOTE: LayoutFacets that aren't JSF facets aren't
 		// NOTE: meaningful in this context
-	    } if (childElt instanceof LayoutComponent) {
+	    } else if (childElt instanceof LayoutComposition) {
+		String template = ((LayoutComposition) childElt).getTemplate();
+		if (template != null) {
+		    //stack.push(childElt);
+		    childElt = LayoutDefinitionManager.
+			getLayoutDefinition(context, template);
+		    buildUIComponentTree(context, parent, childElt);
+		    //stack.pop();
+		}
+	    } else if (childElt instanceof LayoutComponent) {
 		// Calling getChild will add the child UIComponent to tree
 		child = ((LayoutComponent) childElt).
 			getChild(context, parent);
