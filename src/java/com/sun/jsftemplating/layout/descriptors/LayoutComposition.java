@@ -5,8 +5,14 @@ package com.sun.jsftemplating.layout.descriptors;
 
 import java.io.IOException;
 
+import com.sun.jsftemplating.layout.event.EncodeEvent;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+
+import java.util.Iterator;
+
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
 
 /**
  * @author Jason Lee
@@ -49,7 +55,26 @@ public class LayoutComposition extends LayoutElementBase {
     @Override
     protected boolean encodeThis(FacesContext context, UIComponent component)
             throws IOException {
-        // TODO Auto-generated method stub
+	// The child LayoutElements for a LayoutComposition are consumed by
+	// the template.  The LayoutElements consumed here is the template.
+	String templateName = getTemplate();
+	if (templateName == null) {
+	    throw new IllegalArgumentException("You must specify a template!");
+	}
+
+	// Fire an encode event
+	dispatchHandlers(context, ENCODE, new EncodeEvent(component));
+
+	LayoutElement template = LayoutDefinitionManager.
+	    getLayoutDefinition(context, templateName);
+
+	// Iterate over children
+	LayoutElement childElt = null;
+	Iterator<LayoutElement> it = template.getChildLayoutElements().iterator();
+	while (it.hasNext()) {
+	    childElt = it.next();
+	    childElt.encode(context, component);
+	}
         return false;
     }
 }
