@@ -43,6 +43,7 @@ public class FaceletsLayoutDefinitionReader {
 
     public FaceletsLayoutDefinitionReader(String key, URL url) {
         try{
+	    this.key = key;
             this.url = url;
 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
