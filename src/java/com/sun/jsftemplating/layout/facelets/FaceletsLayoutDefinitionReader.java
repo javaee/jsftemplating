@@ -175,14 +175,6 @@ public class FaceletsLayoutDefinitionReader {
             // Let the element remain null
         } else if ("ui:repeat".equals(nodeName)) {
         } else {
-            /*
-16:01 <@KenPaulsen>         ComponentType componentType = LayoutDefinitionManager.
-16:01 <@KenPaulsen>             getGlobalComponentType(type);
-16:01 <@KenPaulsen>         if (componentType == null) {
-16:01 <@KenPaulsen>             throw new IllegalArgumentException("ComponentType '" + type
-16:01 <@KenPaulsen>                     + "' not defined!");
-16:01 <@KenPaulsen>         }
-             */
             ComponentType componentType = LayoutDefinitionManager.getGlobalComponentType(nodeName);
             if (componentType == null) {
                 String value = node.getNodeValue();
@@ -190,7 +182,8 @@ public class FaceletsLayoutDefinitionReader {
                     value = "";
                 }
 // FIXME: This needs to account for beginning and ending tags.... it also needs to account for attributes on the tag, etc.
-                element = new LayoutStaticText(parent, id, "<" + nodeName + ">");
+                element = new LayoutStaticText(parent, id, 
+                        "<" + nodeName + buildAttributeList(node) + ">");
 //                System.out.println("***** static text:  " + ((LayoutStaticText)element).getValue());
 //                throw new IllegalArgumentException("ComponentType '" + nodeName
 //                        + "' not defined!");
@@ -200,6 +193,22 @@ public class FaceletsLayoutDefinitionReader {
         }
 
         return element;
+    }
+    
+    private String buildAttributeList(Node node) {
+        StringBuilder attrs = new StringBuilder();
+        
+        NamedNodeMap map = node.getAttributes();
+        for (int i = 0; i < map.getLength(); i++) {
+            Node attr = map.item(i);
+            attrs.append(" ")
+                .append(attr.getNodeName())
+                .append("=\"")
+                .append(attr.getNodeValue())
+                .append("\"");
+        }
+        
+        return attrs.toString();
     }
 }
 
