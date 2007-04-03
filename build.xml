@@ -144,8 +144,13 @@
 	</javadoc>
     </target>
 
-    <target name="test" depends="compileTest">
-	<java classname="com.sun.jsftemplating.UnitTests" fork="yes" >
+    <target name="-set-proxy" if="proxy.host">
+        <echo>***** Setting proxy to ${proxy.host}:${proxy.port}</echo>
+        <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" proxyuser="${proxy.user}" proxypassword="${proxy.pass}"/>
+    </target>
+    
+    <target name="test" depends="compileTest,-set-proxy">
+	<java classname="com.sun.jsftemplating.UnitTests" fork="false" >
 	    <classpath refid="test-dependencies" />
 	</java>
     </target>

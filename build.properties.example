@@ -45,3 +45,7 @@ compile.debug=true
 compile.optimize=false
 compile.deprecation=false
 
+#proxy.host=
+#proxy.port=
+#proxy.user=
+#proxy.pass=
