@@ -61,23 +61,6 @@ public class FaceletsLayoutDefinitionReaderTest extends TestCase {
     }
     
     /**
-     * Test a more complex file
-     *
-     */
-    public void testNestedRead() {
-        try {
-            FaceletsLayoutDefinitionReader reader =
-                new FaceletsLayoutDefinitionReader("foo", new URL(
-                "file:test/files/facelets.xhtml"));
-            LayoutDefinition ld = reader.read();
-            assertEquals("LayoutDefinition.unevaluatedId", "foo", ld
-                    .getUnevaluatedId());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail(ex.getMessage());
-        }
-    }
-    /**
      * 
      * <p>
      * This tests the accuracy of what was read.
