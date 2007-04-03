@@ -18,7 +18,7 @@
  * you own identifying information: 
  * "Portions Copyrighted [year] [name of copyright owner]"
  * 
- * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2007 Sun Microsystems, Inc. All rights reserved.
  */
 package com.sun.jsftemplating.layout.template;
 
@@ -155,7 +155,13 @@ public class TemplateWriter {
      *	    <code>OutputStream</code>.</p>
      */
     protected void writeLayoutStaticText(String prefix, LayoutStaticText text) throws IOException {
-	write(prefix + "\"" + text.getOptions().get("value") + "\n");
+	String value = "" + text.getOptions().get("value");
+	if (value.contains("\n")) {
+	    // Check for multi-line comment
+	    write(prefix + "<f:verbatim>" + value + "</f:verbatim>\n");
+	} else {
+	    write(prefix + "\"" + text.getOptions().get("value") + "\n");
+	}
     }
 
     /**
