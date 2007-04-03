@@ -21,22 +21,18 @@
  * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
  */
 package com.sun.jsftemplating;
-
 import com.sun.jsftemplating.layout.LayoutDefinitionManagerTest;
 import com.sun.jsftemplating.layout.facelets.FaceletsLayoutDefinitionReaderTest;
 import com.sun.jsftemplating.layout.template.TemplateParserTest;
 import com.sun.jsftemplating.layout.template.TemplateReaderTest;
 import com.sun.jsftemplating.layout.template.TemplateWriterTest;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-
 /**
  *  <p>	Unit tests.</p>
  */
 public class UnitTests {
-
     /**
      *
      */
@@ -50,7 +46,6 @@ public class UnitTests {
 	tests.addTestSuite(LayoutDefinitionManagerTest.class);
 	return tests;
     }
-
     /**
      *
      */
