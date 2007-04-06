@@ -24,6 +24,8 @@ package com.sun.jsftemplating.component.factory;
 
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 
+import java.io.Serializable;
+
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
@@ -51,4 +53,24 @@ public interface ComponentFactory {
      *	@return	The newly created <code>UIComponent</code>.
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent);
+
+    /**
+     *	<p> This method returns the extraInfo that was set for this
+     *	    <code>ComponentFactory</code> from the
+     *	    {@link com.sun.jsftemplating.layout.descriptors.ComponentType}.</p>
+     */
+    public Serializable getExtraInfo();
+
+    /**
+     *	<p> This method is invoked from the
+     *	    {@link com.sun.jsftemplating.layout.descriptors.ComponentType} to
+     *	    provide more information to the factory.  For example, if the JSF
+     *	    component type was passed in, a single factory class could
+     *	    instatiate multiple components the extra info that is passed in.</p>
+     *
+     *	<p> Some factory implementations may want to use this method to
+     *	    execute intialization code for the factory based in the value
+     *	    passed in.</p>
+     */
+    public void setExtraInfo(Serializable extraInfo);
 }
