@@ -24,6 +24,7 @@ package com.sun.jsftemplating.layout.descriptors;
 
 import com.sun.jsftemplating.component.factory.ComponentFactory;
 
+import java.io.Serializable;
 import java.util.Formatter;
 
 
@@ -77,9 +78,11 @@ public class ComponentType implements java.io.Serializable {
      *	@return The new {@link ComponentFactory}.
      */
     protected ComponentFactory createFactory() {
+	// Create it...
+	ComponentFactory factory = null;
 	try {
 	    Class cls = Class.forName(_factoryClass);
-	    return (ComponentFactory) cls.newInstance();
+	    factory = (ComponentFactory) cls.newInstance();
 	} catch (ClassNotFoundException ex) {
 	    throw new RuntimeException(ex);
 	} catch (InstantiationException ex) {
@@ -87,6 +90,37 @@ public class ComponentType implements java.io.Serializable {
 	} catch (IllegalAccessException ex) {
 	    throw new RuntimeException(ex);
 	}
+
+	// Set the extraInfo if any...
+	if (_extraInfo != null) {
+	    factory.setExtraInfo(_extraInfo);
+	}
+
+	// Return the new ComponentFactory
+	return factory;
+    }
+
+    /**
+     *	<p> This method allows you to provide extra information that can be
+     *	    used to initialize a <code>ComponentType</code>.  For example, if
+     *	    you wanted to pass in the JSF component type via the property, you
+     *	    could do that.  That would allow 1 factory class to instatiate
+     *	    multiple components based on the JSF component type.  However, it
+     *	    would require a differnet <code>ComponentType</code> instance for each
+     *	    different JSF component type.</p>
+     */
+    public void setExtraInfo(Serializable extraInfo) {
+	_extraInfo = extraInfo;
+    }
+
+    /**
+     *	<p> This method returns the extraInfo that was set for this
+     *	    <code>ComponentType</code>.  This information will be passed to the
+     *	    {@link ComponentFactory} when it is first created.  It will only be
+     *	    created 1 time, not each time a Component is created.</p>
+     */
+    public Serializable getExtraInfo() {
+	return _extraInfo;
     }
 
     /**
@@ -117,4 +151,9 @@ public class ComponentType implements java.io.Serializable {
      *	    <code>UIComponent</code>.</p>
      */
     private transient ComponentFactory _factory	= null;
+
+    /**
+     *	<p> Extra information associated with this ComponentType.</p>
+     */
+    private Serializable _extraInfo = null;
 }
