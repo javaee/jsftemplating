@@ -29,6 +29,8 @@ import com.sun.jsftemplating.layout.event.CommandActionListener;
 import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.TypeConverter;
 
+import java.io.Serializable;
+
 import java.lang.reflect.Method;
 
 import java.util.HashMap;
@@ -360,6 +362,35 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	// Return it...
 	return comp;
     }
+
+    /**
+     *	<p> This method returns the extraInfo that was set for this
+     *	    <code>ComponentFactory</code> from the
+     *	    {@link com.sun.jsftemplating.layout.descriptors.ComponentType}.</p>
+     */
+    public Serializable getExtraInfo() {
+	return _extraInfo;
+    }
+
+    /**
+     *	<p> This method is invoked from the
+     *	    {@link com.sun.jsftemplating.layout.descriptors.ComponentType} to
+     *	    provide more information to the factory.  For example, if the JSF
+     *	    component type was passed in, a single factory class could
+     *	    instatiate multiple components the extra info that is passed in.</p>
+     *
+     *	<p> Some factory implementations may want to override this method to
+     *	    execute intialization code for the factory based in the value
+     *	    passed in.</p>
+     */
+    public void setExtraInfo(Serializable extraInfo) {
+	_extraInfo = extraInfo;
+    }
+
+    /**
+     *	<p> Extra information associated with this ComponentFactory.</p>
+     */
+    private Serializable _extraInfo = null;
 
     private static Map<String, Class> _typeCache =
 	    new HashMap<String, Class>();
