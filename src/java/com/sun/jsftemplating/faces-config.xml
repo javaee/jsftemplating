@@ -107,7 +107,7 @@
 	    capable of dispatching "command" handlers.
 	</description>
         <managed-bean-name>lfCommand</managed-bean-name>
-        <managed-bean-class>com.sun.jsftemplating.event.CommandActionListener</managed-bean-class>
+        <managed-bean-class>com.sun.jsftemplating.layout.event.CommandActionListener</managed-bean-class>
         <managed-bean-scope>application</managed-bean-scope>
     </managed-bean>
 
