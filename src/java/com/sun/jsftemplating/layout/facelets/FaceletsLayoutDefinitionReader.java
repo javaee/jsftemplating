@@ -235,7 +235,7 @@ class ParsingErrorHandler implements org.xml.sax.ErrorHandler {
     public void fatalError(SAXParseException arg0) throws SAXException {
 //      logger.error(arg0.getMessage());
         System.err.println (arg0.getMessage());
-        System.exit(-1);
+//        System.exit(-1);
     }
 
 }
