@@ -46,6 +46,7 @@ import com.sun.jsftemplating.layout.event.BeforeLoopEvent;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutWhile extends LayoutIf {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	Constructor

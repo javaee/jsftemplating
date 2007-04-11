@@ -37,6 +37,7 @@ import javax.faces.context.FacesContext;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutFacet extends LayoutElementBase implements LayoutElement {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	Constructor

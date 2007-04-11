@@ -34,6 +34,7 @@ import javax.faces.component.UIComponent;
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public class EventObjectBase extends EventObject implements UIComponentHolder {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> This constructor should not be used.</p>

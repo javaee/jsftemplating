@@ -43,6 +43,7 @@ import com.sun.data.provider.impl.ObjectListDataProvider;
  *	information).</p>
  */
 public class MultipleListDataProvider extends ObjectListDataProvider {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Default Constructor.</p>

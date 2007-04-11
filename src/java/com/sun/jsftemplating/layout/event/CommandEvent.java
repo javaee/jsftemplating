@@ -32,6 +32,7 @@ import javax.faces.component.UIComponent;
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public class CommandEvent extends EventObjectBase implements UIComponentHolder {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor.</p>

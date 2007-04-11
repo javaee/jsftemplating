@@ -54,6 +54,7 @@ import com.sun.jsftemplating.layout.event.InitPageEvent;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutDefinition extends LayoutElementBase {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor.</p>

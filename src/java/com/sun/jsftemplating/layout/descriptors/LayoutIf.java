@@ -50,6 +50,7 @@ import com.sun.jsftemplating.layout.LayoutDefinitionManager;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutIf extends LayoutComponent {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	Constructor.

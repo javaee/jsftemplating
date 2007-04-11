@@ -41,6 +41,7 @@ import com.sun.jsftemplating.layout.LayoutDefinitionManager;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutStaticText extends LayoutComponent {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor.</p>

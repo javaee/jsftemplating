@@ -51,6 +51,7 @@ import com.sun.jsftemplating.util.LogUtil;
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public class CommandActionListener implements ActionListener, Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor.  It is not recommended this constructor be used,

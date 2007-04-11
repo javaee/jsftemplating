@@ -34,6 +34,7 @@ import com.sun.jsftemplating.TemplatingException;
  *	file not found, i/o problems, etc.</p>
  */
 public class LayoutDefinitionException extends TemplatingException {
+    private static final long serialVersionUID = 1L;
 
     /**
      *

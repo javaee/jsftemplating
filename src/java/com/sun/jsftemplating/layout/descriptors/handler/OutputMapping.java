@@ -34,6 +34,7 @@ package com.sun.jsftemplating.layout.descriptors.handler;
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public class OutputMapping implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor with targetKey as null.  This constructor will

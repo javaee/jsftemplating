@@ -82,6 +82,7 @@ import com.sun.jsftemplating.util.TypeConverter;
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public class Handler implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor.</p>

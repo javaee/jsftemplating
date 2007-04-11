@@ -35,6 +35,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutElement;
  *	optional and may be null.</p>
  */
 public class TemplatingException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> This is the preferred constructor.</p>

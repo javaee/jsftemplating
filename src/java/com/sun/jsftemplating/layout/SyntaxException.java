@@ -30,6 +30,7 @@ import com.sun.jsftemplating.TemplatingException;
  *	related exceptions, see {@link LayoutDefinitionException}.</p>
  */
 public class SyntaxException extends TemplatingException {
+    private static final long serialVersionUID = 1L;
 
     /**
      *

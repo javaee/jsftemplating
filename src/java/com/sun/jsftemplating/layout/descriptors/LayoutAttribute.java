@@ -37,6 +37,7 @@ import javax.faces.context.ResponseWriter;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutAttribute extends LayoutElementBase implements LayoutElement {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor.</p>

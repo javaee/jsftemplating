@@ -44,6 +44,7 @@ import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutMarkup extends LayoutElementBase implements LayoutElement {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor.</p>

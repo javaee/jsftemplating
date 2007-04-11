@@ -837,6 +837,7 @@ public class TypeConverter extends Object {
     // Test classes
     /////////////////////////////////////////////////////////////////////////
 
+    /*
     private static class TestSuperclass extends Object {
     }
 
@@ -885,7 +886,7 @@ public class TypeConverter extends Object {
 	    System.out.println("Test passed.");
 	}
     }
-
+    */
 
 
 

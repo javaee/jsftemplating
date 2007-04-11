@@ -53,6 +53,7 @@ import com.sun.jsftemplating.layout.event.BeforeEncodeEvent;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutComponent extends LayoutElementBase implements LayoutElement {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor.</p>

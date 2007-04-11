@@ -82,8 +82,6 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	// Loop through all the options and set the values
 // FIXME: Figure a way to skip options that should not be set on the Component
 	Iterator<String> it = desc.getOptions().keySet().iterator();
-	Object value = null;
-	String strVal = null;
 	String key = null;
 	while (it.hasNext()) {
 	    // Get next property

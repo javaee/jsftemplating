@@ -40,6 +40,7 @@ import com.sun.data.provider.FieldKey;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class IndexFieldKey extends FieldKey {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructs a new <code>IndexFieldKey</code> with the specified

@@ -38,6 +38,7 @@ import com.sun.jsftemplating.component.factory.ComponentFactory;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class ComponentType implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor.</p>

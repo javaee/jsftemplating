@@ -36,6 +36,7 @@ import com.sun.jsftemplating.resource.ResourceFactory;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class Resource implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> This is the id for the Resource.</p>
