@@ -22,13 +22,13 @@
  */
 package com.sun.jsftemplating.util;
 
-import com.sun.jsftemplating.layout.LayoutDefinitionException;
-
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.layout.LayoutDefinitionException;
 
 
 /**

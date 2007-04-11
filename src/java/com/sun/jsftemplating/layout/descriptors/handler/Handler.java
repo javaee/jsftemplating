@@ -22,13 +22,6 @@
  */
 package com.sun.jsftemplating.layout.descriptors.handler;
 
-import com.sun.jsftemplating.component.ComponentUtil;
-import com.sun.jsftemplating.el.PermissionChecker;
-import com.sun.jsftemplating.layout.event.UIComponentHolder;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-import com.sun.jsftemplating.util.TypeConverter;
-import com.sun.jsftemplating.util.LogUtil;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -38,6 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
+
+import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.el.PermissionChecker;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.event.UIComponentHolder;
+import com.sun.jsftemplating.util.LogUtil;
+import com.sun.jsftemplating.util.TypeConverter;
 
 
 /**

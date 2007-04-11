@@ -22,16 +22,14 @@
  */
 package com.sun.jsftemplating.layout.template;
 
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import java.io.IOException;
+
 import com.sun.jsftemplating.layout.SyntaxException;
-import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
 import com.sun.jsftemplating.util.LayoutElementUtil;
 import com.sun.jsftemplating.util.Util;
-
-import java.io.IOException;
 
 
 /**

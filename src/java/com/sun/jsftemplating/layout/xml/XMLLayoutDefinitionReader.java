@@ -22,28 +22,8 @@
  */
 package com.sun.jsftemplating.layout.xml;
 
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-import com.sun.jsftemplating.layout.SyntaxException;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
-import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
-import com.sun.jsftemplating.layout.descriptors.ComponentType;
-import com.sun.jsftemplating.layout.descriptors.LayoutAttribute;
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
-import com.sun.jsftemplating.layout.descriptors.LayoutForEach;
-import com.sun.jsftemplating.layout.descriptors.LayoutIf;
-import com.sun.jsftemplating.layout.descriptors.LayoutMarkup;
-import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
-import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
-import com.sun.jsftemplating.layout.descriptors.Resource;
-import com.sun.jsftemplating.util.IncludeInputStream;
-import com.sun.jsftemplating.util.LayoutElementUtil;
-
-import java.io.IOException;
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -57,13 +37,32 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.NamedNodeMap;
-
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
+
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.SyntaxException;
+import com.sun.jsftemplating.layout.descriptors.ComponentType;
+import com.sun.jsftemplating.layout.descriptors.LayoutAttribute;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
+import com.sun.jsftemplating.layout.descriptors.LayoutForEach;
+import com.sun.jsftemplating.layout.descriptors.LayoutIf;
+import com.sun.jsftemplating.layout.descriptors.LayoutMarkup;
+import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
+import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
+import com.sun.jsftemplating.layout.descriptors.Resource;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
+import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
+import com.sun.jsftemplating.util.IncludeInputStream;
+import com.sun.jsftemplating.util.LayoutElementUtil;
 
 
 /**
@@ -629,7 +628,7 @@ public class XMLLayoutDefinitionReader {
     /**
      *	<p> This method adds child LayoutElements.</p>
      *
-     *	@param	ld
+     *	@param	layoutDefinition
      *	@param	node
      */
     private void addChildLayoutElements(LayoutElement layElt, Node node) {

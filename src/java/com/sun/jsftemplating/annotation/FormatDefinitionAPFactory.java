@@ -22,15 +22,6 @@
  */
 package com.sun.jsftemplating.annotation;
 
-import com.sun.mirror.apt.AnnotationProcessor;
-import com.sun.mirror.apt.AnnotationProcessors;
-import com.sun.mirror.apt.AnnotationProcessorFactory;
-import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-import com.sun.mirror.apt.Filer;
-import com.sun.mirror.apt.RoundCompleteEvent;
-import com.sun.mirror.apt.RoundCompleteListener;
-import com.sun.mirror.declaration.AnnotationTypeDeclaration;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,6 +33,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
+
+import com.sun.mirror.apt.AnnotationProcessor;
+import com.sun.mirror.apt.AnnotationProcessorEnvironment;
+import com.sun.mirror.apt.AnnotationProcessorFactory;
+import com.sun.mirror.apt.AnnotationProcessors;
+import com.sun.mirror.apt.Filer;
+import com.sun.mirror.apt.RoundCompleteEvent;
+import com.sun.mirror.apt.RoundCompleteListener;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 
 /**

@@ -22,14 +22,14 @@
  */
 package com.sun.jsftemplating.util;
 
-import com.sun.jsftemplating.resource.ResourceBundleManager;
-
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.resource.ResourceBundleManager;
 
 
 /**

@@ -22,27 +22,24 @@
  */
 package com.sun.jsftemplating.component.factory;
 
-import com.sun.jsftemplating.component.ComponentUtil;
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-import com.sun.jsftemplating.layout.event.CommandActionListener;
-import com.sun.jsftemplating.util.LogUtil;
-import com.sun.jsftemplating.util.TypeConverter;
-
 import java.io.Serializable;
-
 import java.lang.reflect.Method;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.el.ValueExpression;
-
 import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.event.CommandActionListener;
+import com.sun.jsftemplating.util.LogUtil;
+import com.sun.jsftemplating.util.TypeConverter;
 
 
 /**

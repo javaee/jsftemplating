@@ -22,6 +22,11 @@
  */
 package com.sun.jsftemplating.component.dataprovider;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import com.sun.data.provider.DataProviderException;
 import com.sun.data.provider.FieldKey;
 import com.sun.data.provider.RowKey;
@@ -29,12 +34,6 @@ import com.sun.data.provider.TransactionalDataListener;
 import com.sun.data.provider.impl.IndexRowKey;
 import com.sun.data.provider.impl.ObjectFieldKeySupport;
 import com.sun.data.provider.impl.ObjectListDataProvider;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 
 /**

@@ -22,11 +22,11 @@
  */
 package com.sun.jsftemplating.component.dataprovider;
 
+import java.util.Map;
+
 import com.sun.data.provider.DataProviderException;
 import com.sun.data.provider.FieldKey;
 import com.sun.data.provider.impl.ObjectFieldKeySupport;
-
-import java.util.Map;
 
 
 /**

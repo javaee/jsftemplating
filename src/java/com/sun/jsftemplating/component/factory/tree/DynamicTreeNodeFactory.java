@@ -22,21 +22,21 @@
  */
 package com.sun.jsftemplating.component.factory.tree;
 
-import com.sun.jsftemplating.annotation.UIComponentFactory;
-import com.sun.jsftemplating.component.ComponentUtil;
-import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-import com.sun.jsftemplating.util.Util;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.faces.context.FacesContext;
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.annotation.UIComponentFactory;
+import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.util.Util;
 
 
 /**

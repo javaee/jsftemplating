@@ -22,14 +22,12 @@
  */
 package com.sun.jsftemplating.resource;
 
-import com.sun.jsftemplating.layout.descriptors.Resource;
-import com.sun.jsftemplating.util.Util;
-
-import java.util.Locale;
 import java.util.Map;
 
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.layout.descriptors.Resource;
+import com.sun.jsftemplating.util.Util;
 
 
 /**

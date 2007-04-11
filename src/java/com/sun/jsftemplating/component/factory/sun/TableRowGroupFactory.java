@@ -22,18 +22,18 @@
  */
 package com.sun.jsftemplating.component.factory.sun;
 
-import com.sun.jsftemplating.annotation.UIComponentFactory;
-import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
-import com.sun.jsftemplating.component.dataprovider.MultipleListDataProvider;
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.util.LogUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.annotation.UIComponentFactory;
+import com.sun.jsftemplating.component.dataprovider.MultipleListDataProvider;
+import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.util.LogUtil;
 
 
 /**

@@ -22,6 +22,13 @@
  */
 package com.sun.jsftemplating.component.factory.ri;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+
 import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.EventComponent;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
@@ -29,14 +36,6 @@ import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
-import com.sun.jsftemplating.util.HandlerUtil;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 
 
 /**

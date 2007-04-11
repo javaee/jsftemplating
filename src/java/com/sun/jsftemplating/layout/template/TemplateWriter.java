@@ -22,25 +22,19 @@
  */
 package com.sun.jsftemplating.layout.template;
 
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
-import com.sun.jsftemplating.layout.descriptors.handler.OutputMapping;
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
-import com.sun.jsftemplating.layout.descriptors.LayoutForEach;
-import com.sun.jsftemplating.layout.descriptors.LayoutIf;
-import com.sun.jsftemplating.layout.descriptors.LayoutMarkup;
-import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
-import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
-import com.sun.jsftemplating.layout.descriptors.Resource;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
+
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
+import com.sun.jsftemplating.layout.descriptors.handler.OutputMapping;
 
 
 /**

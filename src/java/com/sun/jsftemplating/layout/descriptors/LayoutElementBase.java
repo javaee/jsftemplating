@@ -22,15 +22,6 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
-import com.sun.jsftemplating.component.ComponentUtil;
-import com.sun.jsftemplating.layout.event.AfterEncodeEvent;
-import com.sun.jsftemplating.layout.event.BeforeEncodeEvent;
-import com.sun.jsftemplating.layout.event.EncodeEvent;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerContextImpl;
-import com.sun.jsftemplating.util.LayoutElementUtil;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -41,6 +32,15 @@ import java.util.Map;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerContextImpl;
+import com.sun.jsftemplating.layout.event.AfterEncodeEvent;
+import com.sun.jsftemplating.layout.event.BeforeEncodeEvent;
+import com.sun.jsftemplating.layout.event.EncodeEvent;
+import com.sun.jsftemplating.util.LayoutElementUtil;
 
 
 /**

@@ -22,9 +22,6 @@
  */
 package com.sun.jsftemplating.el;
 
-import com.sun.jsftemplating.component.ComponentUtil;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.HashMap;
@@ -35,6 +32,9 @@ import java.util.Stack;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 
 
 /**
@@ -183,7 +183,6 @@ public class PermissionChecker {
 	char[] arr = source.toCharArray();
 	int sourceLen = arr.length;
 	int destLen = 0;
-	String str = null;
 
 	// Loop through the String, char by char
 	for (int idx = 0; idx < sourceLen; idx++) {
@@ -479,7 +478,6 @@ public class PermissionChecker {
 	result.push(FALSE_BOOLEAN_FUNCTION); // Default to false
 	boolean val1, val2;
 	Iterator<Function> it = _functionList.iterator();
-	Function func = null;
 
 	// Iterate through the postfix array
 	for (int idx = 0; idx < len; idx++) {

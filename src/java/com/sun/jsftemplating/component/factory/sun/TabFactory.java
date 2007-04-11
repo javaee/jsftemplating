@@ -22,17 +22,12 @@
  */
 package com.sun.jsftemplating.component.factory.sun;
 
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+
 import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-
-// FIXME:
-//import com.sun.webui.jsf.el.ConstantMethodBinding;
-// OR:
-//import com.sun.faces.util.ConstantMethodBinding;
-
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 
 
 /**

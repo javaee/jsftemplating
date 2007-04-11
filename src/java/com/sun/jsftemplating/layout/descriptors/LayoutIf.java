@@ -22,11 +22,11 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
-import com.sun.jsftemplating.el.PermissionChecker;
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.el.PermissionChecker;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 
 
 /**

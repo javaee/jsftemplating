@@ -22,14 +22,6 @@
  */
 package com.sun.jsftemplating.layout.xml;
 
-import com.sun.jsftemplating.annotation.FormatDefinition;
-import com.sun.jsftemplating.layout.LayoutDefinitionException;
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.layout.template.TemplateParser;
-import com.sun.jsftemplating.util.ClasspathEntityResolver;
-import com.sun.jsftemplating.util.FileUtil;
-
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -42,6 +34,14 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import com.sun.jsftemplating.annotation.FormatDefinition;
+import com.sun.jsftemplating.layout.LayoutDefinitionException;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.layout.template.TemplateParser;
+import com.sun.jsftemplating.util.ClasspathEntityResolver;
+import com.sun.jsftemplating.util.FileUtil;
 
 
 /**

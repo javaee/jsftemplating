@@ -27,25 +27,22 @@
  */
 package com.sun.jsftemplating.component;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.el.EvaluationException;
+import javax.faces.el.ValueBinding;
+
 import com.sun.jsftemplating.el.VariableResolver;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.util.LogUtil;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-
-// JSF 1.2 specific... don't do this yet...
-// import javax.el.ELContext;
-// import javax.el.ValueExpression;
-
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.el.EvaluationException;
-import javax.faces.el.ValueBinding; // JSF 1.1
 
 
 /**

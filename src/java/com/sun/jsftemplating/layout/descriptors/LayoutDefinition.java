@@ -22,13 +22,6 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
-import com.sun.faces.extensions.avatar.lifecycle.AsyncResponse;
-
-import com.sun.jsftemplating.component.TemplateComponent;
-import com.sun.jsftemplating.layout.event.DecodeEvent;
-import com.sun.jsftemplating.layout.event.InitPageEvent;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,9 +29,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.context.FacesContext;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
+
+import com.sun.faces.extensions.avatar.lifecycle.AsyncResponse;
+import com.sun.jsftemplating.component.TemplateComponent;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.event.DecodeEvent;
+import com.sun.jsftemplating.layout.event.InitPageEvent;
 
 /**
  *  <p>	This represents the top-level {@link LayoutElement}, it is the
@@ -220,7 +219,7 @@ public class LayoutDefinition extends LayoutElementBase {
 	if (component instanceof UIViewRoot) {
 	    component.encodeBegin(context);
 	    AsyncResponse async = AsyncResponse.getInstance(false);
-	    if ((async == null) || !async.isAjaxRequest() || async.isRenderAll()) {
+	    if ((async == null) || !AsyncResponse.isAjaxRequest() || async.isRenderAll()) {
 		// This is not an ajax request... behave normal
 		super.encode(context, component);
 	    } else {

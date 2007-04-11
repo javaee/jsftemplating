@@ -22,11 +22,11 @@
  */
 package com.sun.jsftemplating.layout.descriptors.handler;
 
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-
 import java.util.EventObject;
 
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 
 
 /**

@@ -22,19 +22,6 @@
  */
 package com.sun.jsftemplating.layout;
 
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
-import com.sun.jsftemplating.layout.descriptors.Resource;
-import com.sun.jsftemplating.util.Util;
-import com.sun.jsftemplating.util.LogUtil;
-import com.sun.jsftemplating.util.fileStreamer.Context;
-import com.sun.jsftemplating.util.fileStreamer.FacesStreamerContext;
-import com.sun.jsftemplating.util.fileStreamer.FileStreamer;
-import com.sun.jsftemplating.el.PageSessionResolver;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -46,8 +33,8 @@ import java.util.Map;
 
 import javax.faces.FactoryFinder;
 import javax.faces.application.StateManager;
-import javax.faces.application.StateManager.SerializedView;
 import javax.faces.application.ViewHandler;
+import javax.faces.application.StateManager.SerializedView;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
@@ -59,6 +46,18 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.sun.jsftemplating.el.PageSessionResolver;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
+import com.sun.jsftemplating.layout.descriptors.Resource;
+import com.sun.jsftemplating.util.LogUtil;
+import com.sun.jsftemplating.util.fileStreamer.Context;
+import com.sun.jsftemplating.util.fileStreamer.FacesStreamerContext;
+import com.sun.jsftemplating.util.fileStreamer.FileStreamer;
 
 
 // FIXME: Things to consider:
@@ -532,7 +531,6 @@ public class LayoutViewHandler extends ViewHandler {
 	ExternalContext extCtx = context.getExternalContext();
 // FIXME: Portlet?
 	ServletResponse response = (ServletResponse) extCtx.getResponse();
-	ServletRequest request = (ServletRequest) extCtx.getRequest();
 
 	RenderKitFactory renderFactory = (RenderKitFactory)
 	    FactoryFinder.getFactory(FactoryFinder.RENDER_KIT_FACTORY);
@@ -545,11 +543,9 @@ public class LayoutViewHandler extends ViewHandler {
 // FIXME: Provide a way for the user to specify this...
 // FIXME: Test multiple browsers against this code!!
 	String userContentType = "text/html";
-	boolean responseCTSet = false;
 	if((userContentType != null) && (userContentType.length() > 0)) {
 		// User picked this, use it...
 		response.setContentType(userContentType);
-		responseCTSet = true;
 	}
 	else {
 		// No explicit Content-type, find best match...

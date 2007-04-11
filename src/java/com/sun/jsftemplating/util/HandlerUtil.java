@@ -22,18 +22,18 @@
  */
 package com.sun.jsftemplating.util;
 
+import java.util.ArrayList;
+import java.util.EventObject;
+import java.util.List;
+
+import javax.faces.context.FacesContext;
+
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContextImpl;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
-
-import java.util.ArrayList;
-import java.util.EventObject;
-import java.util.List;
-
-import javax.faces.context.FacesContext;
 
 
 /**

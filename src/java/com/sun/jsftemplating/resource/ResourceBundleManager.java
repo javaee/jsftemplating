@@ -22,13 +22,13 @@
  */
 package com.sun.jsftemplating.resource;
 
-import com.sun.jsftemplating.util.Util;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import com.sun.jsftemplating.util.Util;
 
 
 /**

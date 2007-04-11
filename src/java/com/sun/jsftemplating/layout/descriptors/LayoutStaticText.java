@@ -22,18 +22,15 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
-import com.sun.jsftemplating.component.ComponentUtil;
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-
 import java.io.IOException;
 
-// JSF 1.2 specific... don't do this yet...
-// import javax.el.ValueExpression;
-
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
-import javax.faces.component.UIComponent;
-import javax.faces.el.ValueBinding; // JSF 1.1
+import javax.faces.el.ValueBinding;
+
+import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 
 
 /**

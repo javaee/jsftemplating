@@ -22,16 +22,16 @@
  */
 package com.sun.jsftemplating.layout.template;
 
+import java.io.IOException;
+import java.net.URL;
+
+import javax.faces.context.FacesContext;
+
 import com.sun.jsftemplating.annotation.FormatDefinition;
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.util.FileUtil;
-
-import java.io.IOException;
-import java.net.URL;
-
-import javax.faces.context.FacesContext;
 
 
 /**

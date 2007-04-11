@@ -22,16 +22,16 @@
  */
 package com.sun.jsftemplating.renderer;
 
-import com.sun.jsftemplating.component.TemplateComponent;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.layout.descriptors.Resource;
-
 import java.io.IOException;
 import java.util.Iterator;
 
-import javax.faces.context.FacesContext;
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import javax.faces.render.Renderer;
+
+import com.sun.jsftemplating.component.TemplateComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.layout.descriptors.Resource;
 
 
 /**

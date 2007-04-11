@@ -22,9 +22,9 @@
  */
 package com.sun.jsftemplating.resource;
 
-import com.sun.jsftemplating.layout.descriptors.Resource;
-
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.layout.descriptors.Resource;
 
 
 /**

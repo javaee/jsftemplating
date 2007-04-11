@@ -22,9 +22,9 @@
  */
 package com.sun.jsftemplating.layout.template;
 
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-
 import java.io.IOException;
+
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 
 
 /**

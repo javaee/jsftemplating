@@ -22,7 +22,6 @@
  */
 package com.sun.jsftemplating.layout.template;
 
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 
 

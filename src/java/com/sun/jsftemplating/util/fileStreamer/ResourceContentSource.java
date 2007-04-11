@@ -22,9 +22,6 @@
  */
 package com.sun.jsftemplating.util.fileStreamer;
 
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-import com.sun.jsftemplating.util.FileUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +30,9 @@ import java.util.Date;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
+
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.util.FileUtil;
 
 
 /**

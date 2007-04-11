@@ -22,19 +22,19 @@
  */
 package com.sun.jsftemplating.component.factory.ri;
 
+import javax.el.ELContext;
+import javax.el.ValueExpression;
+import javax.faces.application.Application;
+import javax.faces.component.EditableValueHolder;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.Validator;
+
 import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.util.LogUtil;
-
-import javax.el.ELContext;
-import javax.el.ValueExpression;
-import javax.faces.application.Application;
-import javax.faces.component.UIComponent;
-import javax.faces.component.EditableValueHolder;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.Validator;
 
 
 /**

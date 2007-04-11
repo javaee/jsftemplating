@@ -27,24 +27,20 @@
  */
 package com.sun.jsftemplating.handlers;
 
-import com.sun.jsftemplating.annotation.Handler;
-import com.sun.jsftemplating.annotation.HandlerInput;
-import com.sun.jsftemplating.annotation.HandlerOutput;
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-import com.sun.jsftemplating.layout.LayoutViewHandler;
-import com.sun.jsftemplating.layout.descriptors.ComponentType;
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
-
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.faces.component.UIComponent;
+import com.sun.jsftemplating.annotation.Handler;
+import com.sun.jsftemplating.annotation.HandlerInput;
+import com.sun.jsftemplating.annotation.HandlerOutput;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.descriptors.ComponentType;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
+
 
 
 /**

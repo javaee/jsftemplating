@@ -22,18 +22,7 @@
  */
 package com.sun.jsftemplating.layout.event;
 
-import com.sun.jsftemplating.layout.LayoutDefinitionException;
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-import com.sun.jsftemplating.layout.descriptors.ComponentType;
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-import com.sun.jsftemplating.util.LogUtil;
-
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,6 +31,15 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+
+import com.sun.jsftemplating.layout.LayoutDefinitionException;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.descriptors.ComponentType;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.util.LogUtil;
 
 
 /**

@@ -22,15 +22,15 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
+import java.io.IOException;
+
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.el.PermissionChecker;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.event.AfterLoopEvent;
 import com.sun.jsftemplating.layout.event.BeforeLoopEvent;
-import com.sun.jsftemplating.el.PermissionChecker;
-
-import java.io.IOException;
-
-import javax.faces.context.FacesContext;
-import javax.faces.component.UIComponent;
 
 
 /**
@@ -99,12 +99,12 @@ public class LayoutWhile extends LayoutIf {
      *	@param	component   The UIComponent
      */
     public void encode(FacesContext context, UIComponent component) throws IOException {
-	Object result = dispatchHandlers(context, BEFORE_LOOP,
+	dispatchHandlers(context, BEFORE_LOOP,
 	    new BeforeLoopEvent((UIComponent) component));
 	while (shouldContinue(component)) {
 	    super.encode(context, component);
 	}
-	result = dispatchHandlers(context, AFTER_LOOP,
+	dispatchHandlers(context, AFTER_LOOP,
 	    new AfterLoopEvent((UIComponent) component));
     }
 

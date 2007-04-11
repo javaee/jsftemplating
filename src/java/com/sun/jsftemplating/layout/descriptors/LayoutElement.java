@@ -22,16 +22,16 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
-
 import java.io.IOException;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.context.FacesContext;
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 
 /**
  *  <p>	This interface is declares the methods required to be a

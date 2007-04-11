@@ -22,10 +22,16 @@
  */
 package com.sun.jsftemplating.layout.template;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.SyntaxException;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
@@ -34,16 +40,10 @@ import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
 import com.sun.jsftemplating.layout.descriptors.LayoutForEach;
 import com.sun.jsftemplating.layout.descriptors.LayoutIf;
 import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.util.LayoutElementUtil;
 import com.sun.jsftemplating.util.LogUtil;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
 
 
 /**
@@ -688,7 +688,7 @@ public class TemplateReader {
 	    TemplateParser parser = env.getReader().getTemplateParser();
 // FIXME: **ignore comments and allow escaping**
 // Store body content in env until end component, set as 'value' if value is not set?
-	    String bodyContent = parser.readUntil('<', true);
+	    parser.readUntil('<', true);
 	    parser.unread('<');
 	}
 

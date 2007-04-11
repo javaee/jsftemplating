@@ -22,10 +22,25 @@
  */
 package com.sun.jsftemplating.layout;
 
-import com.sun.jsftemplating.annotation.UIComponentFactoryAPFactory;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
+
+import javax.faces.context.FacesContext;
+
 import com.sun.jsftemplating.annotation.FormatDefinitionAPFactory;
 import com.sun.jsftemplating.annotation.HandlerAPFactory;
 import com.sun.jsftemplating.annotation.HandlerInput;
+import com.sun.jsftemplating.annotation.UIComponentFactoryAPFactory;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
@@ -34,22 +49,6 @@ import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
 import com.sun.jsftemplating.util.Util;
-
-import java.lang.reflect.InvocationTargetException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-import javax.faces.context.FacesContext;
 
 
 /**

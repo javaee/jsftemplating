@@ -22,12 +22,12 @@
  */
 package com.sun.jsftemplating.component.factory.rave;
 
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+
 import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 
 
 /**

@@ -22,11 +22,6 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-import com.sun.jsftemplating.layout.event.AfterLoopEvent;
-import com.sun.jsftemplating.layout.event.BeforeLoopEvent;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +29,11 @@ import java.util.Map;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.event.AfterLoopEvent;
+import com.sun.jsftemplating.layout.event.BeforeLoopEvent;
 
 
 /**
@@ -157,7 +157,7 @@ public class LayoutForEach extends LayoutComponent {
      */
     public void encode(FacesContext context, UIComponent component) throws IOException {
 	// Before events..
-	Object result = dispatchHandlers(context, BEFORE_LOOP,
+	dispatchHandlers(context, BEFORE_LOOP,
 	    new BeforeLoopEvent(component));
 
 	String key = resolveValue(
@@ -172,7 +172,7 @@ public class LayoutForEach extends LayoutComponent {
 	}
 
 	// Invoke any "after" handlers
-	result = dispatchHandlers(context, AFTER_LOOP,
+	dispatchHandlers(context, AFTER_LOOP,
 	    new AfterLoopEvent(component));
     }
 

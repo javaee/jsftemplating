@@ -22,10 +22,10 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
-import com.sun.jsftemplating.component.factory.ComponentFactory;
-
 import java.io.Serializable;
 import java.util.Formatter;
+
+import com.sun.jsftemplating.component.factory.ComponentFactory;
 
 
 /**

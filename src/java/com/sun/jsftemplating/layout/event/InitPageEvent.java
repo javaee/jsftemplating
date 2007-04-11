@@ -22,7 +22,6 @@
  */
 package com.sun.jsftemplating.layout.event;
 
-import javax.faces.component.UIComponent;
 
 
 /**

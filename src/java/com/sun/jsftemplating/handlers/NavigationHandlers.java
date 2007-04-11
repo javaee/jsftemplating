@@ -27,15 +27,15 @@
  */
 package com.sun.jsftemplating.handlers;
 
-import com.sun.jsftemplating.annotation.Handler;
-import com.sun.jsftemplating.annotation.HandlerInput;
-import com.sun.jsftemplating.annotation.HandlerOutput;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
-
 import java.io.IOException;
 
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.annotation.Handler;
+import com.sun.jsftemplating.annotation.HandlerInput;
+import com.sun.jsftemplating.annotation.HandlerOutput;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 
 
 /**

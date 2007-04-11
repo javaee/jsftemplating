@@ -22,9 +22,9 @@
  */
 package com.sun.jsftemplating;
 
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-
 import javax.faces.component.UIComponent;
+
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 
 
 /**

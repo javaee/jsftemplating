@@ -22,23 +22,23 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
-import com.sun.jsftemplating.component.ComponentUtil;
-import com.sun.jsftemplating.component.ChildManager;
-import com.sun.jsftemplating.el.VariableResolver;
-import com.sun.jsftemplating.layout.event.AfterCreateEvent;
-import com.sun.jsftemplating.layout.event.AfterEncodeEvent;
-import com.sun.jsftemplating.layout.event.BeforeCreateEvent;
-import com.sun.jsftemplating.layout.event.BeforeEncodeEvent;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.context.FacesContext;
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.component.ChildManager;
+import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.el.VariableResolver;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.event.AfterCreateEvent;
+import com.sun.jsftemplating.layout.event.AfterEncodeEvent;
+import com.sun.jsftemplating.layout.event.BeforeCreateEvent;
+import com.sun.jsftemplating.layout.event.BeforeEncodeEvent;
 
 
 /**
@@ -219,14 +219,14 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
 	    childComponent = getChild(context, parent);
 	}
 
-	Object result = dispatchHandlers(context, BEFORE_ENCODE,
+	dispatchHandlers(context, BEFORE_ENCODE,
 	    new BeforeEncodeEvent(childComponent));
 
 	// Render the child UIComponent
 	encodeChild(context, childComponent);
 
 	// Invoke "after" handlers
-	result = dispatchHandlers(context, AFTER_ENCODE,
+	dispatchHandlers(context, AFTER_ENCODE,
 	    new AfterEncodeEvent(childComponent));
     }
 

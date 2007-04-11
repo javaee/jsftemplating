@@ -22,10 +22,10 @@
  */
 package com.sun.jsftemplating.component;
 
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 
 
 /**

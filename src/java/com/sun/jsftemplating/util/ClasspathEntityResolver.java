@@ -22,15 +22,14 @@
  */
 package com.sun.jsftemplating.util;
 
-import org.xml.sax.ext.EntityResolver2;
-import org.xml.sax.InputSource;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
+import org.xml.sax.InputSource;
+import org.xml.sax.ext.EntityResolver2;
 
 
 /**

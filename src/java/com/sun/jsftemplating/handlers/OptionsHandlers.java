@@ -28,17 +28,16 @@
  */
 package com.sun.jsftemplating.handlers;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.util.Collection;
+
+import javax.faces.model.SelectItem;
+
 import com.sun.jsftemplating.annotation.Handler;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
-
-import java.util.Collection;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-
-import javax.faces.model.SelectItem;
 
 
 /**

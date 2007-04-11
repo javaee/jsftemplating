@@ -22,13 +22,13 @@
  */
 package com.sun.jsftemplating.layout.descriptors.handler;
 
-import com.sun.jsftemplating.el.PageSessionResolver;
-
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.faces.context.FacesContext;
 import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.el.PageSessionResolver;
 
 
 /**

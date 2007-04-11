@@ -22,13 +22,13 @@
  */
 package com.sun.jsftemplating.component.factory.tree;
 
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-
 import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
+
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 
 
 /**

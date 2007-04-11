@@ -22,16 +22,16 @@
  */
 package com.sun.jsftemplating.component.dataprovider;
 
-import com.sun.data.provider.DataProviderException;
-import com.sun.data.provider.FieldKey;
-import com.sun.data.provider.impl.ObjectFieldKeySupport;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import com.sun.data.provider.DataProviderException;
+import com.sun.data.provider.FieldKey;
+import com.sun.data.provider.impl.ObjectFieldKeySupport;
 
 
 /**

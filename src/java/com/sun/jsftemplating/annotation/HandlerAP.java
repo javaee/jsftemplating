@@ -22,9 +22,14 @@
  */
 package com.sun.jsftemplating.annotation;
 
+import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
@@ -34,16 +39,6 @@ import com.sun.mirror.declaration.MemberDeclaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.Modifier;
 import com.sun.mirror.declaration.ParameterDeclaration;
-import com.sun.mirror.declaration.TypeDeclaration;
-
-import java.io.PrintWriter;
-import java.lang.annotation.AnnotationFormatError;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -89,7 +84,6 @@ public class HandlerAP implements AnnotationProcessor {
 	// Temporary Variables
 	String key;
 	Object value;
-	int cnt;
 	String id;
 	List<AnnotationValue> input;
 	List<AnnotationValue> output;

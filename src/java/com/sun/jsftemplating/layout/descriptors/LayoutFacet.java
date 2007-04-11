@@ -24,8 +24,8 @@ package com.sun.jsftemplating.layout.descriptors;
 
 import java.io.IOException;
 
-import javax.faces.context.FacesContext;
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 
 
 /**

@@ -22,17 +22,17 @@
  */
 package com.sun.jsftemplating.layout.descriptors;
 
-import com.sun.jsftemplating.component.ComponentUtil;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+
+import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 
 
 /**

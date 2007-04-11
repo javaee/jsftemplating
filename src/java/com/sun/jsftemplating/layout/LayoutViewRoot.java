@@ -22,13 +22,6 @@
  */
 package com.sun.jsftemplating.layout;
 
-import com.sun.jsftemplating.component.ComponentUtil;
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-import com.sun.jsftemplating.util.LogUtil;
-
 import java.io.IOException;
 
 import javax.faces.component.UIComponent;
@@ -36,9 +29,12 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-// Dynamic Faces Classes
 import com.sun.faces.extensions.avatar.components.PartialTraversalViewRoot;
 import com.sun.faces.extensions.avatar.components.PartialTraversalViewRootHelper;
+import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 
 
 /**

@@ -4,14 +4,13 @@
 package com.sun.jsftemplating.layout.descriptors;
 
 import java.io.IOException;
-
-import com.sun.jsftemplating.layout.event.EncodeEvent;
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-
 import java.util.Iterator;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.event.EncodeEvent;
 
 
 /**
