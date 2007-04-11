@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.faces.FactoryFinder;
 import javax.faces.application.StateManager;
@@ -50,9 +51,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.sun.jsftemplating.el.PageSessionResolver;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefine;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
+import com.sun.jsftemplating.layout.descriptors.LayoutInsert;
 import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.fileStreamer.Context;
@@ -384,6 +387,49 @@ public class LayoutViewHandler extends ViewHandler {
     }
 
     /**
+     *	<p> This method searches the given {@link LayoutElement} for a
+     *	    {@link LayoutDefine} with the given <code>name</code>.</p>
+     */
+    private static LayoutDefine findLayoutDefine(FacesContext context, UIComponent parent, LayoutElement elt, String name) {
+	Iterator<LayoutElement> it = elt.getChildLayoutElements().iterator();
+	LayoutElement def = null;
+	while (it.hasNext()) {
+	    def = it.next();
+	    if ((def instanceof LayoutDefine) && def.
+		    getId(context, parent).equals(name)) {
+		// We found what we're looking for...
+		return (LayoutDefine) def;
+	    }
+	}
+
+	// We still haven't found it, search the child LayoutElements
+	it = elt.getChildLayoutElements().iterator();
+	while (it.hasNext()) {
+	    def = findLayoutDefine(context, parent, it.next(), name);
+	    if (def != null) {
+		return (LayoutDefine) def;
+	    }
+	}
+
+	// Not found!
+	return null;
+    }
+
+    /**
+     *	<p> This method returns the <code>Stack</code> used to keep track of
+     *	    the {@link LayoutComposition}s that are used in the requested
+     *	    page.</p>
+     */
+    private static Stack<LayoutElement> getCompositionStack(FacesContext context) {
+	Stack<LayoutElement> stack = (Stack<LayoutElement>) context.
+	    getExternalContext().getRequestMap().get(COMPOSITION_STACK_KEY);
+	if (stack == null) {
+	    stack = new Stack<LayoutElement>();
+	}
+	return stack;
+    }
+
+    /**
      *	<p> This method iterates over the child {@link LayoutElement}s of the
      *	    given <code>elt</code> to create <code>UIComponent</code>s for each
      *	    {@link LayoutComponent}.</p>
@@ -411,11 +457,49 @@ public class LayoutViewHandler extends ViewHandler {
 	    } else if (childElt instanceof LayoutComposition) {
 		String template = ((LayoutComposition) childElt).getTemplate();
 		if (template != null) {
-		    //stack.push(childElt);
-		    childElt = LayoutDefinitionManager.
-			getLayoutDefinition(context, template);
-		    buildUIComponentTree(context, parent, childElt);
-		    //stack.pop();
+		    // Add LayoutComposition to the stack
+		    Stack<LayoutElement> stack = getCompositionStack(context);
+		    stack.push(childElt);
+
+		    // build tree from the LD of the template...
+		    buildUIComponentTree(context, parent,
+			    LayoutDefinitionManager.getLayoutDefinition(
+				context, template));
+
+		    // Remove the LayoutComposition from the stack
+		    stack.pop();
+		}
+	    } else if (childElt instanceof LayoutInsert) {
+		Stack<LayoutElement> stack = getCompositionStack(context);
+		if (stack.empty()) {
+		    // No template-client found...
+		    // Is this supposed to do nothing?  Or throw an exception?
+		    throw new IllegalArgumentException(
+			    "'ui:insert' encountered, however, no "
+			    + "'ui:composition' was used!");
+		}
+
+		// Get assoicated UIComposition
+		LayoutElement composition = stack.peek();
+		String insertName = ((LayoutInsert) childElt).getName();
+		if (insertName == null) {
+		    // include everything
+		    buildUIComponentTree(context, parent, composition);
+		} else {
+		    // First resolve an EL in the insertName
+		    insertName = "" + ((LayoutInsert) childElt).resolveValue(
+			    context, parent, insertName);
+
+		    // Search for specific LayoutDefine
+		    LayoutElement def = findLayoutDefine(
+			    context, parent, composition, insertName);
+		    if (def == null) {
+			// Not found include the body-content of the insert
+			buildUIComponentTree(context, parent, childElt);
+		    } else {
+			// Found, include the ui:define content
+			buildUIComponentTree(context, parent, def);
+		    }
 		}
 	    } else if (childElt instanceof LayoutComponent) {
 		// Calling getChild will add the child UIComponent to tree
@@ -666,6 +750,8 @@ public class LayoutViewHandler extends ViewHandler {
     public String calculateRenderKitId(FacesContext context) {
 	return _oldViewHandler.calculateRenderKitId(context);
     }
+
+    private static final String COMPOSITION_STACK_KEY	= "_composition";
 
     /**
      *	<p> This is the key that may be used to identify the clientId of the
