@@ -141,7 +141,7 @@
     </target>
 
     <target name="test" depends="compileTest,-set-proxy">
-        <java classname="com.sun.jsftemplating.UnitTests" fork="false">
+        <java classname="com.sun.jsftemplating.UnitTests" fork="true">
             <classpath refid="test-dependencies" />
         </java>
     </target>
