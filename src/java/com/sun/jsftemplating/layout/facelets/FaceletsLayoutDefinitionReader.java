@@ -144,11 +144,9 @@ public class FaceletsLayoutDefinitionReader {
             lc.setTemplate(template);
             element = lc;
         } else if ("ui:define".equals(nodeName)) {
-            LayoutDefine ld = new LayoutDefine(parent, id);
             NamedNodeMap attrs = node.getAttributes();
             String name = ((Node)attrs.getNamedItem("name")).getNodeValue();
-            ld.setName(name);
-            element = ld;
+            element = new LayoutDefine(parent, name);
         } else if ("ui:insert".equals(nodeName)) {
             LayoutInsert li = new LayoutInsert(parent, id);
             NamedNodeMap attrs = node.getAttributes();
