@@ -141,6 +141,7 @@ import java.util.Map;
  *		TypeConverter.TYPE_CHARACTER ("character")
  *		TypeConverter.TYPE_BIG_DECIMAL ("bigdecimal")
  *		TypeConverter.TYPE_SQL_DATE ("sqldate")
+ *		TypeConverter.TYPE_DATE ("date")
  *		TypeConverter.TYPE_SQL_TIME ("sqltime")
  *		TypeConverter.TYPE_SQL_TIMESTAMP ("sqltimestamp")
  *	</pre>
@@ -731,6 +732,31 @@ public class TypeConverter extends Object {
     /**
      *
      */
+    public static class DateTypeConversion implements TypeConversion {
+	/**
+	 *
+	 */
+	public Object convertValue(Object value) {
+	    if (value == null) {
+		return null;
+	    }
+
+	    if (!(value instanceof java.util.Date)) {
+		String v = value.toString();
+		if (v.trim().length() == 0) {
+		    value = null;
+		} else {
+		    value = new java.util.Date(v);
+		}
+	    }
+
+	    return value;
+	}
+    }
+
+    /**
+     *
+     */
     public static class SqlTimeTypeConversion implements TypeConversion {
 
 	/**
@@ -942,6 +968,9 @@ public class TypeConverter extends Object {
     /** Logical type name "sqldate" */
     public static final String TYPE_SQL_DATE = "sqldate";
 
+    /** Logical type name "date java.util.Date" */
+    public static final String TYPE_DATE = "date";
+
     /** Logical type name "sqltime" */
     public static final String TYPE_SQL_TIME = "sqltime";
 
@@ -972,6 +1001,8 @@ public class TypeConverter extends Object {
 	    new ByteTypeConversion();
     public static final TypeConversion CHARACTER_TYPE_CONVERSION =
 	    new CharacterTypeConversion();
+    public static final TypeConversion DATE_TYPE_CONVERSION =
+	    new DateTypeConversion();
     public static final TypeConversion SQL_DATE_TYPE_CONVERSION =
 	    new SqlDateTypeConversion();
     public static final TypeConversion SQL_TIME_TYPE_CONVERSION =
@@ -1007,6 +1038,7 @@ public class TypeConverter extends Object {
 	registerTypeConversion(Byte.TYPE, BYTE_TYPE_CONVERSION);
 	registerTypeConversion(Character.class, CHARACTER_TYPE_CONVERSION);
 	registerTypeConversion(Character.TYPE, CHARACTER_TYPE_CONVERSION);
+	registerTypeConversion(java.util.Date.class, DATE_TYPE_CONVERSION);
 	registerTypeConversion(java.sql.Date.class, SQL_DATE_TYPE_CONVERSION);
 	registerTypeConversion(java.sql.Time.class, SQL_TIME_TYPE_CONVERSION);
 	registerTypeConversion(java.sql.Timestamp.class, SQL_TIMESTAMP_TYPE_CONVERSION);
@@ -1023,6 +1055,7 @@ public class TypeConverter extends Object {
 	registerTypeConversion(BigDecimal.class.getName(), BIG_DECIMAL_TYPE_CONVERSION);
 	registerTypeConversion(Byte.class.getName(), BYTE_TYPE_CONVERSION);
 	registerTypeConversion(Character.class.getName(), CHARACTER_TYPE_CONVERSION);
+	registerTypeConversion(java.util.Date.class.getName(), DATE_TYPE_CONVERSION);
 	registerTypeConversion(java.sql.Date.class.getName(), SQL_DATE_TYPE_CONVERSION);
 	registerTypeConversion(java.sql.Time.class.getName(), SQL_TIME_TYPE_CONVERSION);
 	registerTypeConversion(java.sql.Timestamp.class.getName(), SQL_TIMESTAMP_TYPE_CONVERSION);
@@ -1042,6 +1075,7 @@ public class TypeConverter extends Object {
 	registerTypeConversion(TYPE_BYTE, BYTE_TYPE_CONVERSION);
 	registerTypeConversion(TYPE_CHAR, CHARACTER_TYPE_CONVERSION);
 	registerTypeConversion(TYPE_CHARACTER, CHARACTER_TYPE_CONVERSION);
+	registerTypeConversion(TYPE_DATE, DATE_TYPE_CONVERSION);
 	registerTypeConversion(TYPE_SQL_DATE, SQL_DATE_TYPE_CONVERSION);
 	registerTypeConversion(TYPE_SQL_TIME, SQL_TIME_TYPE_CONVERSION);
 	registerTypeConversion(TYPE_SQL_TIMESTAMP, SQL_TIMESTAMP_TYPE_CONVERSION);
