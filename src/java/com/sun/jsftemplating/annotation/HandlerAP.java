@@ -24,6 +24,7 @@ package com.sun.jsftemplating.annotation;
 
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -124,6 +125,14 @@ public class HandlerAP implements AnnotationProcessor {
 				getQualifiedName()
 			    + "." + dec.getSimpleName() + "'.");
 		    }
+
+		    // Check for duplicate handler definitions
+		    if (handlers.get(id) != null) {
+			_env.getMessager().printWarning(
+			    dec.getPosition(),
+			    "Handler with 'id' of '" + id + "' is declared more than once!'");
+		    }
+		    handlers.put(id, id);
 
 		    // Record class / method names (and javadoc comment)
 		    _writer.println(formatComment(dec.getDocComment()));
@@ -308,4 +317,5 @@ public class HandlerAP implements AnnotationProcessor {
     private PrintWriter _writer = null;
     private AnnotationProcessorEnvironment _env = null;
     private Set<AnnotationTypeDeclaration> _types = null;
+    private Map handlers = new HashMap();
 }
