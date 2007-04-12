@@ -421,10 +421,12 @@ public class LayoutViewHandler extends ViewHandler {
      *	    page.</p>
      */
     private static Stack<LayoutElement> getCompositionStack(FacesContext context) {
-	Stack<LayoutElement> stack = (Stack<LayoutElement>) context.
-	    getExternalContext().getRequestMap().get(COMPOSITION_STACK_KEY);
+	Map requestMap = context.getExternalContext().getRequestMap();
+	Stack<LayoutElement> stack = (Stack<LayoutElement>)
+	    requestMap.get(COMPOSITION_STACK_KEY);
 	if (stack == null) {
 	    stack = new Stack<LayoutElement>();
+	    requestMap.put(COMPOSITION_STACK_KEY, stack);
 	}
 	return stack;
     }
