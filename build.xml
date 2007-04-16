@@ -4,6 +4,9 @@
     <!-- Set properties -->
     <property file="build.properties" />
     <property file="user.properties" />
+    <property environment="env"/>
+    
+    <property name="tasks.home" value="${env.TASKS_HOME}"/>
     <!--
         <property environment="env" />
         <property file="${user.home}/build.properties" />
@@ -170,5 +173,30 @@
     <target name="build-samples">
         <!-- build all sample apps under the samples directory -->
         <ant dir="samples" target="build" />
+    </target>
+    
+    <target name="nightly" depends="jar" description="Upload nightly build to java.net">
+        <taskdef resource="org/kohsuke/javanettasks.properties">
+            <classpath>
+                <pathelement location="${tasks.home}/javanettasks-1.0.8.jar"/>
+                <fileset dir="${tasks.home}/lib" includes="*.jar"/>
+            </classpath>
+        </taskdef>
+
+        <javaNetUpload projectName="jsftemplating"
+                       toFile="/nightly/jsftemplating.jar"
+                       fromFile="${dist}/jsftemplating.jar"
+                       fileDescription="Nightly snapshot of JSFTemplating"
+                       overwrite="yes"/>
+        <javaNetUpload projectName="jsftemplating"
+                       toFile="/nightly/jsftemplating-dt.jar"
+                       fromFile="${dist}/jsftemplating-dt.jar"
+                       fileDescription="Nightly snapshot of the JSFTemplating design time lib"
+                       overwrite="yes"/>
+        <javaNetUpload projectName="jsftemplating"
+                       toFile="/nightly/jsftemplating-dynafaces-0.1.jar"
+                       fromFile="${dist}/jsftemplating-dynafaces-0.1.jar"
+                       fileDescription="Nightly snapshot of the JSFTemplating DynaFaces support lib"
+                       overwrite="yes"/>
     </target>
 </project>
