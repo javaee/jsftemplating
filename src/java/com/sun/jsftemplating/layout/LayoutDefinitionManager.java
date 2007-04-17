@@ -312,9 +312,9 @@ public abstract class LayoutDefinitionManager {
 		while (urls.hasMoreElements()) {
 		    // Add all lines in each file to the list of LDMs
 		    try {
-                rdr = new BufferedReader(new InputStreamReader(
-                    urls.nextElement().openStream()));
-                line = rdr.readLine();
+			rdr = new BufferedReader(new InputStreamReader(
+			    urls.nextElement().openStream()));
+			line = rdr.readLine();
 		        while (line != null) {
 		            line = line.trim();
 
@@ -334,8 +334,7 @@ public abstract class LayoutDefinitionManager {
 		            // Get the next line
 		            line = rdr.readLine();
 		        }
-		    }
-		    finally {
+		    } finally {
 		        if (rdr != null) {
 		            try {
 		                rdr.close();
