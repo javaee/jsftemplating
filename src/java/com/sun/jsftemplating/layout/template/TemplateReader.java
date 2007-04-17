@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout.template;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,6 +72,20 @@ public class TemplateReader {
 	}
 	_id = id;
 	_tpl = new TemplateParser(url);
+    }
+
+    /**
+     *	<p> Constructor.</p>
+     *
+     *	@param	url	<code>URL</code> to the {@link LayoutDefinition} file.
+     */
+    public TemplateReader(String id, InputStream stream) {
+	if (id == null) {
+	    throw new IllegalArgumentException(
+		    "Template id's may not be null!");
+	}
+	_id = id;
+	_tpl = new TemplateParser(stream);
     }
 
     /**
