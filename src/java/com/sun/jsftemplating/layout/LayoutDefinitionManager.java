@@ -1,4 +1,3 @@
-/*
  * The contents of this file are subject to the terms 
  * of the Common Development and Distribution License 
  * (the License).  You may not use this file except in
@@ -312,27 +311,38 @@ public abstract class LayoutDefinitionManager {
 		    getResources(FormatDefinitionAPFactory.FACTORY_FILE);
 		while (urls.hasMoreElements()) {
 		    // Add all lines in each file to the list of LDMs
-		    rdr = new BufferedReader(new InputStreamReader(
-				urls.nextElement().openStream()));
-		    line = rdr.readLine();
-		    while (line != null) {
-			line = line.trim();
+		    try {
+                rdr = new BufferedReader(new InputStreamReader(
+                    urls.nextElement().openStream()));
+                line = rdr.readLine();
+		        while (line != null) {
+		            line = line.trim();
 
-			if (line.equals("") || line.startsWith("#")) {
-			    // Skip comments
-			    continue;
-			}
-			if (line.equals(def)) {
-			    // Skip the default one so that it doesn't get
-			    // added again (we want it first)
-			    continue;
-			}
+		            if (line.equals("") || line.startsWith("#")) {
+		                // Skip comments
+		                continue;
+		            }
+		            if (line.equals(def)) {
+		                // Skip the default one so that it doesn't get
+		                // added again (we want it first)
+		                continue;
+		            }
 
-			// Add it!
-			keys.add(line);
+		            // Add it!
+		            keys.add(line);
 
-			// Get the next line
-			line = rdr.readLine();
+		            // Get the next line
+		            line = rdr.readLine();
+		        }
+		    }
+		    finally {
+		        if (rdr != null) {
+		            try {
+		                rdr.close();
+		            } catch (Exception e) {
+		                // ignore
+		            }
+		        }
 		    }
 		}
 	    } catch (IOException ex) {
