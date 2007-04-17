@@ -27,6 +27,7 @@
  */
 package com.sun.jsftemplating.handlers;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.component.UIComponent;
@@ -336,5 +337,65 @@ public class ComponentHandlers {
 	}
 	Object value = comp.getAttributes().get(name);
 	context.setOutputValue("value", value);
+    }
+
+    /**
+     *	<p> This handler will print out the structure of a
+     *	    <code>UIComponent</code> tree from the given UIComponent.</p>
+     */
+    @Handler(id="dumpUIComponentTree",
+	input={
+	    @HandlerInput(name="component", type=UIComponent.class, required=false)},
+	output={
+	    @HandlerOutput(name="value", type=String.class)})
+    public static void dumpUIComponentTree(HandlerContext context) {
+// FIXME: Add flag to dump attributes also, perhaps facets should be optional as well?
+	// Find the root UIComponent to use...
+	UIComponent comp = (UIComponent) context.getInputValue("component");
+	if (comp == null) {
+	    Object eventObject = context.getEventObject();
+	    if (eventObject instanceof UIComponent) {
+		comp = (UIComponent) eventObject;
+	    } else {
+		comp = context.getFacesContext().getViewRoot();
+		if (comp == null) {
+		    throw new IllegalArgumentException(
+			    "Unable to determine UIComponent to dump!");
+		}
+	    }
+	}
+
+	// Create the buffer and populate it...
+	StringBuffer buf = new StringBuffer("UIComponent Tree:\n");
+	dumpTree(comp, buf, "    ");
+
+	context.setOutputValue("value", buf.toString());
+    }
+
+    /**
+     *	<p> This method recurses through the <code>UIComponent</code> tree to
+     *	    generate a String representation of its structure.</p>
+     */
+    private static void dumpTree(UIComponent comp, StringBuffer buf, String indent) {
+	// First add the current UIComponent
+	buf.append(indent + comp.getId() + " (" + comp.getClass().getName() + ")\n");
+
+	// Children...
+	Iterator<UIComponent> it = comp.getChildren().iterator();
+	if (it.hasNext()) {
+	    buf.append(indent + "  Children:\n");
+	    while (it.hasNext()) {
+		dumpTree(it.next(), buf, indent + "    ");
+	    }
+	}
+
+	// Facets...
+	it = comp.getFacets().values().iterator();
+	if (it.hasNext()) {
+	    buf.append(indent + "  Facets:\n");
+	    while (it.hasNext()) {
+		dumpTree(it.next(), buf, indent + "    ");
+	    }
+	}
     }
 }
