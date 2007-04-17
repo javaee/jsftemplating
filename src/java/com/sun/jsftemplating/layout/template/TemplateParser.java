@@ -25,6 +25,7 @@ package com.sun.jsftemplating.layout.template;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -60,10 +61,31 @@ public class TemplateParser {
     }
 
     /**
+     *	<p> Constructor which accepts a <code>InputStream</code>.</p>
+     *
+     *	@param	stream		<code>InputStream</code> for the template.
+     */
+    public TemplateParser(InputStream stream) {
+	_inputStream = stream;
+    }
+
+    /**
      *	<p> Accessor for the URL.</p>
      */
     public URL getURL() {
 	return _url;
+    }
+
+    /**
+     *	<p> Accessor for the <code>InputStream</code>.  This either comes from
+     *	    the supplied <code>URL</code>, or simply from the supplied
+     *	    <code>InputStream</code>.</p>
+     */
+    public InputStream getInputStream() throws IOException {
+	if ((_inputStream == null) && (_url != null)) {
+	    _inputStream = getURL().openStream();
+	}
+	return _inputStream;
     }
 
     /**
@@ -78,11 +100,11 @@ public class TemplateParser {
 	    close();
 	}
 
-	// Open the URL
+	// Create the reader from the stream
 	_reader = new BufferedReader(
 		new InputStreamReader(
 		new IncludeInputStream(
-		new BufferedInputStream(getURL().openStream()))));
+		new BufferedInputStream(getInputStream()))));
 
 	// Initialize the queue we will use to push values back
 	_stack = new Stack<Character>();
@@ -662,6 +684,7 @@ public class TemplateParser {
     public static final String	SIMPLE_WHITE_SPACE	= " \t\r\n";
 
     private URL				    _url	= null;
+    private InputStream			    _inputStream= null;
     private transient BufferedReader	    _reader	= null;
     private transient Stack<Character>	    _stack	= null;
 }
