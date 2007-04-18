@@ -3,7 +3,25 @@
  */
 package com.sun.jsftemplating.layout.facelets;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionException;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.descriptors.ComponentType;
+import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefine;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.descriptors.LayoutInsert;
+import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
+import com.sun.jsftemplating.layout.template.BaseProcessingContext;
+import com.sun.jsftemplating.layout.template.EventParserCommand;
+import com.sun.jsftemplating.layout.template.ProcessingContextEnvironment;
+import com.sun.jsftemplating.layout.template.TemplateParser;
+import com.sun.jsftemplating.layout.template.TemplateReader;
+import com.sun.jsftemplating.util.LayoutElementUtil;
+
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -17,18 +35,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
-import com.sun.jsftemplating.layout.LayoutDefinitionException;
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-import com.sun.jsftemplating.layout.descriptors.ComponentType;
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefine;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-import com.sun.jsftemplating.layout.descriptors.LayoutInsert;
-import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
-import com.sun.jsftemplating.util.LayoutElementUtil;
 
 /**
  * @author Jason Lee
@@ -167,6 +173,36 @@ public class FaceletsLayoutDefinitionReader {
         } else if ("ui:remove".equals(nodeName)) {
             // Let the element remain null
         } else if ("ui:repeat".equals(nodeName)) {
+        } else if ("ui:event".equals(nodeName)) {
+            // per Ken, we need to append "/>" to allow the handler parser code
+            // to end correctly
+            String body = node.getNodeValue() +"/>";
+            String eventName = ((Node)node.getAttributes().getNamedItem("type")).getNodeValue();
+            InputStream is = new ByteArrayInputStream(body.getBytes());
+            EventParserCommand command = new EventParserCommand();
+            try {
+                TemplateParser parser = new TemplateParser(is);
+                parser.open();  // Needed to initialize things.
+                // Setup the reader...
+                TemplateReader reader = new TemplateReader("foo", parser); // TODO: get a real ID
+                reader.pushTag("event"); // The tag will be popped at the end
+                // Read the handlers...
+                command.process(new BaseProcessingContext(), 
+                           new ProcessingContextEnvironment(reader, parent, true), eventName);
+                // Clean up
+                parser.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (Exception e) {
+                        // ignore
+                    }
+                }
+            }
         } else {
             ComponentType componentType = LayoutDefinitionManager.getGlobalComponentType(nodeName);
             if (componentType == null) {
