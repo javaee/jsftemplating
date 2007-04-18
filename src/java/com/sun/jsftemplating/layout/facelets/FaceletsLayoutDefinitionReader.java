@@ -176,7 +176,9 @@ public class FaceletsLayoutDefinitionReader {
         } else if ("ui:event".equals(nodeName)) {
             // per Ken, we need to append "/>" to allow the handler parser code
             // to end correctly
-            String body = node.getNodeValue() +"/>";
+            //String body = node.getNodeValue() +"/>";
+            String body = node.getTextContent();
+	    body = (body == null) ? "/>" : (body.trim() + "/>");
             String eventName = ((Node)node.getAttributes().getNamedItem("type")).getNodeValue();
             InputStream is = new ByteArrayInputStream(body.getBytes());
             EventParserCommand command = new EventParserCommand();
@@ -217,7 +219,15 @@ public class FaceletsLayoutDefinitionReader {
                 LayoutComponent lc = new LayoutComponent(parent, id, componentType);
                 addAttributesToComponent(lc, node);
                 lc.setNested(nested);
-                LayoutElementUtil.checkForFacetChild(parent, lc);
+// FIXME: Because of the way pages are composed in facelets, the parent
+// FIXME: LayoutComponent may not exist in this LD.  In that case it is not
+// FIXME: a "facet child", but it appears to be according to the following
+// FIXME: method.  We need a better way to mark children as facets or real
+// FIXME: children.  This may even require diverging the LD into 1 for
+// FIXME: components and 1 for pages. :(  For now I am commenting it out and
+// FIXME: defaulting to false.
+//                LayoutElementUtil.checkForFacetChild(parent, lc);
+		lc.setFacetChild(false);
                 element = lc;
             }
         }
