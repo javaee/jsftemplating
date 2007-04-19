@@ -36,11 +36,12 @@ import com.sun.jsftemplating.annotation.Handler;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.LayoutViewRoot;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
-
 
 
 /**
@@ -159,12 +160,12 @@ public class MetaDataHandlers {
      *	    <code>LayoutComponent</code> for the given <code>viewId</code> /
      *	    <code>clientId</code>.  If the <code>viewId</code> is not supplied,
      *	    the current <code>UIViewRoot</code> will be used (NOTE: it must be
-     *	    a {@link com.sun.jsftemplating.layout.LayoutViewRoot}).  The
-     *	    {@link LayoutComponent} is returned via the <code>component</code>
-     *	    output parameter.  If an exact match is not found, it will return
-     *	    the last {@link LayoutComponent} found while searching the tree --
-     *	    this should be the last {@link LayoutComponent} in the hierarchy
-     *	    of the specified component.</p>
+     *	    a {@link LayoutViewRoot}).  The {@link LayoutComponent} is returned
+     *	    via the <code>component</code> output parameter.  If an exact match
+     *	    is not found, it will return the last {@link LayoutComponent} found
+     *	    while searching the tree -- this should be the last
+     *	    {@link LayoutComponent} in the hierarchy of the specified
+     *	    component.</p>
      *
      *	<p> This is not an easy process since JSF components may not all be
      *	    <code>NamingContainer</code>s, so the clientId is not sufficient to
@@ -187,5 +188,36 @@ public class MetaDataHandlers {
 
 	// Set the result
 	ctx.setOutputValue("component", result);
+    }
+
+    /**
+     *	<p> This handler provides a way to get a {@link LayoutDefinition}.</p>
+     */
+    @Handler(id="getLayoutDefinition",
+	input={
+	    @HandlerInput(name="viewId", type=String.class, required=false)},
+	output={
+	    @HandlerOutput(name="layoutDefinition", type=LayoutDefinition.class)})
+    public static void getLayoutDefinition(HandlerContext ctx) {
+	// First get the viewId...
+	String viewId = (String) ctx.getInputValue("viewId");
+
+	// Find the LayoutDefinition
+	LayoutDefinition def = null;
+	if (viewId == null) {
+	    // Determine from the current LayoutViewRoot (if possible)
+	    Object viewRoot = ctx.getFacesContext().getViewRoot();
+	    if (viewRoot instanceof LayoutViewRoot) {
+		def = ((LayoutViewRoot) viewRoot).
+		    getLayoutDefinition(ctx.getFacesContext());
+	    }
+	} else {
+	    // viewId specified, use that...
+	    def = LayoutDefinitionManager.getLayoutDefinition(
+		    ctx.getFacesContext(), viewId);
+	}
+
+	// Set the result
+	ctx.setOutputValue("layoutDefinition", def);
     }
 }
