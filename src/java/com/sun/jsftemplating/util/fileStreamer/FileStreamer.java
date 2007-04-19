@@ -80,7 +80,7 @@ public class FileStreamer {
 
 	Class cls = null;
 	try {
-	    cls = Util.getClassLoader(className).loadClass(className);
+	    cls = Util.loadClass(className, className);
 	} catch (Exception ex) {
 	    throw new IllegalArgumentException(ex);
 	}

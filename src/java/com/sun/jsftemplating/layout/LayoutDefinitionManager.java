@@ -363,8 +363,8 @@ public abstract class LayoutDefinitionManager {
                 (LayoutDefinitionManager) _instances.get(className);
         if (ldm == null) {
             try {
-                ClassLoader loader = Util.getClassLoader(className);
-                ldm = (LayoutDefinitionManager) loader.loadClass(className).
+                ldm = (LayoutDefinitionManager)
+		    Util.loadClass(className, className).
                         getMethod("getInstance", (Class[]) null).
                         invoke((Object) null, (Object[]) null);
             } catch (ClassNotFoundException ex) {
@@ -442,6 +442,7 @@ public abstract class LayoutDefinitionManager {
      * is already in use, it will replace the previously set attribute
      * object).
      * @param        value        The Object to store.
+     *	@param	value	The Object to store.
      */
     public void setAttribute(String key, Object value) {
         _attributes.put(key, value);
