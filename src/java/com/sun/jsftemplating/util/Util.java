@@ -62,6 +62,60 @@ public class Util {
     }
 
     /**
+     *	<p> This method will attempt to load a Class from the context
+     *	    ClassLoader.  If it fails, it will try from the ClassLoader used
+     *	    to load the given object.  If that's null, or fails, it will try
+     *	    using the System ClassLoader.</p>
+     *
+     *	@param	className   The full name of the class to load.
+     *	@param	obj	    An optional Object used to help find the
+     *			    ClassLoader to use.
+     */
+    public static Class loadClass(String className, Object obj) throws ClassNotFoundException {
+	// Get the context ClassLoader
+	ClassLoader loader = Thread.currentThread().getContextClassLoader();
+	Class cls = null;
+	if (loader != null) {
+	    try {
+		cls = loader.loadClass(className);
+	    } catch (ClassNotFoundException ex) {
+		// Ignore
+		if (LogUtil.finestEnabled()) {
+		    LogUtil.finest("Unable to find class (" + className
+			+ ") using the context ClassLoader: '" + loader
+			+ "'.  I will keep looking.", ex);
+		}
+	    }
+	}
+	if (cls == null) {
+	    // Still haven't found it... look for it somewhere else.
+	    if (obj != null) {
+		loader = obj.getClass().getClassLoader();
+		try {
+		    cls = loader.loadClass(className);
+		} catch (ClassNotFoundException ex) {
+		    // Ignore
+		    if (LogUtil.finestEnabled()) {
+			LogUtil.finest("Unable to find class (" + className
+			    + ") using ClassLoader: '" + loader
+			    + "'.  I will try the System ClassLoader.", ex);
+		    }
+		}
+	    }
+	    if (cls == null) {
+		// Still haven't found it, use System ClassLoader
+		loader = ClassLoader.getSystemClassLoader();
+
+		// Allow this one to throw the Exception if not found
+		cls = loader.loadClass(className);
+	    }
+	}
+
+	// Return the Class
+	return cls;
+    }
+
+    /**
      *	<p> This method attempts load the requested Class.  If obj is a
      *	    String, it will use this value as the fully qualified class name.
      *	    If it is a Class, it will return it.  If it is anything else, it
@@ -99,6 +153,7 @@ public class Util {
 	// Return the result
 	return props;
     }
+
     /**
      *	<p> Help obtain the current <code>Locale</code>.</p>
      */
