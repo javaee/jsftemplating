@@ -25,6 +25,7 @@ package com.sun.jsftemplating.layout.descriptors;
 import java.io.Serializable;
 import java.util.Formatter;
 
+import com.sun.jsftemplating.util.Util;
 import com.sun.jsftemplating.component.factory.ComponentFactory;
 
 
@@ -82,7 +83,7 @@ public class ComponentType implements java.io.Serializable {
 	// Create it...
 	ComponentFactory factory = null;
 	try {
-	    Class cls = Class.forName(_factoryClass);
+	    Class cls = Util.loadClass(_factoryClass, this);
 	    factory = (ComponentFactory) cls.newInstance();
 	} catch (ClassNotFoundException ex) {
 	    throw new RuntimeException(ex);
