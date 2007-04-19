@@ -139,25 +139,25 @@ public class IncludeInputStream extends FilterInputStream {
 	mark(MARK_LIMIT);
 
 	// We have a line beginning w/ '#', verify we have "#include"
-	char ch;
+	int ch;
 	for (int count = 0; count < INCLUDE_LEN; count++) {
 	    // look for include
-	    ch = (char) super.read();
-	    if (Character.toLowerCase(ch) != INCLUDE.charAt(count)) {
+	    ch = super.read();
+	    if (Character.toLowerCase((char) ch) != INCLUDE.charAt(count)) {
 		reset();  // Restore stream position
 		return '#';
 	    }
 	}
 
 	// Skip whitespace...
-	ch = (char) super.read();
+	ch = super.read();
 	while ((ch == ' ') || (ch == '\t')) {
-	    ch = (char) super.read();
+	    ch = super.read();
 	}
 
 	// Skip '"' or '\''
 	if ((ch == '"') || (ch == '\'')) {
-	    ch = (char) super.read();
+	    ch = super.read();
 	}
 
 	// Read the file name
@@ -167,13 +167,13 @@ public class IncludeInputStream extends FilterInputStream {
 		&& (ch != 0x0A)
 		&& (ch != 0x0D)
 		&& (ch != -1)) {
-	    buf.append(ch);
-	    ch = (char) super.read();
+	    buf.append((char ) ch);
+	    ch = super.read();
 	}
 
 	// Skip ending '"' or '\'', if any
 	if ((ch == '"') || (ch == '\'')) {
-	    ch = (char) super.read();
+	    ch = super.read();
 	}
 
 	// Get the file name...
