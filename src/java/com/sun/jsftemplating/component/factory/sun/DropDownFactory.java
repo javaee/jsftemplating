@@ -81,8 +81,8 @@ public class DropDownFactory extends ComponentFactoryBase {
 	    try {
 		// Use reflection (for now) to avoid a build dependency
 		// Find the Option constuctor...
-		Constructor optConst = Util.getClassLoader(this).
-		    loadClass("com.sun.webui.jsf.model.Option").
+		Constructor optConst = Util.loadClass(
+		    "com.sun.webui.jsf.model.Option", this).
 		    getConstructor(Object.class, String.class);
 
 		if (values instanceof List) {
