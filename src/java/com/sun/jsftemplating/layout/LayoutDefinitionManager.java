@@ -53,26 +53,26 @@ import javax.faces.context.FacesContext;
 
 
 /**
- * <p>	This abstract class provides the base functionality for all
- * <code>LayoutDefinitionManager</code> implementations.  It provides a
- * static method used to obtain an instance of a concrete
- * <code>LayoutDefinitionManager</code>:
- * {@link #getLayoutDefinitionManager(FacesContext,String)}.  However, in
- * most cases is makes the most sense to call the static method:
- * {@link #getLayoutDefinition(FacesContext,String)}.  This method
- * ensures that the cache is checked first before going through the effort
- * of finding a <code>LayoutDefinitionManager</code> instance.</p>
- * <p/>
- * <p>	This class also provides access to global {@link HandlerDefinition}s,
- * {@link Resource}s, and {@link ComponentType}s.</p>
+ *  <p>	This abstract class provides the base functionality for all
+ *	<code>LayoutDefinitionManager</code> implementations.  It provides a
+ *	static method used to obtain an instance of a concrete
+ *	<code>LayoutDefinitionManager</code>:
+ *	{@link #getLayoutDefinitionManager(FacesContext,String)}.  However, in
+ *	most cases is makes the most sense to call the static method:
+ *	{@link #getLayoutDefinition(FacesContext,String)}.  This method
+ *	ensures that the cache is checked first before going through the effort
+ *	of finding a <code>LayoutDefinitionManager</code> instance.</p>
  *
- * @author Ken Paulsen	(ken.paulsen@sun.com)
+ *  <p>	This class also provides access to global {@link HandlerDefinition}s,
+ *	{@link Resource}s, and {@link ComponentType}s.</p>
+ *
+ *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public abstract class LayoutDefinitionManager {
 
 
     /**
-     * <p> Constructor.</p>
+     *	<p> Constructor.</p>
      */
     protected LayoutDefinitionManager() {
         super();
@@ -80,41 +80,41 @@ public abstract class LayoutDefinitionManager {
 
 
     /**
-     * <p> This method is responsible for finding/creating the requested
-     * {@link LayoutDefinition}.</p>
+     *	<p> This method is responsible for finding/creating the requested
+     *	    {@link LayoutDefinition}.</p>
      *
-     * @param        key        The key used to identify the requested
-     * {@link LayoutDefinition}.
+     *	@param	key The key used to identify the requested
+     *		    {@link LayoutDefinition}.
      */
     public abstract LayoutDefinition getLayoutDefinition(String key) throws LayoutDefinitionException;
 
     /**
-     * <p> This method is used to determine if this
-     * <code>LayoutDefinitionManager</code> should process the given key.
-     * It does not necessarily mean that the
-     * <code>LayoutDefinitionManager</code> <em>can</em> process it.
-     * Parser errors do not necessarily mean that it should not process
-     * the file.  In order to provide meaningful error messages, this
-     * method should return true if the format of the template matches the
-     * type that this <code>LayoutDefinitionManager</code> processes.  It
-     * is understood that at times it may not be recognizable; in the case
-     * where no <code>LayoutDefinitionManager</code>s return
-     * <code>true</code> from this method, the parent
-     * <code>ViewHandler</code> will be used, which likely means that it
-     * will look for a .jsp and give error messages accordingly.  Also,
-     * the existance of a file should not be used as a meassure of success
-     * as other <code>LayoutDefinitionManager</code>s may be more
-     * appropriate.</p>
+     *	<p> This method is used to determine if this
+     *	    <code>LayoutDefinitionManager</code> should process the given key.
+     *	    It does not necessarily mean that the
+     *	    <code>LayoutDefinitionManager</code> <em>can</em> process it.
+     *	    Parser errors do not necessarily mean that it should not process
+     *	    the file.  In order to provide meaningful error messages, this
+     *	    method should return true if the format of the template matches the
+     *	    type that this <code>LayoutDefinitionManager</code> processes.  It
+     *	    is understood that at times it may not be recognizable; in the case
+     *	    where no <code>LayoutDefinitionManager</code>s return
+     *	    <code>true</code> from this method, the parent
+     *	    <code>ViewHandler</code> will be used, which likely means that it
+     *	    will look for a .jsp and give error messages accordingly.  Also,
+     *	    the existance of a file should not be used as a meassure of success
+     *	    as other <code>LayoutDefinitionManager</code>s may be more
+     *	    appropriate.</p>
      */
     public abstract boolean accepts(String key);
 
     /**
-     * <p> This method should be used to obtain a {@link LayoutDefinition}.
-     * It first checks to see if a cached {@link LayoutDefinition}
-     * already exists, if so it returns it.  If one does not already
-     * exist, it will obtain the appropriate
-     * <code>LayoutDefinitionManager</code> instance and call
-     * {@link #getLayoutDefinition} and return the result.</p>
+     *	<p> This method should be used to obtain a {@link LayoutDefinition}.
+     *	    It first checks to see if a cached {@link LayoutDefinition}
+     *	    already exists, if so it returns it.  If one does not already
+     *	    exist, it will obtain the appropriate
+     *	    <code>LayoutDefinitionManager</code> instance and call
+     *	    {@link #getLayoutDefinition} and return the result.</p>
      */
     public static LayoutDefinition getLayoutDefinition(FacesContext ctx, String key) throws LayoutDefinitionException {
         // Remove leading '/' characters
@@ -139,25 +139,25 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method finds the (closest) requested
-     * <code>LayoutComponent</code> for the given <code>clientId</code>.
-     * If the <code>viewId</code> is not supplied, the current
-     * <code>UIViewRoot</code> will be used (NOTE: it must be a
-     * {@link LayoutViewRoot}).  If an exact match is not found, it will
-     * return the last {@link LayoutComponent} found while walking the
-     * tree -- this represents the last {@link LayoutComponent} in the
-     * hierarchy of the specified component.  If nothing matches the
-     * given <code>clientId</code>, <code>null</code> will be returned.</p>
-     * <p/>
-     * <p> This is not an easy process since JSF components may not all be
-     * <code>NamingContainer</code>s, so the clientId is not sufficient to
-     * find it.  This is unfortunate, but we we have to deal with it.</p>
+     *	<p> This method finds the (closest) requested
+     *	    <code>LayoutComponent</code> for the given <code>clientId</code>.
+     *	    If the <code>viewId</code> is not supplied, the current
+     *	    <code>UIViewRoot</code> will be used (NOTE: it must be a
+     *	    {@link LayoutViewRoot}).  If an exact match is not found, it will
+     *	    return the last {@link LayoutComponent} found while walking the
+     *	    tree -- this represents the last {@link LayoutComponent} in the
+     *	    hierarchy of the specified component.  If nothing matches the
+     *	    given <code>clientId</code>, <code>null</code> will be returned.</p>
      *
-     * @param        ctx         The <code>FacesContext</code>.
-     * @param        ldKey         The {@link LayoutDefinition} key to identify the
-     * {@link LayoutDefinition} tree to be searched.
-     * @param        clientId The component <code>clientId</code> for which to
-     * obtain a {@link LayoutComponent}.
+     *	<p> This is not an easy process since JSF components may not all be
+     *	    <code>NamingContainer</code>s, so the clientId is not sufficient to
+     *	    find it.  This is unfortunate, but we we have to deal with it.</p>
+     *
+     *	@param	ctx	    The <code>FacesContext</code>.
+     *	@param	ldKey	    The {@link LayoutDefinition} key to identify the
+     *			    {@link LayoutDefinition} tree to be searched.
+     *	@param	clientId    The component <code>clientId</code> for which to
+     *			    obtain a {@link LayoutComponent}.
      */
     public static LayoutComponent getLayoutComponent(FacesContext ctx, String ldKey, String clientId) throws LayoutDefinitionException {
         // Find the page first...
@@ -212,11 +212,11 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method performs a breadth-first search for a child
-     * {@link LayoutComponent} with the given <code>id</code> of the given
-     * {@link LayoutElement} (<code>elt</code>).  It will return null if
-     * none of the children (or children's children, etc.) equal the given
-     * <code>id</code>.</p>
+     *	<p> This method performs a breadth-first search for a child
+     *	    {@link LayoutComponent} with the given <code>id</code> of the given
+     *	    {@link LayoutElement} (<code>elt</code>).  It will return null if
+     *	    none of the children (or children's children, etc.) equal the given
+     *	    <code>id</code>.</p>
      */
     private static LayoutComponent findById(FacesContext ctx, LayoutElement elt, String id) {
         // First search the direct child LayoutElement
@@ -247,25 +247,25 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method obtains the <code>LayoutDefinitionManager</code> that
-     * is able to process the given <code>key</code>.</p>
-     * <p/>
-     * <p> This implementation uses the <code>ExternalContext</code>'s
-     * initParams to look for the <code>LayoutDefinitionManager</code>
-     * class.  If it exists, the specified concrete
-     * <code>LayoutDefinitionManager</code> class will be used as the
-     * "default" (i.e. the first <code>LayoutDefinitionManager</code>
-     * checked).  Otherwise,
-     * {@link #DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL} will be used.
-     * "{@link #LAYOUT_DEFINITION_MANAGER_KEY}" is the initParam key.</p>
-     * <p/>
-     * <p> The <code>key</code> is used to test if desired
-     * <code>LayoutDefinitionManager</code> is able to read the requested
-     * {@link LayoutDefinition}.</p>
+     *	<p> This method obtains the <code>LayoutDefinitionManager</code> that
+     *	    is able to process the given <code>key</code>.</p>
      *
-     * @param        ctx        The <code>FacesContext</code>.
-     * @param        key        The desired {@link LayoutDefinition}.
-     * @see #LAYOUT_DEFINITION_MANAGER_KEY
+     *	<p> This implementation uses the <code>ExternalContext</code>'s
+     *	    initParams to look for the <code>LayoutDefinitionManager</code>
+     *	    class.  If it exists, the specified concrete
+     *	    <code>LayoutDefinitionManager</code> class will be used as the
+     *	    "default" (i.e. the first <code>LayoutDefinitionManager</code>
+     *	    checked).  Otherwise,
+     *	    {@link #DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL} will be used.
+     *	    "{@link #LAYOUT_DEFINITION_MANAGER_KEY}" is the initParam key.</p>
+     *
+     *	<p> The <code>key</code> is used to test if desired
+     *	    <code>LayoutDefinitionManager</code> is able to read the requested
+     *	    {@link LayoutDefinition}.</p>
+     *
+     *	@param	ctx	The <code>FacesContext</code>.
+     *	@param	key	The desired {@link LayoutDefinition}.
+     *	@see #LAYOUT_DEFINITION_MANAGER_KEY
      */
     public static LayoutDefinitionManager getLayoutDefinitionManager(FacesContext ctx, String key) throws LayoutDefinitionException {
         List<String> ldms = getLayoutDefinitionManagers(ctx);
@@ -282,10 +282,10 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method is responsible for returning a <code>List</code> of
-     * known <code>LayoutDefinitionManager</code> instances.  Each value
-     * of the list is a <code>String</code> representing the classname of
-     * a <code>LayoutDefinitionManager</code> implementation.</p>
+     *	<p> This method is responsible for returning a <code>List</code> of
+     *	    known <code>LayoutDefinitionManager</code> instances.  Each value
+     *	    of the list is a <code>String</code> representing the classname of
+     *	    a <code>LayoutDefinitionManager</code> implementation.</p>
      */
     public static List<String> getLayoutDefinitionManagers(FacesContext ctx) {
         if (_ldmKeys == null) {
@@ -348,15 +348,15 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method is a singleton factory method for obtaining an instance
-     * of a <code>LayoutDefintionManager</code>.  It is possible that
-     * multiple different implementations of
-     * <code>LayoutDefinitionManager</code>s will be used within the same
-     * JVM.  This is OK, the purpose of the
-     * <code>LayoutDefinitionManager</code> is primarily performance.
-     * Someone may provide a different <code>LayoutDefinitionManager</code>
-     * to locate {@link LayoutDefinition}'s in a different way (XML,
-     * database, file, java code, etc.).</p>
+     *	<p> This method is a singleton factory method for obtaining an instance
+     *	    of a <code>LayoutDefintionManager</code>.  It is possible that
+     *	    multiple different implementations of
+     *	    <code>LayoutDefinitionManager</code>s will be used within the same
+     *	    JVM.  This is OK, the purpose of the
+     *	    <code>LayoutDefinitionManager</code> is primarily performance.
+     *	    Someone may provide a different <code>LayoutDefinitionManager</code>
+     *	    to locate {@link LayoutDefinition}'s in a different way (XML,
+     *	    database, file, java code, etc.).</p>
      */
     public static LayoutDefinitionManager getLayoutDefinitionManager(String className) {
         LayoutDefinitionManager ldm =
@@ -393,12 +393,13 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method may be used to obtain a cached
-     * {@link LayoutDefinition}.  If it has not been cached, this method
-     * returns <code>null</code>.</p>
+     *	<p> This method may be used to obtain a cached
+     *	    {@link LayoutDefinition}.  If it has not been cached, this method
+     *	    returns <code>null</code>.</p>
      *
-     * @param        key The key for the cached {@link LayoutDefinition} to obtain.
-     * @return The {@link LayoutDefinition} or <code>null</code>.
+     *	@param	key	Key for the cached {@link LayoutDefinition} to obtain.
+     *
+     *	@return The {@link LayoutDefinition} or <code>null</code>.
      */
     public static LayoutDefinition getCachedLayoutDefinition(String key) {
         if (isDebug()) {
@@ -410,13 +411,13 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> In general, this method should be used by sub-classes to store a
-     * cached {@link LayoutDefinition}.  It may also be used, however, to
-     * define {@link LayoutDefinition}s on the fly (not recommended unless
-     * you know what you're doing. ;)</p>
+     *	<p> In general, this method should be used by sub-classes to store a
+     *	    cached {@link LayoutDefinition}.  It may also be used, however, to
+     *	    define {@link LayoutDefinition}s on the fly (not recommended unless
+     *	    you know what you're doing. ;)</p>
      *
-     * @param        key        The {@link LayoutDefinition} key to cache.
-     * @param        value        The {@link LayoutDefinition} to cache.
+     *	@param	key	The {@link LayoutDefinition} key to cache.
+     *	@param	value	The {@link LayoutDefinition} to cache.
      */
     public static void putCachedLayoutDefinition(String key, LayoutDefinition value) {
         synchronized (_layoutDefinitions) {
@@ -425,10 +426,11 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> Retrieve an attribute by key.</p>
+     *	<p> Retrieve an attribute by key.</p>
      *
-     * @param        key        The key used to retrieve the attribute
-     * @return The requested attribute or null
+     *	@param	key	The key used to retrieve the attribute.
+     *
+     *	@return The requested attribute or null
      */
     public Object getAttribute(String key) {
         return _attributes.get(key);
@@ -436,12 +438,11 @@ public abstract class LayoutDefinitionManager {
 
 
     /**
-     * <p> Associate the given key with the given Object as an attribute.</p>
+     *	<p> Associate the given key with the given Object as an attribute.</p>
      *
-     * @param        key        The key associated with the given object (if this key
-     * is already in use, it will replace the previously set attribute
-     * object).
-     * @param        value        The Object to store.
+     *	@param	key	The key associated with the given object (if this key
+     *			is already in use, it will replace the previously set
+     *			attribute object).
      *	@param	value	The Object to store.
      */
     public void setAttribute(String key, Object value) {
@@ -449,22 +450,22 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method returns the <code>Map</code> of global
-     * {@link ComponentType}s (the {@link ComponentType}s available across
-     * the application).</p>
-     * <p/>
-     * <p> It is recommended that this method not be used directly.  The map
-     * returned by this method is shared across the application and is not
-     * thread safe.  Instead access this Map via
-     * {@link LayoutDefinitionManager#getGlobalComponentType(String)}.</p>
-     * <p/>
-     * <p> This method will initialize the global {@link ComponentType}s if
-     * they are not initialized.  It does this by finding all files in the
-     * classpath named:
-     * {@link UIComponentFactoryAPFactory#FACTORY_FILE}.  It then reads
-     * each of these files (which must be <code>Properties</code> files)
-     * and stores each identifier / fully qualified classname as an entry
-     * in the <code>Map&lt;String, {@link ComponentType}&gt;</code>.</p>
+     *	<p> This method returns the <code>Map</code> of global
+     *	    {@link ComponentType}s (the {@link ComponentType}s available across
+     *	    the application).</p>
+     *
+     *	<p> It is recommended that this method not be used directly.  The map
+     *	    returned by this method is shared across the application and is not
+     *	    thread safe.  Instead access this Map via
+     *	    {@link LayoutDefinitionManager#getGlobalComponentType(String)}.</p>
+     *
+     *	<p> This method will initialize the global {@link ComponentType}s if
+     *	    they are not initialized.  It does this by finding all files in the
+     *	    classpath named:
+     *	    {@link UIComponentFactoryAPFactory#FACTORY_FILE}.  It then reads
+     *	    each of these files (which must be <code>Properties</code> files)
+     *	    and stores each identifier / fully qualified classname as an entry
+     *	    in the <code>Map&lt;String, {@link ComponentType}&gt;</code>.</p>
      */
     public static Map<String, ComponentType> getGlobalComponentTypes() {
         if (_globalComponentTypes == null) {
@@ -505,19 +506,19 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method retrieves a globally defined {@link ComponentType} (a
-     * {@link ComponentType} available across the application).</p>
+     *	<p> This method retrieves a globally defined {@link ComponentType} (a
+     *	    {@link ComponentType} available across the application).</p>
      */
     public static ComponentType getGlobalComponentType(String typeID) {
         return getGlobalComponentTypes().get(typeID);
     }
 
     /**
-     * <p> This method allows a global {@link ComponentType} to be added.
-     * This way of adding a global {@link ComponentType} is discouraged.
-     * Instead, you should use a <code>UIComponentFactory</code>
-     * annotation in each <code>ComponentFactory</code> and compile
-     * using "<code>apt</code>".</p>
+     *	<p> This method allows a global {@link ComponentType} to be added.
+     *	    This way of adding a global {@link ComponentType} is discouraged.
+     *	    Instead, you should use a <code>UIComponentFactory</code>
+     *	    annotation in each <code>ComponentFactory</code> and compile
+     *	    using "<code>apt</code>".</p>
      */
     public static void addGlobalComponentType(ComponentType type) {
         synchronized (LayoutDefinitionManager.class) {
@@ -526,28 +527,28 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method clears the cached global {@link ComponentType}s.</p>
+     *	<p> This method clears the cached global {@link ComponentType}s.</p>
      */
     public static void clearGlobalComponentTypes() {
         _globalComponentTypes = null;
     }
 
     /**
-     * <p> This method returns the <code>Map</code> of global
-     * {@link HandlerDefinition}s (the {@link HandlerDefinition}s
-     * available across the application).</p>
-     * <p/>
-     * <p> It is recommended that this method not be used.  The map returned
-     * by this method is shared across the application and is not thread
-     * safe.  Instead get values from the Map via:
-     * {@link LayoutDefinitionManager#getGlobalHandlerDefinition(String)}.
-     * </p>
-     * <p/>
-     * <p> This method will initialize the global {@link HandlerDefinition}s if
-     * they are not initialized.  It does this by finding all files in the
-     * classpath named: {@link HandlerAPFactory#HANDLER_FILE}.  It then
-     * reads each file (which must be a valid <code>Properties</code>
-     * file) and stores the information for later retrieval.</p>
+     *	<p> This method returns the <code>Map</code> of global
+     *	    {@link HandlerDefinition}s (the {@link HandlerDefinition}s
+     *	    available across the application).</p>
+     *
+     *	<p> It is recommended that this method not be used.  The map returned
+     *	    by this method is shared across the application and is not thread
+     *	    safe.  Instead get values from the Map via:
+     *	    {@link LayoutDefinitionManager#getGlobalHandlerDefinition(String)}.
+     *	    </p>
+     *
+     *	<p> This method will initialize the global {@link HandlerDefinition}s if
+     *	    they are not initialized.  It does this by finding all files in the
+     *	    classpath named: {@link HandlerAPFactory#HANDLER_FILE}.  It then
+     *	    reads each file (which must be a valid <code>Properties</code>
+     *	    file) and stores the information for later retrieval.</p>
      */
     public static Map<String, HandlerDefinition> getGlobalHandlerDefinitions() {
         if (_globalHandlerDefs != null) {
@@ -589,8 +590,8 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method processes a single {@link HandlerDefinition}'s
-     * meta-data.</p>
+     *	<p> This method processes a single {@link HandlerDefinition}'s
+     *	    meta-data.</p>
      */
     private static void readGlobalHandlerDefinition(Map<String, String> map, Map.Entry<Object, Object> entry) {
         // Get the key.class value...
@@ -616,7 +617,7 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method reads and creates IODescriptors for the given key.</p>
+     *	<p> This method reads and creates IODescriptors for the given key.</p>
      */
     private static Map<String, IODescriptor> readIODefs(Map<String, String> map, String key, boolean input) {
         String type;
@@ -659,22 +660,22 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method retrieves a globally defined {@link HandlerDefinition} (a
-     * {@link HandlerDefinition} available across the application).</p>
+     *	<p> This method retrieves a globally defined {@link HandlerDefinition} (a
+     *	    {@link HandlerDefinition} available across the application).</p>
      */
     public static HandlerDefinition getGlobalHandlerDefinition(String id) {
         return getGlobalHandlerDefinitions().get(id);
     }
 
     /**
-     * <p> This method allows a global {@link HandlerDefinition} to be added.
-     * This way of adding a global {@link HandlerDefinition} is
-     * discouraged.  It should be done implicitly through annotations,
-     * placement of a properties file in the correct location, or
-     * explicitly by declaring it the page (some template formats may not
-     * support this).</p>
+     *	<p> This method allows a global {@link HandlerDefinition} to be added.
+     *	    This way of adding a global {@link HandlerDefinition} is
+     *	    discouraged.  It should be done implicitly through annotations,
+     *	    placement of a properties file in the correct location, or
+     *	    explicitly by declaring it the page (some template formats may not
+     *	    support this).</p>
      *
-     * @see LayoutDefinitionManager#getGlobalHandlerDefinitions()
+     *	@see LayoutDefinitionManager#getGlobalHandlerDefinitions()
      */
     public static void addGlobalHandlerDefinition(HandlerDefinition def) {
         synchronized (LayoutDefinitionManager.class) {
@@ -683,18 +684,18 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method clears cached global {@link HandlerDefinition}s.</p>
+     *	<p> This method clears cached global {@link HandlerDefinition}s.</p>
      */
     public static void clearGlobalHandlerDefinitions() {
         _globalHandlerDefs = null;
     }
 
     /**
-     * <p> This method provides a means to add an additional global
-     * {@link Resource} (a {@link Resource} that is available across the
-     * application).  It is recommended that this not be done using this
-     * method, but instead by registering the global {@link Resource}.
-     * This can be done by... FIXME: TBD...</p>
+     *	<p> This method provides a means to add an additional global
+     *	    {@link Resource} (a {@link Resource} that is available across the
+     *	    application).  It is recommended that this not be done using this
+     *	    method, but instead by registering the global {@link Resource}.
+     *	    This can be done by... FIXME: TBD...</p>
      */
     public static void addGlobalResource(Resource res) {
         synchronized (LayoutDefinitionManager.class) {
@@ -703,12 +704,12 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method returns a <code>List</code> of global
-     * {@link Resource}s.  The <code>List</code> returned should not be
-     * changed, it is the actual internal <code>List</code> that is shared
-     * across the application and it is not thread safe.</p>
-     * <p/>
-     * <p> This method will find global resources by... FIXME: TBD...</p>
+     *	<p> This method returns a <code>List</code> of global
+     *	    {@link Resource}s.  The <code>List</code> returned should not be
+     *	    changed, it is the actual internal <code>List</code> that is shared
+     *	    across the application and it is not thread safe.</p>
+     *
+     *	<p> This method will find global resources by... FIXME: TBD...</p>
      */
     public static List<Resource> getGlobalResources() {
 // FIXME: TBD...
@@ -720,14 +721,14 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This method clears the cached global {@link Resource}s.</p>
+     *	<p> This method clears the cached global {@link Resource}s.</p>
      */
     public static void clearGlobalResources() {
         _globalResources = null;
     }
 
     /**
-     * <p> Getter for the debug flag.</p>
+     *	<p> Getter for the debug flag.</p>
      */
     public static boolean isDebug() {
         if (_debug != null) {
@@ -749,7 +750,7 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> Setter for the debug flag.</p>
+     *	<p> Setter for the debug flag.</p>
      */
     public static void setDebug(boolean flag) {
         _debug = Boolean.valueOf(flag);
@@ -766,82 +767,82 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     * <p> This map contains sub-class specific attributes that may be needed
-     * by specific implementations of
-     * <code>LayoutDefinitionManager</code>s.  For example, setting an
-     * <code>EntityResolver</code> on a
-     * <code>LayoutDefinitionManager</code> that creates
-     * <code>LayoutDefinitions</code> from XML files.</p>
+     *	<p> This map contains sub-class specific attributes that may be needed
+     *	    by specific implementations of
+     *	    <code>LayoutDefinitionManager</code>s.  For example, setting an
+     *	    <code>EntityResolver</code> on a
+     *	    <code>LayoutDefinitionManager</code> that creates
+     *	    <code>LayoutDefinitions</code> from XML files.</p>
      */
     private Map<String, Object> _attributes = new HashMap<String, Object>();
 
     /**
-     * <p> Static <code>Map</code> of <code>LayoutDefinitionManager</code s.
-     * Normally this will only contain the default
-     * {@link LayoutDefinitionManager}.</p>
+     *	<p> Static <code>Map</code> of <code>LayoutDefinitionManager</code s.
+     *	    Normally this will only contain the default
+     *	    {@link LayoutDefinitionManager}.</p>
      */
     private static Map<String, LayoutDefinitionManager> _instances =
             new HashMap<String, LayoutDefinitionManager>(4);
 
     /**
-     * <p> Static <code>Map</code> of cached {@link LayoutDefinition}s.</p>
+     *	<p> Static <code>Map</code> of cached {@link LayoutDefinition}s.</p>
      */
     private static Map<String, LayoutDefinition> _layoutDefinitions =
             new HashMap<String, LayoutDefinition>();
 
     /**
-     * <p> This <code>Map</code> holds global {@link ComponentType}s so they
-     * can be defined once and shared across the application.</p>
+     *	<p> This <code>Map</code> holds global {@link ComponentType}s so they
+     *	    can be defined once and shared across the application.</p>
      */
     private static Map<String, ComponentType> _globalComponentTypes = null;
 
     /**
-     * <p> This <code>Map</code> holds global {@link HandlerDefinition}s so
-     * they can be defined once and shared across the application.</p>
+     *	<p> This <code>Map</code> holds global {@link HandlerDefinition}s so
+     *	    they can be defined once and shared across the application.</p>
      */
     private static Map<String, HandlerDefinition> _globalHandlerDefs = null;
 
     /**
-     * <p> This <code>List</code> holds global {@link Resource}s so
-     * they can be defined once and shared across the application.</p>
+     *	<p> This <code>List</code> holds global {@link Resource}s so
+     *	    they can be defined once and shared across the application.</p>
      */
     private static List<Resource> _globalResources = null;
 
     /**
-     * <p> This <code>List</code> contains the classnames of known
-     * {@link LayoutDefinitionManager} instances.</p>
+     *	<p> This <code>List</code> contains the classnames of known
+     *	    {@link LayoutDefinitionManager} instances.</p>
      */
     private static List<String> _ldmKeys = null;
 
     /**
-     * <p> This is the default input and output type.</p>
+     *	<p> This is the default input and output type.</p>
      */
     public static final String DEFAULT_TYPE = "Object";
 
     /**
-     * <p> This constant defines the <code>LayoutDefinitionManager</code>
-     * implementation key for initParams.
-     * ("LayoutDefinitionManagerImpl")</p>
+     *	<p> This constant defines the <code>LayoutDefinitionManager</code>
+     *	    implementation key for initParams.
+     *	    ("LayoutDefinitionManagerImpl")</p>
      */
     public static final String LAYOUT_DEFINITION_MANAGER_KEY =
             "LayoutDefinitionManagerImpl";
 
     /**
-     * <p> This is the name of the initParameter or JVM variable used to set
-     * the DEBUG flag.</p>
+     *	<p> This is the name of the initParameter or JVM variable used to set
+     *	    the DEBUG flag.</p>
      */
     public static final String DEBUG_FLAG = "com.sun.jsftemplating.DEBUG";
 
     /**
-     * <p> DEBUG flag.  Not final so that it can be switch at runtime.</p>
+     *	<p> DEBUG flag.  Not final so that it can be switch at runtime.</p>
      */
     private static Boolean _debug = null;
 
     /**
-     * <p> DEBUG flag.</p>
+     *	<p> DEBUG flag.</p>
      *
-     * @deprecated Use isDebug() instead.  This value will not reflect
-     *             runtime changes in this flag.
+     *	@deprecated Use isDebug() instead.  This value will not reflect
+     *	            runtime changes in this flag.
      */
     public static final boolean DEBUG = isDebug();
 }
