@@ -97,17 +97,27 @@ public class FaceletsLayoutDefinitionReader {
             }
             break;
         case Node.ELEMENT_NODE:
-            nested = true;
             element = createComponent(parent, node, nested);
-            if (element instanceof LayoutStaticText) {
-                // We have a element node that needs to be static text
-                endElement = true;
-            } else {
-                if (element instanceof LayoutComposition) { 
-                    abortProcessing = true; 
-                }
-                newParent = element;
+	    if (element instanceof LayoutStaticText) {
+		// We have a element node that needs to be static text
+		endElement = true;
+	    } else if (element instanceof LayoutComponent) {
+		nested = true;
+		newParent = element;
+            } else if (element instanceof LayoutComposition) {
+		abortProcessing = true; 
+		newParent = element;
+            } else if (element instanceof LayoutDefine) {
+		newParent = element;
+            } else if (element instanceof LayoutInsert) {
+		newParent = element;
             }
+// FIXME: Jason, this code may need to be refactored.  I think almost
+// FIXME: everything should have newParent = element.  The problem comes when
+// FIXME: you are turning <html> and </html> into 2 separate staticText
+// FIXME: components.  This should be a single component, then it could contain
+// FIXME: children also.  You may want a to create a component like Woodstock's
+// FIXME: "markup" component to do this.
             break;
         default:
             // just because... :P
@@ -139,32 +149,31 @@ public class FaceletsLayoutDefinitionReader {
     private LayoutElement createComponent(LayoutElement parent, Node node, boolean nested) {
         LayoutElement element = null;
         String nodeName = node.getNodeName();
-        String id = LayoutElementUtil.getGeneratedId(nodeName);
+	NamedNodeMap attrs = node.getAttributes();
+	Node nameNode = attrs.getNamedItem("id");
+	String id = (nameNode != null) ? nameNode.getNodeValue() :
+	    LayoutElementUtil.getGeneratedId(nodeName);
 
         if ("ui:composition".equals(nodeName)) {
             parent = parent.getLayoutDefinition(); // parent to the LayoutDefinition
             parent.getChildLayoutElements().clear(); // a ui:composition clears everything outside of it
             LayoutComposition lc = new LayoutComposition(parent, id); 
-            NamedNodeMap attrs = node.getAttributes();
-            String template = ((Node)attrs.getNamedItem("template")).getNodeValue();
+            String template = attrs.getNamedItem("template").getNodeValue();
             lc.setTemplate(template);
             element = lc;
         } else if ("ui:define".equals(nodeName)) {
-            NamedNodeMap attrs = node.getAttributes();
-            String name = ((Node)attrs.getNamedItem("name")).getNodeValue();
+            String name = attrs.getNamedItem("name").getNodeValue();
             element = new LayoutDefine(parent, name);
         } else if ("ui:insert".equals(nodeName)) {
             LayoutInsert li = new LayoutInsert(parent, id);
-            NamedNodeMap attrs = node.getAttributes();
-            String name = ((Node)attrs.getNamedItem("name")).getNodeValue();
+            String name = attrs.getNamedItem("name").getNodeValue();
             li.setName(name);
             element = li;
         } else if ("ui:component".equals(nodeName)) {
         } else if ("ui:debug".equals(nodeName)) {
         } else if ("ui:decorate".equals(nodeName)) {
             LayoutComposition lc = new LayoutComposition(parent, id, true);
-            NamedNodeMap attrs = node.getAttributes();
-            String template = ((Node)attrs.getNamedItem("template")).getNodeValue();
+            String template = attrs.getNamedItem("template").getNodeValue();
             lc.setTemplate(template);
             element = lc;
         } else if ("ui:fragment".equals(nodeName)) {
@@ -179,7 +188,7 @@ public class FaceletsLayoutDefinitionReader {
             //String body = node.getNodeValue() +"/>";
             String body = node.getTextContent();
 	    body = (body == null) ? "/>" : (body.trim() + "/>");
-            String eventName = ((Node)node.getAttributes().getNamedItem("type")).getNodeValue();
+            String eventName = node.getAttributes().getNamedItem("type").getNodeValue();
             InputStream is = new ByteArrayInputStream(body.getBytes());
             EventParserCommand command = new EventParserCommand();
             try {
@@ -206,6 +215,7 @@ public class FaceletsLayoutDefinitionReader {
                 }
             }
         } else {
+	    LayoutComponent lc = null;
             ComponentType componentType = LayoutDefinitionManager.getGlobalComponentType(nodeName);
             if (componentType == null) {
                 String value = node.getNodeValue();
@@ -213,12 +223,11 @@ public class FaceletsLayoutDefinitionReader {
                     value = "";
                 }
 //              FIXME: This needs to account for beginning and ending tags....
-                element = new LayoutStaticText(parent, id, 
+                lc = new LayoutStaticText(parent, id, 
                         "<" + nodeName + buildAttributeList(node) + ">");
             } else {
-                LayoutComponent lc = new LayoutComponent(parent, id, componentType);
+                lc = new LayoutComponent(parent, id, componentType);
                 addAttributesToComponent(lc, node);
-                lc.setNested(nested);
 // FIXME: Because of the way pages are composed in facelets, the parent
 // FIXME: LayoutComponent may not exist in this LD.  In that case it is not
 // FIXME: a "facet child", but it appears to be according to the following
@@ -227,9 +236,10 @@ public class FaceletsLayoutDefinitionReader {
 // FIXME: components and 1 for pages. :(  For now I am commenting it out and
 // FIXME: defaulting to false.
 //                LayoutElementUtil.checkForFacetChild(parent, lc);
-		lc.setFacetChild(false);
-                element = lc;
             }
+	    lc.setFacetChild(false);
+	    lc.setNested(nested);
+	    element = lc;
         }
 
         return element;
