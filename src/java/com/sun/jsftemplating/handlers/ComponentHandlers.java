@@ -378,7 +378,7 @@ public class ComponentHandlers {
      */
     private static void dumpTree(UIComponent comp, StringBuffer buf, String indent) {
 	// First add the current UIComponent
-	buf.append(indent + comp.getId() + " (" + comp.getClass().getName() + ")\n");
+	buf.append(indent + comp.getId() + " (" + comp.getClass().getName() + ") = (" + comp.getAttributes().get("value") + ")\n");
 
 	// Children...
 	Iterator<UIComponent> it = comp.getChildren().iterator();
@@ -397,5 +397,55 @@ public class ComponentHandlers {
 		dumpTree(it.next(), buf, indent + "    ");
 	    }
 	}
+    }
+
+    /**
+     *	<p> This method recurses through the {@link LayoutElement} tree to
+     *	    generate a String representation of its structure.</p>
+     */
+    private static void dumpTree(LayoutElement elt, StringBuffer buf, String indent) {
+	// First add the current LayoutElement
+	String compInfo = "";
+	if (elt instanceof LayoutComponent) {
+	    LayoutComponent comp = (LayoutComponent) elt;
+	    compInfo = " nested=" + comp.isNested() + ", facetChild=" + comp.isFacetChild();
+	}
+	buf.append(indent + elt.getUnevaluatedId() + " (" + elt.getClass().getName() + ")" + compInfo + "\n");
+
+	// Children...
+	Iterator<LayoutElement> it = elt.getChildLayoutElements().iterator();
+	if (it.hasNext()) {
+	    while (it.hasNext()) {
+		dumpTree(it.next(), buf, indent + "    ");
+	    }
+	}
+    }
+
+    /**
+     *	<p> This handler will print out the structure of a
+     *	    {@link LayoutElement} tree from the given LayoutElement.</p>
+     */
+    @Handler(id="dumpLayoutElementTree",
+	input={
+	    @HandlerInput(name="layoutElement", type=LayoutElement.class, required=false)},
+	output={
+	    @HandlerOutput(name="value", type=String.class)})
+    public static void dumpLayoutElementTree(HandlerContext context) {
+// FIXME: Add flag to dump attributes also, perhaps facets should be optional as well?
+	// Find the root UIComponent to use...
+	LayoutElement elt = (LayoutElement) context.getInputValue("layoutElement");
+	if (elt == null) {
+	    elt = context.getLayoutElement();
+	    if (elt == null) {
+		throw new IllegalArgumentException(
+			"Unable to determine LayoutElement to dump!");
+	    }
+	}
+
+	// Create the buffer and populate it...
+	StringBuffer buf = new StringBuffer("LayoutElement Tree:\n");
+	dumpTree(elt, buf, "    ");
+
+	context.setOutputValue("value", buf.toString());
     }
 }
