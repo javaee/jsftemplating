@@ -45,6 +45,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.MessageUtil;
+import com.sun.jsftemplating.util.Util;
 
 
 /**
@@ -750,7 +751,7 @@ public class VariableResolver {
 
 	    // Add all constants to the Map
 	    try {
-		addConstants(map, Class.forName(className));
+		addConstants(map, Util.loadClass(className, key));
 	    } catch (ClassNotFoundException ex) {
 		RuntimeException iae = new IllegalArgumentException("'"
 		    + className + "' was not found!  This must be a valid "

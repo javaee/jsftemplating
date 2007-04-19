@@ -22,6 +22,8 @@
  */
 package com.sun.jsftemplating.layout.descriptors.handler;
 
+import com.sun.jsftemplating.util.Util;
+
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,7 +110,7 @@ public class IODescriptor implements java.io.Serializable {
 	Class cls = (Class) _typeMap.get(type);
 	if (cls == null) {
 	    try {
-		cls = Class.forName(type);
+		cls = Util.loadClass(type, type);
 	    } catch (Exception ex) {
 		throw new RuntimeException(
 		    "Unable to determine parameter type '" + type +

@@ -38,6 +38,7 @@ import com.sun.jsftemplating.annotation.Handler;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
+import com.sun.jsftemplating.util.Util;
 
 
 /**
@@ -165,7 +166,7 @@ public class OptionsHandlers {
     static {
 	try {
 	    RAVE_OPTION_CLASS =
-	    	Class.forName("com.sun.rave.web.ui.model.Option");
+	    	Util.loadClass("com.sun.rave.web.ui.model.Option", "");
 	    RAVE_OPTION_CONSTRUCTOR = RAVE_OPTION_CLASS.
 	    	getConstructor(new Class[] {Object.class, String.class});
 	} catch (Exception ex) {
@@ -174,7 +175,7 @@ public class OptionsHandlers {
 	}
 	try {
             SUN_OPTION_CLASS =
-		Class.forName("com.sun.webui.jsf.model.Option");
+		Util.loadClass("com.sun.webui.jsf.model.Option", "");
 	    SUN_OPTION_CONSTRUCTOR = SUN_OPTION_CLASS.
                 getConstructor(new Class[] {Object.class, String.class});
 	} catch (Exception ex) {

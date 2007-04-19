@@ -22,6 +22,8 @@
  */
 package com.sun.jsftemplating.layout.descriptors.handler;
 
+import com.sun.jsftemplating.util.Util;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -141,7 +143,7 @@ public class HandlerDefinition implements java.io.Serializable {
 	    // Find the class
 	    Class clzz = null;
 	    try {
-		clzz = Class.forName(_methodClass);
+		clzz = Util.loadClass(_methodClass, _methodClass);
 	    } catch (ClassNotFoundException ex) {
 		throw new RuntimeException("'"
 			+ _methodClass + "' not found for method '"

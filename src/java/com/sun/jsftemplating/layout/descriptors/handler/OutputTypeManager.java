@@ -22,6 +22,8 @@
  */
 package com.sun.jsftemplating.layout.descriptors.handler;
 
+import com.sun.jsftemplating.util.Util;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,7 +101,7 @@ public class OutputTypeManager {
 	OutputTypeManager ldm = _instances.get(className);
 	if (ldm == null) {
 	    try {
-		ldm = (OutputTypeManager) Class.forName(className).
+		ldm = (OutputTypeManager) Util.loadClass(className, className).
 		    getMethod("getInstance", (Class []) null).
 		    invoke((Object) null, (Object []) null);
 	    } catch (ClassNotFoundException ex) {

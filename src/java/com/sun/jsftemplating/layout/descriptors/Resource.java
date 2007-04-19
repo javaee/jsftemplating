@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout.descriptors;
 
 import com.sun.jsftemplating.resource.ResourceFactory;
+import com.sun.jsftemplating.util.Util;
 
 
 /**
@@ -115,7 +116,7 @@ public class Resource implements java.io.Serializable {
      */
     protected ResourceFactory createFactory() {
 	try {
-	    Class cls = Class.forName(_factoryClass);
+	    Class cls = Util.loadClass(_factoryClass, _factoryClass);
 	    return (ResourceFactory) cls.newInstance();
 	} catch (ClassNotFoundException ex) {
 	    throw new RuntimeException(ex);

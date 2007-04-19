@@ -22,6 +22,8 @@
  */
 package com.sun.jsftemplating.util;
 
+import com.sun.jsftemplating.util.Util;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -180,7 +182,7 @@ public class ClasspathEntityResolver implements EntityResolver2 {
 
     static {
 	try {
-	    FACES_CONTEXT = Class.forName("javax.faces.context.FacesContext");
+	    FACES_CONTEXT = Util.loadClass("javax.faces.context.FacesContext", "");
 	} catch (Exception ex) {
 	    // Ignore, this just means we're not in a JSF environment
 	    FACES_CONTEXT = null;
