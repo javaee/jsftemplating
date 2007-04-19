@@ -131,8 +131,7 @@ public class Util {
 	}
 	Class cls = null;
 	if (obj instanceof String) {
-	    ClassLoader loader = getClassLoader(obj);
-	    cls = loader.loadClass((String) obj);
+	    cls = loadClass((String) obj, obj);
 	} else {
 	    cls = obj.getClass();
 	}
