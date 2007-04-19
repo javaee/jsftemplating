@@ -62,12 +62,12 @@
         </exec>
     </target>
 
-    <target name="build" depends="jar" />
+    <target name="build" depends="jar" description="Build the project"/>
 
-    <target name="all" depends="build, build-samples" />
+    <target name="all" depends="build, build-samples" description="Build the project and the samples"/>
 
     <!-- This target builds the custom processors for apt -->
-    <target name="compile-apt-files">
+    <target name="compile-apt-files" description="Compile the apt-generated files">
         <mkdir dir="${aptbuild}/." />
         <echo message="${java.home}" />
 
@@ -78,7 +78,7 @@
         </javac>
     </target>
 
-    <target name="jar-apt-files" depends="compile-apt-files">
+    <target name="jar-apt-files" depends="compile-apt-files" description="Package the apt-generated files">
         <mkdir dir="${dist}/." />
         <jar jarfile="${jsftemplating-dt.jar}" update="true">
             <fileset dir="${aptbuild}" includes="**/*.class" />
@@ -87,7 +87,7 @@
         </jar>
     </target>
 
-    <target name="compile" depends="init, jar-apt-files">
+    <target name="compile" depends="init, jar-apt-files" description="Compile source">
         <mkdir dir="${build}/." />
         <exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
             <!-- We do this to add the ant-apt.jar to the lib path -->
@@ -95,7 +95,7 @@
         </exec>
     </target>
 
-    <target name="jar" depends="compile">
+    <target name="jar" depends="compile" description="Package the project">
         <mkdir dir="${dist}/." />
         <!-- Copy JS file also b/c currently it needs to be out of .jar -->
         <copy todir="${dist}/.">
@@ -114,7 +114,7 @@
         </jar>
     </target>
 
-    <target name="javadoc" depends="build">
+    <target name="javadoc" depends="build" description="Generate javadocs">
         <!-- Generate javadoc -->
         <javadoc destdir="${docs}" private="no" author="true" version="true" use="true"
             windowtitle="Templating for JavaServer Faces Technology (https://jsftemplating.dev.java.net)"
@@ -143,7 +143,7 @@
             proxypassword="${proxy.pass}" />
     </target>
 
-    <target name="test" depends="compileTest,-set-proxy">
+    <target name="test" depends="compileTest,-set-proxy" description="Run unit tests">
         <java classname="com.sun.jsftemplating.UnitTests" fork="true">
             <classpath refid="test-dependencies" />
         </java>
@@ -160,7 +160,7 @@
         </javac>
     </target>
 
-    <target name="clean">
+    <target name="clean" description="Clean the project">
         <!-- Delete the build / dist directories ;-->
         <delete dir="${aptbuild}" />
         <delete dir="${build}" />
@@ -170,7 +170,7 @@
         <ant dir="samples" target="clean" />
     </target>
 
-    <target name="build-samples">
+    <target name="build-samples" description="Build the samples">
         <!-- build all sample apps under the samples directory -->
         <ant dir="samples" target="build" />
     </target>
