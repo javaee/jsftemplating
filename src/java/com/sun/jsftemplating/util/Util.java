@@ -77,7 +77,7 @@ public class Util {
 	Class cls = null;
 	if (loader != null) {
 	    try {
-		cls = loader.loadClass(className);
+		cls = Class.forName(className, false, loader);
 	    } catch (ClassNotFoundException ex) {
 		// Ignore
 		if (LogUtil.finestEnabled()) {
@@ -91,14 +91,16 @@ public class Util {
 	    // Still haven't found it... look for it somewhere else.
 	    if (obj != null) {
 		loader = obj.getClass().getClassLoader();
-		try {
-		    cls = loader.loadClass(className);
-		} catch (ClassNotFoundException ex) {
-		    // Ignore
-		    if (LogUtil.finestEnabled()) {
-			LogUtil.finest("Unable to find class (" + className
-			    + ") using ClassLoader: '" + loader
-			    + "'.  I will try the System ClassLoader.", ex);
+		if (loader != null) {
+		    try {
+			cls = Class.forName(className, false, loader);
+		    } catch (ClassNotFoundException ex) {
+			// Ignore
+			if (LogUtil.finestEnabled()) {
+			    LogUtil.finest("Unable to find class (" + className
+				+ ") using ClassLoader: '" + loader
+				+ "'.  I will try the System ClassLoader.", ex);
+			}
 		    }
 		}
 	    }
@@ -107,7 +109,7 @@ public class Util {
 		loader = ClassLoader.getSystemClassLoader();
 
 		// Allow this one to throw the Exception if not found
-		cls = loader.loadClass(className);
+		cls = Class.forName(className, false, loader);
 	    }
 	}
 
