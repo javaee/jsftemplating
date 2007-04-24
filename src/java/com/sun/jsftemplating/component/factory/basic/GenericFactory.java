@@ -22,6 +22,8 @@
  */
 package com.sun.jsftemplating.component.factory.basic;
 
+import java.io.Serializable;
+
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
@@ -46,7 +48,12 @@ public class GenericFactory extends ComponentFactoryBase {
 
     /**
      *	<p> This is the factory method responsible for creating the
-     *	    <code>UIComponent</code>.</p>
+     *	    <code>UIComponent</code>.  It requires that the "componentType"
+     *	    attribute be supplied with a valid JSF ComponentType.  This may
+     *	    be supplied in the page on a per-use basis, or on an instance of
+     *	    this Factory via the
+     *	    {@link ComponentFactoryBase#setExtraInfo(Serializable)}
+     *	    method.</p>
      *
      *	@param	context	    The <code>FacesContext</code>
      *	@param	descriptor  The {@link LayoutComponent} descriptor associated
@@ -59,10 +66,17 @@ public class GenericFactory extends ComponentFactoryBase {
 	// Determine the componentType
 	String componentType = (String) descriptor.getEvaluatedOption(context, COMPONENT_TYPE, parent);
 	if (componentType == null) {
-	    throw new IllegalArgumentException(
-		    "\"&gt;component&lt;\" requires a \"" + COMPONENT_TYPE
-		    + "\" property to be set to the componentType of the "
-		    + "component you wish to create.");
+	    Serializable extraInfo = getExtraInfo();
+	    if (extraInfo != null) {
+		// This component allows the (default) CompnentType to be set
+		// on the factory.
+		componentType = extraInfo.toString();
+	    } else {
+		throw new IllegalArgumentException(
+			"\"&gt;component&lt;\" requires a \"" + COMPONENT_TYPE
+			+ "\" property to be set to the componentType of the "
+			+ "component you wish to create.");
+	    }
 	}
 
 	// Create the UIComponent
