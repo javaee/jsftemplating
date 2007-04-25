@@ -20,10 +20,14 @@
  * 
  * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
  */
+
 package com.sun.jsftemplating.layout.facelets;
+
 import java.net.URL;
 import junit.framework.TestCase;
+
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
+
 /**
  * 
  * <p>
@@ -31,14 +35,18 @@ import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
  * </p>
  * 
  */
+
 public class FaceletsLayoutDefinitionReaderTest extends TestCase {
+
     /**
      * 
      * 
      * 
      */
     protected void setUp() {
+
     }
+
     /**
      * 
      * <p>
@@ -56,7 +64,7 @@ public class FaceletsLayoutDefinitionReaderTest extends TestCase {
                     .getUnevaluatedId());
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail(ex.getMessage());
+            fail();
         }
     }
     

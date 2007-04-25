@@ -26,6 +26,7 @@ import com.sun.jsftemplating.annotation.FormatDefinitionAPFactory;
 import com.sun.jsftemplating.annotation.HandlerAPFactory;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.UIComponentFactoryAPFactory;
+import com.sun.jsftemplating.component.factory.basic.GenericFactory;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
@@ -33,6 +34,8 @@ import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
+import com.sun.jsftemplating.layout.facelets.DbFactory;
+import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.Util;
 
 import java.io.BufferedReader;
@@ -40,16 +43,30 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import javax.faces.context.FacesContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 
 /**
@@ -335,7 +352,7 @@ public abstract class LayoutDefinitionManager {
                             line = rdr.readLine();
                         }
                     } finally {
-                        closeStream(is);
+                        Util.closeStream(is);
                     }
                 }
             } catch (IOException ex) {
@@ -494,15 +511,86 @@ public abstract class LayoutDefinitionManager {
                             types.put(id, new ComponentType(id, (String) entry.getValue()));
                         }
                     } finally {
-                        closeStream(is);
+                        Util.closeStream(is);
                     }
                 }
+                readComponentsFromTaglibXml(types);
                 _globalComponentTypes = types;
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }
         return _globalComponentTypes;
+    }
+    
+    private static void readComponentsFromTaglibXml(Map<String, ComponentType> types) throws IOException {
+	Enumeration<URL> urls = Util.getClassLoader(types).getResources("META-INF/");
+	Set<URL> files = new HashSet<URL>();
+	while (urls.hasMoreElements()) {
+	    URL url = urls.nextElement();
+	    URLConnection conn = url.openConnection();
+	    conn.setUseCaches(false);
+            conn.setDefaultUseCaches(false);
+            
+	    if (conn instanceof JarURLConnection) {
+		JarURLConnection jarConn = (JarURLConnection) conn;
+		JarFile jarFile = jarConn.getJarFile();
+		Enumeration<JarEntry> entries = jarFile.entries();
+		while (entries.hasMoreElements()) {
+		    JarEntry entry = entries.nextElement();
+		    String entryName = entry.getName();
+		    if (entryName.startsWith("META-INF") && entryName.endsWith("taglib.xml")) {
+			Enumeration<URL> e = Util.getClassLoader(types).getResources(entryName);
+			while (e.hasMoreElements()) {
+			    files.add(e.nextElement());
+			}
+		    }
+		}
+	    } else {
+		// TODO:  I have yet to hit this branch
+//		File dir = new File(url.getFile());
+//		String fileList[] = dir.list(new FilenameFilter() {
+//		    public boolean accept(File file, String fileName) {
+//			return fileName.endsWith("taglib.xml");
+//		    } });
+	    }
+	    
+	}
+	if(files.size() >0) {
+	    for (URL url : files) {
+		processTaglibXml(url, types);
+	    }
+	}
+    }
+    
+    private static void processTaglibXml(URL url, Map<String, ComponentType> types) {
+	InputStream is = null;
+	try {
+	    is = url.openStream();
+	    DocumentBuilder builder = DbFactory.getInstance();
+	    Document document = builder.parse(is);
+	    XPath xpath = XPathFactory.newInstance().newXPath();
+	    
+	    String nameSpace = xpath.evaluate("/facelet-taglib/namespace", document);
+
+	    // Process <tag> elements
+	    NodeList nl = (NodeList) xpath.evaluate("/facelet-taglib/tag", document, XPathConstants.NODESET);
+	    for (int i = 0; i < nl.getLength(); i++) {
+		Node node = nl.item(i);
+		String tagName = xpath.evaluate("tag-name", node);
+		String componentType = xpath.evaluate("component/component-type", node);
+		String id = nameSpace + ":" + tagName;
+		types.put(id, 
+			new ComponentType(id, GenericFactory.class.getName(), componentType));
+	    }
+	} catch (Exception e) {
+	    if (LogUtil.severeEnabled()) {
+		LogUtil.severe(e.getMessage());
+	    }
+	    throw new RuntimeException(e);
+	} finally {
+	    Util.closeStream(is);
+	}
     }
 
     /**
@@ -580,7 +668,7 @@ public abstract class LayoutDefinitionManager {
                         }
                     }
                 } finally {
-                    closeStream(is);
+                    Util.closeStream(is);
                 }
             }
         } catch (IOException ex) {
@@ -754,16 +842,6 @@ public abstract class LayoutDefinitionManager {
      */
     public static void setDebug(boolean flag) {
         _debug = Boolean.valueOf(flag);
-    }
-
-    protected static void closeStream(InputStream is) {
-        if (is != null) {
-            try {
-                is.close();
-            } catch (Exception e) {
-                // ignore
-            }
-        }
     }
 
     /**

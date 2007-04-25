@@ -22,11 +22,7 @@
  */
 package com.sun.jsftemplating.layout;
 
-import com.sun.jsftemplating.component.factory.basic.StaticTextFactory;
-import com.sun.jsftemplating.layout.descriptors.ComponentType;
-import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
-
-import junit.framework.*;
+import com.sun.jsftemplating.component.factory.basic.StaticTextFactory;import com.sun.jsftemplating.layout.descriptors.ComponentType;import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;import junit.framework.TestCase;
 
 
 /**
@@ -55,7 +51,7 @@ public class LayoutDefinitionManagerTest extends TestCase {
 	    ex.printStackTrace();
 	    fail(ex.getMessage());
 	}
-    }
+    }        public void testReadFaceletsTagLibXml() {	assertNotNull(LayoutDefinitionManager.getGlobalComponentTypes().get("http://java.sun.com/jsf/extensions/dynafaces:scripts"));    }
 
     /**
      *	<p> Test to ensure we can read global {@link HandlerDefinition}s.</p>

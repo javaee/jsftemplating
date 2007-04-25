@@ -22,16 +22,7 @@
  */
 package com.sun.jsftemplating.layout.template;
 
-import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
-import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-import com.sun.jsftemplating.layout.descriptors.handler.Handler;
-
-import java.io.ByteArrayInputStream;
-import java.net.URL;
-import java.util.List;
-
-import junit.framework.*;
+import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;import com.sun.jsftemplating.layout.descriptors.handler.Handler;import java.io.ByteArrayInputStream;import java.util.List;import junit.framework.TestCase;
 
 
 /**

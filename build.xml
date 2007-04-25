@@ -110,6 +110,8 @@
             <zipfileset dir="${jsftemplating.home}/layout/pages" prefix="" includes="*.jsf" />
             <zipfileset dir="${jsftemplating.home}/component/layout" prefix="META-INF/jsftemplating" includes="*.xml" />
             <zipfileset dir="${jsftemplating.home}/layout/xml" prefix="META-INF/jsftemplating" includes="*.dtd" />
+            <zipfileset dir="${jsftemplating.home}/layout/facelets" prefix="META-INF/" includes="*.dtd" />
+            <zipfileset dir="${jsftemplating.home}/layout/facelets" prefix="META-INF/" includes="*.ent" />
             <zipfileset dir="${jsftemplating.home}" prefix="META-INF" includes="faces-config.xml" />
         </jar>
     </target>

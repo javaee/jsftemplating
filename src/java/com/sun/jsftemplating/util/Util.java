@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.util;
 
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -201,21 +202,37 @@ public class Util {
     }
     /**
      *	<p> This method strips leading delimeter. </p>
-	 *
+     *
      */
-	 protected static String stripLeadingDelimeter(String str, char ch) {
-		if(str == null || str.equals("")) {
-			return str;
-		}
-		int j = 0;
-		char[] strArr = str.toCharArray();
-		for(int i=0; i < strArr.length; i++) {
-            j=i;
-            if(strArr[i] != ch) {
-                break;
-            }
-        }
-		return str.substring(j);
-		
-	 }
+    protected static String stripLeadingDelimeter(String str, char ch) {
+	if(str == null || str.equals("")) {
+	    return str;
+	}
+	int j = 0;
+	char[] strArr = str.toCharArray();
+	for(int i=0; i < strArr.length; i++) {
+	    j=i;
+	    if(strArr[i] != ch) {
+		break;
+	    }
+	}
+	return str.substring(j);
+
+    }
+
+    /**
+     * Closes an InputStream if it is non-null, throwing away any Exception
+     * that may occur
+     * @param is
+     */
+    public static void closeStream(InputStream is) {
+	if (is != null) {
+	    try {
+		is.close();
+	    } catch (Exception e) {
+		// ignore
+	    }
+	}
+    }
+
 }

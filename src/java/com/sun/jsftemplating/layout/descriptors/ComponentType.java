@@ -55,6 +55,10 @@ public class ComponentType implements java.io.Serializable {
 	_factoryClass = factoryClass;
     }
 
+    public ComponentType (String id, String factoryClass, Serializable extraInfo) {
+    	this(id, factoryClass);
+    	this.setExtraInfo(extraInfo);
+    }
 
     public String getId() {
 	return _id;
