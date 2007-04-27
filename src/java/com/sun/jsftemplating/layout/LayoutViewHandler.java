@@ -416,6 +416,24 @@ public class LayoutViewHandler extends ViewHandler {
     }
 
     /**
+     *	<p> This method searches the given the entire <code>stack</code> for a
+     *	    {@link LayoutDefine} with the given <code>name</code>.</p>
+     */
+    private static LayoutDefine findLayoutDefine(FacesContext context, UIComponent parent, List<LayoutElement> eltList, String name) {
+	Iterator<LayoutElement> stackIt = eltList.iterator();
+	LayoutDefine define = null;
+	while (stackIt.hasNext()) {
+	    define = findLayoutDefine(context, parent, stackIt.next(), name);
+	    if (define != null) {
+		return define;
+	    }
+	}
+
+	// Not found!
+	return null;
+    }
+
+    /**
      *	<p> This method returns the <code>Stack</code> used to keep track of
      *	    the {@link LayoutComposition}s that are used in the requested
      *	    page.</p>
@@ -486,7 +504,7 @@ public class LayoutViewHandler extends ViewHandler {
 		String insertName = ((LayoutInsert) childElt).getName();
 		if (insertName == null) {
 		    // include everything
-		    buildUIComponentTree(context, parent, composition);
+		    buildUIComponentTree(context, parent, stack.get(0));
 		} else {
 		    // First resolve an EL in the insertName
 		    insertName = "" + ((LayoutInsert) childElt).resolveValue(
@@ -494,7 +512,7 @@ public class LayoutViewHandler extends ViewHandler {
 
 		    // Search for specific LayoutDefine
 		    LayoutElement def = findLayoutDefine(
-			    context, parent, composition, insertName);
+			    context, parent, stack, insertName);
 		    if (def == null) {
 			// Not found include the body-content of the insert
 			buildUIComponentTree(context, parent, childElt);
