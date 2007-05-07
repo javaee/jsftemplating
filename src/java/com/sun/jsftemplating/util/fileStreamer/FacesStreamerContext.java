@@ -174,18 +174,6 @@ public class FacesStreamerContext extends BaseContext {
     public static final String FACES_CONTEXT    = "facesContext";
 
     /**
-     *	<p> This is the <b>Request Parameter</b> that may be provided to
-     *	    identify the <code>ContentSource</code> implementation to be used.
-     *	    This value must match the value returned by the
-     *	    <code>ContentSource</code> implementation's <code>getId()</code>
-     *	    method.</p>
-     *
-     *	<p> In many cases, the {@link #DEFAULT_CONTENT_SOURCE_ID} is sufficient,
-     *	    which is used by default.</p>
-     */
-    public static final String CONTENT_SOURCE_ID    = "contentSourceId";
-
-    /**
      *	<p> This is the id of the default {@link ContentSource}.  This is set
      *	    to the id of the {@link ResourceContentSource}.</p>
      */

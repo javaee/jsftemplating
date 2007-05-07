@@ -219,15 +219,6 @@ public class ServletStreamerContext extends BaseContext {
     public static final String SERVLET_RESPONSE    = "contentSourceId";
 
     /**
-     *	<p> This is the <b>HttpServletRequest Parameter</b> that should be
-     *	    provided to identify the <code>ContentSource</code>
-     *	    implementation that should be used.  This value must match the
-     *	    value returned by the <code>ContentSource</code>
-     *	    implementation's <code>getId()</code> method.</p>
-     */
-    public static final String CONTENT_SOURCE_ID    = "contentSourceId";
-
-    /**
      *	<p> The default Content-Disposition.  It is only used when a filename
      *	    is provided, but a disposition is not.  The default is
      *	    "attachment".  This will normally cause a browser to prompt the

@@ -141,4 +141,14 @@ public interface Context {
      *	    this information as an attribute.</p>
      */
     public static final String FILE_PATH = "filePath";
+
+    /**
+     *	<p> This is the parameter that may be provided to identify the
+     *	    {@link ContentSource} implementation to be used.  This value must
+     *	    match the value returned by the <code>ContentSource</code>
+     *	    implementation's <code>getId()</code> method.  It is typical for
+     *	    {@link Context} implementations to allow this to be specified by a
+     *	    <code>HttpServletRequest</code> parameter.</p>
+     */
+    public static final String CONTENT_SOURCE_ID    = "contentSourceId";
 }
