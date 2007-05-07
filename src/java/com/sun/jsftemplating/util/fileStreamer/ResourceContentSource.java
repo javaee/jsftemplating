@@ -95,7 +95,7 @@ public class ResourceContentSource implements ContentSource {
      */
     public String getResourcePath(Context ctx) {
 	// Check the ctx for the path...
-	String path = (String) ctx.getAttribute("filePath");
+	String path = (String) ctx.getAttribute(Context.FILE_PATH);
 	if (path == null) {
 	    if (ctx instanceof ServletStreamerContext) {
 		// Not found, but we're in a Servlet, keep looking...
