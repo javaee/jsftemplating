@@ -215,5 +215,5 @@ public class FacesStreamerContext extends BaseContext {
      *	<p> This is a flag to indicate if initialization has been
      *	    completed.</p>
      */
-    public static boolean initDone = false;
+    private static boolean initDone = false;
 }
