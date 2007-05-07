@@ -5,6 +5,10 @@
     <param-name>com.sun.jsftemplating.DEBUG</param-name>
     <param-value>true</param-value>
   </context-param>
+  <context-param>
+    <param-name>ContentSources</param-name>
+    <param-value>org.example.contentSources.ExampleContentSource,org.example.contentSources.ProxyContentSource</param-value>
+  </context-param>
   <servlet>
     <servlet-name>FacesServlet</servlet-name>
     <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
