@@ -134,4 +134,11 @@ public interface Context {
      *	    the contentDisposition to "attachment".</p>
      */
     public static final String CONTENT_FILENAME = "filename";
+
+    /**
+     *	<p> This is the path of the requested file ("filename").  It is the
+     *	    responsibility of the {@link Context} implementation to provide
+     *	    this information as an attribute.</p>
+     */
+    public static final String FILE_PATH = "filePath";
 }
