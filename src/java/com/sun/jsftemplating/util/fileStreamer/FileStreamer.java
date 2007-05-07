@@ -35,11 +35,11 @@ import com.sun.jsftemplating.util.Util;
 
 /**
  *  <p>	This class provides the ability to retrieve information from an
- *	abritrary source.  It provides the ability to set the content type
- *	of the file, if the request is Servlet based.  If the request is not
+ *	abritrary source.  It provides the ability to set the Content-type
+ *	of the file if the request is http-based.  If the Content-type is not
  *	explicitly specified, it will attempt to guess based on the extension
  *	(if possible).  It requires the {@link ContentSource} for the data to
- *	be retrieved to be specified by calling
+ *	be retrieved to be defined by calling
  *	{@link #registerContentSource(String)}.</p>
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
@@ -57,9 +57,6 @@ public class FileStreamer {
      *	<p> Use this method to obtain the instance of this class.</p>
      */
     public static FileStreamer getFileStreamer() {
-	if (_streamer == null) {
-	    _streamer = new FileStreamer();
-	}
 	return _streamer;
     }
 
@@ -351,5 +348,5 @@ public class FileStreamer {
     public static final String DEFAULT_CONTENT_TYPE =
 	    "application/octet-stream";
 
-    private static FileStreamer    _streamer	= null;
+    private static FileStreamer    _streamer	= new FileStreamer();
 }
