@@ -49,6 +49,7 @@ public class ServletStreamerContext extends BaseContext {
      *	<p> Constructor.</p>
      */
     public ServletStreamerContext(HttpServletRequest request, HttpServletResponse resp, ServletConfig config) {
+	super();
 	setServletRequest(request);
 	setServletResponse(resp);
 	setServletConfig(config);
@@ -209,20 +210,20 @@ public class ServletStreamerContext extends BaseContext {
      *	<p> The attribute value to access the ServletConfig.  See
      *	    {@link #getServletConfig()}.</p>
      */
-    public static final String SERVLET_CONFIG    = "contentSourceId";
+    public static final String SERVLET_CONFIG    = "servletConfig";
 
     /**
      *	<p> The attribute value to access the HttpServletRequest.  See
      *	    {@link #getServletRequest()}.</p>
      */
-    public static final String SERVLET_REQUEST    = "contentSourceId";
+    public static final String SERVLET_REQUEST    = "servletRequest";
 
     /**
      *	<p> The attribute value to access the
      *	    <code>HttpServletResponse</code>.  See
      *	    {@link #getServletResponse()}.</p>
      */
-    public static final String SERVLET_RESPONSE    = "contentSourceId";
+    public static final String SERVLET_RESPONSE    = "servletResponse";
 
     /**
      *	<p> The default Content-Disposition.  It is only used when a filename

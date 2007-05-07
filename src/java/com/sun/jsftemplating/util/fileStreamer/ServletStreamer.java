@@ -66,16 +66,12 @@ public class ServletStreamer extends HttpServlet {
 
 	// Register ContentSources
 	String sources = config.getInitParameter(CONTENT_SOURCES);
-	if ((sources == null) || (sources.trim().length() == 0)) {
-	    throw new ServletException("No ContentSources specified!  Ensure "
-		    + "at least 1 ContentSource is provided as"
-		    + " a Servlet init parameter (key: " + CONTENT_SOURCES
-		    + ").");
-	}
-	FileStreamer fs = FileStreamer.getFileStreamer();
-	StringTokenizer tokens = new StringTokenizer(sources, " \t\n\r\f,;:");
-	while (tokens.hasMoreTokens()) {
-	    fs.registerContentSource(tokens.nextToken());
+	if ((sources != null) && (sources.trim().length() != 0)) {
+	    FileStreamer fs = FileStreamer.getFileStreamer();
+	    StringTokenizer tokens = new StringTokenizer(sources, " \t\n\r\f,;:");
+	    while (tokens.hasMoreTokens()) {
+		fs.registerContentSource(tokens.nextToken());
+	    }
 	}
     }
 
@@ -129,7 +125,7 @@ public class ServletStreamer extends HttpServlet {
      *	@param	request	    The <code>HttpServletRequest</code>.
      *	@param	response    The <code>HttpServletResponse</code>.
      */
-    protected Context getServletStreamerContext(HttpServletRequest request, HttpServletResponse response) {
+    protected ServletStreamerContext getServletStreamerContext(HttpServletRequest request, HttpServletResponse response) {
 	ServletStreamerContext ctx = (ServletStreamerContext)
 	    request.getAttribute(SERVLET_STREAMER_CONTEXT);
 	if (ctx == null) {
