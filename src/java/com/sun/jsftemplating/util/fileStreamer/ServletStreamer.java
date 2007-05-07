@@ -47,7 +47,7 @@ import javax.servlet.http.HttpServletResponse;
  *	any source (i.e. the filesystem, generated data, from the network, a
  *	database, etc.).  The available {@link ContentSource} implemenatations
  *	must be specified via a <code>Servlet</code> init parameter named
- *	{@link ServletStreamer#CONTENT_SOURCES}.</p>
+ *	{@link Context#CONTENT_SOURCES}.</p>
  */
 public class ServletStreamer extends HttpServlet {
 
@@ -65,7 +65,7 @@ public class ServletStreamer extends HttpServlet {
 	super.init(config);
 
 	// Register ContentSources
-	String sources = config.getInitParameter(CONTENT_SOURCES);
+	String sources = config.getInitParameter(Context.CONTENT_SOURCES);
 	if ((sources != null) && (sources.trim().length() != 0)) {
 	    FileStreamer fs = FileStreamer.getFileStreamer();
 	    StringTokenizer tokens = new StringTokenizer(sources, " \t\n\r\f,;:");
@@ -167,15 +167,6 @@ public class ServletStreamer extends HttpServlet {
      *	    {@link Context} object for this request.</p>
      */
     public static final String SERVLET_STREAMER_CONTEXT	    = "servletStreamerContext";
-
-    /**
-     *	<p> This String ("ContentSources") is the name if the
-     *	    <b><code>Servlet</code> init parameter</b> that should be used to
-     *	    register all available {@link ContentSource} implementations.  This
-     *	    should be a list of full classnames of the
-     *	    {@link ContentSource}s.</p>
-     */
-    public static final String CONTENT_SOURCES	    = "ContentSources";
 
     /**
      *	<p> The Default Content-type ("application/octet-stream").</p>

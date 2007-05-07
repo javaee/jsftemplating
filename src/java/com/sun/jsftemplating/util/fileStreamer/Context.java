@@ -153,6 +153,15 @@ public interface Context {
     public static final String CONTENT_SOURCE_ID    = "contentSourceId";
 
     /**
+     *	<p> This String ("ContentSources") is the name if the
+     *	    <code>Servlet</code> init parameter or context param (depending
+     *	    on environment implementation) that should be used to register
+     *	    all available {@link ContentSource} implementations.  This should
+     *	    be a list of full classnames of the {@link ContentSource}s.</p>
+     */
+    public static final String CONTENT_SOURCES	    = "ContentSources";
+
+    /**
      *	<p> This is the id of the default {@link ContentSource}.  This is set
      *	    to the id of the {@link ResourceContentSource}.</p>
      */

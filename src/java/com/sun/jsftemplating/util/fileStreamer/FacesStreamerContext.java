@@ -24,6 +24,7 @@ package com.sun.jsftemplating.util.fileStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.StringTokenizer;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletResponse;
@@ -50,6 +51,32 @@ public class FacesStreamerContext extends BaseContext {
      */
     public FacesStreamerContext(FacesContext ctx) {
 	setFacesContext(ctx);
+	init(ctx);
+    }
+
+    /**
+     *	<p> This method initializes {@link FileStreamer}
+     *	    {@link ContentSources}s.  It looks for the
+     *	    {@link Context#CONTENT_SOURCES} context parameter (JSF doesn't
+     *	    provide a way to get to the ServletConfig init parameters, as of
+     *	    JSF 1.2).</p>
+     */
+    protected synchronized void init(FacesContext ctx) {
+	if (initDone) {
+	    return;
+	}
+
+	// Register ContentSources
+	String sources = ctx.getExternalContext().getInitParameter(CONTENT_SOURCES);
+	if ((sources != null) && (sources.trim().length() != 0)) {
+	    FileStreamer fs = FileStreamer.getFileStreamer();
+	    StringTokenizer tokens = new StringTokenizer(sources, " \t\n\r\f,;:");
+	    while (tokens.hasMoreTokens()) {
+		fs.registerContentSource(tokens.nextToken());
+	    }
+	}
+
+	initDone = true;
     }
 
     /**
@@ -183,4 +210,10 @@ public class FacesStreamerContext extends BaseContext {
      *	    filename.</p>
      */
     public static final String DEFAULT_DISPOSITION =	"attachment";
+
+    /**
+     *	<p> This is a flag to indicate if initialization has been
+     *	    completed.</p>
+     */
+    public static boolean initDone = false;
 }
