@@ -83,8 +83,8 @@ public class FacesStreamerContext extends BaseContext {
      *	<p> This method locates the appropriate {@link ContentSource} for this
      *	    {@link Context}.  It uses the <code>FacesContext</code>'s
      *	    <code>ExternalContext</code> to look for a <b>request parameter</b>
-     *	    named {@link #CONTENT_SOURCE_ID}.  This value is used as the key
-     *	    when looking up registered {@link ContentSource}
+     *	    named {@link Context#CONTENT_SOURCE_ID}.  This value is used as the
+     *	    key when looking up registered {@link ContentSource}
      *	    implementations.</p>
      */
     public ContentSource getContentSource() {
@@ -95,7 +95,7 @@ public class FacesStreamerContext extends BaseContext {
 
 	// Get the ContentSource id
 	String id = getFacesContext().getExternalContext().
-		getRequestParameterMap().get(CONTENT_SOURCE_ID);
+		getRequestParameterMap().get(Context.CONTENT_SOURCE_ID);
 	if (id == null) {
 	    // Use the default ContentSource
 	    id = Context.DEFAULT_CONTENT_SOURCE_ID;
