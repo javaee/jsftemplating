@@ -71,7 +71,7 @@ public class FacesStreamerContext extends BaseContext {
 		getRequestParameterMap().get(CONTENT_SOURCE_ID);
 	if (id == null) {
 	    // Use the default ContentSource
-	    id = DEFAULT_CONTENT_SOURCE_ID;
+	    id = Context.DEFAULT_CONTENT_SOURCE_ID;
 	}
 
 	// Get the ContentSource
@@ -172,13 +172,6 @@ public class FacesStreamerContext extends BaseContext {
      *	    {@link #getFacesContext()}.</p>
      */
     public static final String FACES_CONTEXT    = "facesContext";
-
-    /**
-     *	<p> This is the id of the default {@link ContentSource}.  This is set
-     *	    to the id of the {@link ResourceContentSource}.</p>
-     */
-    public static final String DEFAULT_CONTENT_SOURCE_ID =
-	    ResourceContentSource.ID;
 
     /**
      *	<p> The default Content-Disposition.  It is only used when a filename

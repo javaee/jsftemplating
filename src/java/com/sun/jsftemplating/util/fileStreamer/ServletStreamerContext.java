@@ -63,24 +63,30 @@ public class ServletStreamerContext extends BaseContext {
      *	    looking up registered {@link ContentSource} implementations.</p>
      */
     public ContentSource getContentSource() {
+	// Check cache...
+	ContentSource src = (ContentSource) getAttribute("_contentSource");
+	if (src != null) {
+	    return src;
+	}
+
 	// Get the ContentSource id
 	String id = getServletRequest().getParameter(CONTENT_SOURCE_ID);
 	if (id == null) {
 	    id = getServletConfig().getInitParameter(CONTENT_SOURCE_ID);
 	    if (id == null) {
-		throw new RuntimeException("You must provide the '"
-		    + CONTENT_SOURCE_ID + "' request parameter!");
+		id = Context.DEFAULT_CONTENT_SOURCE_ID;
 	    }
 	}
 
 	// Get the ContentSource
-	ContentSource src = FileStreamer.getFileStreamer().getContentSource(id);
+	src = FileStreamer.getFileStreamer().getContentSource(id);
 	if (src == null) {
 	    throw new RuntimeException("The ContentSource with id '" + id
 		    + "' is not registered!");
 	}
 
 	// Return the ContentSource
+	setAttribute("_contentSource", src);  // cache result
 	return src;
     }
 

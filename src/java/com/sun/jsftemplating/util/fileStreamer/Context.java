@@ -151,4 +151,11 @@ public interface Context {
      *	    <code>HttpServletRequest</code> parameter.</p>
      */
     public static final String CONTENT_SOURCE_ID    = "contentSourceId";
+
+    /**
+     *	<p> This is the id of the default {@link ContentSource}.  This is set
+     *	    to the id of the {@link ResourceContentSource}.</p>
+     */
+    public static final String DEFAULT_CONTENT_SOURCE_ID =
+	    ResourceContentSource.ID;
 }
