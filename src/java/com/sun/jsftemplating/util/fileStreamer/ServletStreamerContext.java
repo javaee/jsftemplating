@@ -26,8 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
@@ -38,8 +37,10 @@ import javax.servlet.http.HttpServletResponse;
  *  <p>	This implementation will look for the following attributes
  *	({@link BaseContext#setAttribute(String, Object)}):</p>
  *
- *  <ul><li>{@link #CONTENT_TYPE} -- The "Content-type:" of the response.</li>
- *	<li>{@link #EXTENSION} -- The file extension of the response.</li>
+ *  <ul><li>{@link Context#CONTENT_TYPE} -- The "Content-type:" of the response.</li>
+ *	<li>{@link Context#CONTENT_DISPOSITION} -- Disposition of the streamed content.</li>
+ *	<li>{@link Context#CONTENT_FILENAME} -- Filename of the streamed content.</li>
+ *	<li>{@link Context#EXTENSION} -- The file extension of the response.</li>
  *	</ul>
  */
 public class ServletStreamerContext extends BaseContext {
@@ -47,16 +48,17 @@ public class ServletStreamerContext extends BaseContext {
     /**
      *	<p> Constructor.</p>
      */
-    public ServletStreamerContext(ServletRequest request, ServletResponse resp, ServletConfig config) {
+    public ServletStreamerContext(HttpServletRequest request, HttpServletResponse resp, ServletConfig config) {
 	setServletRequest(request);
 	setServletResponse(resp);
 	setServletConfig(config);
+	setAttribute(Context.FILE_PATH, request.getPathInfo());
     }
 
     /**
      *	<p> This method locates the appropriate {@link ContentSource} for this
-     *	    {@link Context}.  It uses the <code>ServletRequest</code> to look
-     *	    for a <b>ServletRequest Parameter</b> named
+     *	    {@link Context}.  It uses the <code>HttpServletRequest</code> to
+     *	    look for a <b>HttpServletRequest</b> parameter named
      *	    {@link #CONTENT_SOURCE_ID}.  This value is used as the key when
      *	    looking up registered {@link ContentSource} implementations.</p>
      */
@@ -87,18 +89,13 @@ public class ServletStreamerContext extends BaseContext {
      *	    information.</p>
      */
     public void writeHeader(ContentSource source) {
-	ServletResponse resp = getServletResponse();
-	if (!(resp instanceof HttpServletResponse)) {
-	    // This implementation is only valid for HttpServletResponse
-	    return;
-	}
+	HttpServletResponse resp = getServletResponse();
 
 	// Set the "Last-Modified" Header
 	// First check context
 	long longTime = source.getLastModified(this);
 	if (longTime != -1) {
-	    ((HttpServletResponse) resp).
-		setDateHeader("Last-Modified", longTime);
+	    resp.setDateHeader("Last-Modified", longTime);
 	}
 
 	// First check CONTENT_TYPE
@@ -114,7 +111,24 @@ public class ServletStreamerContext extends BaseContext {
 		contentType = FileStreamer.getDefaultMimeType();
 	    }
 	}
-	((HttpServletResponse) resp).setHeader("Content-type", contentType);
+	resp.setHeader("Content-type", contentType);
+
+	// Check disposition/filename to associate a name with the stream
+	String disposition = (String) getAttribute(CONTENT_DISPOSITION);
+	String filename = (String) getAttribute(CONTENT_FILENAME);
+	if (disposition == null) {
+	    // No disposition set, see if we have a filename
+	    if (filename != null) {
+		resp.setHeader("Content-Disposition", DEFAULT_DISPOSITION
+			+ ";filename=\"" + filename + "\"");
+	    }
+	} else {
+	    // Disposition set, see if we also have a filename
+	    if (filename != null) {
+		disposition += ";filename=\"" + filename + "\"";
+	    }
+	    resp.setHeader("Content-Disposition", disposition);
+	}
     }
 
     /**
@@ -146,42 +160,42 @@ public class ServletStreamerContext extends BaseContext {
     }
 
     /**
-     *  <p> This returns the <code>ServletRequest</code>.  This is the same
+     *  <p> This returns the <code>HttpServletRequest</code>.  This is the same
      *	    as calling:</p>
      *
      *  <p> <code>getAttribute(SERVLET_REQUEST)</code></p>
      */
-    public ServletRequest getServletRequest() {
-	return (ServletRequest) getAttribute(SERVLET_REQUEST);
+    public HttpServletRequest getServletRequest() {
+	return (HttpServletRequest) getAttribute(SERVLET_REQUEST);
     }
 
     /**
-     *  <p> This sets the <code>ServletRequest</code>.  This is the same as
+     *  <p> This sets the <code>HttpServletRequest</code>.  This is the same as
      *	    calling:</p>
      *
      *  <p> <code>setAttribute(SERVLET_REQUEST, request)</code></p>
      */
-    protected void setServletRequest(ServletRequest request) {
+    protected void setServletRequest(HttpServletRequest request) {
 	setAttribute(SERVLET_REQUEST, request);
     }
 
     /**
-     *  <p> This returns the <code>ServletResponse</code>.  This is the same
+     *  <p> This returns the <code>HttpServletResponse</code>.  This is the same
      *	    as calling:</p>
      *
      *  <p> <code>getAttribute(SERVLET_RESPONSE)</code></p>
      */
-    public ServletResponse getServletResponse() {
-	return (ServletResponse) getAttribute(SERVLET_RESPONSE);
+    public HttpServletResponse getServletResponse() {
+	return (HttpServletResponse) getAttribute(SERVLET_RESPONSE);
     }
 
     /**
-     *  <p> This sets the <code>ServletResponse</code>.  This is the same as
+     *  <p> This sets the <code>HttpServletResponse</code>.  This is the same as
      *	    calling:</p>
      *
      *  <p> <code>setAttribute(SERVLET_RESPONSE, response)</code></p>
      */
-    protected void setServletResponse(ServletResponse response) {
+    protected void setServletResponse(HttpServletResponse response) {
 	setAttribute(SERVLET_RESPONSE, response);
     }
 
@@ -192,23 +206,35 @@ public class ServletStreamerContext extends BaseContext {
     public static final String SERVLET_CONFIG    = "contentSourceId";
 
     /**
-     *	<p> The attribute value to access the ServletRequest.  See
+     *	<p> The attribute value to access the HttpServletRequest.  See
      *	    {@link #getServletRequest()}.</p>
      */
     public static final String SERVLET_REQUEST    = "contentSourceId";
 
     /**
-     *	<p> The attribute value to access the ServletResponse.  See
+     *	<p> The attribute value to access the
+     *	    <code>HttpServletResponse</code>.  See
      *	    {@link #getServletResponse()}.</p>
      */
     public static final String SERVLET_RESPONSE    = "contentSourceId";
 
     /**
-     *	<p> This is the <b>ServletRequest Parameter</b> that should be provided
-     *	    to identify the <code>ContentSource</code>
+     *	<p> This is the <b>HttpServletRequest Parameter</b> that should be
+     *	    provided to identify the <code>ContentSource</code>
      *	    implementation that should be used.  This value must match the
      *	    value returned by the <code>ContentSource</code>
      *	    implementation's <code>getId()</code> method.</p>
      */
     public static final String CONTENT_SOURCE_ID    = "contentSourceId";
+
+    /**
+     *	<p> The default Content-Disposition.  It is only used when a filename
+     *	    is provided, but a disposition is not.  The default is
+     *	    "attachment".  This will normally cause a browser to prompt the
+     *	    user to save the file.  This is the default since setting a
+     *	    filename implies that the user may want to save this file.  You
+     *	    must explicitly set the disposition for "inline" behavior with a
+     *	    filename.</p>
+     */
+    public static final String DEFAULT_DISPOSITION =	"attachment";
 }
