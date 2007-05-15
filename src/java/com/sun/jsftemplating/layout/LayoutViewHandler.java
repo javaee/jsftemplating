@@ -229,7 +229,7 @@ public class LayoutViewHandler extends ViewHandler {
 
 	// Setup the FacesStreamerContext
 	Context fsContext = new FacesStreamerContext(context);
-	fsContext.setAttribute("filePath", path);
+	fsContext.setAttribute(Context.FILE_PATH, path);
 
 	// Get the HttpServletResponse
 	Object obj = context.getExternalContext().getResponse();
@@ -387,69 +387,6 @@ public class LayoutViewHandler extends ViewHandler {
     }
 
     /**
-     *	<p> This method searches the given {@link LayoutElement} for a
-     *	    {@link LayoutDefine} with the given <code>name</code>.</p>
-     */
-    private static LayoutDefine findLayoutDefine(FacesContext context, UIComponent parent, LayoutElement elt, String name) {
-	Iterator<LayoutElement> it = elt.getChildLayoutElements().iterator();
-	LayoutElement def = null;
-	while (it.hasNext()) {
-	    def = it.next();
-	    if ((def instanceof LayoutDefine) && def.
-		    getId(context, parent).equals(name)) {
-		// We found what we're looking for...
-		return (LayoutDefine) def;
-	    }
-	}
-
-	// We still haven't found it, search the child LayoutElements
-	it = elt.getChildLayoutElements().iterator();
-	while (it.hasNext()) {
-	    def = findLayoutDefine(context, parent, it.next(), name);
-	    if (def != null) {
-		return (LayoutDefine) def;
-	    }
-	}
-
-	// Not found!
-	return null;
-    }
-
-    /**
-     *	<p> This method searches the given the entire <code>stack</code> for a
-     *	    {@link LayoutDefine} with the given <code>name</code>.</p>
-     */
-    private static LayoutDefine findLayoutDefine(FacesContext context, UIComponent parent, List<LayoutElement> eltList, String name) {
-	Iterator<LayoutElement> stackIt = eltList.iterator();
-	LayoutDefine define = null;
-	while (stackIt.hasNext()) {
-	    define = findLayoutDefine(context, parent, stackIt.next(), name);
-	    if (define != null) {
-		return define;
-	    }
-	}
-
-	// Not found!
-	return null;
-    }
-
-    /**
-     *	<p> This method returns the <code>Stack</code> used to keep track of
-     *	    the {@link LayoutComposition}s that are used in the requested
-     *	    page.</p>
-     */
-    private static Stack<LayoutElement> getCompositionStack(FacesContext context) {
-	Map requestMap = context.getExternalContext().getRequestMap();
-	Stack<LayoutElement> stack = (Stack<LayoutElement>)
-	    requestMap.get(COMPOSITION_STACK_KEY);
-	if (stack == null) {
-	    stack = new Stack<LayoutElement>();
-	    requestMap.put(COMPOSITION_STACK_KEY, stack);
-	}
-	return stack;
-    }
-
-    /**
      *	<p> This method iterates over the child {@link LayoutElement}s of the
      *	    given <code>elt</code> to create <code>UIComponent</code>s for each
      *	    {@link LayoutComponent}.</p>
@@ -478,7 +415,8 @@ public class LayoutViewHandler extends ViewHandler {
 		String template = ((LayoutComposition) childElt).getTemplate();
 		if (template != null) {
 		    // Add LayoutComposition to the stack
-		    Stack<LayoutElement> stack = getCompositionStack(context);
+		    Stack<LayoutElement> stack =
+			LayoutComposition.getCompositionStack(context);
 		    stack.push(childElt);
 
 		    // build tree from the LD of the template...
@@ -490,7 +428,8 @@ public class LayoutViewHandler extends ViewHandler {
 		    stack.pop();
 		}
 	    } else if (childElt instanceof LayoutInsert) {
-		Stack<LayoutElement> stack = getCompositionStack(context);
+		Stack<LayoutElement> stack =
+		    LayoutComposition.getCompositionStack(context);
 		if (stack.empty()) {
 		    // No template-client found...
 		    // Is this supposed to do nothing?  Or throw an exception?
@@ -500,18 +439,17 @@ public class LayoutViewHandler extends ViewHandler {
 		}
 
 		// Get assoicated UIComposition
-		LayoutElement composition = stack.peek();
 		String insertName = ((LayoutInsert) childElt).getName();
 		if (insertName == null) {
 		    // include everything
 		    buildUIComponentTree(context, parent, stack.get(0));
 		} else {
-		    // First resolve an EL in the insertName
+		    // First resolve any EL in the insertName
 		    insertName = "" + ((LayoutInsert) childElt).resolveValue(
 			    context, parent, insertName);
 
 		    // Search for specific LayoutDefine
-		    LayoutElement def = findLayoutDefine(
+		    LayoutElement def = LayoutInsert.findLayoutDefine(
 			    context, parent, stack, insertName);
 		    if (def == null) {
 			// Not found include the body-content of the insert
@@ -770,8 +708,6 @@ public class LayoutViewHandler extends ViewHandler {
     public String calculateRenderKitId(FacesContext context) {
 	return _oldViewHandler.calculateRenderKitId(context);
     }
-
-    private static final String COMPOSITION_STACK_KEY	= "_composition";
 
     /**
      *	<p> This is the key that may be used to identify the clientId of the

@@ -29,6 +29,6 @@ public class LayoutDefine extends LayoutElementBase {
 
     @Override
     protected boolean encodeThis(FacesContext context, UIComponent component) throws IOException {
-        return false;
+        return true;
     }
 }

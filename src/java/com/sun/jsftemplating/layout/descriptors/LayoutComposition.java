@@ -5,6 +5,8 @@ package com.sun.jsftemplating.layout.descriptors;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Stack;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -61,6 +63,9 @@ public class LayoutComposition extends LayoutElementBase {
 	    throw new IllegalArgumentException("You must specify a template!");
 	}
 
+	// Add this to the stack
+	LayoutComposition.push(context, this);
+
 	// Fire an encode event
 	dispatchHandlers(context, ENCODE, new EncodeEvent(component));
 
@@ -74,6 +79,47 @@ public class LayoutComposition extends LayoutElementBase {
 	    childElt = it.next();
 	    childElt.encode(context, component);
 	}
+
+	// Pop this from the stack
+	LayoutComposition.pop(context);
+
         return false;
     }
+
+    /**
+     *	<p> This handler pushes a value onto the
+     *	    <code>LayoutComposition</code> <code>Stack</code>.</p>
+     */
+    public static void push(FacesContext context, LayoutElement comp) {
+	getCompositionStack(context).push(comp);
+    }
+
+    /**
+     *	<p> This handler pops a value off the
+     *	    <code>LayoutComposition</code> <code>Stack</code>.</p>
+     */
+    public static LayoutElement pop(FacesContext context) {
+	return getCompositionStack(context).pop();
+    }
+
+    /**
+     *	<p> This method returns the <code>Stack</code> used to keep track of
+     *	    the {@link LayoutComposition}s that are used.</p>
+     */
+    public static Stack<LayoutElement> getCompositionStack(FacesContext context) {
+	Map requestMap = context.getExternalContext().getRequestMap();
+	Stack<LayoutElement> stack = (Stack<LayoutElement>)
+	    requestMap.get(COMPOSITION_STACK_KEY);
+	if (stack == null) {
+	    stack = new Stack<LayoutElement>();
+	    requestMap.put(COMPOSITION_STACK_KEY, stack);
+	}
+	return stack;
+    }
+
+    /**
+     *	<p> This is the key used to store the <code>LayoutComposition</code>
+     *	    stack.</p>
+     */
+    private static final String COMPOSITION_STACK_KEY	= "_composition";
 }
