@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.el.ValueExpression;
 import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.component.ComponentUtil;
@@ -49,6 +50,19 @@ import com.sun.jsftemplating.util.TypeConverter;
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public abstract class ComponentFactoryBase implements ComponentFactory {
+
+    /**
+     *	<p> This is the factory method responsible for creating the
+     *	    <code>UIComponent</code>.</p>
+     *
+     *	@param	context	    The <code>FacesContext</code>
+     *	@param	descriptor  The {@link LayoutComponent} descriptor associated
+     *			    with the requested <code>UIComponent</code>.
+     *	@param	parent	    The parent <code>UIComponent</code>
+     *
+     *	@return	The newly created <code>UIComponent</code>.
+     */
+    public abstract UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent);
 
     /**
      *	<p> This method iterates through the Map of options.  It looks at each
@@ -297,6 +311,9 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      *	@param	child	    The child <code>UIComponent</code>
      */
     protected void addChild(FacesContext context, LayoutComponent descriptor, UIComponent parent, UIComponent child) {
+	// Check to see if the descriptor marks this as a facet, or if we are
+	// inside the UIViewRoot.  If so, add as a facet.  We add UIViewRoot
+	// children as facets b/c we render them via the LayoutElement tree.
 	if (descriptor.isFacetChild()) {
 	    String name = (String) descriptor.getEvaluatedOption(
 		    context, LayoutComponent.FACET_NAME, child);
@@ -312,6 +329,21 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 		// Set the parent
 		child.setParent(parent);
 	    }
+	} else if (parent instanceof UIViewRoot) {
+	    String name = (String) descriptor.getEvaluatedOption(
+		    context, LayoutComponent.FACET_NAME, child);
+	    if (name == null) {
+		name = descriptor.getId(context, child);
+		if (name == null) {
+		    // Warn the developer that they may have a problem
+		    if (LogUtil.configEnabled()) {
+			LogUtil.config("Warning: no id was supplied for "
+				+ "component '" + child + "'!");
+		    }
+		    name = "_noname";
+		}
+	    }
+	    parent.getFacets().put(name, child);
 	} else {
 	    // Add this as an actual child
 	    parent.getChildren().add(child);
