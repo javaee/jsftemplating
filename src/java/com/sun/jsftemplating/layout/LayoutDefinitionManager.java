@@ -420,6 +420,14 @@ public abstract class LayoutDefinitionManager {
      */
     public static LayoutDefinition getCachedLayoutDefinition(String key) {
         if (isDebug()) {
+            FacesContext ctx = FacesContext.getCurrentInstance();
+	    if (ctx != null) {
+		// Make sure we cache during the life of the request, even
+		// in Debug mode
+		return (LayoutDefinition) ctx.getExternalContext().
+		    getRequestMap().get(CACHE_PREFIX + key);
+	    }
+
             // Disable caching for debug mode
             return null;
         }
@@ -437,9 +445,19 @@ public abstract class LayoutDefinitionManager {
      *	@param	value	The {@link LayoutDefinition} to cache.
      */
     public static void putCachedLayoutDefinition(String key, LayoutDefinition value) {
-        synchronized (_layoutDefinitions) {
-            _layoutDefinitions.put(key, value);
-        }
+	if (isDebug()) {
+	    FacesContext ctx = FacesContext.getCurrentInstance();
+	    if (ctx != null) {
+		// Make sure we cache during the life of the request, even
+		// in Debug mode
+		ctx.getExternalContext().getRequestMap().
+		    put(CACHE_PREFIX + key, value);
+	    }
+	} else {
+	    synchronized (_layoutDefinitions) {
+		_layoutDefinitions.put(key, value);
+	    }
+	}
     }
 
     /**
@@ -923,4 +941,10 @@ public abstract class LayoutDefinitionManager {
      *	            runtime changes in this flag.
      */
     public static final boolean DEBUG = isDebug();
+
+    /**
+     *	<p> This is the prefix of a request-scoped variable that caches
+     *	    {@link LayoutDefintion}s.</p>
+     */
+    public static final String CACHE_PREFIX = "_LDCache";
 }
