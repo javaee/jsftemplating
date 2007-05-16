@@ -394,8 +394,7 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
     public void setNested(boolean value) {
 	_nested = value;
     }
-
-
+    
     /**
      *	<p> Component type</p>
      */

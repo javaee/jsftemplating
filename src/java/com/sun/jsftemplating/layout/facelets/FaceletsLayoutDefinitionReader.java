@@ -27,6 +27,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import javax.faces.FactoryFinder;
+import javax.faces.application.Application;
+import javax.faces.application.ApplicationFactory;
+import javax.faces.context.FacesContext;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.w3c.dom.Document;
@@ -45,18 +49,20 @@ public class FaceletsLayoutDefinitionReader {
 
     public FaceletsLayoutDefinitionReader(String key, URL url) {
 	InputStream is = null;
+	BufferedInputStream bs = null;
 	try{
 	    this.key = key;
 	    this.url = url;
 
 	    DocumentBuilder builder = DbFactory.getInstance();
 	    builder.setErrorHandler(new ParsingErrorHandler());
-	    is = new BufferedInputStream(this.url.openStream());
-	    document = builder.parse(is);
-	    is.close();
+	    is = this.url.openStream();
+	    bs = new BufferedInputStream(is);
+	    document = builder.parse(bs);
 	} catch (Exception e) {
 	    throw new LayoutDefinitionException(e);
 	} finally {
+	    Util.closeStream(bs);
 	    Util.closeStream(is);
 	}
     }
@@ -136,7 +142,56 @@ public class FaceletsLayoutDefinitionReader {
 
 	return abortProcessing;
     }
+    
+    private LayoutComposition processComposition(LayoutElement parent, NamedNodeMap attrs, String id, boolean trimming) {
+	if (trimming) {
+	    parent = parent.getLayoutDefinition(); // parent to the LayoutDefinition
+	    parent.getChildLayoutElements().clear(); // a ui:composition clears everything outside of it
+	}	
+	LayoutComposition lc = new LayoutComposition(parent, id);
+	Node templateNode = attrs.getNamedItem("template");
+	String template = (templateNode != null) ? templateNode.getNodeValue() : null;
+	lc.setTemplate(template);
 
+	return lc;
+    }
+    
+    private LayoutComponent processComponent(LayoutElement parent, Node node, NamedNodeMap attrs, String id, boolean trimming) {
+	if (trimming) {
+	    parent = parent.getLayoutDefinition(); // parent to the LayoutDefinition
+	    parent.getChildLayoutElements().clear(); // a ui:composition clears everything outside of it
+	}	
+	LayoutComponent lc = new LayoutComponent(parent, id, LayoutDefinitionManager.getGlobalComponentType("event"));
+	parent.addChildLayoutElement(lc);
+	LayoutComposition comp = processComposition(lc, attrs, id+"_lc", trimming);	
+
+	NodeList nodeList = node.getChildNodes();
+	boolean abortChildProcessing = false;
+	for (int i = 0; i < nodeList.getLength() && (abortChildProcessing != true); i++) {
+	    try {
+		abortChildProcessing = process(comp, nodeList.item(i), true);
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    }
+	}
+	lc.addChildLayoutElement(comp);
+
+	return lc;
+    }
+
+    private Application getApplication() {
+        ApplicationFactory appFactory = (ApplicationFactory) FactoryFinder
+                .getFactory(FactoryFinder.APPLICATION_FACTORY);
+        return appFactory.getApplication();
+    }
+
+    private Object getElValue(String el) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        return getApplication()
+                .evaluateExpressionGet(context, el, Object.class);
+    }
+
+    
     private LayoutElement createComponent(LayoutElement parent, Node node, boolean nested) {
 	LayoutElement element = null;
 	String nodeName = node.getNodeName();
@@ -146,12 +201,9 @@ public class FaceletsLayoutDefinitionReader {
 	    LayoutElementUtil.getGeneratedId(nodeName);
 
 	if ("ui:composition".equals(nodeName)) {
-	    parent = parent.getLayoutDefinition(); // parent to the LayoutDefinition
-	    parent.getChildLayoutElements().clear(); // a ui:composition clears everything outside of it
-	    LayoutComposition lc = new LayoutComposition(parent, id); 
-	    String template = attrs.getNamedItem("template").getNodeValue();
-	    lc.setTemplate(template);
-	    element = lc;
+	    element = processComposition(parent, attrs, id, true);
+	} else if ("ui:decorate".equals(nodeName)) {
+	    element = processComposition(parent, attrs, id, false);
 	} else if ("ui:define".equals(nodeName)) {
 	    String name = attrs.getNamedItem("name").getNodeValue();
 	    element = new LayoutDefine(parent, name);
@@ -161,14 +213,33 @@ public class FaceletsLayoutDefinitionReader {
 	    String name = (nameAttr != null) ? nameAttr.getNodeValue() : null;
 	    li.setName(name);
 	    element = li;
+	// Let these be handled by the else below, and let's see what happens :)
 	} else if ("ui:component".equals(nodeName)) {
-	} else if ("ui:debug".equals(nodeName)) {
-	} else if ("ui:decorate".equals(nodeName)) {
-	    LayoutComposition lc = new LayoutComposition(parent, id, true);
-	    String template = attrs.getNamedItem("template").getNodeValue();
-	    lc.setTemplate(template);
-	    element = lc;
+	    element = processComponent(parent, node, attrs, id, true);
 	} else if ("ui:fragment".equals(nodeName)) {
+	    element = processComponent(parent, node, attrs, id, false);
+	    /*
+	    Node bindingAttr = attrs.getNamedItem("binding");
+	    if (bindingAttr == null) {
+		throw new LayoutDefinitionException("ui:fragment requires a binding attribute");
+	    }
+	    String bindingEl = bindingAttr.getNodeValue();
+	    Object obj = getElValue(bindingEl);
+	    if (!(obj instanceof UIComponent)) {
+		throw new LayoutDefinitionException("Binding EL must return a UIComponent");
+	    }
+	    UIComponent comp = (UIComponent) obj;
+	    String family = comp.getFamily(); // TODO:  is the correct?
+	    System.out.println(LayoutDefinitionManager.getGlobalComponentTypes());
+	    ComponentType componentType = 
+		LayoutDefinitionManager.getGlobalComponentType(family);
+	    LayoutComponent lc = new LayoutComponent(parent, id, componentType);
+    	    addAttributesToComponent(lc, node);
+	    lc.setFacetChild(false);
+	    lc.setNested(nested);
+	    element = lc;
+	    */
+	} else if ("ui:debug".equals(nodeName)) {
 	} else if ("ui:include".equals(nodeName)) {
 	} else if ("ui:param".equals(nodeName)) {
 	} else if ("ui:remove".equals(nodeName)) {

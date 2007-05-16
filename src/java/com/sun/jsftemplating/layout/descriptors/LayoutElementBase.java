@@ -480,6 +480,13 @@ public abstract class LayoutElementBase implements LayoutElement {
 	component.encodeEnd(context);
     }
 
+    @Override
+    public String toString() {
+	StringBuffer buf = new StringBuffer();
+	LayoutElementUtil.dumpTree(this, buf, "");
+	
+	return buf.toString();
+    }
 
     /**
      *	List of child LayoutElements (if, facet, UIComponents, etc.)

@@ -26,6 +26,8 @@ import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
 
+import java.util.Iterator;
+
 
 /**
  *  <p>	This class is a utility class for misc {@link LayoutElement} related
@@ -195,6 +197,28 @@ public class LayoutElementUtil {
             // Set the facet name
             component.addOption(LayoutComponent.FACET_NAME, id);
         }
+    }
+
+    /**
+     *	<p> This method recurses through the {@link LayoutElement} tree to
+     *	    generate a String representation of its structure.</p>
+     */
+    public static void dumpTree(LayoutElement elt, StringBuffer buf, String indent) {
+	// First add the current LayoutElement
+	String compInfo = "";
+	if (elt instanceof LayoutComponent) {
+	    LayoutComponent comp = (LayoutComponent) elt;
+	    compInfo = " nested=" + comp.isNested() + ", facetChild=" + comp.isFacetChild();
+	}
+	buf.append(indent + elt.getUnevaluatedId() + " (" + elt.getClass().getName() + ")" + compInfo + "\n");
+
+	// Children...
+	Iterator<LayoutElement> it = elt.getChildLayoutElements().iterator();
+	if (it.hasNext()) {
+	    while (it.hasNext()) {
+		dumpTree(it.next(), buf, indent + "    ");
+	    }
+	}
     }
 
     /**
