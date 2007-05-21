@@ -35,6 +35,7 @@ import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
 import com.sun.jsftemplating.layout.facelets.DbFactory;
+import com.sun.jsftemplating.layout.facelets.NSContext;
 import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.Util;
 
@@ -588,15 +589,21 @@ public abstract class LayoutDefinitionManager {
 	    DocumentBuilder builder = DbFactory.getInstance();
 	    Document document = builder.parse(is);
 	    XPath xpath = XPathFactory.newInstance().newXPath();
+	    NSContext ns = new NSContext();
+	    ns.addNamespace("f", "http://java.sun.com/JSF/Facelet");
+	    // Although the following should work, XPath doesn't attempt to
+	    // get the namespace when no namespace is supplied.
+	    //ns.setDefaultNSURI("http://java.sun.com/JSF/Facelet");
+	    xpath.setNamespaceContext(ns);
 	    
-	    String nameSpace = xpath.evaluate("/facelet-taglib/namespace", document);
+	    String nameSpace = xpath.evaluate("/f:facelet-taglib/f:namespace", document);
 
 	    // Process <tag> elements
-	    NodeList nl = (NodeList) xpath.evaluate("/facelet-taglib/tag", document, XPathConstants.NODESET);
+	    NodeList nl = (NodeList) xpath.evaluate("/f:facelet-taglib/f:tag", document, XPathConstants.NODESET);
 	    for (int i = 0; i < nl.getLength(); i++) {
 		Node node = nl.item(i);
-		String tagName = xpath.evaluate("tag-name", node);
-		String componentType = xpath.evaluate("component/component-type", node);
+		String tagName = xpath.evaluate("f:tag-name", node);
+		String componentType = xpath.evaluate("f:component/f:component-type", node);
 		String id = nameSpace + ":" + tagName;
 		types.put(id, 
 			new ComponentType(id, GenericFactory.class.getName(), componentType));
