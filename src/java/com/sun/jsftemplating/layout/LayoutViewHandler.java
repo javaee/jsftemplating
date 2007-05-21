@@ -108,44 +108,6 @@ public class LayoutViewHandler extends ViewHandler {
      */
 
     /**
-     *	<p> This method is used to caculate the <b>request</b> character
-     *	    encoding to be used to decode the request parameters.</p>
-     *
-     *	<p> It is currently implemented to default to UTF-8 if the default
-     *	    implementation returns (null).  This will soon be changed to a
-     *	    better solution.</p>
-     */
-    public String calculateCharacterEncoding(FacesContext context) {
-	// First do the default behavior
-	String result = _oldViewHandler.calculateCharacterEncoding(context);
-
-	// The default encoding is often incorrect because the browser does
-	// not return the encoding that it used to send the request.  The
-	// server simply uses its default, which is often wrong.
-
-	// For now I'm going to set the encoding to UTF-8 if it is null, this
-	// isn't ideal as it prevents any other encoding type from being used.
-	// We need to either allow the system default to be used (currently
-	// being done), remember the encoding for the last page sent via a
-	// session attribute, provide a app and/or page-level encoding, or
-	// guess from the browser's "accpet-charset" header.  Or perhaps some
-	// other strategy.  Senthil, what do you think?
-	if (result == null) {
-	    result = "UTF-8";
-	}
-
-	// Senthil, upon further reading, I found that the superclass of this
-	// method supports a Session attribute named
-	// ViewHandler.CHARACTER_ENCODING_KEY.  The standard JSF pages work
-	// because they have a <f:view> tag that sets this session attribute.
-	// Perhaps we should also set this attribute and not even implement
-	// this method... we can set this Session attribute in
-	// setupResponseWriter method after we call getEncoding().  Let me
-	// know what you think.  Ken
-	return result;
-    }
-
-    /**
      *	<p> This method is invoked when restoreView does not yield a UIViewRoot
      *	    (initial requests and new pages).</p>
      *
@@ -643,6 +605,11 @@ public class LayoutViewHandler extends ViewHandler {
 		}
 	}
 	String encType = getEncoding(context);
+	Object encValue = extCtx.getSessionMap().get(
+					super.CHARACTER_ENCODING_KEY);
+	
+	extCtx.getSessionMap().put(super.CHARACTER_ENCODING_KEY,
+						encType);
 	response.setCharacterEncoding(encType);
 
 // FIXME: Portlet?
