@@ -65,6 +65,7 @@ public class FaceletsLayoutDefinitionReader {
     private URL url;
     private String key;
     private Document document;
+    private int _idNumber	    = 1;
 
     public FaceletsLayoutDefinitionReader(String key, URL url) {
 	InputStream is = null;
@@ -108,7 +109,7 @@ public class FaceletsLayoutDefinitionReader {
 	case Node.TEXT_NODE :
 	    if (!value.trim().equals("")) {
 		element = new LayoutStaticText(parent, 
-			LayoutElementUtil.getGeneratedId(node.getNodeName()), 
+			LayoutElementUtil.getGeneratedId(node.getNodeName(), getNextIdNumber()), 
 			value);
 	    }
 	    break;
@@ -153,7 +154,7 @@ public class FaceletsLayoutDefinitionReader {
 
 		if (endElement) {
 		    String nodeName = node.getNodeName();
-		    element = new LayoutStaticText(parent, LayoutElementUtil.getGeneratedId(nodeName), "</" + nodeName + ">");
+		    element = new LayoutStaticText(parent, LayoutElementUtil.getGeneratedId(nodeName, getNextIdNumber()), "</" + nodeName + ">");
 		    parent.addChildLayoutElement(element);
 		}
 	    }
@@ -217,7 +218,7 @@ public class FaceletsLayoutDefinitionReader {
 	NamedNodeMap attrs = node.getAttributes();
 	Node nameNode = attrs.getNamedItem("id");
 	String id = (nameNode != null) ? nameNode.getNodeValue() :
-	    LayoutElementUtil.getGeneratedId(nodeName);
+	    LayoutElementUtil.getGeneratedId(nodeName, getNextIdNumber());
 
 	if ("ui:composition".equals(nodeName)) {
 	    element = processComposition(parent, attrs, id, true);
@@ -269,6 +270,7 @@ public class FaceletsLayoutDefinitionReader {
 	    // to end correctly
 	    String body = node.getTextContent();
 	    body = (body == null) ? "/>" : (body.trim() + "/>");
+// FIXME: if type is not supplied it throws a NPE
 	    String eventName = node.getAttributes().getNamedItem("type").getNodeValue();
 	    InputStream is = new ByteArrayInputStream(body.getBytes());
 	    EventParserCommand command = new EventParserCommand();
@@ -360,4 +362,13 @@ public class FaceletsLayoutDefinitionReader {
 
 	return attrs.toString();
     }
+
+    /**
+     *	<p> This method returns the next ID number.  Calling this method will
+     *	    increment the id number.</p>
+     */
+    public int getNextIdNumber() {
+	return _idNumber++;
+    }
+
 }
