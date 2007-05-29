@@ -52,10 +52,7 @@ import javax.faces.application.ApplicationFactory;
 import javax.faces.context.FacesContext;
 import javax.xml.parsers.DocumentBuilder;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 /**
  * @author Jason Lee
@@ -91,7 +88,13 @@ public class FaceletsLayoutDefinitionReader {
 	LayoutDefinition layoutDefinition = new LayoutDefinition(key);
 	NodeList nodeList = document.getChildNodes();
 	boolean abortProcessing = false;
-	for (int i = 0; i < nodeList.getLength() && (abortProcessing != true); i++) {
+    DocumentType docType = document.getDoctype();
+    if (docType != null) {
+        LayoutStaticText stDocType = new LayoutStaticText(layoutDefinition, "",
+            "<!DOCTYPE " + docType.getName() + " PUBLIC \"" + docType.getPublicId() + "\" \"" + docType.getSystemId() + "\">");
+        layoutDefinition.addChildLayoutElement(stDocType);
+    }
+    for (int i = 0; i < nodeList.getLength() && (abortProcessing != true); i++) {
 	    abortProcessing = process(layoutDefinition, nodeList.item(i), false);
 	}
 	return layoutDefinition;
@@ -122,7 +125,7 @@ public class FaceletsLayoutDefinitionReader {
 		nested = true;
 		newParent = element;
 	    } else if (element instanceof LayoutComposition) {
-		abortProcessing = true; 
+		abortProcessing = ((LayoutComposition)element).isTrimming(); 
 		newParent = element;
 	    } else if (element instanceof LayoutDefine) {
 		newParent = element;
@@ -164,11 +167,12 @@ public class FaceletsLayoutDefinitionReader {
     }
     
     private LayoutComposition processComposition(LayoutElement parent, NamedNodeMap attrs, String id, boolean trimming) {
-	if (trimming) {
+    LayoutComposition lc = new LayoutComposition(parent, id);
+    lc.setTrimming(trimming);
+    if (trimming) {
 	    parent = parent.getLayoutDefinition(); // parent to the LayoutDefinition
 	    parent.getChildLayoutElements().clear(); // a ui:composition clears everything outside of it
 	}	
-	LayoutComposition lc = new LayoutComposition(parent, id);
 	Node templateNode = attrs.getNamedItem("template");
 	String template = (templateNode != null) ? templateNode.getNodeValue() : null;
 	lc.setTemplate(template);
