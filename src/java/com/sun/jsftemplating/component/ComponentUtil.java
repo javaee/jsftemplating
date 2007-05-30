@@ -522,7 +522,7 @@ public class ComponentUtil {
 	}
 // FIXME: Consider adding logic to look for "matching" {}'s
 	int start = value.indexOf("#{");
-	if ((start != -1) && (start < value.indexOf('}'))) {
+	if ((start != -1) && (start < value.indexOf('}', start))) {
             return true;
         }
         return false;
