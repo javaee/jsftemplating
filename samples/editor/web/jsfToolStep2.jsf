@@ -1,93 +1,93 @@
-<rave:page>
-    <rave:html>
-	 <rave:head id="propertyhead" title="JSF Editor Tool">
+<sun:page>
+    <sun:html>
+	 <sun:head id="propertyhead" title="JSF Editor Tool">
 	     "<style type="text/css">\n
 	     ".monosel option {font-family: monospace;}\n
 	     ".monosel select option {font-family: monospace;}\n
 	     "</style>
-	 </rave:head>
-	 <rave:body>
-	     <rave:form id="propertyForm">
+	 </sun:head>
+	 <sun:body>
+	     <sun:form id="propertyForm">
  <!-- OK and Cancel button -->
 
 		 <!-- PropertySheet .... -->
-		 <rave:propertySheet id="propertySheet" jumpLinks="#{PropertySheetBean.jumpLink}"
+		 <sun:propertySheet id="propertySheet" jumpLinks="#{PropertySheetBean.jumpLink}"
 				   requiredFields="#{PropertySheetBean.requiredLabel}">
 
 		    <!-- Page Name -->
-		   <rave:propertySheetSection id="propertSectionTextField" label="JSF Editor Tool - Step 2">
-		       <rave:property id="propertyPageName"  label="Page Name:" labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
-			<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
+		   <sun:propertySheetSection id="propertSectionTextField" label="JSF Editor Tool - Step 2">
+		       <sun:property id="propertyPageName"  label="Page Name:" labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
+			<sun:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
 				  width="$int{27}" height="$int{1}"/>
-			<rave:staticText id="pageName"  text="#{pagename}"
+			<sun:staticText id="pageName"  text="#{pagename}"
 				      />
-		       </rave:property>
+		       </sun:property>
 		    <!-- Parent Name -->
-		      <rave:property id="propertyParentName" label="Parent:" labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
+		      <sun:property id="propertyParentName" label="Parent:" labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
 			<event>
 			  <!beforeEncode
 			    getPageComponentNames(pageName="#{pagename}" displayNames=>$attribute{disp} qualifiedNames=>$attribute{long});
-			    getRaveOptions(labels="$attribute{disp}", values="$attribute{long}", options=>$attribute{opts});
+			    getSunOptions(labels="$attribute{disp}", values="$attribute{long}", options=>$attribute{opts});
 
 			  />
 			</event>
-			<rave:listbox id="parentName" styleClass="monosel" value="#{requestScope.parentName}" items="#{requestScope.opts}" required="#{true}" >
-			</rave:listbox>
+			<sun:listbox id="parentName" styleClass="monosel" value="#{requestScope.parentName}" items="#{requestScope.opts}" required="#{true}" >
+			</sun:listbox>
 
 		    <!-- Component Type -->
-			<rave:listbox id="componentType" value="#{requestScope.componentType}" items="$attribute{types}" required="#{true}" label="Component Type" >
+			<sun:listbox id="componentType" value="#{requestScope.componentType}" items="$attribute{types}" required="#{true}" label="Component Type" >
 			   <!beforeCreate
 			      getGlobalComponentTypeInformation(ids=>$attribute{ids});
-			      getRaveOptions(labels="$attribute{ids}", values="$attribute{ids}", options=>$attribute{types});
+			      getSunOptions(labels="$attribute{ids}", values="$attribute{ids}", options=>$attribute{types});
 			    />
-			</rave:listbox>
+			</sun:listbox>
 			"<br />
-			<rave:button id="refresh" primary="#{false}" text="Refresh" />
+			<sun:button id="refresh" primary="#{false}" text="Refresh" />
 
-		       </rave:property>
+		       </sun:property>
 		    <!-- ID Name -->
-		       <rave:property id="propertyIdField" label="ID:" labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
-			<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
+		       <sun:property id="propertyIdField" label="ID:" labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
+			<sun:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
 				  width="$int{27}" height="$int{1}"/>
-			<rave:textField id="ID" value="#{requestScope.ID}" columns="$int{80}" />
-		       </rave:property>
+			<sun:textField id="ID" value="#{requestScope.ID}" columns="$int{80}" />
+		       </sun:property>
 		    <!-- Label Prop -->
-		       <rave:property id="propertyLabelField" label="Label:" labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
-			<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
+		       <sun:property id="propertyLabelField" label="Label:" labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
+			<sun:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
 				  width="$int{27}" height="$int{1}"/>
-			<rave:textField id="labelProp" value="#{requestScope.labelProp}" columns="$int{80}" />
-		       </rave:property>
+			<sun:textField id="labelProp" value="#{requestScope.labelProp}" columns="$int{80}" />
+		       </sun:property>
 		    <!-- Text Prop -->
-		       <rave:property id="propertyTextField" label="Text:" labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
-			<rave:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
+		       <sun:property id="propertyTextField" label="Text:" labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
+			<sun:image id="space" url="/theme/com/sun/web/ui/suntheme/images/other/dot.gif"
 				  width="$int{27}" height="$int{1}"/>
-			<rave:textField id="textProp" value="#{requestScope.textProp}" columns="$int{80}" />
-		       </rave:property>
-		    </rave:propertySheetSection>
+			<sun:textField id="textProp" value="#{requestScope.textProp}" columns="$int{80}" />
+		       </sun:property>
+		    </sun:propertySheetSection>
 
-		    <rave:propertySheetSection id="propertSectionProperties" label="Additional Properties">
+		    <sun:propertySheetSection id="propertSectionProperties" label="Additional Properties">
 			<!-- Properties -->
-			<rave:property id="propertiesField"  labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
-			  <rave:editableList id="editList" fieldLabel="Name=Value" listLabel="Properties Entered" />
-			</rave:property>
+			<sun:property id="propertiesField"  labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
+			  <sun:editableList id="editList" fieldLabel="Name=Value" listLabel="Properties Entered" />
+			</sun:property>
 
 			<!-- Hidden Field -->
-			<rave:property id="propertyHiddenField"  labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
-			  <rave:hidden id="hiddenPageName"  value="#{requestScope.pagename}" />
-			</rave:property>
+			<sun:property id="propertyHiddenField"  labelAlign="right" noWrap="#{true}" overlapLabel="#{false}">
+			  <sun:hidden id="hiddenPageName"  value="#{requestScope.pagename}" />
+			</sun:property>
 		       "<br /><br />
-		       <rave:helpInline id="fieldHelp" type="field" text="#{msgs.editablelist_helpText}" />
-		   </rave:propertySheetSection>
+		       <sun:helpInline id="fieldHelp" type="field" text="#{msgs.editablelist_helpText}" />
+		   </sun:propertySheetSection>
 
-		 </rave:propertySheet>
+		 </sun:propertySheet>
 
-		 <rave:panelGroup id="pageButtonsGroupBottom">
-		   <rave:button id="prevButton" primary="#{true}" text="Previous"  >
+		 <sun:panelGroup id="pageButtonsGroupBottom">
+		   <sun:button id="prevButton" primary="#{true}" text="Previous"  >
 			 <!command
 			    navigate(page="/jsfToolStep1.jsf");
 			 />
-		   </rave:button>
-		   <rave:button id="addButton" primary="#{true}" text="Add">
+		   </sun:button>
+		   <sun:button id="addButton" primary="#{true}" text="Add">
 			 <!command
 			     addLayoutComponentToPage(
 				 pageName="#{pagename}"
@@ -99,9 +99,9 @@
 				 #nvps="addremove.selectedList"
 			     );
 			 />
-		   </rave:button>
-		 </rave:panelGroup>
-	     </rave:form>
-	 </rave:body>
-     </rave:html>
- </rave:page>
+		   </sun:button>
+		 </sun:panelGroup>
+	     </sun:form>
+	 </sun:body>
+     </sun:html>
+ </sun:page>

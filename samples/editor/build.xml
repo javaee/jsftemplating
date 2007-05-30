@@ -48,7 +48,15 @@
         <copy todir="${assemble.dir}/WEB-INF/lib" file="../../${jsftemplating.jar}" />
         <copy todir="${assemble.dir}/WEB-INF/lib" >
             <fileset dir="${external.lib.dir}">
-		<include name="*.jar" />
+		    <include name="*.jar" />
+            </fileset>
+
+            <fileset dir="${external.lib.woodstock.dir}">
+		    <include name="*.jar" />
+            </fileset>
+
+            <fileset dir="${external.dist.dir}">
+		    <include name="**/*.jar" />
             </fileset>
         </copy>
         <copy todir="${assemble.dir}/WEB-INF/classes" >
