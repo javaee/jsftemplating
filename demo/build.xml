@@ -65,6 +65,7 @@
     </target>
 
     <target name="jar" depends="compile">
+	<mkdir dir="WEB-INF/lib" />
 	<jar jarfile="${app.jar}" update="true">
             <fileset dir="${build}" includes="**/*.class, **/*.map" />
             <zipfileset dir="${src}"
