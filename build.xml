@@ -17,6 +17,8 @@
         <pathelement location="${jsf-api.jar}" />
         <pathelement location="${el-api.jar}" />
         <pathelement location="${jsftemplating-dt.jar}" />
+        <pathelement location="${jsftemplating-dynafaces.jar}" />
+        <pathelement location="${dataprovider.jar}" />
     </path>
 
     <path id="apt-dependencies">
@@ -56,10 +58,6 @@
         <echo message="Using ${execute.ant}" />
         <echo message="java.home=${java.home}" />
         <echo message="ant.home=${ant.home}" />
-        <exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
-            <!-- We do this to add the ant-apt.jar to the lib path -->
-            <arg line="-version" />
-        </exec>
     </target>
 
     <target name="build" depends="jar" description="Build the project"/>
@@ -89,10 +87,15 @@
 
     <target name="compile" depends="init, jar-apt-files" description="Compile source">
         <mkdir dir="${build}/." />
-        <exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
-            <!-- We do this to add the ant-apt.jar to the lib path -->
-            <arg line="-f aptbuild.xml -lib lib/external/ant-apt.jar compile" />
-        </exec>
+	<apt	srcdir="${src}"
+		fork="true"
+		destdir="${build}/."
+		debug="${compile.debug}"
+		deprecation="${compile.deprecation}"
+		excludes="**/annotation/**"
+		optimize="${compile.optimize}">
+	    <classpath refid="dependencies" />
+	</apt>
     </target>
 
     <target name="jar" depends="compile" description="Package the project">

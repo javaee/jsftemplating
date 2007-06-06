@@ -75,18 +75,18 @@
         <echo message="Using ${execute.ant}" />
         <echo message="java.home=${java.home} "/>
         <echo message="ant.home=${ant.home}" />
-        <exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
-            <arg line="-version" />
-        </exec>
     </target>
         
     <target name="-pre-compile">
        <mkdir dir="${build.classes.dir}/." />
        <echo> Building with apt: </echo>
-       <exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="false">
-           <!-- We do this to add the ant-apt.jar to the lib path -->
-           <arg line="-f aptbuild.xml -lib ${file.reference.ant-apt.jar} compile" />
-       </exec>
+	<apt	srcdir="${src.dir}"
+		fork="true"
+		destdir="${build.classes.dir}/."
+		debug="${javac.debug}"
+		deprecation="${javac.deprecation}"
+		optimize="${compile.optimize}"
+                classpath="${javac.classpath};${j2ee.platform.classpath}" />
    </target>
    
 </project>

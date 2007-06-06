@@ -8,6 +8,18 @@
     <property file="./build.properties"/>
     <!-- <property file="${user.home}/build.properties" /> -->
 
+    <path id="dependencies">
+	<pathelement location="${servlet-api.jar}" />
+	<pathelement location="${jsf-api.jar}" />
+	<pathelement location="${jsf-el.jar}" />
+	<pathelement location="../../${jsftemplating-dt.jar}" />
+	<pathelement location="../../${jsftemplating.jar}" />
+	<pathelement location="${dataprovider.jar}" />
+	<pathelement location="${defaulttheme.jar}" />
+	<pathelement location="${webui.jar}" />
+    </path>
+
+
     <!-- build the war file --> 
     <target name="build" depends="war" 
         description="Compile all the sources and build the war file">  
@@ -20,10 +32,6 @@
         <echo message="Using ${execute.ant}" />
         <echo message="java.home=${java.home}"/>
         <echo message="ant.home=${ant.home}" />
-        <exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
-            <!-- We do this to add the ant-apt.jar to the lib path -->
-            <arg line="-version" />
-        </exec>
     </target>
     
     <!-- Compile the java code from ${src.java.dir} into ${classes.dir} -->
@@ -31,10 +39,15 @@
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${classes.dir}"/>
         <echo message="using: ${execute.ant}" />
-	<exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="true">
-	    <!-- We do this to add the ant-apt.jar to the lib path -->
-	    <arg line="-f aptbuild.xml -lib ../../lib/external/ant-apt.jar compile" />
-	</exec>
+	<apt	srcdir="${src}"
+		fork="true"
+		destdir="${build}/."
+		debug="${compile.debug}"
+		deprecation="${compile.deprecation}"
+		excludes="**/annotation/**"
+		optimize="${compile.optimize}">
+		<classpath refid="dependencies" />
+	</apt>
     </target>
     
     <!-- assemble the war file -->

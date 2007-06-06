@@ -30,6 +30,18 @@
     <!-- Set properties -->
     <property file="build.properties" />
 
+    <path id="dependencies">
+	<pathelement location="${servlet-api.jar}" />
+	<pathelement location="${jsf-api.jar}" />
+	<pathelement location="${el-api.jar}" />
+	<pathelement location="${webui-jsf.jar}" />
+	<pathelement location="${dataprovider.jar}" />
+	<pathelement location="${jsftemplating.jar}" />
+	<pathelement location="${jsftemplating-dt.jar}" />
+	<pathelement location="${jsftemplating-dynafaces.jar}" />
+    </path>
+
+
     <path id="javadoc-dependencies">
 	<pathelement location="${servlet-api.jar}" />
 	<pathelement location="${jsf-api.jar}" />
@@ -60,10 +72,15 @@
     <target name="compile" depends="init">
 	<mkdir dir="${build}/." />
         <echo message="using: ${execute.ant}" />
-	<exec dir="." executable="${execute.ant}" failonerror="true" failifexecutionfails="false">
-	    <!-- We do this to add the ant-apt.jar to the lib path -->
-	    <arg line="-f aptbuild.xml -lib ${ant-apt.jar} compile" />
-	</exec>
+	<apt	srcdir="${src}"
+		fork="true"
+		destdir="${build}/."
+		debug="${compile.debug}"
+		deprecation="${compile.deprecation}"
+		excludes="**/annotation/**"
+		optimize="${compile.optimize}">
+		<classpath refid="dependencies" />
+	</apt>
     </target>
 
     <target name="jar" depends="compile">

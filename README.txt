@@ -2,7 +2,7 @@
 HOW TO BUILD jsftemplating.jar
 ==============================
 
-You must use ant 1.6.x or higher.  There is a version of ant included in the
+You must use ant 1.7  or higher.  There is a version of ant included in the
 lib/ant directory of the jsftemplating project.
 
 1) From a terminal (or command prompt) window, "cd" to the jsftemplating
