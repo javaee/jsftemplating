@@ -6,15 +6,13 @@
     <!-- ********************************************************************* -->
     <property name="project.name" value="FaceletsDemo" />
     <property name="project.version" value="1.0" />
-	<property name="maven2.repo" value="http://mirrors.ibiblio.org/pub/mirrors/maven2/" />
+    <property name="maven2.repo" value="http://mirrors.ibiblio.org/pub/mirrors/maven2/" />
 	
-	<property name="facelets.dir" value="WebRoot-Facelets" />
-	<property name="jsft.dir" value="WebRoot-jsft" />
-	<property name="facelets.war" value="FaceletsDemo.war" />
-	<property name="jsft.war" value="JsftFaceletsDemo.war" />
+
+	<property name="combined.dir" value="WebRoot-Combined" />
+	<property name="combined.war" value="CombinedDemo.war" />
 	
 	<property name="src.dir" value="${basedir}/src"/>
-	<property name="src.web.template.dir" value="${src.dir}/webapp/resources"/>
 	
 	<!--
 		This file assumes you have the ant contrib lib in your Ant home:
@@ -40,26 +38,20 @@
 	
 	<target name="download">
 		<!-- Facelets Files -->
+		<mkdir dir="${combined.dir}/WEB-INF/lib"/>
 		<download url="${maven2.repo}/com/sun/facelets/jsf-facelets/1.1.11/jsf-facelets-1.1.11.jar"
-			target="${facelets.dir}/WEB-INF/lib/jsf-facelets-1.1.11.jar" />
+			target="${combined.dir}/WEB-INF/lib/jsf-facelets-1.1.11.jar" />
 			
 		<!-- JSFTemplating Files -->
 		<download url="https://jsftemplating.dev.java.net/files/documents/5015/57603/jsftemplating.jar"
-			target="${jsft.dir}/WEB-INF/lib/jsftemplating.jar" />
+			target="${combined.dir}/WEB-INF/lib/jsftemplating.jar" />
 		<download url="https://jsftemplating.dev.java.net/files/documents/5015/57605/jsftemplating-dynafaces-0.1.jar"
-			target="${jsft.dir}/WEB-INF/lib/jsftemplating-dynafaces-0.1.jar" />
+			target="${combined.dir}/WEB-INF/lib/jsftemplating-dynafaces-0.1.jar" />
 	</target>
 	
 	<target name="package" depends="download">
-		<delete file="${jsft.war}" />
-		<delete file="${facelets.war}" />
-		<copy todir="${facelets.dir}">
-			<fileset dir="${src.web.template.dir}"/>
-		</copy>
-		<copy todir="${jsft.dir}">
-			<fileset dir="${src.web.template.dir}"/>
-		</copy>
-		<war destfile="${jsft.war}" basedir="${jsft.dir}" needxmlfile="false" />
-		<war destfile="${facelets.war}" basedir="${facelets.dir}" needxmlfile="false" />
+		<delete file="${combined.war}" />
+
+		<war destfile="${combined.war}" basedir="${combined.dir}" needxmlfile="false" />
 	</target>
 </project>

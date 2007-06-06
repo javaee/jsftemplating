@@ -13,6 +13,14 @@
         <param-name>com.sun.jsftemplating.DEBUG</param-name>
         <param-value>true</param-value>
     </context-param>
+    <context-param>
+	<param-name>facelets.DEVELOPMENT</param-name>
+	<param-value>true</param-value>
+    </context-param>
+    <context-param>
+    	<param-name>facelets.VIEW_MAPPINGS</param-name>
+    	<param-value>*.flt</param-value>
+    </context-param>
 
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
@@ -21,10 +29,14 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.flt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.jsf</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 </web-app>
