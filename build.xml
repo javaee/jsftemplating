@@ -183,7 +183,7 @@
     <target name="nightly" depends="jar" description="Upload nightly build to java.net">
         <taskdef resource="org/kohsuke/javanettasks.properties">
             <classpath>
-                <pathelement location="${tasks.home}/javanettasks-1.0.9-jason.jar"/>
+                <pathelement location="${tasks.home}/javanettasks-1.0.12.jar"/>
                 <fileset dir="${tasks.home}/lib" includes="*.jar"/>
             </classpath>
         </taskdef>
