@@ -4,17 +4,17 @@
 	xmlns:h="http://java.sun.com/jsf/html" 
 	xmlns:f="http://java.sun.com/jsf/core">
     <body>
-        #{2+2}
+        Here is some text outside the the ui:decorate that <i>will</i> be rendered.
         <br />
         <ui:decorate template="simpleTemplate.xhtml">
             <ui:define name="foo2">
-                This is ui:define#foo2 in a ui:composition
+                This is ui:define#foo2 in a ui:decorate.  This <i>will</i> be rendered on the client.
             </ui:define>
-            This should be all there is!
+            This text will *not* be rendered on the client.
             <ui:define name="foo3">
-                This is ui:define#foo3 in a ui:composition
+                Nor will this text. If you're seeing this, we have a bug! :)
             </ui:define>
         </ui:decorate>
-        #{2 + 2}
+        Here is some more text outside the the ui:decorate that <i>will</i> be rendered.
     </body>
 </html>

@@ -4,8 +4,14 @@
 	xmlns:f="http://java.sun.com/jsf/core">
     <head/>
     <body>
-        <h:outputText value="$this{clientId}" />
+        This is a test.  Facelets will render this literally, giving you some EL on your page, while JSFTemplating
+		will evaluate it an emit a client ID:  <h:outputText value="$this{clientId}" />
         <ui:insert name="foo2" />
-        #{3 + 3}
+        Here is some text in the template that will be rendered after the defined block "foo2" is rendered.
+		<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			_uacct="UA-822917-3";
+			urchinTracker();
+		</script>
     </body>
 </html>

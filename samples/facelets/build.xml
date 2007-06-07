@@ -43,10 +43,12 @@
 			target="${web.dir}/WEB-INF/lib/jsf-facelets-1.1.11.jar" />
 			
 		<!-- JSFTemplating Files -->
-		<download url="https://jsftemplating.dev.java.net/files/documents/5015/57603/jsftemplating.jar"
-			target="${web.dir}/WEB-INF/lib/jsftemplating.jar" />
-		<download url="https://jsftemplating.dev.java.net/files/documents/5015/57605/jsftemplating-dynafaces-0.1.jar"
-			target="${web.dir}/WEB-INF/lib/jsftemplating-dynafaces-0.1.jar" />
+		<copy todir="${web.dir}/WEB-INF/lib/">
+			<fileset dir="../../dist">
+				<include name="jsftemplating*.jar"/>
+				<exclude name="*-dt.jar" />
+			</fileset>
+		</copy>
 	</target>
 	
 	<target name="package" depends="download">
