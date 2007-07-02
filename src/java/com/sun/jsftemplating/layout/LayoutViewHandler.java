@@ -25,7 +25,9 @@ package com.sun.jsftemplating.layout;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -51,13 +53,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.sun.jsftemplating.el.PageSessionResolver;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
-import com.sun.jsftemplating.layout.descriptors.LayoutDefine;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
 import com.sun.jsftemplating.layout.descriptors.LayoutInsert;
 import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.util.LogUtil;
+import com.sun.jsftemplating.util.SimplePatternMatcher;
 import com.sun.jsftemplating.util.fileStreamer.Context;
 import com.sun.jsftemplating.util.fileStreamer.FacesStreamerContext;
 import com.sun.jsftemplating.util.fileStreamer.FileStreamer;
@@ -122,6 +124,12 @@ public class LayoutViewHandler extends ViewHandler {
 	if (path != null) {
 	    // Serve Resource
 	    return serveResource(context, path);
+	}
+
+	// Check to see if jsftemplating should create the view
+	if(!this.isMappedView(viewId)) {
+	    UIViewRoot viewRoot = this._oldViewHandler.createView(context, viewId);
+	    return viewRoot;
 	}
 
 	Locale locale = null;
@@ -224,6 +232,32 @@ public class LayoutViewHandler extends ViewHandler {
     }
 
     /**
+     *	<p> tests if the provided viewId matches one of the configured view-mappings.
+     *	    If no view-mappings are defined, any viewId will match.</p>
+     *	@param	viewId the viewId to be tested.
+     *	@return	true if the viewId matched or no view-mappings are defined, 
+     *		false otherwise.
+     *	@since	1.2
+     */
+    private boolean isMappedView(String viewId) {
+	if(this._viewMappings == null) {
+	    String initParam = (String) FacesContext.getCurrentInstance().
+	    getExternalContext().getInitParameterMap().get(VIEW_MAPPINGS);
+	    this._viewMappings = SimplePatternMatcher.
+	    parseMultiPatternString(initParam, ";");
+	}
+	if(this._viewMappings.isEmpty()) {
+	    return true;
+	}
+	for(SimplePatternMatcher mapping : this._viewMappings) {
+	    if(mapping.matches(viewId)) {
+		return true;
+	    }
+	}
+	return false;
+    }
+
+    /**
      *	<p> If this is a resource request, this method will handle the
      *	    request.</p>
      */
@@ -302,7 +336,7 @@ public class LayoutViewHandler extends ViewHandler {
 		String encType = null;
 		if (ctx != null) {
 			UIViewRoot root = ctx.getViewRoot();
-			Map map = PageSessionResolver.getPageSession(ctx, root);
+			Map<String, Serializable> map = PageSessionResolver.getPageSession(ctx, root);
 			if(map != null) {
 				//check for page session
 				encType = (String)map.get(ENCODING_TYPE);
@@ -446,7 +480,7 @@ public class LayoutViewHandler extends ViewHandler {
 			    + "'ui:composition' was used!");
 		}
 
-		// Get assoicated UIComposition
+		// Get associated UIComposition
 		String insertName = ((LayoutInsert) childElt).getName();
 		if (insertName == null) {
 		    // include everything
@@ -507,7 +541,7 @@ public class LayoutViewHandler extends ViewHandler {
 	    return createView(context, viewId);
 	}
 
-	// Peform default behavior...
+	// Perform default behavior...
 	UIViewRoot root = _oldViewHandler.restoreView(context, viewId);
 
 	// Return the UIViewRoot (LayoutViewRoot most likely)
@@ -605,10 +639,10 @@ public class LayoutViewHandler extends ViewHandler {
 		}
 	}
 	String encType = getEncoding(context);
-	Object encValue = extCtx.getSessionMap().get(
-					super.CHARACTER_ENCODING_KEY);
+	// Object encValue = extCtx.getSessionMap().get(
+	//				ViewHandler.CHARACTER_ENCODING_KEY);
 	
-	extCtx.getSessionMap().put(super.CHARACTER_ENCODING_KEY,
+	extCtx.getSessionMap().put(ViewHandler.CHARACTER_ENCODING_KEY,
 						encType);
 	response.setCharacterEncoding(encType);
 
@@ -663,8 +697,8 @@ public class LayoutViewHandler extends ViewHandler {
 
     /**
      *	<p> Return a URL suitable for rendering (after optional encoding
-     *	    perfomed by the <code>encodeResourceURL()</code> method of
-     *	    <code>ExternalContext<code> that selects the specifed web
+     *	    performed by the <code>encodeResourceURL()</code> method of
+     *	    <code>ExternalContext<code> that selects the specified web
      *	    application resource.  If the specified path starts with a slash,
      *	    it must be treated as context relative; otherwise, it must be
      *	    treated as relative to the action URL of the current view.</p>
@@ -748,4 +782,13 @@ public class LayoutViewHandler extends ViewHandler {
 
     private ViewHandler _oldViewHandler			= null;
     static final String AJAX_REQ_TARGET_KEY		= "_ajaxReqTarget";
+
+    /**
+     * <p> The name of the <code>context-param</code> to set the view mappings</p>
+     */
+    // TODO: should these keys be added to a new Class f.e. com.sun.jsftemplating.Keys?
+    private static final String VIEW_MAPPINGS		= 
+	"com.sun.jsftemplating.VIEW_MAPPINGS";
+
+    private Collection<SimplePatternMatcher> _viewMappings = null;
 }
