@@ -19,7 +19,11 @@
     </context-param>
     <context-param>
     	<param-name>facelets.VIEW_MAPPINGS</param-name>
-    	<param-value>*.flt</param-value>
+    	<param-value>*.flt;*.xhtml</param-value>
+    </context-param>
+    <context-param>
+        <param-name>com.sun.jsftemplating.VIEW_MAPPINGS</param-name>
+        <param-value>*.jsf</param-value>
     </context-param>
 
     <servlet>
