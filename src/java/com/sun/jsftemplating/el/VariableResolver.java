@@ -1061,6 +1061,7 @@ public class VariableResolver {
      *	    <li>namingContainer -- Nearest <code>NamingContainer</code></li>
      *	    <li>valueBinding -- <code>ValueBinding</code> representing the
      *		<code>UIComponent</code></li>
+     *	    <li>children -- Current <code>UIComponent</code>'s children</li>
      *	</ul>
      */
     public static class ThisDataSource implements DataSource {
@@ -1083,6 +1084,8 @@ public class VariableResolver {
 		value = comp.getClientId(ctx);
 	    } else if (key.equalsIgnoreCase(ID)) {
 		value = comp.getId();
+	    } else if (key.equalsIgnoreCase(CHILDREN)) {
+		value = comp.getChildren();
 	    } else if (key.equalsIgnoreCase(COMPONENT)) {
 		value = comp;
 	    } else if (key.equalsIgnoreCase(LAYOUT_ELEMENT)) {
@@ -1135,6 +1138,12 @@ public class VariableResolver {
 
 	    return value;
 	}
+
+	/**
+	 *  <p> Defines "children" in $this{children}.  Returns the
+	 *	<code>UIComponent</code>'s children.</p>
+	 */
+	public static final String CHILDREN		= "children";
 
 	/**
 	 *  <p> Defines "component" in $this{component}.  Returns the
