@@ -867,7 +867,6 @@ public class XMLLayoutDefinitionReader {
 	    LayoutComponent markupComp = ((LayoutComponent) markupElt);
 	    markupComp.addOption("tag", tag);
 	    markupComp.setNested(true);
-	    markupComp.setFacetChild(false);
 
 	    // Add children...
 	    addChildLayoutComponentChildren(markupComp, node);
@@ -966,9 +965,7 @@ public class XMLLayoutDefinitionReader {
 	    LayoutElementUtil.isNestedLayoutComponent(component));
 
 	// Figure out if this should be stored as a facet, if so under what id
-	if (LayoutElementUtil.isLayoutComponentChild(component)) {
-	    component.setFacetChild(false);
-	} else {
+	if (!LayoutElementUtil.isLayoutComponentChild(component)) {
 	    // Need to add this so that it has the correct facet name
 	    // Check to see if this LayoutComponent is inside a LayoutFacet
 	    while (parent != null) {
@@ -1087,7 +1084,6 @@ public class XMLLayoutDefinitionReader {
 	// Configure it...
 	component.setNested(
 	    LayoutElementUtil.isNestedLayoutComponent(component));
-	component.setFacetChild(false);
 	component.addOption(EDITABLE, Boolean.TRUE); // Flag
 
 	// Add children... (different for component LayoutElements)
@@ -1113,7 +1109,6 @@ public class XMLLayoutDefinitionReader {
 	// Configure it...
 	popupMenu.setNested(
 	    LayoutElementUtil.isNestedLayoutComponent(popupMenu));
-	popupMenu.setFacetChild(false);
 
 	// Could add "menu" facet here, however, I decided to do it in the xml
 
