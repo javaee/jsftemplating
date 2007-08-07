@@ -29,6 +29,7 @@ package com.sun.jsftemplating.handlers;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -257,7 +258,6 @@ public class ComponentHandlers {
 	// Create a LayoutComponent...
 	LayoutComponent desc = new LayoutComponent((LayoutComponent) null, id,
 		LayoutDefinitionManager.getGlobalComponentType(type));
-	desc.setFacetChild(false);
 
 	// Create the component...
 	UIComponent component = ComponentUtil.createChildComponent(
@@ -390,11 +390,13 @@ public class ComponentHandlers {
 	}
 
 	// Facets...
-	it = comp.getFacets().values().iterator();
-	if (it.hasNext()) {
-	    buf.append(indent + "  Facets:\n");
-	    while (it.hasNext()) {
-		dumpTree(it.next(), buf, indent + "    ");
+	Map<String, UIComponent> facetMap = comp.getFacets();
+	Iterator<String> facetNames = facetMap.keySet().iterator();
+	if (facetNames.hasNext()) {
+	    while (facetNames.hasNext()) {
+		String name = facetNames.next();
+		buf.append(indent + "  Facet (" + name + "):\n");
+		dumpTree(facetMap.get(name), buf, indent + "    ");
 	    }
 	}
     }
