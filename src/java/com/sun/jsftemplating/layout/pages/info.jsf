@@ -1,48 +1,50 @@
-"<html>
-"   <head>
-"	<title>Templating for JavaServer&trade; Faces Info</title>
-"	<style type="text/css">
-".info .title {background-color: #333388; color: #CCCCCC; font-family: Arial,sans-serif; font-size: 14pt; font-weight: bold; padding: 15px; white-space: nowrap;}
-".info pre {border: 2px solid #333388; padding: 15px;}
-"h2 {color: #333388; font-family: Arial,sans-serif; font-size: 16pt; font-weight: bold; padding: 15px;}
-"	</style>
-"   </head>
-"   <body bgcolor="#FFFFFF">
+<f:verbatim>
+<html>
+   <head>
+	<title>Templating for JavaServer&trade; Faces Info</title>
+	<style type="text/css">
+.info .title {background-color: #333388; color: #CCCCCC; font-family: Arial,sans-serif; font-size: 14pt; font-weight: bold; padding: 15px; white-space: nowrap;}
+.info pre {border: 2px solid #333388; padding: 15px;}
+h2 {color: #333388; font-family: Arial,sans-serif; font-size: 16pt; font-weight: bold; padding: 15px;}
+	</style>
+   </head>
+   <body bgcolor="#FFFFFF">
+</f:verbatim>
 <!if !$constant{com.sun.jsftemplating.layout.LayoutDefinitionManager.DEBUG}>
-"<br /><br />\n<center>
-" <br />
-" <h2> Powered by Templating for JavaServer&trade; Faces Technology! </h2>
-" <br />
-" Visit
-" <a href="https://jsftemplating.dev.java.net">https://jsftemplating.dev.java.net</a>
-" to learn more about Templating for JavaServer&trade; Faces Technology.</center>
+<f:verbatim>
+<br /><br />\n<center>
+ <br />
+ <h2> Powered by Templating for JavaServer&trade; Faces Technology! </h2>
+ <br />
+ Visit
+ <a href="https://jsftemplating.dev.java.net">https://jsftemplating.dev.java.net</a>
+ to learn more about Templating for JavaServer&trade; Faces Technology.</center>
+</f:verbatim>
 </if>
 <!if $constant{com.sun.jsftemplating.layout.LayoutDefinitionManager.DEBUG}>
-"	<div class="info" id="handlers">
-"	    <div class="title">
-"		Handlers:
-"	    </div>
-"	    <pre>
-<staticText value="$attribute{handlers}">
-    <!beforeCreate
-	getGlobalHandlerInformation(info=>$attribute{handlers});
-    />
-</staticText>
-"	    </pre>
-"	</div>
-"	<br />
-"	<div class="info" id="types">
-"	    <div class="title">
-"		ComponentTypes:
-"	    </div>
-"	    <pre>
-<staticText value="$attribute{handlers}">
-    <!beforeCreate
-	getGlobalComponentTypeInformation(info=>$attribute{handlers});
-    />
-</staticText>
-"	    </pre>
-"	</div>
+    <event>
+	<!beforeEncode
+	    getGlobalHandlerInformation(info=>$attribute{handlers});
+	    getGlobalComponentTypeInformation(info=>$attribute{handlers});
+	/>
+    </event>
+<f:verbatim>
+	<div class="info" id="handlers">
+	    <div class="title">
+		Handlers:
+	    </div>
+	    <pre>$attribute{handlers}</pre>
+	</div>
+	<br />
+	<div class="info" id="types">
+	    <div class="title">
+		ComponentTypes:
+	    </div>
+	    <pre>$attribute{handlers}</pre>
+	</div>
+</f:verbatim>
 </!if>
-"   </body>
-"</html>
+<f:verbatim>
+   </body>
+</html>
+</f:verbatim>
