@@ -985,11 +985,11 @@ public class LogUtil {
 	    String msgId, Object[] params, boolean strict) {
 	String result = MessageUtil.getInstance().
 	    getMessage(BUNDLE_NAME, msgId, params);
-	if (result.equals(msgId)) {
+	if ((result == null) || result.equals(msgId)) {
 	    // We didn't find the key...
 	    if (strict) {
 		// A key is required, return an error message
-		if (msgId.equals(KEY_NOT_FOUND_KEY)) {
+		if ((msgId != null) && msgId.equals(KEY_NOT_FOUND_KEY)) {
 		    // This is here to prevent and infinite loop
 		    result = KEY_NOT_FOUND_KEY + LOG_KEY_MESSAGE_SEPARATOR
 			+ "'" + params[0] + "' not found in ResourceBundle: '"
