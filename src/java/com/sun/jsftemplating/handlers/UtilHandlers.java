@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -413,13 +414,20 @@ public class UtilHandlers {
      */
     @Handler(id="urlencode",
 	input={
-	    @HandlerInput(name="value", type=String.class)
+	    @HandlerInput(name="value", type=String.class, required=true),
+	    @HandlerInput(name="encoding", type=String.class)
 	},
 	output={
 	    @HandlerOutput(name="value", type=String.class)})
     public static void urlencode(HandlerContext context) {
 	String value = (String) context.getInputValue("value");
-	value = URLEncoder.encode(value);
+	String encoding = (String) context.getInputValue("encoding");
+	try {
+	    value = (encoding == null) ?
+		URLEncoder.encode(value) : URLEncoder.encode(value, encoding);
+	} catch (UnsupportedEncodingException ex) {
+	    throw new IllegalArgumentException(ex);
+	}
 	context.setOutputValue("value", value);
     }
 
