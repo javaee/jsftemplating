@@ -311,39 +311,21 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      *	@param	child	    The child <code>UIComponent</code>
      */
     protected void addChild(FacesContext context, LayoutComponent descriptor, UIComponent parent, UIComponent child) {
-	// Check to see if the descriptor marks this as a facet, or if we are
-	// inside the UIViewRoot.  If so, add as a facet.  We add UIViewRoot
-	// children as facets b/c we render them via the LayoutElement tree.
-	if (descriptor.isFacetChild()) {
-	    String name = (String) descriptor.getEvaluatedOption(
-		    context, LayoutComponent.FACET_NAME, child);
-	    if (name != null) {
-		parent.getFacets().put(name, child);
-	    } else {
+	// Check to see if we should add this as a facet.  NOTE: We add
+	// UIViewRoot children as facets b/c we render them via the
+	// LayoutElement tree.
+	String facetName = descriptor.getFacetName(parent);
+	if (facetName != null) {
+	    // Add child as a facet...
+	    if (LogUtil.configEnabled() && facetName.equals("_noname")) {
 		// Warn the developer that they may have a problem
-		if (LogUtil.configEnabled()) {
-		    LogUtil.config("Warning: no facet name was supplied for '"
-			    + descriptor.getId(context, child) + "'!");
-		}
-
-		// Set the parent
-		child.setParent(parent);
+		LogUtil.config("Warning: no id was supplied for "
+			+ "component '" + child + "'!");
 	    }
-	} else if (parent instanceof UIViewRoot) {
-	    String name = (String) descriptor.getEvaluatedOption(
-		    context, LayoutComponent.FACET_NAME, child);
-	    if (name == null) {
-		name = descriptor.getId(context, child);
-		if (name == null) {
-		    // Warn the developer that they may have a problem
-		    if (LogUtil.configEnabled()) {
-			LogUtil.config("Warning: no id was supplied for "
-				+ "component '" + child + "'!");
-		    }
-		    name = "_noname";
-		}
-	    }
-	    parent.getFacets().put(name, child);
+	    // Resolve the id if its dynamic
+	    facetName = (String) ComponentUtil.resolveValue(
+		    context, descriptor, child, facetName);
+	    parent.getFacets().put(facetName, child);
 	} else {
 	    // Add this as an actual child
 	    parent.getChildren().add(child);
