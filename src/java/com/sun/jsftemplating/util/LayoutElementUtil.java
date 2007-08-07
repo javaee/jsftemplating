@@ -174,9 +174,7 @@ public class LayoutElementUtil {
      */
     public static void checkForFacetChild(LayoutElement parent, LayoutComponent component) {
         // Figure out if this should be stored as a facet, if so under what id
-        if (LayoutElementUtil.isLayoutComponentChild(component)) {
-            component.setFacetChild(false);
-        } else {
+        if (!LayoutElementUtil.isLayoutComponentChild(component)) {
             // Need to add this so that it has the correct facet name
             // Check to see if this LayoutComponent is inside a LayoutFacet
             String id = component.getUnevaluatedId();
@@ -208,7 +206,9 @@ public class LayoutElementUtil {
 	String compInfo = "";
 	if (elt instanceof LayoutComponent) {
 	    LayoutComponent comp = (LayoutComponent) elt;
-	    compInfo = " nested=" + comp.isNested() + ", facetChild=" + comp.isFacetChild();
+	    compInfo = " nested=" + comp.isNested();
+	} else if (elt instanceof LayoutFacet) {
+	    compInfo = " isRendered=" + ((LayoutFacet) elt).isRendered();
 	}
 	buf.append(indent + elt.getUnevaluatedId() + " (" + elt.getClass().getName() + ")" + compInfo + "\n");
 
