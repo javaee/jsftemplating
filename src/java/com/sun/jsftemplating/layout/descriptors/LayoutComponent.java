@@ -33,12 +33,15 @@ import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.component.ChildManager;
 import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.component.TemplateComponent;
 import com.sun.jsftemplating.el.VariableResolver;
+import com.sun.jsftemplating.layout.LayoutViewRoot;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.event.AfterCreateEvent;
 import com.sun.jsftemplating.layout.event.AfterEncodeEvent;
 import com.sun.jsftemplating.layout.event.BeforeCreateEvent;
 import com.sun.jsftemplating.layout.event.BeforeEncodeEvent;
+import com.sun.jsftemplating.util.LayoutElementUtil;
 
 
 /**
@@ -351,23 +354,84 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
     /**
      *	<p> This method returns true if the child should be added to the parent
      *	    component as a facet.  Otherwise, it returns false indicating that
-     *	    it should exist as a real child.  The default is true.</p>
+     *	    it should exist as a real child.</p>
      *
-     *	@return	True if the child UIComponent should be added as a facet.
+     *	<p> This value is calculated every time this call is made to allow for
+     *	    the context in which the LayoutComponent exists to determine its
+     *	    value.  If a {@link LayoutFacet} exists as a parent
+     *	    {@link LayoutElement}, or a <code>UIViewRoot</code> or
+     *	    {@link TemplateComponent} exists as the immediate parent, it will
+     *	    return the facet name that should be used.  Otherwise, it will
+     *	    return <code>null</code>.</p>
+     *
+     *	@param	parent	This is the parent UIComponent.
+     *
+     *	@return	The facet name if the UIComponent should be added as a facet.
      */
-    public boolean isFacetChild() {
-	return _isFacetChild;
-    }
+    public String getFacetName(UIComponent parent) {
+	String name = null;
 
-    /**
-     *	<p> This method sets whether the child <code>UIComponent</code> should
-     *	    be set as a facet or a real child.</p>
-     *
-     *	@param	facetChild  True if the child <code>UIComponent</code> should
-     *			    be added as a facet.
-     */
-    public void setFacetChild(boolean facetChild) {
-	_isFacetChild = facetChild;
+	// First check to see if this LC specifies a different facet name...
+	name = (String) getOption(FACET_NAME);
+	if ((name != null) && name.equals(getUnevaluatedId())) {
+	    // No special facet name supplied, don't assume this is a facet yet
+	    name = null;
+	}
+
+	// Next check to see if we are inside a LayoutFacet
+	if (name == null) {
+	    LayoutElement parentElt = getParent();
+	    while (parentElt != null) {
+		if (parentElt instanceof LayoutFacet) {
+		    // Inside a LayoutFacet, use its name... only if this facet
+		    // is a child of a LayoutComponent (otherwise, it is a
+		    // layout facet used for layout, not for defining a facet
+		    // of a UIComponent)
+		    if (LayoutElementUtil.isLayoutComponentChild(parentElt)) {
+			name = parentElt.getUnevaluatedId();
+		    } else {
+			name = getUnevaluatedId();
+		    }
+		    if (name == null) {
+			name = "_noname";
+		    }
+		    break;
+		}
+		if (parentElt instanceof LayoutComponent) {
+		    // No need to process further, this is not a facet child
+		    return null;
+		}
+		parentElt = parentElt.getParent();
+	    }
+	}
+
+	// If not found yet, check to see if we're at the top...
+	if (name == null) {
+	    if (parent instanceof TemplateComponent) {
+		// We don't know if we are adding a child of a
+		// TemplateComponent from a page, or if the TemplateComponent
+		// itself has a child... if the TemplateComponent is driving
+		// the rendering process, then we want this to be a facet. If
+		// the page is adding a child to a TemplateComponent, we do
+		// not want this to be a facet.
+
+		// Look to see if the parent LayoutDefinition == the current
+		// LayoutDefinition.  If so, we're "inside" a
+		// TemplateComponent, not a page.
+		FacesContext ctx = FacesContext.getCurrentInstance();
+		if (((TemplateComponent) parent).getLayoutDefinition(ctx)
+			== getLayoutDefinition()) {
+		    name = getUnevaluatedId();
+		}
+	    } else if (parent instanceof LayoutViewRoot) {
+		// NOTE: I am not checking for UIViewRoot b/c I don't want to
+		// use a facet unless we're using JSFT's LayoutViewRoot
+		name = getUnevaluatedId();
+	    }
+	}
+
+	// Return the result
+	return name;
     }
 
     /**
@@ -413,11 +477,6 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
      *	<p> Map of options.</p>
      */
     private Map<String, Object>	_options    = new HashMap<String, Object>();
-
-    /**
-     *
-     */
-    private boolean _isFacetChild = true;
 
     /**
      *	<p> This is the "type" for handlers to be invoked to handle
