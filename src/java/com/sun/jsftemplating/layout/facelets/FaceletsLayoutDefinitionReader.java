@@ -30,6 +30,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefine;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
 import com.sun.jsftemplating.layout.descriptors.LayoutInsert;
 import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
 import com.sun.jsftemplating.layout.template.BaseProcessingContext;
@@ -128,6 +129,8 @@ public class FaceletsLayoutDefinitionReader {
 		abortProcessing = ((LayoutComposition)element).isTrimming(); 
 		newParent = element;
 	    } else if (element instanceof LayoutDefine) {
+		newParent = element;
+	    } else if (element instanceof LayoutFacet) {
 		newParent = element;
 	    } else if (element instanceof LayoutInsert) {
 		newParent = element;
@@ -301,6 +304,23 @@ public class FaceletsLayoutDefinitionReader {
 		    }
 		}
 	    }
+	} else if ("f:facet".equals(nodeName)) {
+	    // FIXME: Need to take NameSpace into account
+	    nameNode = attrs.getNamedItem("name");
+	    if (nameNode == null) {
+		throw new IllegalArgumentException("You must provide a name "
+		    + "attribute for all facets!  Parent component is: '"
+		    + parent.getUnevaluatedId() + "'.");
+	    }
+	    LayoutFacet facetElt =  new LayoutFacet(parent, nameNode.getNodeValue());
+
+	    // Determine if this is a facet place holder (i.e. we're defining
+	    // a renderer w/ a facet), or if it is a facet value to set on a
+	    // containing component.
+	    boolean isRendered =
+		!LayoutElementUtil.isNestedLayoutComponent(facetElt);
+	    facetElt.setRendered(isRendered);
+	    element = facetElt;
 	} else {
 	    LayoutComponent lc = null;
 	    ComponentType componentType = null;
@@ -326,17 +346,16 @@ public class FaceletsLayoutDefinitionReader {
 	    } else {
 		lc = new LayoutComponent(parent, id, componentType);
 		addAttributesToComponent(lc, node);
-//		FIXME: Because of the way pages are composed in facelets, the parent
-//		FIXME: LayoutComponent may not exist in this LD.  In that case it is not
-//		FIXME: a "facet child", but it appears to be according to the following
-//		FIXME: method.  We need a better way to mark children as facets or real
-//		FIXME: children.  This may even require diverging the LD into 1 for
-//		FIXME: components and 1 for pages. :(  For now I am commenting it out and
-//		FIXME: defaulting to false.
-//		LayoutElementUtil.checkForFacetChild(parent, lc);
 	    }
-	    lc.setFacetChild(false);
 	    lc.setNested(nested);
+//	    FIXME: Because of the way pages are composed in facelets, the parent
+//	    FIXME: LayoutComponent may not exist in this LD.  In that case it is not
+//	    FIXME: a "facet child", but it appears to be according to the following
+//	    FIXME: method.  We need a better way to mark children as facets or real
+//	    FIXME: children.  This may even require diverging the LD into 1 for
+//	    FIXME: components and 1 for pages. :(
+	    //LayoutElementUtil.checkForFacetChild(parent, lc);
+	    //lc.setFacetChild(false);  This is done by checkForFacetChild(...)
 	    element = lc;
 	}
 
