@@ -407,9 +407,6 @@ public class TemplateReader {
 	//	 allow this value to be overruled if desired.
 	component.setNested(nested);
 
-	// Set facet id if needed
-	LayoutElementUtil.checkForFacetChild(parent, component);
-
 	// Let calling method see if this is a single tag, or if there should
 	// be a closing tag as well
 	parser.unread('>');
