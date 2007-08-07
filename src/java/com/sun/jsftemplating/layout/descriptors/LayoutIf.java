@@ -74,7 +74,6 @@ public class LayoutIf extends LayoutComponent {
      */
     protected LayoutIf(LayoutElement parent, String condition, ComponentType type) {
 	super(parent, (String) null, type);
-	setFacetChild(false);
 	addOption("condition", condition);
 	if (condition.equals("$property{condition}")) {
 	    _doubleEval = true;

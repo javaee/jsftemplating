@@ -64,7 +64,6 @@ public class LayoutForEach extends LayoutComponent {
 	if ((key == null) || key.equals("")) {
 	    throw new IllegalArgumentException("'key' is required!");
 	}
-	setFacetChild(false);
 	addOption("list", listBinding);
 	addOption("key", key);
 	if (listBinding.equals("$property{list}")) {
