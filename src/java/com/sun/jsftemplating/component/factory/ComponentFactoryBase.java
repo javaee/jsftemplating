@@ -124,12 +124,12 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      */
     protected void setOption(FacesContext context, UIComponent comp, String key, Object value) {
 	// Next check to see if the value contains a ValueExpression
-	String strVal = "" + value;
-	if (ComponentUtil.isValueReference(strVal)) {
+	if ((value instanceof String)
+		&& (ComponentUtil.isValueReference((String) value))) {
 	    ValueExpression ve =
 		context.getApplication().getExpressionFactory().
 		    createValueExpression(
-			    context.getELContext(), strVal, Object.class);
+			    context.getELContext(), (String) value, Object.class);
 	    comp.setValueExpression((String) key, ve);
 	} else {
 	    // In JSF, you must directly modify the attribute Map
