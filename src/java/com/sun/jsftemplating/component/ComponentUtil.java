@@ -432,14 +432,14 @@ public class ComponentUtil {
 	}
 
 	// Next check to see if the value contains a JSF ValueExpression
-	String strVal = value.toString();
-	if (ComponentUtil.isValueReference(strVal)) {
+	if ((value instanceof String)
+		&& ComponentUtil.isValueReference((String) value)) {
 /*
 1.2+
 	    ValueExpression ve =
 		context.getApplication().getExpressionFactory().
 		    createValueExpression(
-			    context.getELContext(), strVal, Object.class);
+			    context.getELContext(), (String) value, Object.class);
 	    if (component != null) {
 		component.setValueExpression(key, ve);
 	    }
@@ -447,7 +447,7 @@ public class ComponentUtil {
 */
 	    // JSF 1.1 VB:
 	    ValueBinding vb =
-		context.getApplication().createValueBinding(strVal);
+		context.getApplication().createValueBinding((String) value);
 	    if (component != null) {
 		component.setValueBinding(key, vb);
 	    }
@@ -485,24 +485,24 @@ public class ComponentUtil {
 
 	// Next check to see if the value contains a JSF ValueExpression
 	if (result != null) {
-	    String strVal = result.toString();
-	    if (ComponentUtil.isValueReference(strVal)) {
+	    if ((value instanceof String)
+		    && ComponentUtil.isValueReference((String) value)) {
 /*
 1.2+
 		ELContext elctx = context.getELContext();
 		ValueExpression ve =
 		    context.getApplication().getExpressionFactory().
-			createValueExpression(elctx, strVal, Object.class);
+			createValueExpression(elctx, (String) value, Object.class);
 		result = ve.getValue(elctx);
 */
 		// JSF 1.1 VB:
 		try {
 		    ValueBinding vb =
-			context.getApplication().createValueBinding(strVal);
+			context.getApplication().createValueBinding((String) value);
 		    result = vb.getValue(context);
 		} catch (EvaluationException ex) {
 		    if (LogUtil.infoEnabled()) {
-			LogUtil.info("JSFT0007", new Object[] {strVal});
+			LogUtil.info("JSFT0007", new Object[] {value});
 		    }
 		    throw ex;
 		}
