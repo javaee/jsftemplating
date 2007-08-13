@@ -483,22 +483,21 @@ public class ComponentUtil {
 	Object result = VariableResolver.resolveVariables(
 	    context, elt, parent, value);
 
-	// Next check to see if the value contains a JSF ValueExpression
-	if (result != null) {
-	    if ((value instanceof String)
-		    && ComponentUtil.isValueReference((String) value)) {
+	// Next check to see if the result contains a JSF ValueExpression
+	if ((result != null) && (result instanceof String)
+		&& ComponentUtil.isValueReference((String) result)) {
 /*
 1.2+
 		ELContext elctx = context.getELContext();
 		ValueExpression ve =
 		    context.getApplication().getExpressionFactory().
-			createValueExpression(elctx, (String) value, Object.class);
+			createValueExpression(elctx, (String) result, Object.class);
 		result = ve.getValue(elctx);
 */
 		// JSF 1.1 VB:
 		try {
 		    ValueBinding vb =
-			context.getApplication().createValueBinding((String) value);
+			context.getApplication().createValueBinding((String) result);
 		    result = vb.getValue(context);
 		} catch (EvaluationException ex) {
 		    if (LogUtil.infoEnabled()) {
@@ -506,7 +505,6 @@ public class ComponentUtil {
 		    }
 		    throw ex;
 		}
-	    }
 	}
 
 	// Return the result
