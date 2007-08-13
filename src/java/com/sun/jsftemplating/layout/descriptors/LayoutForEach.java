@@ -141,7 +141,7 @@ public class LayoutForEach extends LayoutComponent {
      *	@param	value	    The <code>Object</code> to store
      *	@param	index	    The current index number of the <code>Object</code>
      */
-    protected void setCurrentForEachValue(FacesContext context, Object value, int index, String key) {
+    private void setCurrentForEachValue(FacesContext context, Object value, int index, String key) {
 	Map<String, Object> map = context.getExternalContext().getRequestMap();
 	map.put(key, value);
 	map.put(key + "-index", "" + index);
@@ -163,9 +163,16 @@ public class LayoutForEach extends LayoutComponent {
 	String key = resolveValue(
 		context, component, getOption("key")).toString();
 
+	// Get the List
+	List<Object> list = getList(context, component);
+
+	// Save the list size in case it is needed.
+	context.getExternalContext().getRequestMap().put(
+		key + "-size", list.size());
+
 	// Iterate over the values in the list and perform the requested
 	// action(s) per the body of the LayoutForEach
-	Iterator<Object> it = getList(context, component).iterator();
+	Iterator<Object> it = list.iterator();
 	for (int index = 1; it.hasNext(); index++) {
 	    setCurrentForEachValue(context, it.next(), index, key);
 	    super.encode(context, component);
