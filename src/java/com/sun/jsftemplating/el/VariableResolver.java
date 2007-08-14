@@ -67,6 +67,7 @@ import com.sun.jsftemplating.util.Util;
  *	<li>{@link #BOOLEAN} -- {@link BooleanDataSource}</li>
  *	<li>{@link #CONSTANT} -- {@link ConstantDataSource}</li>
  *	<li>{@link #ESCAPE} -- {@link EscapeDataSource}</li>
+ *	<li>{@link #EVAL} -- {@link EvalDataSource}</li>
  *	<li>{@link #HAS_FACET} -- {@link HasFacetDataSource}</li>
  *	<li>{@link #HAS_PROPERTY} -- {@link HasPropertyDataSource}</li>
  *	<li>{@link #INT} -- {@link IntDataSource}</li>
@@ -629,6 +630,29 @@ public class VariableResolver {
 	public Object getValue(FacesContext ctx, LayoutElement desc,
 		UIComponent component, String key) {
 	    return key;
+	}
+    }
+
+    /**
+     *	<p> This {@link VariableResolver.DataSource} evaluates the given
+     *	    boolean expression.</p>
+     */
+    public static class EvalDataSource implements DataSource {
+	/**
+	 *  <p>	See class JavaDoc.</p>
+	 *
+	 *  @param  ctx		The <code>FacesContext</code>
+	 *  @param  desc	The <code>LayoutElement</code>
+	 *  @param  component	The <code>UIComponent</code>
+	 *  @param  key		The key used to obtain information from this
+	 *			<code>DataSource</code>.
+	 *
+	 *  @return The value resolved from key.
+	 */
+	public Object getValue(FacesContext ctx, LayoutElement desc,
+		UIComponent component, String key) {
+	    PermissionChecker checker = new PermissionChecker(desc, component, key);
+	    return Boolean.valueOf(checker.hasPermission());
 	}
     }
 
@@ -1392,6 +1416,12 @@ public class VariableResolver {
     public static final String	    ESCAPE		= "escape";
 
     /**
+     *	<p> Defines "eval" in $eval{...}.  This allows a boolean expression to
+     *	    be evaulated.</p>
+     */
+    public static final String	    EVAL		= "eval";
+
+    /**
      *	<p> Defines "boolean" in $boolean{...}.  This converts the given
      *	    String to a Boolean.</p>
      */
@@ -1451,6 +1481,7 @@ public class VariableResolver {
 //	dataSourceMap.put(DISPLAY, new DisplayFieldDataSource());
 	dataSourceMap.put(THIS, new ThisDataSource());
 	dataSourceMap.put(ESCAPE, new EscapeDataSource());
+	dataSourceMap.put(EVAL, new EvalDataSource());
 	dataSourceMap.put(INT, new IntDataSource());
 	dataSourceMap.put(BOOLEAN, new BooleanDataSource());
 	dataSourceMap.put(CONSTANT, new ConstantDataSource());
