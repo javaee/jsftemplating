@@ -165,6 +165,7 @@ public class PermissionChecker {
 	    case AND_OPERATOR:
 		return 16;
 	    case MODULUS_OPERATOR:
+	    case DIVIDE_OPERATOR:
 		return 32;
 	    case NOT_OPERATOR:
 		return 64;
@@ -216,6 +217,7 @@ public class PermissionChecker {
 		case LESS_THAN_OPERATOR:
 		case MORE_THAN_OPERATOR:
 		case MODULUS_OPERATOR:
+		case DIVIDE_OPERATOR:
 		case AND_OPERATOR:
 		case NOT_OPERATOR:
 		case LEFT_PAREN:
@@ -375,6 +377,7 @@ public class PermissionChecker {
 	    case LESS_THAN_OPERATOR:
 	    case MORE_THAN_OPERATOR:
 	    case MODULUS_OPERATOR:
+	    case DIVIDE_OPERATOR:
 	    case OR_OPERATOR:
 	    case AND_OPERATOR:
 	    case NOT_OPERATOR:
@@ -539,6 +542,18 @@ public class PermissionChecker {
 			    Integer.parseInt(result.pop().toString());
 			int num = Integer.parseInt(result.pop().toString());
 			result.push(new StringFunction("" + (num % modNumber)));
+		    } catch (EmptyStackException ex) {
+			throw new RuntimeException("Unable to evaluate: '"
+				+ toString() + "'.", ex);
+		    }
+		    break;
+		case DIVIDE_OPERATOR:
+		    try {
+			// The stack reverses the order...
+			int divNumber =
+			    Integer.parseInt(result.pop().toString());
+			int num = Integer.parseInt(result.pop().toString());
+			result.push(new StringFunction("" + (num / divNumber)));
 		    } catch (EmptyStackException ex) {
 			throw new RuntimeException("Unable to evaluate: '"
 				+ toString() + "'.", ex);
@@ -1157,6 +1172,7 @@ public class PermissionChecker {
     public static final char LESS_THAN_OPERATOR	= '<';
     public static final char MORE_THAN_OPERATOR	= '>';
     public static final char MODULUS_OPERATOR	= '%';
+    public static final char DIVIDE_OPERATOR	= '/';
 
     // The COMMA separates function arguments... not really an operator
     public static final char ARGUMENT_SEPARATOR	= ',';
