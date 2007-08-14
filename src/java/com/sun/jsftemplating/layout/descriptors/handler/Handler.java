@@ -470,7 +470,7 @@ public class Handler implements java.io.Serializable {
 
 	// Try to get the UIComponent
 	UIComponent comp = null;
-	Object obj = handlerContext.getEventObject();
+	Object obj = handlerContext.getEventObject().getSource();
 	if (obj instanceof UIComponent) {
 	    comp = (UIComponent) obj;
 	}
