@@ -525,7 +525,7 @@ public class PermissionChecker {
 		    break;
 		case MORE_THAN_OPERATOR:
 		    try {
-			// The stack reverses the order, so check greater than
+			// The stack reverses the order, so check less than
 			val1 = Integer.parseInt(result.pop().toString())
 			    < Integer.parseInt(result.pop().toString());
 		    } catch (EmptyStackException ex) {
