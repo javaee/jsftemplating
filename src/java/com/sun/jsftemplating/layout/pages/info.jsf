@@ -25,7 +25,7 @@ h2 {color: #333388; font-family: Arial,sans-serif; font-size: 16pt; font-weight:
     <event>
 	<!beforeEncode
 	    getGlobalHandlerInformation(info=>$attribute{handlers});
-	    getGlobalComponentTypeInformation(info=>$attribute{handlers});
+	    getGlobalComponentTypeInformation(info=>$attribute{compTypes});
 	/>
     </event>
 <f:verbatim>
@@ -40,7 +40,7 @@ h2 {color: #333388; font-family: Arial,sans-serif; font-size: 16pt; font-weight:
 	    <div class="title">
 		ComponentTypes:
 	    </div>
-	    <pre>$attribute{handlers}</pre>
+	    <pre>$attribute{compTypes}</pre>
 	</div>
 </f:verbatim>
 </!if>
