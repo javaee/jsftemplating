@@ -922,7 +922,7 @@ public class TemplateReader {
 	new LayoutWhileContext();
 
 
-    public static CustomParserCommand EVENT_PARSER_COMMAND =
+    public static final CustomParserCommand EVENT_PARSER_COMMAND =
 	new EventParserCommand();
 
     private static Map<String, CustomParserCommand> _parserCmds	=
