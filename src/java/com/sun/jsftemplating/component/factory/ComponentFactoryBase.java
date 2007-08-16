@@ -138,7 +138,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 		// Setting null, assume they want to remove the value
 		try {
 		    attributes.remove(key);
-		} catch (IllegalArgumentException ex) {
+		} catch (Exception ex) { // Switched from IAE to E b/c of MyFaces incompatibility
 		    // JSF is mesed up... it throws an exception if it has a
 		    // property descriptor and you call remove(...).  It also
 		    // throws an exception if you attempt to call put w/ null
@@ -146,7 +146,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 		    // MUST catch something and then handle the other case.
 		    try {
 			attributes.put(key, (Object) null);
-		    } catch (IllegalArgumentException iae) {
+		    } catch (Exception iae) { // Switched from IAE to E b/c of MyFaces incompatibility
 			// We'll make this non-fatal, but log a message
 			if (LogUtil.infoEnabled()) {
 			    LogUtil.info("JSFT0006", new Object[] {
@@ -161,13 +161,13 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 		try {
 		    // Attempt to set the value as given...
 		    attributes.put(key, value);
-		} catch (IllegalArgumentException ex) {
+		} catch (Exception ex) { // Switched from IAE to E b/c of MyFaces incompatibility
 		    // Ok, try a little harder...
 		    Class type = findPropertyType(comp, key);
 		    if (type != null) {
 			try {
 			    attributes.put(key, TypeConverter.asType(type, value));
-			} catch (IllegalArgumentException ex2) {
+			} catch (Exception ex2) { // Switched from IAE to E b/c of MyFaces incompatibility
 			    throw new IllegalArgumentException(
 				"Failed to set property (" + key + ") with "
 				+ "value (" + value + "), which is of type ("
