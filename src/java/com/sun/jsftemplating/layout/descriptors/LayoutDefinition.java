@@ -318,10 +318,8 @@ public class LayoutDefinition extends LayoutElementBase {
 	    return;
 	}
 
-	// Check to see if we need to do this...
-	Map<String, Object> reqAtts = ctx.getExternalContext().getRequestMap();
-	String key = INIT_PAGE_PREFIX + getId(ctx, (UIComponent) null);
-	if (reqAtts.get(key) != null) {
+	// Check to see if we've already done this...
+	if (isInitPageExecuted(ctx)) {
 	    // We've already init'd this request, do nothing
 	    return;
 	}
@@ -330,7 +328,25 @@ public class LayoutDefinition extends LayoutElementBase {
 	dispatchHandlers(ctx, INIT_PAGE, new InitPageEvent(source));
 
 	// Flag request as having processed the initPage handlers
-	reqAtts.put(key, Boolean.TRUE);
+	setInitPageExecuted(ctx, Boolean.TRUE);
+    }
+
+    /**
+     *	<p> This method checks to see if the initPage event has fired yet
+     *	    for this request.</p>
+     */
+    public boolean isInitPageExecuted(FacesContext ctx) {
+	Map<String, Object> reqAtts = ctx.getExternalContext().getRequestMap();
+	String key = INIT_PAGE_PREFIX + getId(ctx, (UIComponent) null);
+	return Boolean.TRUE.equals(reqAtts.get(key));
+    }
+
+    /**
+     *	<p> This method marks the initPage event as fired for this request.</p>
+     */
+    public void setInitPageExecuted(FacesContext ctx, boolean value) {
+	String key = INIT_PAGE_PREFIX + getId(ctx, (UIComponent) null);
+	ctx.getExternalContext().getRequestMap().put(key, value);
     }
 
 
