@@ -139,6 +139,15 @@ public class LayoutViewHandler extends ViewHandler {
 	// the case if this is called from NavigationHandler. There wouldn't be
 	// one for the initial case.
 	if (context.getViewRoot() != null) {
+	    UIViewRoot oldViewRoot = context.getViewRoot();
+	    if ((oldViewRoot instanceof LayoutViewRoot)
+			&& oldViewRoot.getViewId().equals(viewId)) {
+		// If you navigate to the page you are already on, JSF will
+		// re-create the UIViewRoot of the current page.  The initPage
+		// event needs to be reset so that it will re-execute itself.
+		((LayoutViewRoot) oldViewRoot).getLayoutDefinition(context).
+		    setInitPageExecuted(context, Boolean.FALSE);
+	    }
 	    locale = context.getViewRoot().getLocale();
 	    renderKitId = context.getViewRoot().getRenderKitId();
 	}
