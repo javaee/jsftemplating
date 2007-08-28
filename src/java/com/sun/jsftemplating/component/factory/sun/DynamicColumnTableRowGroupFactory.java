@@ -32,16 +32,29 @@ import javax.faces.context.FacesContext;
 import com.sun.jsftemplating.annotation.UIComponentFactory;
 import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
+import com.sun.jsftemplating.layout.event.CreateChildEvent;
 
 
 /**
  *  <p>	This factory is responsible for instantiating a <code>TableRowGroup
  *	UIComponent</code> which supports a dynamic # of columns.</p>
  *
- *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
- *	id for this factory is: "sun:dynamicColumnRowGroup".</p>
+ *  <p>	The {@link ComponentType} id for this factory is:
+ *	"sun:dynamicColumnRowGroup".</p>
+ *
+ *  <p>	This factory fires a "createChild" event for each column that it
+ *	creates.  This allows the children of the column to be created in the
+ *	event allowing for the page developer to customize this (otherwise
+ *	only "StaticText" children will be created in the columns).  In the
+ *	"createChild" event handler, you may return a <code>UIComponent</code>
+ *	which will be used as the <code>UIComponent</code> for that column.
+ *	You also have access to the column <code>UICompoent</code> and may add
+ *	children directly to it if you wish.  The "data" value set in the
+ *	<code>CreateChildEvent</code> object is the value passed in for the
+ *	column.</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
@@ -62,6 +75,7 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
     public UIComponent create(FacesContext context, LayoutComponent desc, UIComponent parent) {
 	// Create the UIComponent
 	UIComponent comp = super.create(context, desc, parent);
+	String id = comp.getId();
 
 	// Dynamically create the child columns...
 	// First find all the column-specific properties
@@ -86,10 +100,11 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 
 	// Create the LC's for the columns
 	List<LayoutComponent> columns = new ArrayList<LayoutComponent>(size);
+	ComponentType colType =
+	    LayoutDefinitionManager.getGlobalComponentType(COLUMN_TYPE);
 	for (int idx = 0; idx < size; idx++) {
 	    LayoutComponent column = new LayoutComponent(
-		desc, (String) null,
-		LayoutDefinitionManager.getGlobalComponentType(COLUMN_TYPE));
+		desc, id + COLUMN_SEPERATOR + idx, colType);
 	    columns.add(column);
 	}
 
@@ -111,16 +126,30 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 
 	// Create the columns...
 	UIComponent columnComp = null;
+	String value = null;
+	Object eventVal = null;
 	values = getColumnPropertyValues(context, desc, COLUMN_VALUE_KEY, parent);
 	int idx = 0;
 	for (LayoutComponent columnDesc : columns) {
 	    columnComp = ComponentUtil.createChildComponent(
 		    context, columnDesc, comp);
 
-	    // Create the column (value) child
-	    // The child of each TableColumn will be a LayoutStaticText for now...
-	    ComponentUtil.createChildComponent(context, new LayoutStaticText(
-		columnDesc, null, "" + values.get(idx++)), columnComp);
+	    value = "" + values.get(idx++);
+	    eventVal = desc.dispatchHandlers(context,
+		    CreateChildEvent.EVENT_TYPE,
+		    new CreateChildEvent(columnComp, value));
+
+	    if ((eventVal != null) && (eventVal instanceof UIComponent)) {
+		// Add the child created during the event.
+		columnComp.getChildren().add((UIComponent) eventVal);
+	    } else {
+		// Create the column (value) child
+		// The child of each TableColumn will be a LayoutStaticText for now...
+		ComponentUtil.createChildComponent(context,
+			new LayoutStaticText(columnDesc,
+			    columnDesc.getUnevaluatedId() + CHILD_SUFFIX, value),
+			columnComp);
+	    }
 	}
 
 	// Return the component
@@ -188,6 +217,7 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
      */
     public static final String	COLUMN_TYPE	=   "sun:tableColumn";
     public static final String	COLUMN_VALUE_KEY=   "columnValue";
+    public static final String	COLUMN_SEPERATOR=   "col";
+    public static final String	CHILD_SUFFIX	=   "child";
     public static final int	COLUMN_LEN	=   "column".length();
-    
 }
