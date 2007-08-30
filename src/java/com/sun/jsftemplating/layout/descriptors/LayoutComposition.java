@@ -59,9 +59,7 @@ public class LayoutComposition extends LayoutElementBase {
 	// The child LayoutElements for a LayoutComposition are consumed by
 	// the template.  The LayoutElements consumed here is the template.
 	String templateName = getTemplate();
-	if (templateName == null) {
-	    throw new IllegalArgumentException("You must specify a template!");
-	}
+	if (templateName == null) { return true; }
 
 	// Add this to the stack
 	LayoutComposition.push(context, this);
