@@ -59,33 +59,7 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
      *	@return	The requested UIComponent
      */
     public UIComponent getChild(FacesContext context, String id) {
-	if ((id == null) || (id.trim().equals("")))  {
-	    // No id, no LayoutComponent, nothing we can do.
-	    return null;
-	}
-
-	// We have an id, use it to search for an already-created child
-// FIXME: I am doing this 2x if it falls through to create the child...
-// FIXME: think about optimizing this
-	UIComponent childComponent = ComponentUtil.findChild(this, id, id);
-	if (childComponent != null) {
-	    return childComponent;
-	}
-
-	// If we're still here, then we need to create it... hopefully we have
-	// a LayoutComponent to tell us how to do this!
-	LayoutDefinition ld = getLayoutDefinition(context);
-	if (ld == null) {
-	    // No LayoutDefinition to tell us how to create it... return null
-	    return null;
-	}
-
-	// Attempt to find a LayoutComponent matching the id
-	LayoutElement elt =
-	    LayoutDefinition.getChildLayoutElementById(context, id, ld, this);
-
-	// Create the child from the LayoutComponent
-	return getChild(context, (LayoutComponent) elt);
+	return getHelper().getChild(this, context, id);
     }
 
 
@@ -99,38 +73,7 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
      *	@return	The requested UIComponent
      */
     public UIComponent getChild(FacesContext context, LayoutComponent descriptor) {
-	UIComponent childComponent = null;
-
-	// Sanity check
-	if (descriptor == null) {
-	    throw new IllegalArgumentException("The LayoutComponent is null!");
-	}
-
-	// First pull off the id from the descriptor
-	String id = descriptor.getId(context, this);
-	if ((id != null) && !(id.trim().equals(""))) {
-	    // We have an id, use it to search for an already-created child
-	    childComponent = ComponentUtil.findChild(this, id, id);
-	    if (childComponent != null) {
-		return childComponent;
-	    }
-	}
-
-	// No id, or the component hasn't been created.  In either case, we
-	// create a new component (moral: always have an id)
-
-	// Invoke "beforeCreate" handlers
-	descriptor.beforeCreate(context, this);
-
-	// Create UIComponent
-	childComponent =
-	    ComponentUtil.createChildComponent(context, descriptor, this);
-
-	// Invoke "afterCreate" handlers
-	descriptor.afterCreate(context, childComponent);
-
-	// Return the newly created UIComponent
-	return childComponent;
+	return getHelper().getChild(this, context, descriptor);
     }
 
     /**
@@ -141,29 +84,7 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
      *	@return	LayoutDefinition associated with this component.
      */
     public LayoutDefinition getLayoutDefinition(FacesContext context) {
-	// Make sure we don't already have it...
-	if (_layoutDefinition != null) {
-	    return _layoutDefinition;
-	}
-
-	// Get the LayoutDefinitionManager key
-	String key = getLayoutDefinitionKey();
-	if (key == null) {
-	    throw new NullPointerException("LayoutDefinition key is null!");
-	}
-
-	// Save the LayoutDefinition for future calls to this method
-	try {
-	    _layoutDefinition = LayoutDefinitionManager.
-		getLayoutDefinition(context, key);
-	} catch (LayoutDefinitionException ex) {
-	    throw new IllegalArgumentException(
-		    "A LayoutDefinition was not provided for '" + key
-		    + "'!  This is required.", ex);
-	}
-
-	// Return the LayoutDefinition (if found)
-	return _layoutDefinition;
+	return getHelper().getLayoutDefinition(context);
     }
 
     /**
@@ -176,10 +97,7 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
      *	@return The serialized State
      */
     public Object saveState(FacesContext context) {
-	Object[] values = new Object[2];
-	values[0] = super.saveState(context);
-	values[1] = _ldmKey;
-	return values;
+	return getHelper().saveState(context, super.saveState(context));
     }
 
     /**
@@ -191,9 +109,7 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
      *
      */
     public void restoreState(FacesContext context, Object state) {
-	Object[] values = (Object[]) state;
-	super.restoreState(context, values[0]);
-	_ldmKey = (java.lang.String) values[1];
+	super.restoreState(context, getHelper().restoreState(context, state));
     }
 
     /**
@@ -202,7 +118,7 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
      *	@return	key	The key to use in the {@link LayoutDefinitionManager}.
      */
     public String getLayoutDefinitionKey() {
-	return _ldmKey;
+	return getHelper().getLayoutDefinitionKey();
     }
 
 
@@ -212,20 +128,25 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
      *	@param	key The key to use in the {@link LayoutDefinitionManager}.
      */
     public void setLayoutDefinitionKey(String key) {
-	_ldmKey = key;
+	getHelper().setLayoutDefinitionKey(key);
     }
 
     /**
-     *	This is the LayoutDefinition key for this component.  This is
-     *	typically set by the Tag.  The Component may also provide a default
-     *	by setting it in its constructor.
+     *	<p> This method retrieves the {@link TemplateComponentHelper} used by
+     *	    this class to help implement the {@link TemplateComponent}
+     *	    interface.</p>
      */
-    private String _ldmKey = null;
-
+    protected TemplateComponentHelper getHelper() {
+	if (_helper == null) {
+	    _helper = new TemplateComponentHelper();
+	}
+	return _helper;
+    }
 
     /**
-     *	This is a cached reference to the LayoutDefinition used by this
-     *	UIComponent.
+     *	<p> Our <code>TemplateComponentHelper</code>.  We initialize it on
+     *	    access b/c we want to ensure it exists, if it is Serialized it
+     *	    won't exist if we init it here or in the constructor.</p>
      */
-    private transient LayoutDefinition _layoutDefinition = null;
+    private transient TemplateComponentHelper _helper = null;
 }
