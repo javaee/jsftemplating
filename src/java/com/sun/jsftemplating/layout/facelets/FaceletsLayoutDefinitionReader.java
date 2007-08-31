@@ -22,6 +22,20 @@
  */
 package com.sun.jsftemplating.layout.facelets;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import javax.xml.parsers.DocumentBuilder;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
@@ -42,19 +56,10 @@ import com.sun.jsftemplating.util.IncludeInputStream;
 import com.sun.jsftemplating.util.LayoutElementUtil;
 import com.sun.jsftemplating.util.Util;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
 import javax.faces.FactoryFinder;
 import javax.faces.application.Application;
 import javax.faces.application.ApplicationFactory;
 import javax.faces.context.FacesContext;
-import javax.xml.parsers.DocumentBuilder;
-
-import org.w3c.dom.*;
 
 /**
  * @author Jason Lee
@@ -170,20 +175,20 @@ public class FaceletsLayoutDefinitionReader {
 	return abortProcessing;
     }
     
-    private LayoutComposition processComposition(LayoutElement parent, NamedNodeMap attrs, String id, boolean trimming) {
+    private LayoutComposition processComposition(LayoutElement parent, String attrName, NamedNodeMap attrs, String id, boolean trimming) {
     LayoutComposition lc = new LayoutComposition(parent, id);
     lc.setTrimming(trimming);
     if (trimming) {
 	    parent = parent.getLayoutDefinition(); // parent to the LayoutDefinition
 	    parent.getChildLayoutElements().clear(); // a ui:composition clears everything outside of it
 	}	
-	Node templateNode = attrs.getNamedItem("template");
-	String template = (templateNode != null) ? templateNode.getNodeValue() : null;
-	lc.setTemplate(template);
+	Node fileNameNode = attrs.getNamedItem(attrName);
+	String fileName = (fileNameNode != null) ? fileNameNode.getNodeValue() : null;
+	lc.setTemplate(fileName);
 
 	return lc;
     }
-    
+
     private LayoutComponent processComponent(LayoutElement parent, Node node, NamedNodeMap attrs, String id, boolean trimming) {
 	if (trimming) {
 	    parent = parent.getLayoutDefinition(); // parent to the LayoutDefinition
@@ -191,7 +196,7 @@ public class FaceletsLayoutDefinitionReader {
 	}	
 	LayoutComponent lc = new LayoutComponent(parent, id, LayoutDefinitionManager.getGlobalComponentType("event"));
 	parent.addChildLayoutElement(lc);
-	LayoutComposition comp = processComposition(lc, attrs, id+"_lc", trimming);	
+	LayoutComposition comp = processComposition(lc, "template", attrs, id+"_lc", trimming);	
 
 	NodeList nodeList = node.getChildNodes();
 	boolean abortChildProcessing = false;
@@ -229,9 +234,9 @@ public class FaceletsLayoutDefinitionReader {
 	    LayoutElementUtil.getGeneratedId(nodeName, getNextIdNumber());
 
 	if ("ui:composition".equals(nodeName)) {
-	    element = processComposition(parent, attrs, id, true);
+	    element = processComposition(parent, "template", attrs, id, true);
 	} else if ("ui:decorate".equals(nodeName)) {
-	    element = processComposition(parent, attrs, id, false);
+	    element = processComposition(parent, "template", attrs, id, false);
 	} else if ("ui:define".equals(nodeName)) {
 	    String name = attrs.getNamedItem("name").getNodeValue();
 	    element = new LayoutDefine(parent, name);
@@ -269,6 +274,7 @@ public class FaceletsLayoutDefinitionReader {
 	    */
 	} else if ("ui:debug".equals(nodeName)) {
 	} else if ("ui:include".equals(nodeName)) {
+		element = processComposition(parent, "src", attrs, id, false);
 	} else if ("ui:param".equals(nodeName)) {
 	} else if ("ui:remove".equals(nodeName)) {
 	    // Let the element remain null
