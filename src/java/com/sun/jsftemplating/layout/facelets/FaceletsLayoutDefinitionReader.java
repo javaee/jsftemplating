@@ -38,6 +38,7 @@ import com.sun.jsftemplating.layout.template.EventParserCommand;
 import com.sun.jsftemplating.layout.template.ProcessingContextEnvironment;
 import com.sun.jsftemplating.layout.template.TemplateParser;
 import com.sun.jsftemplating.layout.template.TemplateReader;
+import com.sun.jsftemplating.util.IncludeInputStream;
 import com.sun.jsftemplating.util.LayoutElementUtil;
 import com.sun.jsftemplating.util.Util;
 
@@ -76,7 +77,7 @@ public class FaceletsLayoutDefinitionReader {
 	    builder.setErrorHandler(new ParsingErrorHandler());
 	    is = this.url.openStream();
 	    bs = new BufferedInputStream(is);
-	    document = builder.parse(bs);
+	    document = builder.parse(new IncludeInputStream(bs));
 	} catch (Exception e) {
 	    throw new LayoutDefinitionException(e);
 	} finally {
