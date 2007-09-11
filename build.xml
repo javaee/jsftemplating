@@ -19,6 +19,7 @@
         <pathelement location="${jsftemplating-dt.jar}" />
         <pathelement location="${jsftemplating-dynafaces.jar}" />
         <pathelement location="${dataprovider.jar}" />
+        <path refid="apt-dependencies" />
     </path>
 
     <path id="apt-dependencies">
