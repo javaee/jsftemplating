@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.ProcessingCompleteException;
 import com.sun.jsftemplating.layout.SyntaxException;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
@@ -166,7 +167,14 @@ public class TemplateReader {
 	    ld.setHandlers(type, getHandlers(eventNode, handlers));
 	}
 */
-	return (LayoutDefinition) process(LAYOUT_DEFINITION_CONTEXT, ld, false);
+	try {
+	    ld = (LayoutDefinition) process(LAYOUT_DEFINITION_CONTEXT, ld, false);
+	} catch (ProcessingCompleteException pc) {
+	    // Some tags can abort processing early.  This isn't an error, but
+	    // we use this exception to abort immediately.
+	    ld = pc.getLayoutDefinition();
+	}
+	return ld;
     }
 
     /**
@@ -312,7 +320,7 @@ public class TemplateReader {
 	    ch = parser.nextChar();
 	}
 
-	// Return the LayoutDefinition
+	// Return the LayoutElement
 	return parent;
     }
 
@@ -643,6 +651,7 @@ public class TemplateReader {
 	map.put("while", new WhileParserCommand());
 	map.put("foreach", new ForeachParserCommand());
 	map.put("facet", new FacetParserCommand());
+	map.put("composition", new CompositionParserCommand());
 	return map;
     }
 
@@ -735,6 +744,7 @@ public class TemplateReader {
 
 	    // Create new LayoutIf
 	    LayoutElement parent = env.getParent();
+// FIXME: the 'if' below checks to see if 'condition' ends with '/', yet I don't see this code removing the '/'... isn't that a problem?  Test and fix!
 	    LayoutElement ifElt =  new LayoutIf(parent, condition);
 	    parent.addChildLayoutElement(ifElt);
 
