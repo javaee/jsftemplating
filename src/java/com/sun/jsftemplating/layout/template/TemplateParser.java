@@ -100,6 +100,7 @@ public class TemplateParser {
 	    close();
 	}
 
+// FIXME: It is possible while evaluating the file an #include may need to log a message to the screen!  Provide a callback mechanism to do this in a Template-specific way
 	// Create the reader from the stream
 	_reader = new BufferedReader(
 		new InputStreamReader(
@@ -185,17 +186,47 @@ public class TemplateParser {
      *	@param	defName	The default name to use if ommitted.  If
      *			<code>null</code>, no default will be used -- a
      *			{@link SyntaxException} will be generated.
+     *
+     *	@return	A {@link NameValuePair} object containing the NVP info.
      */
     public NameValuePair getNVP(String defName) throws IOException {
+	return getNVP(defName, true);
+    }
+
+    /**
+     *	<p> This method behaves the same as {@link #getNVP(String)}, however,
+     *	    it adds the ability to make quotes around the value optional.  This
+     *	    is done by passing in <code>false</code> for
+     *	    <code>requireQuotes</code>.  This is used by some special commands
+     *	    which only take a single argument with no property name.  In this
+     *	    case, the value will be read until a '&gt;' is encountered (if
+     *	    "/&gt;" is encountered, it will stop before the '/').</p>
+     *
+     *	<p> Also, in cases where quotes are optional, output NVPs will not be
+     *	    allowed.  The rationale is that the "=&gt;$...{...}" syntax did
+     *	    not require quotes already, and use cases which allow for omitting
+     *	    quotes do not use output mappings.</p>
+     *
+     *	@param	defName	The default name to use if ommitted.  If
+     *			<code>null</code>, no default will be used -- a
+     *			{@link SyntaxException} will be generated.
+     *
+     *	@param	requireQuotes	Flag indicating whether enforce the use of
+     *				quotes or not.
+     *
+     *	@return	A {@link NameValuePair} object containing the NVP info.
+     *
+     *	@throws {@link SyntaxException} if the syntax is not correct.
+     */
+    public NameValuePair getNVP(String defName, boolean requireQuotes) throws IOException {
 	// Read the name
 	String name = readToken("_.");
+	Object value = null;
 
 	// Check for empty name
-	if (name.length() == 0) {
-	    if (defName != null) {
-		name = defName;	// Add a name
-		unread('=');	// Add an '=' character
-	    }
+	if ((name.length() == 0) && (defName != null)) {
+	    name = defName;	// Use default name
+	    unread('=');	// Add '=' character
 	}
 
 	// Skip White Space
@@ -204,20 +235,38 @@ public class TemplateParser {
 	// Ensure next character is '='
 	int next = nextChar();
 	if ((next != '=') && (next != ':')) {
-	    throw new SyntaxException(
-		"'=' or ':' missing for Name Value Pair: '" + name + "'!");
+	    if (!requireQuotes && !name.equals(defName)) {
+		// This is the case where there is no property name and no
+		// quotes, the whole string is the value.
+		value = name;
+		name = defName;
+		// Add a flag to ensure the next switch goes to the "default" case
+		unread(next);
+		unread('f');
+	    } else {
+		throw new SyntaxException(
+		    "'=' or ':' missing for Name Value Pair: '" + name + "'!");
+	    }
 	}
 
 	// Skip whitespace...
 	skipCommentsAndWhiteSpace(SIMPLE_WHITE_SPACE);
 
 	// Check for '>' character (means we're mapping an output value)
-	Object value = null;
 	String target = null;
 	int endingChar = -1;
 	next = nextChar();
 	switch (next) {
 	    case '>':
+		if (!requireQuotes) {
+		    // This means output mappings are not allowed, this must
+		    // be the end of the input (meaning there was no input
+		    // since we're at the beginning also)
+		    unread(next);
+		    value = "";
+		    break;
+		}
+
 		// We are mapping an output value, this should look like:
 		//	    keyName => $attribute{attKey}
 		//	    keyName => $application{appKey}
@@ -230,7 +279,7 @@ public class TemplateParser {
 		// Next Make sure we have a '$' character
 		next = nextChar();
 		if (next != '$') {
-		    throw new IllegalArgumentException(
+		    throw new SyntaxException(
 			"'$' missing for Name Value Pair named: '" + name
 			+ "=>'!  This NVP appears to be a mapping expression, "
 			+ "therefor requires a format similar to:\n\t" + name
@@ -244,7 +293,7 @@ public class TemplateParser {
 		target = readToken();
 		OutputTypeManager otm = OutputTypeManager.getInstance();
 		if (otm.getOutputType(target) == null) {
-		    throw new IllegalArgumentException(
+		    throw new SyntaxException(
 			"Invalid OutputType ('" + target + "') for Name Value "
 			+ "Pair named: '" + name + "=>$" + target + "{...}'!  "
 			+ "This NVP appears to be a mapping expression, "
@@ -261,7 +310,7 @@ public class TemplateParser {
 		// Now look for '{'
 		next = nextChar();
 		if (next != '{') {
-		    throw new IllegalArgumentException(
+		    throw new SyntaxException(
 			"'{' missing for Name Value Pair: '" + name
 			+ "=>$" + target
 			+ "'!  The format must resemble the following:\n\t"
@@ -283,9 +332,36 @@ public class TemplateParser {
 		// Set the ending character to the same type of quote
 		endingChar = next;
 		break;
+	    case 'f':
+		if ((value != null) && (value.toString().length() > 0)) {
+		    // We have the case where the whole string is the value
+		    // Get the next character so we can fall through w/ it
+		    // to the default case
+		    next = nextChar();
+		}
+		// Don't break here, fall through...
 	    default:
-		// Now look for starting quote...
-		throw new IllegalArgumentException("Name Value Pair named '"
+		// See if we require quotes around the value...
+		if (!requireQuotes) {
+		    unread(next);   // Include "next" when getting the value
+		    // Read the value until '>'
+		    String strVal = readUntil('>', true);
+
+		    // Unread the '>'
+		    unread('>');
+
+		    // See if we also need put back a '/'...
+		    if (strVal.endsWith("/")) {
+			// Remove the '/' and place back in the read buffer
+			strVal = strVal.substring(0, strVal.length() - 1).trim();
+			unread('/');
+		    }
+		    value = (value == null) ? strVal : (value.toString() + strVal);
+		    break;
+		}
+
+		// This isn't legal, throw an exception
+		throw new SyntaxException("Name Value Pair named '"
 		    + name + "' is missing single or double quotes enclosing "
 		    + "its value.  It must follow one of these formats:\n\t"
 		    + name + "=\"value\"\nor:\n\t" + name + "='value'");
@@ -437,7 +513,10 @@ public class TemplateParser {
 		    if (next == 'n') {
 			// Special case, insert a '\n' character.
 			buf.append('\n');
-		    } if (next != '\n') {
+		    } else if (next != '\t') {
+			// Special case, insert a '\t' character.
+			buf.append('\t');
+		    } else if (next != '\n') {
 			// add the next char unless it's a return char
 			buf.append((char) next);
 		    }
