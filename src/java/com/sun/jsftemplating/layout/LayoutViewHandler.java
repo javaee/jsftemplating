@@ -217,7 +217,10 @@ public class LayoutViewHandler extends ViewHandler {
 	    throw ex;
 	}
 
-	if (def != null) {
+	// Check to make sure we found a LD and that the response isn't
+	// already finished (initPage could complete the response...
+	// i.e. during a redirect).
+	if ((def != null) && !context.getResponseComplete()) {
 	    // Ensure that our Resources are available
 	    Iterator<Resource> it = def.getResources().iterator();
 	    Resource resource = null;
