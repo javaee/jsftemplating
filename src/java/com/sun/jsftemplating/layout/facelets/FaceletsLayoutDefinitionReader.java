@@ -45,6 +45,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutDefine;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
+import com.sun.jsftemplating.layout.descriptors.LayoutForEach;
 import com.sun.jsftemplating.layout.descriptors.LayoutIf;
 import com.sun.jsftemplating.layout.descriptors.LayoutInsert;
 import com.sun.jsftemplating.layout.descriptors.LayoutStaticText;
@@ -129,6 +130,8 @@ public class FaceletsLayoutDefinitionReader {
 	    if (element instanceof LayoutStaticText) {
 		// We have a element node that needs to be static text
 		endElement = true;
+	    } else if (element instanceof LayoutForEach) {
+		newParent = element;
 	    } else if (element instanceof LayoutIf) {
 		newParent = element;
 	    } else if (element instanceof LayoutComponent) {
@@ -318,6 +321,11 @@ public class FaceletsLayoutDefinitionReader {
 	    // Handle "if" conditions
 	    String condition = attrs.getNamedItem("condition").getNodeValue();
 	    element = new LayoutIf(parent, condition);
+	} else if ("ui:foreach".equals(nodeName)) {
+	    // Handle "foreach" conditions
+	    String listExp = attrs.getNamedItem("value").getNodeValue();
+	    String key = attrs.getNamedItem("var").getNodeValue();
+	    element = new LayoutForEach(parent, listExp, key);
 	} else if ("f:facet".equals(nodeName)) {
 	    // FIXME: Need to take NameSpace into account
 	    nameNode = attrs.getNamedItem("name");
