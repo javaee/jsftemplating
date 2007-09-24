@@ -181,6 +181,7 @@ public abstract class LayoutDefinitionManager {
         // Find the page first...
         LayoutElement layElt = null;
         if (ldKey != null) {
+// FIXME: This fixme probably belongs in getLD(ctx, key): initPage should only be invoked if the page is accessed for the first time on the request.  This potentially calls it multiple times.
             layElt = getLayoutDefinition(ctx, ldKey);
             if (layElt == null) {
                 throw new LayoutDefinitionException(
@@ -670,13 +671,13 @@ public abstract class LayoutDefinitionManager {
         }
 
         // Create a new Map to hold the defs
-        _globalHandlerDefs = new HashMap<String, HandlerDefinition>();
+	HashMap<String, HandlerDefinition> handlers =
+		new HashMap<String, HandlerDefinition>();
         Properties props = null;
         URL url = null;
         try {
             // Get all the properties files that define them
-            Enumeration<URL> urls =
-                    Util.getClassLoader(_globalHandlerDefs).
+            Enumeration<URL> urls = Util.getClassLoader(handlers).
                             getResources(HandlerAPFactory.HANDLER_FILE);
             InputStream is = null;
             while (urls.hasMoreElements()) {
@@ -688,8 +689,9 @@ public abstract class LayoutDefinitionManager {
                     props.load(is);
                     for (Map.Entry<Object, Object> entry : props.entrySet()) {
                         if (((String) entry.getKey()).endsWith(".class")) {
-                            // We will only process .class entries. Check with Ken to change this into HashMap
-                            readGlobalHandlerDefinition((Map) props, entry);
+                            // We will only process .class entries.
+                            readGlobalHandlerDefinition(handlers,
+				    (Map) props, entry);
                         }
                     }
                 } finally {
@@ -699,6 +701,7 @@ public abstract class LayoutDefinitionManager {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+        _globalHandlerDefs = handlers;
         return _globalHandlerDefs;
     }
 
@@ -706,7 +709,7 @@ public abstract class LayoutDefinitionManager {
      *	<p> This method processes a single {@link HandlerDefinition}'s
      *	    meta-data.</p>
      */
-    private static void readGlobalHandlerDefinition(Map<String, String> map, Map.Entry<Object, Object> entry) {
+    private static void readGlobalHandlerDefinition(HashMap<String, HandlerDefinition> hdMap, Map<String, String> props, Map.Entry<Object, Object> entry) {
         // Get the key.class value...
         String key = (String) entry.getKey();
         // Strip off .class
@@ -716,17 +719,17 @@ public abstract class LayoutDefinitionManager {
         HandlerDefinition def = new HandlerDefinition(key);
 
         // Set the class / method
-        String value = map.get(key + '.' + "method");
+        String value = props.get(key + '.' + "method");
         def.setHandlerMethod((String) entry.getValue(), value);
 
         // Read the input defs
-        def.setInputDefs(readIODefs(map, key, true));
+        def.setInputDefs(readIODefs(props, key, true));
 
         // Read the output defs
-        def.setOutputDefs(readIODefs(map, key, false));
+        def.setOutputDefs(readIODefs(props, key, false));
 
         // Add the Handler...
-        _globalHandlerDefs.put(key, def);
+        hdMap.put(key, def);
     }
 
     /**
