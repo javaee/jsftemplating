@@ -38,6 +38,7 @@ import org.w3c.dom.NodeList;
 
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.layout.SyntaxException;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
@@ -323,9 +324,17 @@ public class FaceletsLayoutDefinitionReader {
 	    element = new LayoutIf(parent, condition);
 	} else if ("ui:foreach".equals(nodeName)) {
 	    // Handle "foreach" conditions
-	    String listExp = attrs.getNamedItem("value").getNodeValue();
-	    String key = attrs.getNamedItem("var").getNodeValue();
-	    element = new LayoutForEach(parent, listExp, key);
+        Node valueNode = attrs.getNamedItem("value");
+        if (valueNode == null) {
+            throw new SyntaxException("The 'value' property is required on 'foreach'.");
+        }
+
+        Node varNode = attrs.getNamedItem("var");
+        if (varNode == null) {
+            throw new SyntaxException("The 'var' property is required on 'foreach'.");
+        }
+
+	    element = new LayoutForEach(parent, valueNode.getNodeValue(), varNode.getNodeValue());
 	} else if ("f:facet".equals(nodeName)) {
 	    // FIXME: Need to take NameSpace into account
 	    nameNode = attrs.getNamedItem("name");
