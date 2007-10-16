@@ -653,6 +653,7 @@ public class TemplateReader {
 	map.put("facet", new FacetParserCommand());
 	map.put("composition", new CompositionParserCommand(true));
 	map.put("include", new CompositionParserCommand(false));
+	map.put("insert", new InsertParserCommand());
 	return map;
     }
 
