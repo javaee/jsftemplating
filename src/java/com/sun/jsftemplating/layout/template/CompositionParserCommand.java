@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout.template;
 
 import com.sun.jsftemplating.layout.ProcessingCompleteException;
+import com.sun.jsftemplating.layout.SyntaxException;
 import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
@@ -32,13 +33,25 @@ import java.io.IOException;
 
 
 /**
- *  <p> This {@link CustomParserCommand} handles "if" statements.  To obtain
- *	the condition, it simply reads until it finds '&gt;'.  This means
- *	'&gt;' must be escaped if it appears in the condition.</p>
+ *  <p> This {@link CustomParserCommand} handles "composition" statements.
+ *	TBD...
+ *  </p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public class CompositionParserCommand implements CustomParserCommand {
+
+    /**
+     *	<p> Constructor.  This constructor requires a flag to be passed in
+     *	    indicating wether content outside this component should be ignored
+     *	    (trimmed) or left alone.</p>
+     *
+     *	@param	trim	<code>true</code> if content outside this component
+     *			should be thrown away.
+     */
+    public CompositionParserCommand(boolean trim) {
+	this.trimming = trim;
+    }
 
     /**
      *	<p> This method processes a "custom" command.  These are commands that
@@ -59,18 +72,42 @@ public class CompositionParserCommand implements CustomParserCommand {
 	parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 
 	// Read the attribute...
-	String tpl = (String) parser.getNVP(TEMPLATE_ATTRIBUTE, false).getValue();
 
-	// We have the template...
+	// Get the parent and template filename
+	LayoutElement parent = env.getParent();
+	String tpl;
+	NameValuePair nvp;
+	if (trimming) {
+	    // First remove the current children on the LD (trimming == true)
+	    parent = parent.getLayoutDefinition();
+	    parent.getChildLayoutElements().clear();
 
-	// First remove the current children on the parent (trimming == true)
-	LayoutElement parent = env.getParent().getLayoutDefinition();
-	parent.getChildLayoutElements().clear();
+	    // Next get the template name
+	    nvp = parser.getNVP(TEMPLATE_ATTRIBUTE, true);
+	    if (!nvp.getName().equals(TEMPLATE_ATTRIBUTE)) {
+		throw new SyntaxException("!composition must provide a "
+			+ "'" + TEMPLATE_ATTRIBUTE + "' attribute!  Found '"
+			+ nvp.getName() + "' with value '"
+			+ nvp.getValue() + "' instead.");
+	    }
+	} else {
+	    // Get the src filename
+	    nvp = parser.getNVP(SRC_ATTRIBUTE, true);
+	    if (!nvp.getName().equals(SRC_ATTRIBUTE)) {
+		throw new SyntaxException("!include must provide a "
+			+ "'" + SRC_ATTRIBUTE + "' attribute!  Found '"
+			+ nvp.getName() + "' with value '"
+			+ nvp.getValue() + "' instead.");
+	    }
+	}
+	tpl = (String) nvp.getValue();
+	if (tpl == null) {
+	    // FIXME: Log a non-fatal CONFIG message
+	}
 
 	// Create new LayoutComposition
 // FIXME: Consider supporting an id for the LayoutComposition
-// FIXME: reuse this code for trimming 'false' case as well...
-	LayoutComposition compElt = new LayoutComposition(parent, null, true);
+	LayoutComposition compElt = new LayoutComposition(parent, null, trimming);
 	compElt.setTemplate(tpl);
 	parent.addChildLayoutElement(compElt);
 
@@ -83,11 +120,20 @@ public class CompositionParserCommand implements CustomParserCommand {
 	    reader.process(
 		LAYOUT_COMPOSITION_CONTEXT, compElt,
 		LayoutElementUtil.isLayoutComponentChild(compElt));
-	    // End processing... (trimming == true)
-	    throw new ProcessingCompleteException((LayoutDefinition) parent);
+
+	    if (trimming) {
+		// End processing... (trimming == true)
+		throw new ProcessingCompleteException((LayoutDefinition) parent);
+	    }
 	}
     }
 
+
+    /**
+     *	<p> This indicates whether content outside of this tag should be left
+     *	    alone or used.</p>
+     */
+    private boolean trimming = true;
 
     /**
      *	<p> This is the {@link ProcessingContext} for
@@ -102,6 +148,12 @@ public class CompositionParserCommand implements CustomParserCommand {
      *	    template file to use in the {@link LayoutComposition}.</p>
      */
     public static final String TEMPLATE_ATTRIBUTE	= "template";
+
+    /**
+     *	<p> A String containing "template".  This is the attribute name of the
+     *	    template file to use in the {@link LayoutComposition}.</p>
+     */
+    public static final String SRC_ATTRIBUTE	= "src";
 
     /**
      *	<p> The {@link ProcessingContext} to be used when processing children

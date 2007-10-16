@@ -651,7 +651,8 @@ public class TemplateReader {
 	map.put("while", new WhileParserCommand());
 	map.put("foreach", new ForeachParserCommand());
 	map.put("facet", new FacetParserCommand());
-	map.put("composition", new CompositionParserCommand());
+	map.put("composition", new CompositionParserCommand(true));
+	map.put("include", new CompositionParserCommand(false));
 	return map;
     }
 
