@@ -140,7 +140,19 @@ public class CompositionParserCommand implements CustomParserCommand {
      *	    {@link LayoutComposition}s.</p>
      */
     protected static class LayoutCompositionContext extends BaseProcessingContext {
-// FIXME: This is where we can put logic to look for ui:defines and other similar tags that have special meaning within the context of a LayoutComposition
+	/**
+	 *  <p> This is called when a special tag is found (&lt;!tagname ...).</p>
+	 *
+	 *  <p>	This implementation looks for "define" tags and handles them
+	 *	specially.  These tags are only valid in this context.</p>
+	 */
+	public void beginSpecial(ProcessingContextEnvironment env, String content) throws IOException {
+	    if (content.equals("define")) {
+		DEFINE_PARSER_COMMAND.process(this, env, content);
+	    } else {
+		super.beginSpecial(env, content);
+	    }
+	}
     }
 
     /**
@@ -162,4 +174,7 @@ public class CompositionParserCommand implements CustomParserCommand {
      */
     public static final ProcessingContext LAYOUT_COMPOSITION_CONTEXT	=
 	new LayoutCompositionContext();
+
+    public static final CustomParserCommand DEFINE_PARSER_COMMAND =
+	new DefineParserCommand();
 }
