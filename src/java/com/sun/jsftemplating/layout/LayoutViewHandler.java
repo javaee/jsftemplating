@@ -474,9 +474,19 @@ public class LayoutViewHandler extends ViewHandler {
 		    stack.push(childElt);
 
 		    // build tree from the LD of the template...
-		    buildUIComponentTree(context, parent,
+		    try {
+// FIXME: Compositions may need to add a fake UIComponent to the tree
+// FIXME: that is naming container in order to allow multiple UICompositions
+// FIXME: to exist side-by-side... otherwise it will find existing component
+// FIXME: instances and re-use them.
+			buildUIComponentTree(context, parent,
 			    LayoutDefinitionManager.getLayoutDefinition(
 				context, template));
+		    } catch (LayoutDefinitionException ex) {
+			if (((LayoutComposition) childElt).isRequired()) {
+			    throw ex;
+			}
+		    }
 
 		    // Remove the LayoutComposition from the stack
 		    stack.pop();
