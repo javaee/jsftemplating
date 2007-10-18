@@ -11,6 +11,7 @@ import java.util.Stack;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.event.EncodeEvent;
 
@@ -21,6 +22,7 @@ import com.sun.jsftemplating.layout.event.EncodeEvent;
  */
 public class LayoutComposition extends LayoutElementBase {
     private static final long serialVersionUID = 1L;
+    private boolean required = true;
     private String template;
     private boolean trimming = true;
 
@@ -32,23 +34,56 @@ public class LayoutComposition extends LayoutElementBase {
         super(parent, id);
     }
 
+    /**
+     *	<p> Constructor.</p>
+     */
     public LayoutComposition(LayoutElement parent, String id, boolean trimming) {
         super(parent, id);
         this.trimming = trimming;
     }
 
+    /**
+     *	<p> <code>true</code> if a template filename is required.
+     *	    <code>false</code> if it should be ignored when the template
+     *	    filename is not specified or does not exist on the
+     *	    filesystem.</p>
+     */
+    public boolean isRequired() {
+	return required;
+    }
+
+    /**
+     *	<p> Setter for the template filename.</p>
+     */
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
+    /**
+     *	<p> Accessor for the template filename.</p>
+     */
     public String getTemplate() {
         return template;
     }
 
-    public boolean isTrimming() {
-        return trimming;
-    }
-
+    /**
+     *	<p> Setter for the template filename.</p>
+     */
     public void setTemplate(String template) {
         this.template = template;
     }
 
+    /**
+     *	<p> <code>true</code> if all content outside of this LayoutComposition
+     *	    should be thrown away.</p>
+     */
+    public boolean isTrimming() {
+        return trimming;
+    }
+
+    /**
+     *	<p> Setter for the trimming property.</p>
+     */
     public void setTrimming(boolean trimming) {
         this.trimming = trimming;
     }
@@ -59,7 +94,10 @@ public class LayoutComposition extends LayoutElementBase {
 	// The child LayoutElements for a LayoutComposition are consumed by
 	// the template.  The LayoutElements consumed here is the template.
 	String templateName = getTemplate();
-	if (templateName == null) { return true; }
+	boolean result = true;
+	if (templateName == null) {
+	    return result;
+	}
 
 	// Add this to the stack
 	LayoutComposition.push(context, this);
@@ -67,21 +105,33 @@ public class LayoutComposition extends LayoutElementBase {
 	// Fire an encode event
 	dispatchHandlers(context, ENCODE, new EncodeEvent(component));
 
-	LayoutElement template = LayoutDefinitionManager.
-	    getLayoutDefinition(context, templateName);
+	LayoutElement template = null;
+	try {
+	    template = LayoutDefinitionManager.
+		getLayoutDefinition(context, templateName);
+	} catch (LayoutDefinitionException ex) {
+	    if (isRequired()) {
+		throw ex;
+	    }
+
+	    // If the template is optional ignore this error...
+	}
 
 	// Iterate over children
-	LayoutElement childElt = null;
-	Iterator<LayoutElement> it = template.getChildLayoutElements().iterator();
-	while (it.hasNext()) {
-	    childElt = it.next();
-	    childElt.encode(context, component);
+	if (template != null) {
+	    LayoutElement childElt = null;
+	    Iterator<LayoutElement> it = template.getChildLayoutElements().iterator();
+	    while (it.hasNext()) {
+		childElt = it.next();
+		childElt.encode(context, component);
+	    }
+	    result = false;
 	}
 
 	// Pop this from the stack
 	LayoutComposition.pop(context);
 
-        return false;
+        return result;
     }
 
     /**
