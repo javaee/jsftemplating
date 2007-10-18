@@ -342,49 +342,35 @@ public class TemplateReader {
 		    + "' not defined!");
 	}
 
-	// Get the rest of the properties (look for id)
-	// We're processing "<type" continue until we find "[/]>".
-	List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-	NameValuePair nvp = null;
-	String id = null;
-	String overwrite = null;
-	int ch = 0;
+	// Get the NVPs
+	List<NameValuePair> nvps = readNameValuePairs(type, null, true);
+
+	// Check to see if this is a single tag (start and close)
 	boolean single = false;
 	TemplateParser parser = getTemplateParser();
-	while (ch != -1) {
-	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
-	    ch = parser.nextChar();
-	    if (ch == '>') {
-		// We're at the end of the parameters.
-		break;
-	    }
-	    if (ch == '/') {
-		parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
-		ch = parser.nextChar();
-		if (ch != '>') {
-		    throw new SyntaxException("'" + type + "' tag contained "
-			+ "'/' that was not followed by a '&gt;' character!");
-		}
-
-		// We're at the end of the parameters and the component
-		single = true;
-		break;
-	    }
+	int ch = parser.nextChar();
+	if (ch == '/') {
+	    single = true;
+	} else {
 	    parser.unread(ch);
-// FIXME: An Illegal argument exception may be thrown, in this case the
-// FIXME: component name is not available and is hard to find.  Catch this
-// FIXME: error here and add more information so the stack trace is readable.
-	    nvp = parser.getNVP(null);
+	}
+
+	// Check for id / overwrite attributes
+	NameValuePair nvpID = null;
+	String id = null;
+	NameValuePair overwrite = null;
+	for (NameValuePair nvp : nvps) {
 	    if (nvp.getName().equals(ID_ATTRIBUTE)) {
-		// Found id... (id must be a String, not an array / List)
-		id = nvp.getValue().toString();
+		// Found id...
+		nvpID = nvp;
 	    } else if (nvp.getName().equals(OVERWRITE_ATTRIBUTE)) {
 		// Found overwrite... (must be a String, not an array / List)
-		overwrite = nvp.getValue().toString();
-	    } else {
-		// Found other parameter...
-		nvps.add(nvp);
+		overwrite = nvp;
 	    }
+	}
+	if (nvpID != null) {
+	    id = nvpID.getValue().toString();
+	    nvps.remove(nvpID);
 	}
 
 	// Create the LayoutComponent
@@ -396,7 +382,8 @@ public class TemplateReader {
 
 	// Set Overwrite flag if needed
 	if (overwrite != null) {
-	    component.setOverwrite(Boolean.valueOf(overwrite).booleanValue());
+	    nvps.remove(overwrite);
+	    component.setOverwrite(Boolean.valueOf(overwrite.getValue().toString()).booleanValue());
 	}
 
 	// Set options...
@@ -423,6 +410,49 @@ public class TemplateReader {
 	}
 
 	return component;
+    }
+
+    /**
+     *	<p> This method read all the {@link NameValuePair}s, usually for a
+     *	    component.  It assumes the {@link TemplateParser} is ready to start
+     *	    reading the NVPs.</p>
+     *
+     *	@param	tagName	The name of the tag for which we are reading attributes.
+     */
+    protected List<NameValuePair> readNameValuePairs(String tagName, String defAttName, boolean requireQuotes) throws IOException {
+	// Continue until we find "[/]>".
+	List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+	int ch = 0;
+	TemplateParser parser = getTemplateParser();
+	while (ch != -1) {
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
+	    ch = parser.nextChar();
+	    if (ch == '>') {
+		// We're at the end of the parameters
+		break;
+	    }
+	    if (ch == '/') {
+		parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
+		ch = parser.nextChar();
+		if (ch != '>') {
+		    throw new SyntaxException("'" + tagName + "' tag contained "
+			+ "'/' that was not followed by a '&gt;' character!");
+		}
+
+		// We're at the end of the parameters and the component,
+		// put this information back into the parser
+		parser.unread('/');
+		break;
+	    }
+	    parser.unread(ch);
+// FIXME: An Illegal argument exception may be thrown, in this case the
+// FIXME: component name is not available and is hard to find.  Catch this
+// FIXME: error here and add more information so the stack trace is readable.
+	    nvps.add(parser.getNVP(defAttName, requireQuotes));
+	}
+
+	// Return the result
+	return nvps;
     }
 
     /**
@@ -651,9 +681,9 @@ public class TemplateReader {
 	map.put("while", new WhileParserCommand());
 	map.put("foreach", new ForeachParserCommand());
 	map.put("facet", new FacetParserCommand());
-	map.put("composition", new CompositionParserCommand(true));
-	map.put("include", new CompositionParserCommand(false));
-	map.put("decorate", new CompositionParserCommand(false));
+	map.put("composition", new CompositionParserCommand(true, TEMPLATE_ATTRIBUTE));
+	map.put("include", new CompositionParserCommand(false, SRC_ATTRIBUTE));
+	map.put("decorate", new CompositionParserCommand(false, TEMPLATE_ATTRIBUTE));
 	map.put("insert", new InsertParserCommand());
 	return map;
     }
@@ -914,6 +944,11 @@ public class TemplateReader {
 	"id";
     public static final String OVERWRITE_ATTRIBUTE	    =
 	"overwrite";
+    public static final String TEMPLATE_ATTRIBUTE	    =
+	"template";
+    public static final String SRC_ATTRIBUTE		    =
+	"src";
+
 
 
     public static final ProcessingContext LAYOUT_DEFINITION_CONTEXT	=
