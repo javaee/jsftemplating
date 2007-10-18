@@ -30,6 +30,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.util.LayoutElementUtil;
 
 import java.io.IOException;
+import java.util.List;
 
 
 /**
@@ -48,9 +49,12 @@ public class CompositionParserCommand implements CustomParserCommand {
      *
      *	@param	trim	<code>true</code> if content outside this component
      *			should be thrown away.
+     *
+     *	@param	templateAttName	The name of the attribute for the template name.
      */
-    public CompositionParserCommand(boolean trim) {
+    public CompositionParserCommand(boolean trim, String templateAttName) {
 	this.trimming = trim;
+	this.templateAttName = templateAttName;
     }
 
     /**
@@ -64,76 +68,66 @@ public class CompositionParserCommand implements CustomParserCommand {
      *	    {@link ProcessingContextEnvironment} are both available.</p>
      */
     public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String name) throws IOException {
-	// Get the reader and parser
+	// Get the reader
 	TemplateReader reader = env.getReader();
-	TemplateParser parser = reader.getTemplateParser();
 
-	// Skip any white space...
-	parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
-
-	// Read the attribute...
-
-	// Get the parent and template filename
 	LayoutElement parent = env.getParent();
-	String tpl;
-	NameValuePair nvp;
 	if (trimming) {
 	    // First remove the current children on the LD (trimming == true)
 	    parent = parent.getLayoutDefinition();
 	    parent.getChildLayoutElements().clear();
-
-	    // Next get the template name
-	    nvp = parser.getNVP(TEMPLATE_ATTRIBUTE, true);
-	    if (!nvp.getName().equals(TEMPLATE_ATTRIBUTE)) {
-		throw new SyntaxException("!composition must provide a "
-			+ "'" + TEMPLATE_ATTRIBUTE + "' attribute!  Found '"
-			+ nvp.getName() + "' with value '"
-			+ nvp.getValue() + "' instead.");
-	    }
-	} else {
-	    // Get the src filename
-	    nvp = parser.getNVP(SRC_ATTRIBUTE, true);
-	    if (!nvp.getName().equals(SRC_ATTRIBUTE)) {
-		throw new SyntaxException("!include must provide a "
-			+ "'" + SRC_ATTRIBUTE + "' attribute!  Found '"
-			+ nvp.getName() + "' with value '"
-			+ nvp.getValue() + "' instead.");
-	    }
 	}
-	tpl = (String) nvp.getValue();
-	if (tpl == null) {
-	    // FIXME: Log a non-fatal CONFIG message
+
+	// Next get the attributes
+	List<NameValuePair> nvps =
+	    reader.readNameValuePairs(name, templateAttName, true);
+
+	// Look for required attribute
+	// Find the template name
+	String tpl = null;
+	boolean required = true;
+	for (NameValuePair nvp : nvps) {
+	    if (nvp.getName().equals(templateAttName)) {
+		tpl = (String) nvp.getValue();
+	    } else if (nvp.getName().equals(REQUIRED_ATTRIBUTE)) {
+		required = Boolean.parseBoolean(nvp.getValue().toString());
+	    } else {
+		throw new SyntaxException("'" + name
+			+ "' tag contained unkown attribute '" + nvp.getName()
+			+ "' with value '" + nvp.getValue() + "'.");
+	    }
 	}
 
 	// Create new LayoutComposition
-// FIXME: Consider supporting an id for the LayoutComposition
-	LayoutComposition compElt = new LayoutComposition(parent, null, trimming);
+	LayoutComposition compElt = new LayoutComposition(
+	    parent,
+	    LayoutElementUtil.getGeneratedId(name, reader.getNextIdNumber()),
+	    trimming);
 	compElt.setTemplate(tpl);
+	compElt.setRequired(required);
 	parent.addChildLayoutElement(compElt);
 
-	// Skip any white space or extra junk...
-	String theRest = parser.readUntil('>', true).trim();
-	if (theRest.endsWith("/")) {
+	// See if this is a single tag or not...
+	TemplateParser parser = reader.getTemplateParser();
+	int ch = parser.nextChar();
+	if (ch == '/') {
 	    reader.popTag();  // Don't look for end tag
 	} else {
+	    // Unread the ch we just read
+	    parser.unread(ch);
+
 	    // Process child LayoutElements (recurse)
 	    reader.process(
 		LAYOUT_COMPOSITION_CONTEXT, compElt,
 		LayoutElementUtil.isLayoutComponentChild(compElt));
+	}
 
-	    if (trimming) {
-		// End processing... (trimming == true)
-		throw new ProcessingCompleteException((LayoutDefinition) parent);
-	    }
+	if (trimming) {
+	    // End processing... (trimming == true)
+	    throw new ProcessingCompleteException((LayoutDefinition) parent);
 	}
     }
 
-
-    /**
-     *	<p> This indicates whether content outside of this tag should be left
-     *	    alone or used.</p>
-     */
-    private boolean trimming = true;
 
     /**
      *	<p> This is the {@link ProcessingContext} for
@@ -155,18 +149,15 @@ public class CompositionParserCommand implements CustomParserCommand {
 	}
     }
 
-    /**
-     *	<p> A String containing "template".  This is the attribute name of the
-     *	    template file to use in the {@link LayoutComposition}.</p>
-     */
-    public static final String TEMPLATE_ATTRIBUTE	= "template";
 
     /**
-     *	<p> A String containing "template".  This is the attribute name of the
-     *	    template file to use in the {@link LayoutComposition}.</p>
+     *	<p> This indicates whether content outside of this tag should be left
+     *	    alone or used.</p>
      */
-    public static final String SRC_ATTRIBUTE	= "src";
+    private boolean trimming = true;
+    private String templateAttName = null;
 
+    public static final String REQUIRED_ATTRIBUTE   =	"required";
     /**
      *	<p> The {@link ProcessingContext} to be used when processing children
      *	    of a {@link LayoutComposition}.  This {@link ProcessingContext} may
