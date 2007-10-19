@@ -274,9 +274,8 @@ public abstract class LayoutDefinitionManager {
      *	    class.  If it exists, the specified concrete
      *	    <code>LayoutDefinitionManager</code> class will be used as the
      *	    "default" (i.e. the first <code>LayoutDefinitionManager</code>
-     *	    checked).  Otherwise,
-     *	    {@link #DEFAULT_LAYOUT_DEFINITION_MANAGER_IMPL} will be used.
-     *	    "{@link #LAYOUT_DEFINITION_MANAGER_KEY}" is the initParam key.</p>
+     *	    checked).  "{@link #LAYOUT_DEFINITION_MANAGER_KEY}" is the
+     *	    initParam key.</p>
      *
      *	<p> The <code>key</code> is used to test if desired
      *	    <code>LayoutDefinitionManager</code> is able to read the requested
@@ -954,7 +953,7 @@ public abstract class LayoutDefinitionManager {
 
     /**
      *	<p> This is the prefix of a request-scoped variable that caches
-     *	    {@link LayoutDefintion}s.</p>
+     *	    {@link LayoutDefinition}s.</p>
      */
     public static final String CACHE_PREFIX = "_LDCache";
 }

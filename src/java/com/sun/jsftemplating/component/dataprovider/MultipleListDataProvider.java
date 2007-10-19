@@ -68,7 +68,8 @@ public class MultipleListDataProvider extends ObjectListDataProvider {
      *	    single <code>List</code>.  Fields are included if
      *	    <code>includeFields</code> is true.</p>
      *
-     * @param list List to be wrapped
+     * @param lists	    <code>List&lt;List&lt;Object&gt;&gt; to be
+     *			    wrapped.</code>
      * @param includeFields Desired include fields property setting
      */
     public MultipleListDataProvider(List<List<Object>> lists, boolean includeFields) {
@@ -84,7 +85,7 @@ public class MultipleListDataProvider extends ObjectListDataProvider {
      *	    type.  This constructor is only useful when there is a single
      *	    <code>List</code>.  Fields are <b>not</b> included.</p>
      *
-     *	@param objectType Desired object type Class
+     *	@param objectTypes  Desired object type Classes.
      */
     public MultipleListDataProvider(Class [] objectTypes) {
 	this(objectTypes, false);
@@ -96,7 +97,7 @@ public class MultipleListDataProvider extends ObjectListDataProvider {
      *	    <code>List</code>.  Fields are included if
      *	    <code>includeFields</code> is true.</p>
      *
-     *	@param	objectType	Desired object type Class
+     *	@param	objTypes	Desired object type of Classes
      *	@param	includeFields	Desired include fields property setting
      */
     public MultipleListDataProvider(Class [] objTypes, boolean includeFields) {
@@ -173,7 +174,7 @@ public class MultipleListDataProvider extends ObjectListDataProvider {
      *	    <code>MultipleListDataProvider</code>.  In cases where you have
      *	    more than one list (and likely you do because you are using this
      *	    <code>DataProvider</code>), you should use
-     *	    {@link #setObjectType(Class [])}.</p>
+     *	    {@link #setObjectTypes(Class [])}.</p>
      */
     public void setObjectType(Class objectType) {
 	setObjectTypes(new Class [] {objectType});

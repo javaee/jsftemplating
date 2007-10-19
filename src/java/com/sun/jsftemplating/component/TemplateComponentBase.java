@@ -69,11 +69,11 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
 
     /**
      *	<p> This method will find the request child <code>UIComponent</code>
-     *	    by id.  If it is not found, it will attempt to create it if it can
-     *	    find a {@link LayoutElement} describing it.</p>
+     *	    by id.  If it is not found, it will use the given
+     *	    {@link LayoutComponent} to create it.</p>
      *
      *	@param	context	    The <code>FacesContext</code>.
-     *	@param	id	    The <code>UIComponent</code> id to find.
+     *	@param	descriptor  The <code>UIComponent</code> id to find.
      *
      *	@return	The requested <code>UIComponent</code>.
      */

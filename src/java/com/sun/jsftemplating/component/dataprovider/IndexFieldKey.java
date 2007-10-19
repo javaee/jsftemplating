@@ -73,8 +73,7 @@ public class IndexFieldKey extends FieldKey {
      *	    <code>fieldId</code>, <code>displayName</code>, and
      *	    <code>index</code>.</p>
      *
-     *	@param	fieldId	    The desired cannonical ID String for this field.
-     *	@param	displayName The desired display name String.
+     *	@param	fk	    The <code>FieldKey</code>.
      *	@param	index	    The index for this <code>IndexFieldKey</code>.
      */
     public IndexFieldKey(FieldKey fk, int index) {
