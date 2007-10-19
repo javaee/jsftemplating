@@ -76,7 +76,8 @@ public class ServletStreamer extends HttpServlet {
     }
 
     /**
-     *	<p> This method delegates to the {@link #doPost()} method.</p>
+     *	<p> This method delegates to the {@link #doPost(
+     *	    HttpServletRequest, HttpServletResponse)} method.</p>
      */
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	doPost(request, response);
