@@ -56,7 +56,7 @@ public class FacesStreamerContext extends BaseContext {
 
     /**
      *	<p> This method initializes {@link FileStreamer}
-     *	    {@link ContentSources}s.  It looks for the
+     *	    {@link ContentSource}s.  It looks for the
      *	    {@link Context#CONTENT_SOURCES} context parameter (JSF doesn't
      *	    provide a way to get to the ServletConfig init parameters, as of
      *	    JSF 1.2).</p>
