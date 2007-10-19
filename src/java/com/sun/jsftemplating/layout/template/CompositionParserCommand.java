@@ -161,7 +161,9 @@ public class CompositionParserCommand implements CustomParserCommand {
     /**
      *	<p> The {@link ProcessingContext} to be used when processing children
      *	    of a {@link LayoutComposition}.  This {@link ProcessingContext} may
-     *	    have special meaning for {@link LayoutDefine}s and other tags.</p>
+     *	    have special meaning for
+     *	    {@link com.sun.jsftemplating.layout.descriptors.LayoutDefine}s and
+     *	    other tags.</p>
      */
     public static final ProcessingContext LAYOUT_COMPOSITION_CONTEXT	=
 	new LayoutCompositionContext();
