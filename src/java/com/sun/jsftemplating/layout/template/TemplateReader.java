@@ -64,7 +64,8 @@ public class TemplateReader {
     /**
      *	<p> Constructor.</p>
      *
-     *	@param	url	<code>URL</code> to the {@link LayoutDefinition} file.
+     *	@param	id  The identifier of the {@link LayoutDefinition} to read.
+     *	@param	url <code>URL</code> to the {@link LayoutDefinition} file.
      */
     public TemplateReader(String id, URL url) {
 	if (id == null) {
@@ -78,7 +79,9 @@ public class TemplateReader {
     /**
      *	<p> Constructor.</p>
      *
-     *	@param	url	<code>URL</code> to the {@link LayoutDefinition} file.
+     *	@param	stream	The <code>InputStream</code> for the
+     *			{@link LayoutDefinition}.
+     *	@param	id	The identifier of the {@link LayoutDefinition} to read.
      */
     public TemplateReader(String id, InputStream stream) {
 	if (id == null) {
@@ -92,6 +95,7 @@ public class TemplateReader {
     /**
      *	<p> Constructor.</p>
      *
+     *	@param	id	The identifier of the {@link LayoutDefinition} to read.
      *	@param	parser	{@link TemplateParser} ready to read the
      *			{@link LayoutDefinition}.
      */
