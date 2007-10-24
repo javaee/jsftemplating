@@ -77,4 +77,17 @@ public interface TemplateComponent extends ChildManager {
      *	@param	key The key to use in the LayoutDefinitionManager
      */
     public void setLayoutDefinitionKey(String key);
+
+    /**
+     * This method returns the value for the current field.  It first checks
+     * the value of the field passed in, returning that if it is set.  Next,
+     * it checks to see if there is a ValueExpression matching the attributeName
+     * and returns that value, if it exists.  If both of those tests fail, the
+     * defaultValue is returned.
+     * @param field
+     * @param attributeName
+     * @param defaultValue
+     * @return
+     */
+    public <V> V getPropertyValue(V field, String attributeName, V defaultValue);
 }

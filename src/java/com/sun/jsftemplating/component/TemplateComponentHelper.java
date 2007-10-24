@@ -25,6 +25,7 @@ package com.sun.jsftemplating.component;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
 import javax.faces.context.FacesContext;
+import javax.el.ValueExpression;
 
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
@@ -235,6 +236,15 @@ public class TemplateComponentHelper {
      */
     public void setLayoutDefinitionKey(String key) {
 	_ldmKey = key;
+    }
+
+    public <V> V getAttributeValue(UIComponent comp, V field, String attributeName, V defaultValue) {
+        if (field != null) {
+            return field;
+        }
+        ValueExpression ve = comp.getValueExpression(attributeName);
+        return (ve != null) ? (V) ve.getValue(FacesContext.getCurrentInstance().getELContext()) :
+                defaultValue;
     }
 
     /**

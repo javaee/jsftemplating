@@ -22,15 +22,14 @@
  */
 package com.sun.jsftemplating.component;
 
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIOutput;
+import javax.faces.context.FacesContext;
+
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
-
-import javax.el.ValueExpression;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
 
 
 /**
@@ -46,7 +45,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-public abstract class TemplateInputComponentBase extends UIInput implements TemplateComponent {
+public abstract class TemplateOutputComponentBase extends UIOutput implements TemplateComponent {
 
     /**
      *	<p> This method will find the request child <code>UIComponent</code>

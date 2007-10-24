@@ -138,6 +138,10 @@ public abstract class TemplateComponentBase extends UIComponentBase implements T
 	getHelper().setLayoutDefinitionKey(key);
     }
 
+    public <V> V getPropertyValue(V field, String attributeName, V defaultValue) {
+        return getHelper().getAttributeValue(this, field, attributeName, defaultValue);
+    }
+
     /**
      *	<p> This method retrieves the {@link TemplateComponentHelper} used by
      *	    this class to help implement the {@link TemplateComponent}
