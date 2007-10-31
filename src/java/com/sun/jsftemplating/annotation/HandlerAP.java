@@ -166,8 +166,8 @@ public class HandlerAP implements AnnotationProcessor {
 		    // Make sure correct args are specified
 		    Collection<ParameterDeclaration> params =
 			((MethodDeclaration) dec).getParameters();
-		    if ((params.size() != 1) || !params.iterator().next().
-			    getType().toString().equals(
+		    String pdec = params.iterator().next().getType().toString();
+		    if ((params.size() != 1) || !pdec.equals(
 			    "com.sun.jsftemplating.layout.descriptors.handler.HandlerContext")) {
 			_env.getMessager().printError(
 			    dec.getPosition(),
@@ -177,7 +177,8 @@ public class HandlerAP implements AnnotationProcessor {
 			    + "." + dec.getSimpleName()
 			    + "' must contain a single parameter of type 'com."
 			    + "sun.jsftemplating.layout.descriptors.handler."
-			    + "HandlerContext'.");
+			    + "HandlerContext', instead type: '"
+			    + pdec + "' was found.");
 		    }
 
 // FIXME: Consider an alternate method declaration that annotates a pojo method
