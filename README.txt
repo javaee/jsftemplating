@@ -57,6 +57,9 @@ directory.
 
 5) Using netbeans to build project
 
+    NOTE: The NB site has a short FAQ about using APT, this might be helpful:
+	http://wiki.netbeans.info/wiki/view/FaqApt
+
     jsftemplating has been configurated as a netbeans project.  After following
     Steps 1-3 to setup your environment, you can open the project by pointing
     to the directory where you check out the source.
