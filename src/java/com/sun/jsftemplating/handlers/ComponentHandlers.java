@@ -340,6 +340,51 @@ public class ComponentHandlers {
     }
 
     /**
+     *	<p> This handler retrieves the requested the "facet" from the given
+     *	    <code>UIComponent</code>.  <code>component</code> or
+     *	    <code>clientId</code> for the component must be passed in.  The
+     *	    facet <code>name</code> must also be specified.  It will return
+     *	    the <code>UIComponent</code> found (or <code>null</code>) in the
+     *	    <code>value</code> output parameter.</p>
+     *
+     *	@param	context	The HandlerContext.
+     */
+    @Handler(id="getFacet",
+	input={
+	    @HandlerInput(name="clientId", type=String.class, required=false),
+	    @HandlerInput(name="component", type=UIComponent.class, required=false),
+	    @HandlerInput(name="name", type=String.class, required=true)},
+	output={
+	    @HandlerOutput(name="value", type=UIComponent.class)})
+    public static void getFacet(HandlerContext context) {
+	// Get the UIComponent to use
+	UIComponent comp = (UIComponent) context.getInputValue("component");
+	if (comp == null) {
+	    String clientId = (String) context.getInputValue("clientId");
+	    if (clientId != null) {
+		UIComponent viewRoot = context.getFacesContext().getViewRoot();
+		comp = viewRoot.findComponent(clientId);
+	    } else {
+		throw new IllegalArgumentException(
+		    "You must specify the component to use, or a clientId to "
+		    + "locate the UIComponent to use.");
+	    }
+	}
+
+	// Get the facet name
+	String clientId = "" + (String) context.getInputValue("name");
+
+	// Look for the facet
+	UIComponent value = null;
+	if (comp != null) {
+	    value = comp.getFacets().get(clientId);
+	}
+
+	// Return the UIComponent (or null)
+	context.setOutputValue("value", value);
+    }
+
+    /**
      *	<p> This handler will print out the structure of a
      *	    <code>UIComponent</code> tree from the given UIComponent.</p>
      */
