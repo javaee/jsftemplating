@@ -166,6 +166,18 @@ public class LayoutComposition extends LayoutElementBase {
     }
 
     /**
+     *	<p> This method allows the composition stack to be set directly.
+     *	    Normally this isn't needed, but if a seperate walk of the tree
+     *	    must be done in the middle of an existing walk, this may be
+     *	    necessary to reset and restore the Stack.</p>
+     */
+    public static Stack<LayoutElement> setCompositionStack(FacesContext context, Stack<LayoutElement> stack) {
+	Map requestMap = context.getExternalContext().getRequestMap();
+	requestMap.put(COMPOSITION_STACK_KEY, stack);
+	return stack;
+    }
+
+    /**
      *	<p> This is the key used to store the <code>LayoutComposition</code>
      *	    stack.</p>
      */
