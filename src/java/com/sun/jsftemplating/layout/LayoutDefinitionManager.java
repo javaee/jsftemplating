@@ -29,8 +29,10 @@ import com.sun.jsftemplating.annotation.UIComponentFactoryAPFactory;
 import com.sun.jsftemplating.component.factory.basic.GenericFactory;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.descriptors.LayoutInsert;
 import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
@@ -55,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -169,7 +172,7 @@ public abstract class LayoutDefinitionManager {
      *
      *	<p> This is not an easy process since JSF components may not all be
      *	    <code>NamingContainer</code>s, so the clientId is not sufficient to
-     *	    find it.  This is unfortunate, but we we have to deal with it.</p>
+     *	    find it.  This is unfortunate, but we we deal with it.</p>
      *
      *	@param	ctx	    The <code>FacesContext</code>.
      *	@param	ldKey	    The {@link LayoutDefinition} key to identify the
@@ -191,34 +194,47 @@ public abstract class LayoutDefinitionManager {
             layElt = ((LayoutViewRoot) ctx.getViewRoot()).getLayoutDefinition(ctx);
         }
 
-        // Create a StringTokenizer over the clientId
-        StringTokenizer tok = new StringTokenizer(clientId, ":");
+	// Save the current LayoutComposition Stack
+	//  - This is needed b/c we may be in the middle of walking the tree
+	//  - already and we need ot use this Stack... so we must save the
+	//  - Stack and use a fresh one.  We must restore it later.
+	Stack<LayoutElement> oldStack = LayoutComposition.getCompositionStack(ctx);
+	try {
+	    LayoutComposition.setCompositionStack(
+		ctx, new Stack<LayoutElement>());
 
-        // Walk the LD looking for the individual id's specified in the
-        // clientId.
-        String id = null;
-        LayoutElement match = null;
-        while (tok.hasMoreTokens()) {
-            // I don't want to create a bunch of objects to check for
-            // instanceof NamingContainer.  I can't check the class file b/c
-            // there is no way for me to know what class gets created before
-            // actually creating the UIComponent.  This is because either the
-            // ComponentFactory can decide how to create the UIComponent, which
-            // it often uses the Application.  The Application is driven off
-            // the faces-config.xml file(s).
-            //
-            // I will instead do a brute force search for a match.  This has
-            // the potential to fail if non-naming containers have the same
-            // id's as naming containers.  It may also fail for components with
-            // dynamic id's.
-            id = tok.nextToken();
-            match = findById(ctx, layElt, id);
-            if (match == null) {
-                // Can't go any further! We're as close as we're going to get.
-                break;
-            }
-            layElt = match;
-        }
+	    // Create a StringTokenizer over the clientId
+	    StringTokenizer tok = new StringTokenizer(clientId, ":");
+
+	    // Walk the LD looking for the individual id's specified in the
+	    // clientId.
+	    String id = null;
+	    LayoutElement match = null;
+	    while (tok.hasMoreTokens()) {
+		// I don't want to create a bunch of objects to check for
+		// instanceof NamingContainer.  I can't check the class file
+		// b/c there is no way for me to know what class gets created
+		// before actually creating the UIComponent.  This is because
+		// either the ComponentFactory can decide how to create the
+		// UIComponent, which it often uses the Application.  The
+		// Application is driven off the faces-config.xml file(s).
+		//
+		// I will instead do a brute force search for a match.  This
+		// has the potential to fail if non-naming containers have the
+		// same id's as naming containers.  It may also fail for
+		// components with dynamic id's.
+		id = tok.nextToken();
+		match = findById(ctx, layElt, id);
+		if (match == null) {
+		    // Can't go any further! We're as close as we're getting.
+		    break;
+		}
+		layElt = match;
+	    }
+	} finally {
+	    // Restore the previous LayoutComposition Stack
+	    LayoutComposition.setCompositionStack(ctx, oldStack);
+	}
 
         // Make sure we're not still at the LayoutDefinition, if so do NOT
         // accept this as a match.
@@ -238,6 +254,14 @@ public abstract class LayoutDefinitionManager {
      *	    <code>id</code>.</p>
      */
     private static LayoutComponent findById(FacesContext ctx, LayoutElement elt, String id) {
+	if (elt instanceof LayoutComposition) {
+	    // We have a LayoutComposition, this includes another file... we
+	    // need to look there as well.
+	} else if (elt instanceof LayoutInsert) {
+	    // We found a LayoutInsert, this includes content from a previous
+	    // file... we need to go back there and look now.
+	}
+
         // First search the direct child LayoutElement
         for (LayoutElement child : elt.getChildLayoutElements()) {
             // I am *NOT* providing the parent UIComponent as it may not be
