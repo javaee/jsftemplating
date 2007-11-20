@@ -254,39 +254,65 @@ public abstract class LayoutDefinitionManager {
      *	    <code>id</code>.</p>
      */
     private static LayoutComponent findById(FacesContext ctx, LayoutElement elt, String id) {
+	// Only set 'stack' for LayoutComposition, it serves as flag also
+	Stack<LayoutElement> stack = null;
+
+	// Check for special LE's
 	if (elt instanceof LayoutComposition) {
 	    // We have a LayoutComposition, this includes another file... we
 	    // need to look there as well.
+	    String viewId = ((LayoutComposition) elt).getTemplate();
+	    if (viewId != null) {
+		// Add LayoutComposition to the stack
+		stack = LayoutComposition.getCompositionStack(ctx);
+		stack.push(elt);
+
+		// Get the new LD to walk
+		try {
+		    elt = LayoutDefinitionManager.getLayoutDefinition(ctx, viewId);
+		} catch (LayoutDefinitionException ex) {
+		    if (((LayoutComposition) elt).isRequired()) {
+			throw ex;
+		    }
+		}
+	    }
 	} else if (elt instanceof LayoutInsert) {
 	    // We found a LayoutInsert, this includes content from a previous
 	    // file... we need to go back there and look now.
 	}
 
-        // First search the direct child LayoutElement
-        for (LayoutElement child : elt.getChildLayoutElements()) {
-            // I am *NOT* providing the parent UIComponent as it may not be
-            // available, this function is *not* guaranteed to work for
-            // dynamic ids
-            if (child.getId(ctx, null).equals(id)
-                    && (child instanceof LayoutComponent)) {
-                // Found it!
-                return (LayoutComponent) child;
-            }
-        }
+	// First search the direct child LayoutElement
+	LayoutComponent comp = null;
+	for (LayoutElement child : elt.getChildLayoutElements()) {
+	    // I am *NOT* providing the parent UIComponent as it may not be
+	    // available, this function is *not* guaranteed to work for
+	    // dynamic ids
+	    if (child.getId(ctx, null).equals(id)
+		    && (child instanceof LayoutComponent)) {
+		// Found it!
+		comp = (LayoutComponent) child;
+	    }
+	}
 
-        // Not found directly under it, search children...
-        // NOTE: Must do a breadth first search, so 2 loops are necessary
-        LayoutComponent comp = null;
-        for (LayoutElement child : elt.getChildLayoutElements()) {
-            comp = findById(ctx, child, id);
-            if (comp != null) {
-                // Found it!
-                break;
-            }
-        }
+	// Not found directly under it, search children...
+	// NOTE: Must do a breadth first search, so 2 loops are necessary
+	if (comp == null) {
+	    for (LayoutElement child : elt.getChildLayoutElements()) {
+		comp = findById(ctx, child, id);
+		if (comp != null) {
+		    // Found it!
+		    break;
+		}
+	    }
+	}
 
-        // Return the result, or null if not found
-        return comp;
+	// Remove the LayoutComposition from the stack
+	if (stack != null) {
+	    stack.pop();
+	}
+
+	// Return the result, or null if not found
+	return comp;
     }
 
     /**
