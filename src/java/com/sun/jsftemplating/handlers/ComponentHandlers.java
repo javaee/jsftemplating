@@ -27,6 +27,7 @@
  */
 package com.sun.jsftemplating.handlers;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import com.sun.jsftemplating.layout.LayoutViewHandler;
 import com.sun.jsftemplating.layout.LayoutViewRoot;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
+import com.sun.jsftemplating.layout.descriptors.LayoutElementBase;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.util.LayoutElementUtil;
 
@@ -347,7 +349,7 @@ public class ComponentHandlers {
      *	    the <code>UIComponent</code> found (or <code>null</code>) in the
      *	    <code>value</code> output parameter.</p>
      *
-     *	@param	context	The HandlerContext.
+     *	@param	context	The {@link HandlerContext}.
      */
     @Handler(id="getFacet",
 	input={
@@ -358,18 +360,7 @@ public class ComponentHandlers {
 	    @HandlerOutput(name="value", type=UIComponent.class)})
     public static void getFacet(HandlerContext context) {
 	// Get the UIComponent to use
-	UIComponent comp = (UIComponent) context.getInputValue("component");
-	if (comp == null) {
-	    String clientId = (String) context.getInputValue("clientId");
-	    if (clientId != null) {
-		UIComponent viewRoot = context.getFacesContext().getViewRoot();
-		comp = viewRoot.findComponent(clientId);
-	    } else {
-		throw new IllegalArgumentException(
-		    "You must specify the component to use, or a clientId to "
-		    + "locate the UIComponent to use.");
-	    }
-	}
+	UIComponent comp = getUIComponentFromInput(context);
 
 	// Get the facet name
 	String clientId = "" + (String) context.getInputValue("name");
@@ -383,6 +374,60 @@ public class ComponentHandlers {
 	// Return the UIComponent (or null)
 	context.setOutputValue("value", value);
     }
+
+    /**
+     *	<p> This handler encodes the given <code>UIComponent</code>.  You can
+     *	    specify the <code>UIComponent</code> by <code>clientId</code>, or
+     *	    pass it in directly via the <code>component</code> input
+     *	    parameter.</p>
+     *
+     *	@param	context	The {@link HandlerContext}.
+     */
+    @Handler(id="encodeUIComponent",
+	input={
+	    @HandlerInput(name="clientId", type=String.class, required=false),
+	    @HandlerInput(name="component", type=UIComponent.class, required=false)}
+	)
+    public static void encode(HandlerContext context) throws IOException {
+	// Get the UIComponent to use
+	UIComponent comp = getUIComponentFromInput(context);
+
+	// Encode the component
+	LayoutElementBase.encodeChild(context.getFacesContext(), comp);
+    }
+
+    /**
+     *	<p> This method simply helps resolve a <code>UIComponent</code> for
+     *	    handlers that allow them to be specified via "component" or
+     *	    "clientId".  "component" takes precedence.  If neither are
+     *	    supplied, an <code>IllegalArgumentException</code> is thrown.</p>
+     *
+     *	@param	context	The {@link HandlerContext}.
+     *
+     *	@return	The <code>UIComponent</code> or <code>null</code> (if clientId
+     *		did not resolve it).
+     *
+     *	@throws	IllegalArgumentException    If neither "clientId" or
+     *					    "component" are provided.
+     */
+    private static UIComponent getUIComponentFromInput(HandlerContext context) {
+	UIComponent comp = (UIComponent) context.getInputValue("component");
+	if (comp == null) {
+	    String clientId = (String) context.getInputValue("clientId");
+	    if (clientId != null) {
+		UIComponent viewRoot = context.getFacesContext().getViewRoot();
+		comp = viewRoot.findComponent(clientId);
+	    } else {
+		throw new IllegalArgumentException(
+		    "You must specify the component to use, or a clientId to "
+		    + "locate the UIComponent to use.");
+	    }
+	}
+
+	// Return the UIComponent (may be null if clientId didn't resolve it)
+	return comp;
+    }
+
 
     /**
      *	<p> This handler will print out the structure of a
