@@ -1,0 +1,7 @@
+
+<project>
+       <groupId>com.sun.jsftemplating</groupId>
+       <artifactId>jsftemplating-dt</artifactId>
+       <version>@VERSION@</version>
+       <name>JSFTemplating Design Time lib</name>
+</project>

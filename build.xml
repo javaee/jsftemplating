@@ -2,6 +2,7 @@
 <project name="JSFTemplating" default="build" basedir=".">
 
     <!-- Set properties -->
+    <property name="version" value="1.0-SNAPSHOT"/>
     <property file="build.properties" />
     <property file="user.properties" />
     <property environment="env"/>
@@ -204,5 +205,36 @@
                        fromFile="${dist}/jsftemplating-dynafaces-0.1.jar"
                        fileDescription="Nightly snapshot of the JSFTemplating DynaFaces support lib"
                        overwrite="yes"/>
+    </target>
+    
+    <target name="push-to-maven-prepare">
+        <taskdef resource="maven-repository-importer.properties">
+            <classpath>
+                <pathelement path="${maven-repository-importer.jar}" />
+            </classpath>
+        </taskdef>
+        <delete dir="${build}/maven-repo" />
+        <!-- clean it -->
+        <maven-repository-importer destdir="build/maven-repo" version="${version}">
+            <artifact jar="${dist}/jsftemplating.jar"  pom="jsftemplating.pom"/>
+            <artifact jar="${dist}/jsftemplating-dt.jar" pom="jsftemplating-dt.pom" />
+            <artifact jar="${dist}/jsftemplating-dynafaces-0.1.jar" pom="jsftemplating-dynafaces-0.1.pom" />
+        </maven-repository-importer>
+    </target>
+
+    <target name="push-to-maven" depends="push-to-maven-prepare" description="Publish artifacts to the java.net Maven repo">
+        <!-- import to CVS-->
+        <tstamp />
+        <echo>importing to CVS...</echo>
+        <cvs dest="${build}/maven-repo">
+            <commandline>
+                <argument value="-d:pserver:${java.net.user.name}@cvs.dev.java.net:/cvs" />
+                <argument line="-z9 import -ko -W *.jar -kb -m" />
+                <argument value="deploying new jars to the java.net maven repository" />
+
+                <argument value="jsftemplating/repo" />
+                <argument line="deployment-to-maven-repository t${DSTAMP}${TSTAMP}" />
+            </commandline>
+        </cvs>
     </target>
 </project>

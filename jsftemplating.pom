@@ -1,0 +1,6 @@
+<project>
+       <groupId>com.sun.jsftemplating</groupId>
+       <artifactId>jsftemplating</artifactId>
+       <version>@VERSION@</version>
+       <name>Templating for Java Server Faces</name>
+</project>
