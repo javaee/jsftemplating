@@ -74,7 +74,7 @@
         <!-- Compile the java code from ${src} into ${aptbuild} -->
         <javac srcdir="${src}" destdir="${aptbuild}/." includes="**/annotation/**.java" debug="${compile.debug}"
             deprecation="${compile.deprecation}" optimize="${compile.optimize}">
-            <classpath refid="apt-dependencies" />
+            <classpath refid="dependencies" />
         </javac>
     </target>
 
@@ -89,6 +89,7 @@
 
     <target name="compile" depends="init, jar-apt-files" description="Compile source">
         <mkdir dir="${build}/." />
+	<echo>${jsf-api.jar}</echo>
 	<apt	srcdir="${src}"
 		fork="true"
 		destdir="${build}/."
@@ -119,6 +120,7 @@
             <zipfileset dir="${jsftemplating.home}/layout/facelets" prefix="META-INF/" includes="*.ent" />
             <zipfileset dir="${jsftemplating.home}" prefix="META-INF" includes="faces-config.xml" />
         </jar>
+	<jar jarfile="${jsftemplating-src.jar}" basedir="${src}" excludes="**/CVS/*" update="true"/>
     </target>
 
     <target name="javadoc" depends="build" description="Generate javadocs">
@@ -218,7 +220,7 @@
         <delete dir="${build}/maven-repo" />
         <!-- clean it -->
         <maven-repository-importer destdir="${build}/maven-repo" version="${version}">
-            <artifact jar="${dist}/jsftemplating.jar"  pom="jsftemplating.pom"/>
+            <artifact jar="${dist}/jsftemplating.jar" pom="jsftemplating.pom" srczip="${dist}/jsftemplating-src.jar"/>
             <artifact jar="${dist}/jsftemplating-dt.jar" pom="jsftemplating-dt.pom" />
             <artifact jar="${dist}/jsftemplating-dynafaces-0.1.jar" pom="jsftemplating-dynafaces-0.1.pom" />
         </maven-repository-importer>
@@ -228,6 +230,20 @@
         <!-- import to CVS-->
         <tstamp />
         <echo>importing to CVS...</echo>
+	<copy todir="repo/" preservelastmodified="true">
+		<fileset dir="${build}/maven-repo"/>
+	</copy>
+	<cvs reallyquiet="true" command="-Q add repo/*"/>
+	<cvs>
+		<commandline>
+			<argument value="-Q"/>
+			<argument value="ci"/>
+			<argument line="-m"/>
+			<argument value="deploying jars to the maven repo" />
+			<argument value="repo/"/>
+		</commandline>
+	</cvs>
+	<!--
         <cvs dest="${build}/maven-repo">
             <commandline>
                 <argument value="-d:pserver:${java.net.user.name}@cvs.dev.java.net:/cvs" />
@@ -238,5 +254,6 @@
                 <argument line="deployment-to-maven-repository t${DSTAMP}${TSTAMP}" />
             </commandline>
         </cvs>
+	-->
     </target>
 </project>
