@@ -1,8 +1,8 @@
 <!-- Build file for JSFTemplating -->
-<project name="JSFTemplating" default="build" basedir=".">
+<project name="JSFTemplating" default="jar" basedir=".">
 
     <!-- Set properties -->
-    <property name="version" value="1.0-SNAPSHOT"/>
+    <property name="version" value="1.2-SNAPSHOT"/>
     <property file="build.properties" />
     <property file="user.properties" />
     <property environment="env"/>
@@ -189,6 +189,8 @@
                 <fileset dir="${tasks.home}/lib" includes="*.jar"/>
             </classpath>
         </taskdef>
+	
+	<antcall target="push-to-maven"/>
 
         <javaNetUpload projectName="jsftemplating"
                        toFile="/nightly/jsftemplating.jar"
@@ -215,7 +217,7 @@
         </taskdef>
         <delete dir="${build}/maven-repo" />
         <!-- clean it -->
-        <maven-repository-importer destdir="build/maven-repo" version="${version}">
+        <maven-repository-importer destdir="${build}/maven-repo" version="${version}">
             <artifact jar="${dist}/jsftemplating.jar"  pom="jsftemplating.pom"/>
             <artifact jar="${dist}/jsftemplating-dt.jar" pom="jsftemplating-dt.pom" />
             <artifact jar="${dist}/jsftemplating-dynafaces-0.1.jar" pom="jsftemplating-dynafaces-0.1.pom" />
