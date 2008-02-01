@@ -60,6 +60,9 @@
         <echo message="Using ${execute.ant}" />
         <echo message="java.home=${java.home}" />
         <echo message="ant.home=${ant.home}" />
+	<tstamp>
+		<format property="TODAY" pattern="yyyymmdd" />
+	</tstamp>
     </target>
 
     <target name="build" depends="jar" description="Build the project"/>
@@ -111,6 +114,17 @@
         </copy>
         <copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" />
         <jar jarfile="${jsftemplating.jar}" update="true">
+	    <manifest>
+		<attribute name="Implementation-Title" value="JSFTemplating" />
+		<attribute name="Implementation-Version" value="1.2_${TODAY}" />
+		<attribute name="Implementation-URL" value="https://jsftemplating.dev.java.net" />
+		<section name="JSFTemplating">
+			<attribute name="Specific-Version" value="1.2" />
+			<attribute name="Extension-Name" value="com.sun.jsftemplating" />
+			<attribute name="JSF-RI-Dependencies" value="" />
+		</section>
+	   </manifest>
+		
             <fileset dir="${build}" includes="**/*.class, **/*.map" />
             <zipfileset dir="${src}" prefix="" includes="**/*.properties" />
             <zipfileset dir="${jsftemplating.home}/layout/pages" prefix="" includes="*.jsf" />
