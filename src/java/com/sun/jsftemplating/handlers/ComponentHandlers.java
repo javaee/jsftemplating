@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.annotation.Handler;
@@ -41,7 +42,6 @@ import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.LayoutViewHandler;
-import com.sun.jsftemplating.layout.LayoutViewRoot;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutElementBase;
@@ -178,8 +178,8 @@ public class ComponentHandlers {
 
 	// If they didn't give us a parent, make one one up...
 	if (parent == null) {
-	    parent = new LayoutViewRoot();
-	    ((LayoutViewRoot) parent).setViewId("fake");
+	    parent = new UIViewRoot();
+	    ((UIViewRoot) parent).setViewId("fake");
 	}
 
 	// Build it...
