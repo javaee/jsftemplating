@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.util;
 
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -137,6 +138,24 @@ public class Util {
 	    cls = obj.getClass();
 	}
 	return cls;
+    }
+
+    /**
+     *	<p> This method locates the requested <code>Method</code> on the
+     *	    given <code>Class</code>, with the given <code>params</code>.  This
+     *	    method does not throw any exceptions.  Instead it will return
+     *	    <code>null</code> if unable to locate the method.</p>
+     */
+    public static Method getMethod(Class cls, String name, Class ... prms) {
+	Method method = null;
+	try {
+	    method = cls.getMethod(name, prms);
+	} catch (NoSuchMethodException ex) {
+	    // Do nothing, we're eating the exception
+	} catch (SecurityException ex) {
+	    // Do nothing, we're eating the exception
+	}
+	return method;
     }
 
     /**
