@@ -32,7 +32,6 @@ import java.util.Map;
 import javax.el.ValueExpression;
 import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.component.ComponentUtil;
