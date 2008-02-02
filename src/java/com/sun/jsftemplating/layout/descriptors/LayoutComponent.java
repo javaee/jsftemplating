@@ -29,13 +29,14 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.component.ChildManager;
 import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.component.TemplateComponent;
 import com.sun.jsftemplating.el.VariableResolver;
-import com.sun.jsftemplating.layout.LayoutViewRoot;
+import com.sun.jsftemplating.layout.ViewRootUtil;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.event.AfterCreateEvent;
 import com.sun.jsftemplating.layout.event.AfterEncodeEvent;
@@ -423,9 +424,10 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
 			== getLayoutDefinition()) {
 		    name = getUnevaluatedId();
 		}
-	    } else if (parent instanceof LayoutViewRoot) {
-		// NOTE: I am not checking for UIViewRoot b/c I don't want to
-		// use a facet unless we're using JSFT's LayoutViewRoot
+	    } else if ((parent instanceof UIViewRoot) && (ViewRootUtil.
+		    getLayoutDefinition((UIViewRoot) parent) != null)) {
+
+		// NOTE: Only set the name if its a JSFT ViewRoot
 		name = getUnevaluatedId();
 	    }
 	}

@@ -163,16 +163,16 @@ public abstract class LayoutDefinitionManager {
      *	<p> This method finds the (closest) requested
      *	    <code>LayoutComponent</code> for the given <code>clientId</code>.
      *	    If the <code>viewId</code> is not supplied, the current
-     *	    <code>UIViewRoot</code> will be used (NOTE: it must be a
-     *	    {@link LayoutViewRoot}).  If an exact match is not found, it will
-     *	    return the last {@link LayoutComponent} found while walking the
-     *	    tree -- this represents the last {@link LayoutComponent} in the
-     *	    hierarchy of the specified component.  If nothing matches the
+     *	    <code>UIViewRoot</code> will be used.  If an exact match is not
+     *	    found, it will return the last {@link LayoutComponent} found while
+     *	    walking the tree -- this represents the last {@link LayoutComponent}
+     *	    in the hierarchy of the specified component.  If nothing matches the
      *	    given <code>clientId</code>, <code>null</code> will be returned.</p>
      *
-     *	<p> This is not an easy process since JSF components may not all be
-     *	    <code>NamingContainer</code>s, so the clientId is not sufficient to
-     *	    find it.  This is unfortunate, but we we deal with it.</p>
+     *	<p> This is not an easy process since JSF components are not all
+     *	    <code>NamingContainer</code>s, so the <code>clientId</code> is not
+     *	    sufficient to find it.  This is unfortunate, but we we deal with
+     *	    it.</p>
      *
      *	@param	ctx	    The <code>FacesContext</code>.
      *	@param	ldKey	    The {@link LayoutDefinition} key to identify the
@@ -191,7 +191,8 @@ public abstract class LayoutDefinitionManager {
                         "Unable to find LayoutDefinition ('" + ldKey + "')");
             }
         } else {
-            layElt = ((LayoutViewRoot) ctx.getViewRoot()).getLayoutDefinition(ctx);
+	    layElt = ViewRootUtil.getLayoutDefinition(
+		FacesContext.getCurrentInstance().getViewRoot());
         }
 
 	// Save the current LayoutComposition Stack
