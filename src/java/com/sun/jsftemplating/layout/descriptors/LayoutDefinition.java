@@ -28,16 +28,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.lang.reflect.Method;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
-import com.sun.faces.extensions.avatar.lifecycle.AsyncResponse;
 import com.sun.jsftemplating.component.TemplateComponent;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.event.DecodeEvent;
 import com.sun.jsftemplating.layout.event.InitPageEvent;
+import com.sun.jsftemplating.util.Util;
 
 /**
  *  <p>	This represents the top-level {@link LayoutElement}, it is the
@@ -219,18 +220,52 @@ public class LayoutDefinition extends LayoutElementBase {
     public void encode(FacesContext context, UIComponent component) throws IOException {
 	if (component instanceof UIViewRoot) {
 	    component.encodeBegin(context);
-	    AsyncResponse async = AsyncResponse.getInstance(false);
-	    if ((async == null) || !AsyncResponse.isAjaxRequest() || async.isRenderAll()) {
-		// This is not an ajax request... behave normal
-		super.encode(context, component);
-	    } else {
+	    if (isDynaFacesRequest()) {
 		// Dynamic Faces is now overriding this, so this is required...
 		component.encodeChildren(context);
+	    } else {
+		// This is not an ajax request... behave normal
+		super.encode(context, component);
 	    }
 	    component.encodeEnd(context);
 	} else {
 	    super.encode(context, component);
 	}
+    }
+
+    /**
+     *	<p> This method reflectively calls dyna-faces to determine if this
+     *	    request will be handled by dynafaces.</p>
+     */
+    private boolean isDynaFacesRequest() {
+	if (_asyncResponseClass == null) {
+	    // DynamicFaces not installed, abort
+	    return false;
+	}
+
+	// Check the request...
+	boolean result = false;
+	try {
+	    // See if this is an DynaFaces Ajax request
+	    result = ((Boolean) _asyncResponseIsAjaxRequest.invoke(null)).
+				    booleanValue();
+	    if (result) {
+		// See if this is a "render all" ajax request, in which case
+		// we'll consider it NOT to be an Ajax request.
+		Object async = _asyncResponseGetInstance.invoke(null,
+					Boolean.FALSE);
+		result = !((Boolean) _asyncResponseIsRenderAll.invoke(async)).
+					booleanValue();
+	    }
+	} catch (Exception ex) {
+// FIXME: Log
+System.out.println("Incorrect Dynafaces Version?");
+ex.printStackTrace();
+	    return false;
+	}
+
+	// Return the answer
+	return result;
     }
 
     /**
@@ -349,6 +384,20 @@ public class LayoutDefinition extends LayoutElementBase {
 	ctx.getExternalContext().getRequestMap().put(key, value);
     }
 
+    /**
+     *	<p> This method eats the exception that might be thrown when locating
+     *	    a class.</p>
+     */
+    private static Class loadClass(String className, Object obj) {
+	Class result = null;
+	try {
+	    result = Util.loadClass(className, obj);
+	} catch (ClassNotFoundException ex) {
+	    // Eat it.
+	}
+	return result;
+    }
+
 
     /**
      *
@@ -399,4 +448,30 @@ public class LayoutDefinition extends LayoutElementBase {
      *	    information about the <code>LayoutDefinition</code>.</p>
      */
     private Map<String, Object> _attributes = new HashMap<String, Object>();
+
+    /**
+     *	<p> The DynamicFaces AsyncResponse Class.</p>
+     */
+    private static final Class _asyncResponseClass;
+    private static final Method _asyncResponseGetInstance;
+    private static final Method _asyncResponseIsAjaxRequest;
+    private static final Method _asyncResponseIsRenderAll;
+
+    static {
+	// Initialize the DynamicFaces variables
+	_asyncResponseClass = loadClass(
+		"com.sun.faces.extensions.avatar.lifecycle.AsyncResponse", null);
+	if (_asyncResponseClass != null) {
+	    _asyncResponseGetInstance =
+		Util.getMethod(_asyncResponseClass, "getInstance", Boolean.TYPE);
+	    _asyncResponseIsAjaxRequest =
+		Util.getMethod(_asyncResponseClass, "isAjaxRequest");
+	    _asyncResponseIsRenderAll =
+		Util.getMethod(_asyncResponseClass, "isRenderAll");
+	} else {
+	    _asyncResponseGetInstance = null;
+	    _asyncResponseIsAjaxRequest = null;
+	    _asyncResponseIsRenderAll = null;
+	}
+    }
 }
