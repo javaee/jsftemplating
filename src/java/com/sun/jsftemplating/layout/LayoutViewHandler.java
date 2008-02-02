@@ -78,19 +78,17 @@ import com.sun.jsftemplating.util.fileStreamer.FileStreamer;
  *	<code>layout.dtd</code>.</p>
  *
  *  <p>	Besides the default <code>ViewHandler</code> behavior, this class is
- *	responsible for instantiating a {@link LayoutViewRoot} and using the
- *	given <code>viewId</code> as the {@link LayoutDefinition} key.  It
- *	will obtain the {@link LayoutDefinition}, initialize the declared
- *	{@link Resource}s, and instantiate <code>UIComponent</code> tree using
- *	the {@link LayoutDefinition}'s declared {@link LayoutComponent}
- *	structure.  During rendering, it delegates to the
- *	{@link LayoutDefinition}.</p>
+ *	responsible for using the given <code>viewId</code> as the
+ *	{@link LayoutDefinition} key and setting it on the UIViewRoot that is
+ *	created.  It will obtain the {@link LayoutDefinition}, initialize the
+ *	declared {@link Resource}s, and instantiate <code>UIComponent</code>
+ *	tree using the {@link LayoutDefinition}'s declared
+ *	{@link LayoutComponent} structure.  During rendering, it delegates to
+ *	the {@link LayoutDefinition}.</p>
  *
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutViewHandler extends ViewHandler {
-
-	public static final String ENCODING_TYPE="com.sun.jsftemplating.ENCODING";
 
     /**
      *	<p> Constructor.</p>
@@ -110,12 +108,12 @@ public class LayoutViewHandler extends ViewHandler {
      */
 
     /**
-     *	<p> This method is invoked when restoreView does not yield a UIViewRoot
-     *	    (initial requests and new pages).</p>
+     *	<p> This method is invoked when restoreView does not yield a
+     *	    <code>UIViewRoot</code> (initial requests and new pages).</p>
      *
      *	<p> This implementation should work with both
-     *	    <code>LayoutDefinition<code>-based pages as well as traditional
-     *	    JSP pages.</p>
+     *	    {@link LayoutDefinition}-based pages as well as traditional
+     *	    JSP pages (or other frameworks).</p>
      */
     public UIViewRoot createView(FacesContext context, String viewId) {
 //_time = new java.util.Date();
@@ -128,7 +126,7 @@ public class LayoutViewHandler extends ViewHandler {
 
 	// Check to see if jsftemplating should create the view
 	if(!this.isMappedView(viewId)) {
-	    UIViewRoot viewRoot = this._oldViewHandler.createView(context, viewId);
+	    UIViewRoot viewRoot = _oldViewHandler.createView(context, viewId);
 	    return viewRoot;
 	}
 
@@ -140,22 +138,21 @@ public class LayoutViewHandler extends ViewHandler {
 	// one for the initial case.
 	if (context.getViewRoot() != null) {
 	    UIViewRoot oldViewRoot = context.getViewRoot();
-	    if ((oldViewRoot instanceof LayoutViewRoot)
-			&& oldViewRoot.getViewId().equals(viewId)) {
+	    LayoutDefinition oldLD = ViewRootUtil.getLayoutDefinition(oldViewRoot);
+	    if ((oldLD != null) && oldViewRoot.getViewId().equals(viewId)) {
 		// If you navigate to the page you are already on, JSF will
 		// re-create the UIViewRoot of the current page.  The initPage
 		// event needs to be reset so that it will re-execute itself.
-		((LayoutViewRoot) oldViewRoot).getLayoutDefinition(context).
-		    setInitPageExecuted(context, Boolean.FALSE);
+		oldLD.setInitPageExecuted(context, Boolean.FALSE);
 	    }
 	    locale = context.getViewRoot().getLocale();
 	    renderKitId = context.getViewRoot().getRenderKitId();
 	}
 
-	// Create the LayoutViewRoot
-	LayoutViewRoot viewRoot = new LayoutViewRoot();
+	// Create the ViewRoot
+	UIViewRoot viewRoot = _oldViewHandler.createView(context, viewId);
 	viewRoot.setViewId(viewId);
-	viewRoot.setLayoutDefinitionKey(viewId);
+	ViewRootUtil.setLayoutDefinitionKey(viewRoot, viewId);
 
 	// if there was no locale from the previous view, calculate the locale
 	// for this view.
@@ -185,7 +182,7 @@ public class LayoutViewHandler extends ViewHandler {
 	// Initialize Resources / Create Tree
 	LayoutDefinition def = null;
 	try {
-	    def = viewRoot.getLayoutDefinition(context);
+	    def = ViewRootUtil.getLayoutDefinition(viewRoot);
 	} catch (LayoutDefinitionException ex) {
 	    if (LogUtil.configEnabled()) {
 		LogUtil.config("JSFT0005", (Object) viewId);
@@ -244,25 +241,28 @@ public class LayoutViewHandler extends ViewHandler {
     }
 
     /**
-     *	<p> tests if the provided viewId matches one of the configured view-mappings.
-     *	    If no view-mappings are defined, any viewId will match.</p>
-     *	@param	viewId the viewId to be tested.
-     *	@return	true if the viewId matched or no view-mappings are defined, 
-     *		false otherwise.
+     *	<p> Tests if the provided <code>viewId</code> matches one of the
+     *	    configured view-mappings.  If no view-mappings are defined, all
+     *	    <code>viewId</code>s will match.</p>
+     *
+     *	@param	viewId	The viewId to be tested.
+     *
+     *	@return	true	If the viewId matched or no view-mappings are defined, 
+     *			false otherwise.
      *	@since	1.2
      */
     private boolean isMappedView(String viewId) {
-	if(this._viewMappings == null) {
+	if (this._viewMappings == null) {
 	    String initParam = (String) FacesContext.getCurrentInstance().
 	    getExternalContext().getInitParameterMap().get(VIEW_MAPPINGS);
 	    this._viewMappings = SimplePatternMatcher.
 	    parseMultiPatternString(initParam, ";");
 	}
-	if(this._viewMappings.isEmpty()) {
+	if (this._viewMappings.isEmpty()) {
 	    return true;
 	}
-	for(SimplePatternMatcher mapping : this._viewMappings) {
-	    if(mapping.matches(viewId)) {
+	for (SimplePatternMatcher mapping : this._viewMappings) {
+	    if (mapping.matches(viewId)) {
 		return true;
 	    }
 	}
@@ -278,7 +278,7 @@ public class LayoutViewHandler extends ViewHandler {
 	context.responseComplete();
 
 	// Create dummy UIViewRoot
-	UIViewRoot root = new LayoutViewRoot();
+	UIViewRoot root = new UIViewRoot();
 	root.setRenderKitId("dummy");
 
 	// Setup the FacesStreamerContext
@@ -342,34 +342,41 @@ public class LayoutViewHandler extends ViewHandler {
 
     /**
      *	<p> Returns the current encoding type.</p>
+     *
+     *	@param	ctx The <code>FacesContext</code>.
      */
-
     public static String getEncoding(FacesContext ctx) {
-		String encType = null;
-		if (ctx != null) {
-			UIViewRoot root = ctx.getViewRoot();
-			Map<String, Serializable> map = PageSessionResolver.getPageSession(ctx, root);
-			if(map != null) {
-				//check for page session
-				encType = (String)map.get(ENCODING_TYPE);
-			}
-			if(encType == null || encType.equals("")) {
-				//check for application level
-				encType = ctx.getExternalContext().getInitParameter(ENCODING_TYPE);
-			}
-			if(encType == null || encType.equals(""))  {
-				ExternalContext extCtx = ctx.getExternalContext();
-				// FIXME: Portlet?
-				ServletRequest request = (ServletRequest) extCtx.getRequest();
-				encType = request.getCharacterEncoding();
-				if(encType == null || encType.equals("")) {
-				//default encoding type
-					encType="UTF-8";
-				}	
-			}
-		}
-		return encType;
+	// Sanity check
+	if (ctx == null) {
+	    return null;
 	}
+
+	String encType = null;
+	UIViewRoot root = ctx.getViewRoot();
+	Map<String, Serializable> map = PageSessionResolver.getPageSession(ctx, root);
+	if (map != null) {
+	    //check for page session
+	    encType = (String) map.get(ENCODING_TYPE);
+	}
+	if ((encType == null) || encType.equals("")) {
+	    //check for application level
+	    encType = ctx.getExternalContext().getInitParameter(ENCODING_TYPE);
+	}
+	if ((encType == null) || encType.equals("")) {
+	    ExternalContext extCtx = ctx.getExternalContext();
+	    try {
+		ServletRequest request = (ServletRequest) extCtx.getRequest();
+		encType = request.getCharacterEncoding();
+	    } catch (Exception ex) {
+		// FIXME: Portlet?
+	    }
+	    if ((encType == null) || encType.equals("")) {
+		//default encoding type
+		encType="UTF-8";
+	    }	
+	}
+	return encType;
+    }
 
     /**
      *	<p> This method checks the given viewId and returns a the path to the
@@ -566,7 +573,7 @@ public class LayoutViewHandler extends ViewHandler {
 	// Perform default behavior...
 	UIViewRoot root = _oldViewHandler.restoreView(context, viewId);
 
-	// Return the UIViewRoot (LayoutViewRoot most likely)
+	// Return the UIViewRoot
 	return root;
     }
 
@@ -575,11 +582,7 @@ public class LayoutViewHandler extends ViewHandler {
      */
     public void renderView(FacesContext context, UIViewRoot viewToRender) throws IOException {
 	// Make sure we have a def
-	LayoutDefinition def = null;
-	if (viewToRender instanceof LayoutViewRoot) {
-	    def = ((LayoutViewRoot) viewToRender).getLayoutDefinition(context);
-	}
-
+	LayoutDefinition def = ViewRootUtil.getLayoutDefinition(viewToRender);
 	if (def == null) {
 	    // No def, fall back to default behavior
 	    _oldViewHandler.renderView(context, viewToRender);
@@ -588,16 +591,8 @@ public class LayoutViewHandler extends ViewHandler {
 	    ResponseWriter writer = setupResponseWriter(context);
 	    writer.startDocument();
 
-// BEGIN EXPERIMENTAL CODE...
-	    UIComponent target = (UIComponent) context.getExternalContext().
-		    getRequestMap().get(AJAX_REQ_TARGET_KEY);
-	    if (target != null) {
-		renderComponent(context, target);
-	    } else {
-// END EXPERIMENTAL CODE...
-		// Render content
-		def.encode(context, viewToRender);
-	    }
+	    // Render content
+	    def.encode(context, viewToRender);
 
 	    // End document
 	    writer.endDocument();
@@ -700,9 +695,8 @@ public class LayoutViewHandler extends ViewHandler {
     public void writeState(FacesContext context) throws IOException {
 	// Check to see if we should delegate back to the legacy ViewHandler
 	UIViewRoot root = context.getViewRoot();
-	if ((root == null) || !(root instanceof LayoutViewRoot)
-		|| (((LayoutViewRoot) root).
-			getLayoutDefinition(context) == null)) {
+	if ((root == null)
+		|| (ViewRootUtil.getLayoutDefinition(root) == null)) {
 	    // Use old behavior...
 	    _oldViewHandler.writeState(context);
 	} else {
@@ -813,4 +807,10 @@ public class LayoutViewHandler extends ViewHandler {
 	"com.sun.jsftemplating.VIEW_MAPPINGS";
 
     private Collection<SimplePatternMatcher> _viewMappings = null;
+
+    /**
+     *	<p> This key can be used to override the encoding type used in your
+     *	    application.</p>
+     */
+    public static final String ENCODING_TYPE="com.sun.jsftemplating.ENCODING";
 }
