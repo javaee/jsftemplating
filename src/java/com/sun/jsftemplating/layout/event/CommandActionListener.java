@@ -183,6 +183,7 @@ public class CommandActionListener implements ActionListener, Serializable {
     public static LayoutElement findLayoutElementByClientId(LayoutDefinition def, String clientId) {
 // FIXME: TBD...
 // FIXME: Walk LE tree, ignore non-LayoutComponent entries (this may cause a problem itself b/c of conditional statements & loops)
+// FIXME: Handle LayoutCompositions / LayoutInserts
 	return null;
     }
 
@@ -231,6 +232,7 @@ public class CommandActionListener implements ActionListener, Serializable {
 	Iterator<LayoutElement> it = elt.getChildLayoutElements().iterator();
 	while (it.hasNext()) {
 	    child = it.next();
+// FIXME: Handle LayoutCompositions / LayoutInserts
 	    if (child instanceof LayoutComponent) {
 		child = findLayoutElementById(child, id);
 		if (child != null) {
