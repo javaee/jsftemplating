@@ -50,6 +50,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sun.jsftemplating.component.NamingContainer;
 import com.sun.jsftemplating.el.PageSessionResolver;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
@@ -58,6 +59,7 @@ import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
 import com.sun.jsftemplating.layout.descriptors.LayoutInsert;
 import com.sun.jsftemplating.layout.descriptors.Resource;
+import com.sun.jsftemplating.util.LayoutElementUtil;
 import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.SimplePatternMatcher;
 import com.sun.jsftemplating.util.fileStreamer.Context;
@@ -473,19 +475,29 @@ public class LayoutViewHandler extends ViewHandler {
 		// NOTE: LayoutFacets that aren't JSF facets aren't
 		// NOTE: meaningful in this context
 	    } else if (childElt instanceof LayoutComposition) {
-		String template = ((LayoutComposition) childElt).getTemplate();
+		LayoutComposition compo = ((LayoutComposition) childElt);
+		String template = compo.getTemplate();
 		if (template != null) {
 		    // Add LayoutComposition to the stack
 		    Stack<LayoutElement> stack =
 			LayoutComposition.getCompositionStack(context);
 		    stack.push(childElt);
 
-		    // build tree from the LD of the template...
+		    // Check to see if this is a non-trimming composition
+		    // If so, we want to wrap it in a NamingContainer to
+		    // avoid namespace problems.
+		    if (!compo.isTrimming()) {
+			// Create a new NamingContainer to use as a parent to
+			// avoid the same component from being inserted 2x or
+			// other namespace collisions.
+			NamingContainer cont = new NamingContainer();
+			cont.setId(LayoutElementUtil.getGeneratedId("nc"));
+			parent.getChildren().add(cont);
+			parent = cont;
+		    }
+
 		    try {
-// FIXME: Compositions may need to add a fake UIComponent to the tree
-// FIXME: that is naming container in order to allow multiple UICompositions
-// FIXME: to exist side-by-side... otherwise it will find existing component
-// FIXME: instances and re-use them.
+			// Add the template here.
 			buildUIComponentTree(context, parent,
 			    LayoutDefinitionManager.getLayoutDefinition(
 				context, template));
@@ -493,6 +505,11 @@ public class LayoutViewHandler extends ViewHandler {
 			if (((LayoutComposition) childElt).isRequired()) {
 			    throw ex;
 			}
+		    }
+
+		    if (!compo.isTrimming()) {
+			// Restore the parent (b/c of added NamingContainer)
+			parent = parent.getParent();
 		    }
 
 		    // Remove the LayoutComposition from the stack
@@ -508,6 +525,14 @@ public class LayoutViewHandler extends ViewHandler {
 			    "'ui:insert' encountered, however, no "
 			    + "'ui:composition' was used!");
 		}
+
+		// Create a new NamingContainer to use as a parent to
+		// avoid the same component from being inserted 2x or
+		// other namespace collisions.
+		NamingContainer cont = new NamingContainer();
+		cont.setId(LayoutElementUtil.getGeneratedId("nc"));
+		parent.getChildren().add(cont);
+		parent = cont;
 
 		// Get associated UIComposition
 		String insertName = ((LayoutInsert) childElt).getName();
@@ -530,6 +555,9 @@ public class LayoutViewHandler extends ViewHandler {
 			buildUIComponentTree(context, parent, def);
 		    }
 		}
+
+		// Restore the parent (b/c of added NamingContainer)
+		parent = parent.getParent();
 	    } else if (childElt instanceof LayoutComponent) {
 		// Calling getChild will add the child UIComponent to tree
 		child = ((LayoutComponent) childElt).
