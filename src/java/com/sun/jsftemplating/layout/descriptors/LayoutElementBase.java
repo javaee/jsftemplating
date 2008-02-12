@@ -121,6 +121,13 @@ public abstract class LayoutElementBase implements LayoutElement {
 	    cur = cur.getParent();
 	}
 
+	// Incomplete LayoutElement trees may not have a LD at the root, make
+	// sure we have a LD.
+	if (!(cur instanceof LayoutDefinition)) {
+	    // Not a LD, there is no LD... set return value to null
+	    cur = null;
+	}
+
 	// This should be the LayoutDefinition, return it
 	return (LayoutDefinition) cur;
     }
