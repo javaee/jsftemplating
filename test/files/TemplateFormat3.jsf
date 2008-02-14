@@ -11,7 +11,7 @@
 		"single3" />
 	    <!decorate template="single4" />
 	    <!decorate template='single5' />
-	    <!decorate template:"single6" />
+	    <!decorate template:"Template.jsf" />
 	    <!decorate template:'"single7"' />
 	    <!decorate template = "single11" />
 	    <!decorate template= 'single12' />

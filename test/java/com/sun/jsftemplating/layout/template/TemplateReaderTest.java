@@ -97,14 +97,14 @@ public class TemplateReaderTest extends TestCase {
 	    // Find the body LayoutComponent
 	    LayoutElement body = ld.getChildLayoutElement("page");
 	    body = body.getChildLayoutElement("html").getChildLayoutElement("body");
-	    assertEquals("testReadComposition.body",
+	    assertEquals("testReadDecorate.body",
 		"body", body.getUnevaluatedId());
 
 	    // Find each composition component and check the results...
 	    List<LayoutElement> children = body.getChildLayoutElements();
 	    String[] results = {
 		    "single1", "single2", "single3",
-		    "single4", "single5", "single6",
+		    "single4", "single5", "Template.jsf",
 		    "\"single7\"", "single11", "single12",
 		    "single13", null, null, "mult2"
 		};
@@ -115,16 +115,20 @@ public class TemplateReaderTest extends TestCase {
 		};
 	    int idx = 0;
 	    for (LayoutElement child : children) {
-		assertTrue("testReadComposition.instanceof" + idx,
+		assertTrue("testReadDecorate.instanceof" + idx,
 		    child instanceof LayoutComposition);
-		assertEquals("testReadComposition.val" + idx,
+		assertEquals("testReadDecorate.val" + idx,
 		    results[idx], ((LayoutComposition) child).getTemplate());
-		assertEquals("testReadComposition.childSize" + idx,
+		assertEquals("testReadDecorate.childSize" + idx,
 		    resultChildSizes[idx++],
 		    child.getChildLayoutElements().size());
 	    }
-	    assertEquals("testReadComposition.childrenSize",
+	    assertEquals("testReadDecorate.childrenSize",
 		13, children.size());
+	    LayoutElement htmlElt = children.get(5).findLayoutElement("html");
+	    assertEquals("testReadDecorate.decorate.page.size",
+		2,
+		(htmlElt == null) ? 0 : htmlElt.getChildLayoutElements().size());
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	    fail(ex.getMessage());
