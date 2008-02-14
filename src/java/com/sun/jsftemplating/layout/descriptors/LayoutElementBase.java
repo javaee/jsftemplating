@@ -124,41 +124,52 @@ public abstract class LayoutElementBase implements LayoutElement {
 	// First look at all the immediate children, save compositions if
 	// we encounter them.
 	List<LayoutElement> children = getChildLayoutElements();
-	List<LayoutComposition> comps = new ArrayList<LayoutComposition>();
 	for (LayoutElement elt : children) {
-	    if (elt instanceof LayoutComposition) {
-		comps.add((LayoutComposition) elt);  // Add to list we need to search
-	    } else if (elt instanceof LayoutInsert) {
-		// FIXME: Look through Stack/List of compositions we've already walked for inserted value.
-	    } else {
-		if (id.equals(elt.getUnevaluatedId())) {
-		    // Found it!
-		    return elt;
-		}
+	    if (id.equals(elt.getUnevaluatedId())) {
+		// Found it!
+		return elt;
 	    }
 	}
 
-	// Next we need to walk the compositions (if any)...
+	// First make sure we aren't a LayoutComposition ourselves
 	LayoutElement result = null;
 	FacesContext context = FacesContext.getCurrentInstance();
-	for (LayoutComposition comp : comps) {
-	    String temp = comp.getTemplate();
-	    if (temp == null) {
-		// Just walk its children...
-		result = comp.findLayoutElement(id);
-	    } else {
+	if (this instanceof LayoutComposition) {
+	    // Add LayoutComposition to the stack
+	    Stack<LayoutElement> stack =
+		LayoutComposition.getCompositionStack(context);
+	    stack.push(this);
+
+	    // Find the new LD tree...
+	    LayoutDefinition def = LayoutDefinitionManager.getLayoutDefinition(
+		    context, ((LayoutComposition) this).getTemplate());
+
+	    // Recurse...
+	    result = def.findLayoutElement(id);
+	    stack.pop();
+	}
+
+	// Next we need to walk deeper...
+	for (LayoutElement elt : children) {
+	    if ((elt instanceof LayoutComposition)
+		    && (((LayoutComposition) elt).getTemplate() != null)) {
 		// Add LayoutComposition to the stack
 		Stack<LayoutElement> stack =
 		    LayoutComposition.getCompositionStack(context);
-		stack.push(comp);
+		stack.push(elt);
 
 		// Find the new LD tree...
 		LayoutDefinition def = LayoutDefinitionManager.getLayoutDefinition(
-			context, temp);
+			context, ((LayoutComposition) elt).getTemplate());
 
 		// Recurse...
 		result = def.findLayoutElement(id);
 		stack.pop();
+	    } else if (elt instanceof LayoutInsert) {
+		// FIXME: Look through Stack/List of compositions we've already walked for inserted value.
+	    } else {
+		// Just walk its children...
+		result = elt.findLayoutElement(id);
 	    }
 	    if (result != null) {
 // FIXME: Manage stack!!!
