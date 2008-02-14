@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -50,7 +51,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.sun.jsftemplating.component.NamingContainer;
 import com.sun.jsftemplating.el.PageSessionResolver;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
@@ -230,6 +230,10 @@ public class LayoutViewHandler extends ViewHandler {
 	    }
 
 	    // Get the Tree and pre-walk it
+	    if (LayoutDefinitionManager.isDebug()) {
+		// Make sure to reset all the client ids we're about to check
+		getClientIdMap(context).clear();
+	    }
 	    buildUIComponentTree(context, viewRoot, def);
 	}
 
@@ -483,19 +487,6 @@ public class LayoutViewHandler extends ViewHandler {
 			LayoutComposition.getCompositionStack(context);
 		    stack.push(childElt);
 
-		    // Check to see if this is a non-trimming composition
-		    // If so, we want to wrap it in a NamingContainer to
-		    // avoid namespace problems.
-		    if (!compo.isTrimming()) {
-			// Create a new NamingContainer to use as a parent to
-			// avoid the same component from being inserted 2x or
-			// other namespace collisions.
-			NamingContainer cont = new NamingContainer();
-			cont.setId(LayoutElementUtil.getGeneratedId("nc"));
-			parent.getChildren().add(cont);
-			parent = cont;
-		    }
-
 		    try {
 			// Add the template here.
 			buildUIComponentTree(context, parent,
@@ -505,11 +496,6 @@ public class LayoutViewHandler extends ViewHandler {
 			if (((LayoutComposition) childElt).isRequired()) {
 			    throw ex;
 			}
-		    }
-
-		    if (!compo.isTrimming()) {
-			// Restore the parent (b/c of added NamingContainer)
-			parent = parent.getParent();
 		    }
 
 		    // Remove the LayoutComposition from the stack
@@ -525,14 +511,6 @@ public class LayoutViewHandler extends ViewHandler {
 			    "'ui:insert' encountered, however, no "
 			    + "'ui:composition' was used!");
 		}
-
-		// Create a new NamingContainer to use as a parent to
-		// avoid the same component from being inserted 2x or
-		// other namespace collisions.
-		NamingContainer cont = new NamingContainer();
-		cont.setId(LayoutElementUtil.getGeneratedId("nc"));
-		parent.getChildren().add(cont);
-		parent = cont;
 
 		// Get associated UIComposition
 		String insertName = ((LayoutInsert) childElt).getName();
@@ -555,13 +533,24 @@ public class LayoutViewHandler extends ViewHandler {
 			buildUIComponentTree(context, parent, def);
 		    }
 		}
-
-		// Restore the parent (b/c of added NamingContainer)
-		parent = parent.getParent();
 	    } else if (childElt instanceof LayoutComponent) {
 		// Calling getChild will add the child UIComponent to tree
 		child = ((LayoutComponent) childElt).
 			getChild(context, parent);
+
+		if (LayoutDefinitionManager.isDebug()) {
+		    // To help developer avoid duplicate ids, we'll check the
+		    // ids here.
+		    Map idMap = getClientIdMap(context);
+		    String id = child.getClientId(context);
+		    if (idMap.containsKey(id)) {
+			throw new IllegalArgumentException("The clientId ("
+			    + id + ") appears more than once!  Make sure you "
+			    + "have not included multiple times in the same "
+			    + "NamingContainer.");
+		    }
+		    idMap.put(id, id);
+		}
 
 		// Check for events
 		// NOTE: For now I am only supporting "action" and
@@ -580,6 +569,22 @@ public class LayoutViewHandler extends ViewHandler {
 		buildUIComponentTree(context, parent, childElt);
 	    }
 	}
+    }
+
+    /**
+     *	<p> This method provides access to a <code>Map</code> of clientIds
+     *	    that have been used in this page.</p>
+     */
+    private static Map<String, String> getClientIdMap(FacesContext context) {
+	Map<String, Object> reqMap =
+		context.getExternalContext().getRequestMap();
+	Map<String, String> idMap = (Map<String, String>)
+		reqMap.get("__debugIdMap");
+	if (idMap == null) {
+	    idMap = new HashMap<String, String>();
+	    reqMap.put("__debugIdMap", idMap);
+	}
+	return idMap;
     }
 
     /**
