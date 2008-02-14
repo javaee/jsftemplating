@@ -20,7 +20,7 @@
  * 
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  */
-package com.sun.jsftemplating.component.factory.basic;
+package com.sun.jsftemplating.component.factory.ri;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -69,5 +69,5 @@ public class NamingContainerFactory extends ComponentFactoryBase {
      *	    <code>faces-config.xml</code> file mapping to the UIComponent class
      *	    to use for this <code>UIComponent</code>.</p>
      */
-    public static final String COMPONENT_TYPE	= "com.sun.jsftemplating.NamingContainer";
+    public static final String COMPONENT_TYPE	= "javax.faces.NamingContainer";
 }
