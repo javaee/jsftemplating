@@ -23,6 +23,7 @@
 package com.sun.jsftemplating;
 import com.sun.jsftemplating.layout.LayoutDefinitionManagerTest;
 import com.sun.jsftemplating.layout.facelets.FaceletsLayoutDefinitionReaderTest;
+import com.sun.jsftemplating.layout.template.EventParserCommandTest;
 import com.sun.jsftemplating.layout.template.TemplateParserTest;
 import com.sun.jsftemplating.layout.template.TemplateReaderTest;
 import com.sun.jsftemplating.layout.template.TemplateWriterTest;
@@ -41,6 +42,7 @@ public class UnitTests {
 	TestSuite tests = new TestSuite();
 	tests.addTestSuite(TemplateParserTest.class);
 	tests.addTestSuite(TemplateReaderTest.class);
+	tests.addTestSuite(EventParserCommandTest.class);
 	tests.addTestSuite(TemplateWriterTest.class);
 	tests.addTestSuite(FaceletsLayoutDefinitionReaderTest.class);
 	tests.addTestSuite(LayoutDefinitionManagerTest.class);
