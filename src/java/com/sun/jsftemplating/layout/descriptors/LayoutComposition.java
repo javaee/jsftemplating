@@ -4,11 +4,13 @@
 package com.sun.jsftemplating.layout.descriptors;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
@@ -155,7 +157,8 @@ public class LayoutComposition extends LayoutElementBase {
      *	    the {@link LayoutComposition}s that are used.</p>
      */
     public static Stack<LayoutElement> getCompositionStack(FacesContext context) {
-	Map requestMap = context.getExternalContext().getRequestMap();
+	Map<String, Object> requestMap = (context == null) ?
+		getTestMap() : context.getExternalContext().getRequestMap();
 	Stack<LayoutElement> stack = (Stack<LayoutElement>)
 	    requestMap.get(COMPOSITION_STACK_KEY);
 	if (stack == null) {
@@ -163,6 +166,17 @@ public class LayoutComposition extends LayoutElementBase {
 	    requestMap.put(COMPOSITION_STACK_KEY, stack);
 	}
 	return stack;
+    }
+
+    /**
+     *	<p> This method returns a <code>Map</code> that may be used to test
+     *	    this code outside JSF.</p>
+     */
+    private static Map<String, Object> getTestMap() {
+	if (_testMap == null) {
+	    _testMap = new HashMap<String, Object>();
+	}
+	return _testMap;
     }
 
     /**
@@ -182,4 +196,10 @@ public class LayoutComposition extends LayoutElementBase {
      *	    stack.</p>
      */
     private static final String COMPOSITION_STACK_KEY	= "_composition";
+
+    /**
+     *	<p> This Map exists to allow test cases to run w/o an ExternalContext
+     *	    "request map."</p>
+     */
+    private static Map _testMap = null;
 }
