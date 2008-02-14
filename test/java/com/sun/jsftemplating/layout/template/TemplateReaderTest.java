@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.layout.template;
 
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 
@@ -52,6 +53,78 @@ public class TemplateReaderTest extends TestCase {
 		new TemplateReader("foo", new URL("file:test/files/TemplateFormat.jsf"));
 	    LayoutDefinition ld = reader.read();
 //	    assertEquals("LayoutDefinition.unevaluatedId", "id1", ld.getUnevaluatedId());
+	} catch (Exception ex) {
+	    ex.printStackTrace();
+	    fail(ex.getMessage());
+	}
+    }
+
+    /**
+     *	<p> This test reads <code>test/files/TemplateFormat2.jsf</code>.  This
+     *	    file contains a bunch of {@link LayoutComposition} tags to
+     *	    ensure they are read correctly.</p>
+     */
+    public void testReadComposition() {
+	try {
+	    // Start reading...
+	    TemplateReader reader =
+		new TemplateReader("foo", new URL("file:test/files/TemplateFormat2.jsf"));
+	    LayoutDefinition ld = reader.read();
+
+	    // Find the body LayoutComponent
+	    LayoutElement body = ld.findLayoutElement("page").getChildLayoutElement("html").
+		    getChildLayoutElement("body");
+	    assertEquals("testReadComposition.body",
+		"body", body.getUnevaluatedId());
+
+	    // Find each composition component and check the results...
+	    LayoutElement child = body.getChildLayoutElement("form");
+	    assertEquals("testReadComposition.formId",
+		"form", child.getUnevaluatedId());
+	} catch (Exception ex) {
+	    ex.printStackTrace();
+	    fail(ex.getMessage());
+	}
+    }
+
+    public void testDecorate() {
+	try {
+	    // Start reading...
+	    TemplateReader reader =
+		new TemplateReader("foo", new URL("file:test/files/TemplateFormat3.jsf"));
+	    LayoutDefinition ld = reader.read();
+
+	    // Find the body LayoutComponent
+	    LayoutElement body = ld.getChildLayoutElement("page");
+	    body = body.getChildLayoutElement("html").getChildLayoutElement("body");
+	    assertEquals("testReadComposition.body",
+		"body", body.getUnevaluatedId());
+
+	    // Find each composition component and check the results...
+	    List<LayoutElement> children = body.getChildLayoutElements();
+	    String[] results = {
+		    "single1", "single2", "single3",
+		    "single4", "single5", "single6",
+		    "\"single7\"", "single11", "single12",
+		    "single13", null, null, "mult2"
+		};
+	    int[] resultChildSizes = {
+		    0, 0, 0, 0,
+		    0, 0, 0, 0, 0,
+		    0, 0, 1, 2
+		};
+	    int idx = 0;
+	    for (LayoutElement child : children) {
+		assertTrue("testReadComposition.instanceof" + idx,
+		    child instanceof LayoutComposition);
+		assertEquals("testReadComposition.val" + idx,
+		    results[idx], ((LayoutComposition) child).getTemplate());
+		assertEquals("testReadComposition.childSize" + idx,
+		    resultChildSizes[idx++],
+		    child.getChildLayoutElements().size());
+	    }
+	    assertEquals("testReadComposition.childrenSize",
+		13, children.size());
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	    fail(ex.getMessage());
