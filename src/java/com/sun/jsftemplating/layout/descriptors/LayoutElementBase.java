@@ -29,11 +29,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContextImpl;
@@ -105,6 +107,67 @@ public abstract class LayoutElementBase implements LayoutElement {
 	    }
 	}
 	return null;
+    }
+
+    /**
+     *	<p> This method searches the <code>LayoutElement</code> tree
+     *	    breadth-first for a <code>LayoutElement</code> with the given
+     *	    id.</p>
+     */
+    public LayoutElement findLayoutElement(String id) {
+	if (id == null) {
+	    return null;
+	}
+
+// FIXME: Generalize this code so we can use it when creating the tree as well as searching for stuff.
+
+	// First look at all the immediate children, save compositions if
+	// we encounter them.
+	List<LayoutElement> children = getChildLayoutElements();
+	List<LayoutComposition> comps = new ArrayList<LayoutComposition>();
+	for (LayoutElement elt : children) {
+	    if (elt instanceof LayoutComposition) {
+		comps.add((LayoutComposition) elt);  // Add to list we need to search
+	    } else if (elt instanceof LayoutInsert) {
+		// FIXME: Look through Stack/List of compositions we've already walked for inserted value.
+	    } else {
+		if (id.equals(elt.getUnevaluatedId())) {
+		    // Found it!
+		    return elt;
+		}
+	    }
+	}
+
+	// Next we need to walk the compositions (if any)...
+	LayoutElement result = null;
+	FacesContext context = FacesContext.getCurrentInstance();
+	for (LayoutComposition comp : comps) {
+	    String temp = comp.getTemplate();
+	    if (temp == null) {
+		// Just walk its children...
+		result = comp.findLayoutElement(id);
+	    } else {
+		// Add LayoutComposition to the stack
+		Stack<LayoutElement> stack =
+		    LayoutComposition.getCompositionStack(context);
+		stack.push(comp);
+
+		// Find the new LD tree...
+		LayoutDefinition def = LayoutDefinitionManager.getLayoutDefinition(
+			context, temp);
+
+		// Recurse...
+		result = def.findLayoutElement(id);
+		stack.pop();
+	    }
+	    if (result != null) {
+// FIXME: Manage stack!!!
+		break;
+	    }
+	}
+
+	// Return result if found
+	return result;
     }
 
     /**

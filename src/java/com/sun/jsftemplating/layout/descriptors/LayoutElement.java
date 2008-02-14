@@ -82,6 +82,13 @@ public interface LayoutElement extends java.io.Serializable {
     public LayoutElement getChildLayoutElement(String id);
 
     /**
+     *	<p> This method searches the <code>LayoutElement</code> tree
+     *	    breadth-first for a <code>LayoutElement</code> with the given
+     *	    id.</p>
+     */
+    public LayoutElement findLayoutElement(String id);
+
+    /**
      *	This method returns the parent LayoutElement.
      *
      *	@return	parent LayoutElement
