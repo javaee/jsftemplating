@@ -56,7 +56,7 @@ public class TemplateWriterTest extends TestCase {
 		new TemplateWriter(stream);
 	    writer.write(ld);
 // FIXME: Add some sort of check here
-	    System.err.println(stream.toString());
+//	    System.err.println(stream.toString());
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	    fail(ex.getMessage());
