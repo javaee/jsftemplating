@@ -31,6 +31,7 @@ import java.util.Map;
 
 import javax.el.ValueExpression;
 import javax.faces.component.ActionSource;
+import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
@@ -38,6 +39,7 @@ import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.event.CommandActionListener;
+import com.sun.jsftemplating.layout.event.ValueChangeListener;
 import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.TypeConverter;
 
@@ -104,11 +106,18 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 		desc.getEvaluatedOption(context, key, comp));
 	}
 
-	// Check for "Command" handlers...
+	// Check for "command" handlers...
 	List<Handler> handlers = desc.getHandlers(LayoutComponent.COMMAND);
 	if ((handlers != null) && (comp instanceof ActionSource)) {
 	    ((ActionSource) comp).addActionListener(
 		CommandActionListener.getInstance());
+	}
+
+	// Check for "valueChange" handlers...
+	handlers = desc.getHandlers(ValueChangeListener.VALUE_CHANGE);
+	if ((handlers != null) && (comp instanceof EditableValueHolder)) {
+	    ((EditableValueHolder) comp).addValueChangeListener(
+		ValueChangeListener.getInstance());
 	}
 
 	// Set the events on the new component
