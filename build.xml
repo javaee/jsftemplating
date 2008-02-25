@@ -5,13 +5,6 @@
     <property name="version" value="1.2-SNAPSHOT"/>
     <property file="build.properties" />
     <property file="user.properties" />
-    <property environment="env"/>
-    
-    <property name="tasks.home" value="${env.TASKS_HOME}"/>
-    <!--
-        <property environment="env" />
-        <property file="${user.home}/build.properties" />
-    -->
 
     <path id="dependencies">
         <pathelement location="${servlet-api.jar}" />
@@ -133,7 +126,10 @@
             <zipfileset dir="${jsftemplating.home}/layout/facelets" prefix="META-INF/" includes="*.dtd,*.ent" />
             <zipfileset dir="${jsftemplating.home}" prefix="META-INF" includes="faces-config.xml" />
         </jar>
-	<!-- <jar jarfile="${jsftemplating-src.jar}" basedir="${src}" excludes="**/CVS/*" update="true"/> -->
+    </target>
+
+    <target name="jarsrc" depends="jar" description="Package the project source">
+	 <jar jarfile="${jsftemplating-src.jar}" basedir="${src}" excludes="**/CVS/*" update="true"/>
     </target>
 
     <target name="javadoc" depends="build" description="Generate javadocs">
@@ -197,11 +193,14 @@
         <ant dir="samples" target="build" />
     </target>
     
-    <target name="nightly" depends="jar" description="Upload nightly build to java.net">
+    <target name="nightly" depends="jarsrc" description="Upload nightly build to java.net">
         <taskdef resource="org/kohsuke/javanettasks.properties">
             <classpath>
-                <pathelement location="${tasks.home}/javanettasks-1.0.12.jar"/>
-                <fileset dir="${tasks.home}/lib" includes="*.jar"/>
+                <pathelement location="${javanettasks.jar}"/>
+                <pathelement location="${httpunit.jar}"/>
+                <pathelement location="${nekohtml.jar}"/>
+                <pathelement location="${dom4j.jar}"/>
+                <!-- <fileset dir="${tasks.home}/lib" includes="*.jar"/> -->
             </classpath>
         </taskdef>
 	
@@ -233,7 +232,7 @@
         <delete dir="${build}/maven-repo" />
         <!-- clean it -->
         <maven-repository-importer destdir="${build}/maven-repo" version="${version}">
-            <artifact jar="${dist}/jsftemplating.jar" pom="jsftemplating.pom" srczip="${dist}/jsftemplating-src.jar"/>
+            <artifact jar="${dist}/jsftemplating.jar" pom="jsftemplating.pom" srczip="${jsftemplating-src.jar}"/>
             <artifact jar="${dist}/jsftemplating-dt.jar" pom="jsftemplating-dt.pom" />
             <artifact jar="${dist}/jsftemplating-dynafaces-0.1.jar" pom="jsftemplating-dynafaces-0.1.pom" />
         </maven-repository-importer>
