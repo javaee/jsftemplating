@@ -67,14 +67,27 @@ public class FormatDefinitionAPFactory implements AnnotationProcessorFactory, Ro
     }
 
     /**
-     *
+     *	<p> This method returns an {@link FormatDefinitionAP} for the
+     *	    {@link FormatDefinition} annotation.  It will return
+     *	    <code>AnnotationProcessors.NO_OP</code> if the types passed in are
+     *	    null, empty, or if there are no {@link FormatDefinition}
+     *	    annotations to process.  When this method returns a
+     *	    {@link FormatDefinitionAP}, it also opens the
+     *	    <code>FormatDefinition.map</code> file for writing.</p>
      */
     public AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> types, AnnotationProcessorEnvironment env) {
 	AnnotationProcessor processor = AnnotationProcessors.NO_OP;
 	if ((types != null) && (types.size() > 0)) {
-	    if (setup(env)) {
-		// We have stuff to do, and we're setup...
-		processor = new FormatDefinitionAP(env, _writer);
+	    // Get the supported annotation type (for @FormatDefinition)
+	    AnnotationTypeDeclaration decl = (AnnotationTypeDeclaration)
+		    env.getTypeDeclaration(FormatDefinition.class.getName());
+
+	    // Make sure we have annotations of this type to process...
+	    if (!env.getDeclarationsAnnotatedWith(decl).isEmpty()) {
+		if (setup(env)) {
+		    // We have stuff to do, and we're setup...
+		    processor = new FormatDefinitionAP(env, _writer);
+		}
 	    }
 	}
 	return processor;

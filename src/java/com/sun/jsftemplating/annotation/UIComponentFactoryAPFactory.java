@@ -67,14 +67,27 @@ public class UIComponentFactoryAPFactory implements AnnotationProcessorFactory, 
     }
 
     /**
-     *
+     *	<p> This method returns an {@link UIComponentFactoryAP} for the
+     *	    {@link UIComponentFactory} annotation.  It will return
+     *	    <code>AnnotationProcessors.NO_OP</code> if the types passed in are
+     *	    null, empty, or if there are no {@link UIComponentFactory}
+     *	    annotations to process.  When this method returns a
+     *	    {@link UIComponentFactoryAP}, it also opens the
+     *	    <code>UIComponentFactory.map</code> file for writing.</p>
      */
     public AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> types, AnnotationProcessorEnvironment env) {
 	AnnotationProcessor processor = AnnotationProcessors.NO_OP;
 	if ((types != null) && (types.size() > 0)) {
-	    if (setup(env)) {
-		// We have stuff to do, and we're setup...
-		processor = new UIComponentFactoryAP(env, _writer);
+	    // Get the supported annotation type (for @UIComponentFactory)
+	    AnnotationTypeDeclaration decl = (AnnotationTypeDeclaration)
+		    env.getTypeDeclaration(UIComponentFactory.class.getName());
+
+	    // Make sure we have annotations of this type to process...
+	    if (!env.getDeclarationsAnnotatedWith(decl).isEmpty()) {
+		if (setup(env)) {
+		    // We have stuff to do, and we're setup...
+		    processor = new UIComponentFactoryAP(env, _writer);
+		}
 	    }
 	}
 	return processor;
