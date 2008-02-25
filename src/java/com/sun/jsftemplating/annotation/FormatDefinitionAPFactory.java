@@ -74,7 +74,7 @@ public class FormatDefinitionAPFactory implements AnnotationProcessorFactory, Ro
 	if ((types != null) && (types.size() > 0)) {
 	    if (setup(env)) {
 		// We have stuff to do, and we're setup...
-		processor = new FormatDefinitionAP(types, env, _writer);
+		processor = new FormatDefinitionAP(env, _writer);
 	    }
 	}
 	return processor;

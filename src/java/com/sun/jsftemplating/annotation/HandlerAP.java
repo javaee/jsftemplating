@@ -59,14 +59,12 @@ public class HandlerAP implements AnnotationProcessor {
      *	    {@link com.sun.jsftemplating.component.factory.ComponentFactory}
      *	    class).</p>
      *
-     *	@param	types	The <code>AnnotationTypeDeclaration</code>s.
      *	@param	env	The <code>AnnotationProcessorEnvironment</code>.
      *	@param	writer	The <code>PrintWriter</code> used for output.
      */
-    public HandlerAP(Set<AnnotationTypeDeclaration> types, AnnotationProcessorEnvironment env, PrintWriter writer) {
+    public HandlerAP(AnnotationProcessorEnvironment env, PrintWriter writer) {
 	_writer = writer;
 	_env = env;
-	_types = types;
     }
 
     /**
@@ -77,11 +75,6 @@ public class HandlerAP implements AnnotationProcessor {
      *	<p> <code>[identifer]=[class name]</code></p>
      */
     public void process() {
-	if (_types == null) {
-	    // Nothing to do
-	    return;
-	}
-
 	// Temporary Variables
 	String key;
 	Object value;
@@ -89,104 +82,104 @@ public class HandlerAP implements AnnotationProcessor {
 	List<AnnotationValue> input;
 	List<AnnotationValue> output;
 
-	// Loop through the supported annotation types (only 1)
-	for (AnnotationTypeDeclaration decl : _types) {
-	    // Loop through the declarations that are annotated
-	    for (Declaration dec : _env.getDeclarationsAnnotatedWith(decl)) {
-		// Loop through the annotations on the current declartion
-		for (AnnotationMirror mirror : dec.getAnnotationMirrors()) {
-		    // Loop through the NVPs contained in the annotation
-		    id = null;
-		    input = null;
-		    output = null;
-		    for (Map.Entry<AnnotationTypeElementDeclaration, AnnotationValue> entry : mirror.getElementValues().entrySet()) {
-			// At this point I'm processing a "Handler" annotation
-			//   it may contain "id", "input", "output"
-			key = entry.getKey().getSimpleName();
-			value = entry.getValue().getValue();
-			if (key.equals(Handler.ID)) {
-			    // Found 'id', save it
-			    id = value.toString();
-			} else if (key.equals(Handler.INPUT)) {
-			    // Found inputs
-			    input = (List<AnnotationValue>) value;
-			} else if (key.equals(Handler.OUTPUT)) {
-			    // Found outputs
-			    output = (List<AnnotationValue>) value;
-			}
+	// Get the supported annotation type (only 1)
+	AnnotationTypeDeclaration decl = (AnnotationTypeDeclaration)
+		_env.getTypeDeclaration(Handler.class.getName());
+	// Loop through the declarations that are annotated
+	for (Declaration dec : _env.getDeclarationsAnnotatedWith(decl)) {
+	    // Loop through the annotations on the current declartion
+	    for (AnnotationMirror mirror : dec.getAnnotationMirrors()) {
+		// Loop through the NVPs contained in the annotation
+		id = null;
+		input = null;
+		output = null;
+		for (Map.Entry<AnnotationTypeElementDeclaration, AnnotationValue> entry : mirror.getElementValues().entrySet()) {
+		    // At this point I'm processing a "Handler" annotation
+		    //   it may contain "id", "input", "output"
+		    key = entry.getKey().getSimpleName();
+		    value = entry.getValue().getValue();
+		    if (key.equals(Handler.ID)) {
+			// Found 'id', save it
+			id = value.toString();
+		    } else if (key.equals(Handler.INPUT)) {
+			// Found inputs
+			input = (List<AnnotationValue>) value;
+		    } else if (key.equals(Handler.OUTPUT)) {
+			// Found outputs
+			output = (List<AnnotationValue>) value;
 		    }
+		}
 
-		    // Sanity Check
-		    if (id == null) {
-			_env.getMessager().printError(
-			    dec.getPosition(),
-			    "'id' not specified for annotation of method: '"
-			    + ((MemberDeclaration) dec).getDeclaringType().
-				getQualifiedName()
-			    + "." + dec.getSimpleName() + "'.");
-		    }
-
-		    // Check for duplicate handler definitions
-		    if (handlers.get(id) != null) {
-			_env.getMessager().printWarning(
-			    dec.getPosition(),
-			    "Handler with 'id' of '" + id + "' is declared more than once!'");
-		    }
-		    handlers.put(id, id);
-
-		    // Record class / method names (and javadoc comment)
-		    _writer.println(formatComment(dec.getDocComment()));
-		    _writer.println(id + ".class="
+		// Sanity Check
+		if (id == null) {
+		    _env.getMessager().printError(
+			dec.getPosition(),
+			"'id' not specified for annotation of method: '"
 			+ ((MemberDeclaration) dec).getDeclaringType().
-			    getQualifiedName());
-		    _writer.println(id + ".method=" + dec.getSimpleName());
+			    getQualifiedName()
+			+ "." + dec.getSimpleName() + "'.");
+		}
 
-		    // Now record inputs for this handler...
-		    if (input != null) {
-			writeIOProperties(id, "input", input);
-		    }
+		// Check for duplicate handler definitions
+		if (handlers.get(id) != null) {
+		    _env.getMessager().printWarning(
+			dec.getPosition(),
+			"Handler with 'id' of '" + id + "' is declared more than once!'");
+		}
+		handlers.put(id, id);
 
-		    // Now record outputs for this handler...
-		    if (output != null) {
-			writeIOProperties(id, "output", output);
-		    }
+		// Record class / method names (and javadoc comment)
+		_writer.println(formatComment(dec.getDocComment()));
+		_writer.println(id + ".class="
+		    + ((MemberDeclaration) dec).getDeclaringType().
+			getQualifiedName());
+		_writer.println(id + ".method=" + dec.getSimpleName());
 
-		    // Method signature checks...
-		    // Make sure method is accessible (public)
-		    if (!dec.getModifiers().contains(Modifier.PUBLIC)) {
-			_env.getMessager().printError(
-			    dec.getPosition(),
-			    "Annotated method: '"
-			    + ((MemberDeclaration) dec).getDeclaringType().
-				getQualifiedName()
-			    + "." + dec.getSimpleName()
-			    + "' should be declared public.");
-		    }
+		// Now record inputs for this handler...
+		if (input != null) {
+		    writeIOProperties(id, "input", input);
+		}
 
-		    // Make sure correct args are specified
-		    Collection<ParameterDeclaration> params =
-			((MethodDeclaration) dec).getParameters();
-		    String pdec = params.iterator().next().getType().toString();
-		    if ((params.size() != 1) || !pdec.equals(
-			    "com.sun.jsftemplating.layout.descriptors.handler.HandlerContext")) {
-			_env.getMessager().printError(
-			    dec.getPosition(),
-			    "Annotated method: '"
-			    + ((MemberDeclaration) dec).getDeclaringType().
-				getQualifiedName()
-			    + "." + dec.getSimpleName()
-			    + "' must contain a single parameter of type 'com."
-			    + "sun.jsftemplating.layout.descriptors.handler."
-			    + "HandlerContext', instead type: '"
-			    + pdec + "' was found.");
-		    }
+		// Now record outputs for this handler...
+		if (output != null) {
+		    writeIOProperties(id, "output", output);
+		}
+
+		// Method signature checks...
+		// Make sure method is accessible (public)
+		if (!dec.getModifiers().contains(Modifier.PUBLIC)) {
+		    _env.getMessager().printError(
+			dec.getPosition(),
+			"Annotated method: '"
+			+ ((MemberDeclaration) dec).getDeclaringType().
+			    getQualifiedName()
+			+ "." + dec.getSimpleName()
+			+ "' should be declared public.");
+		}
+
+		// Make sure correct args are specified
+		Collection<ParameterDeclaration> params =
+		    ((MethodDeclaration) dec).getParameters();
+		String pdec = params.iterator().next().getType().toString();
+		if ((params.size() != 1) || !pdec.equals(
+			"com.sun.jsftemplating.layout.descriptors.handler.HandlerContext")) {
+		    _env.getMessager().printError(
+			dec.getPosition(),
+			"Annotated method: '"
+			+ ((MemberDeclaration) dec).getDeclaringType().
+			    getQualifiedName()
+			+ "." + dec.getSimpleName()
+			+ "' must contain a single parameter of type 'com."
+			+ "sun.jsftemplating.layout.descriptors.handler."
+			+ "HandlerContext', instead type: '"
+			+ pdec + "' was found.");
+		}
 
 // FIXME: Consider an alternate method declaration that annotates a pojo method
 //	    @Handler(id="foo")
 //	    public String method(String a, String b, String c)
 //		annotates a handler "foo" with 3 inputs (a:String, b:String, c:String) and 1 output "result:String"
 //		Will need a special way to invoke this.
-		}
 	    }
 	}
     }
@@ -317,6 +310,5 @@ public class HandlerAP implements AnnotationProcessor {
 
     private PrintWriter _writer = null;
     private AnnotationProcessorEnvironment _env = null;
-    private Set<AnnotationTypeDeclaration> _types = null;
     private Map handlers = new HashMap();
 }

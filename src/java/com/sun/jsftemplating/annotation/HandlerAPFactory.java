@@ -81,7 +81,7 @@ public class HandlerAPFactory implements AnnotationProcessorFactory, RoundComple
 	if ((types != null) && (types.size() > 0)) {
 	    if (setup(env)) {
 		// We have stuff to do, and we're setup...
-		processor = new HandlerAP(types, env, _writer);
+		processor = new HandlerAP(env, _writer);
 	    }
 	}
 	return processor;

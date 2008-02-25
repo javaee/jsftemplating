@@ -52,14 +52,12 @@ public class UIComponentFactoryAP implements AnnotationProcessor {
      *	    {@link com.sun.jsftemplating.component.factory.ComponentFactory}
      *	    class).</p>
      *
-     *	@param	types	The <code>AnnotationTypeDeclaration</code>s.
      *	@param	env	The <code>AnnotationProcessorEnvironment</code>.
      *	@param	writer	The <code>PrintWriter</code> used for output.
      */
-    public UIComponentFactoryAP(Set<AnnotationTypeDeclaration> types, AnnotationProcessorEnvironment env, PrintWriter writer) {
+    public UIComponentFactoryAP(AnnotationProcessorEnvironment env, PrintWriter writer) {
 	_writer = writer;
 	_env = env;
-	_types = types;
     }
 
     /**
@@ -70,26 +68,22 @@ public class UIComponentFactoryAP implements AnnotationProcessor {
      *	<p> <code>[identifer]=[class name]</code></p>
      */
     public void process() {
-	if (_types == null) {
-	    // Nothing to do
-	    return;
-	}
+	// Get the support AnnotationTypeDeclaration (for @UIComponentFactory)
+	AnnotationTypeDeclaration decl = (AnnotationTypeDeclaration)
+		_env.getTypeDeclaration(UIComponentFactory.class.getName());
 
-	// Loop through the supported annotation types (only 1)
-	for (AnnotationTypeDeclaration decl : _types) {
-	    // Loop through the declarations that are annotated
-	    for (Declaration dec : _env.getDeclarationsAnnotatedWith(decl)) {
-		// Loop through the annotations on the current declartion
-		for (AnnotationMirror mirror : dec.getAnnotationMirrors()) {
-		    // Loop through the NVPs contained in the annotation
-		    for (Map.Entry<AnnotationTypeElementDeclaration, AnnotationValue> entry : mirror.getElementValues().entrySet()) {
-			if (entry.getKey().getSimpleName().equals(
-				UIComponentFactory.FACTORY_ID)) {
-			    // Write NVP using the PrintWriter
-			    _writer.println(
-				escape(entry.getValue().getValue().toString())
-				    + "=" + dec.toString());
-			}
+	// Loop through the declarations that are annotated
+	for (Declaration dec : _env.getDeclarationsAnnotatedWith(decl)) {
+	    // Loop through the annotations on the current declartion
+	    for (AnnotationMirror mirror : dec.getAnnotationMirrors()) {
+		// Loop through the NVPs contained in the annotation
+		for (Map.Entry<AnnotationTypeElementDeclaration, AnnotationValue> entry : mirror.getElementValues().entrySet()) {
+		    if (entry.getKey().getSimpleName().equals(
+			    UIComponentFactory.FACTORY_ID)) {
+			// Write NVP using the PrintWriter
+			_writer.println(
+			    escape(entry.getValue().getValue().toString())
+				+ "=" + dec.toString());
 		    }
 		}
 	    }
@@ -121,5 +115,4 @@ public class UIComponentFactoryAP implements AnnotationProcessor {
 
     private PrintWriter _writer = null;
     private AnnotationProcessorEnvironment _env = null;
-    private Set<AnnotationTypeDeclaration> _types = null;
 }

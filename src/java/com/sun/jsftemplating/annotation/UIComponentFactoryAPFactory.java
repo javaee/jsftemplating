@@ -74,7 +74,7 @@ public class UIComponentFactoryAPFactory implements AnnotationProcessorFactory, 
 	if ((types != null) && (types.size() > 0)) {
 	    if (setup(env)) {
 		// We have stuff to do, and we're setup...
-		processor = new UIComponentFactoryAP(types, env, _writer);
+		processor = new UIComponentFactoryAP(env, _writer);
 	    }
 	}
 	return processor;

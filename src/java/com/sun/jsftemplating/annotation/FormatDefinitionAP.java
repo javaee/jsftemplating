@@ -44,14 +44,12 @@ public class FormatDefinitionAP implements AnnotationProcessor {
      *	<p> This is the constructor for the {@link FormatDefinition}
      *	    <code>AnnotationProcessor</code>.</p>
      *
-     *	@param	types	The <code>AnnotationTypeDeclaration</code>s.
      *	@param	env	The <code>AnnotationProcessorEnvironment</code>.
      *	@param	writer	The <code>PrintWriter</code> used for output.
      */
-    public FormatDefinitionAP(Set<AnnotationTypeDeclaration> types, AnnotationProcessorEnvironment env, PrintWriter writer) {
+    public FormatDefinitionAP(AnnotationProcessorEnvironment env, PrintWriter writer) {
 	_writer = writer;
 	_env = env;
-	_types = types;
     }
 
     /**
@@ -62,26 +60,21 @@ public class FormatDefinitionAP implements AnnotationProcessor {
      *	<p> <code>[identifer]=[class name]</code></p>
      */
     public void process() {
-	if (_types == null) {
-	    // Nothing to do
-	    return;
-	}
+	// Get the supported annotation type (for @FormatDefinition)
+	AnnotationTypeDeclaration decl = (AnnotationTypeDeclaration)
+		_env.getTypeDeclaration(FormatDefinition.class.getName());
 
-	// Loop through the supported annotation types (only 1)
-	for (AnnotationTypeDeclaration decl : _types) {
-	    // Loop through the declarations that are annotated
-	    for (Declaration dec : _env.getDeclarationsAnnotatedWith(decl)) {
-		// Loop through the annotations on the current declartion
-		for (AnnotationMirror mirror : dec.getAnnotationMirrors()) {
+	// Loop through the declarations that are annotated
+	for (Declaration dec : _env.getDeclarationsAnnotatedWith(decl)) {
+	    // Loop through the annotations on the current declartion
+	    for (AnnotationMirror mirror : dec.getAnnotationMirrors()) {
 // FIXME: Add a check that ensures it's a LayoutDefinitionManager
-		    // Write classname using the PrintWriter
-		    _writer.println(dec.toString());
-		}
+		// Write classname using the PrintWriter
+		_writer.println(dec.toString());
 	    }
 	}
     }
 
     private PrintWriter _writer = null;
     private AnnotationProcessorEnvironment _env = null;
-    private Set<AnnotationTypeDeclaration> _types = null;
 }
