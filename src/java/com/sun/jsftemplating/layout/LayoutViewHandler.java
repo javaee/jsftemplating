@@ -606,6 +606,33 @@ public class LayoutViewHandler extends ViewHandler {
 	// Perform default behavior...
 	UIViewRoot root = _oldViewHandler.restoreView(context, viewId);
 
+	// We can check for JSFT UIViewRoots by calling
+	// getLayoutDefinitionKey(root) as this will return null if not JSFT
+	String key = ViewRootUtil.getLayoutDefinitionKey(root);
+	if (key != null) {
+	    // Set the View Root to the new viewRoot (needed for initPage)
+	    // NOTE: See createView note about saving / restoring the original
+	    // NOTE: UIViewRoot and issue with setting it to (null).
+	    // NOTE: restoreView is less important b/c it is not normally
+	    // NOTE: called by a developer or framework as navigation rules
+	    // NOTE: will call createView.  For this reason, I am not resetting
+	    // NOTE: the UIViewRoot for now.
+	    context.setViewRoot(root);
+
+	    // Call getLayoutDefinition() to ensure initPage events are fired, only
+	    // do this for JSFT ViewRoots.  Its good to call this after restoreView
+	    // as we need the UIViewRoot available during initPage events.
+	    // Formerly this was done during the ApplyRequestValuesPhase, however,
+	    // I no longer have a custom UIViewRoot to use for this purpose, so I
+	    // will do it here, which should be just as good.
+	    LayoutDefinition def = ViewRootUtil.getLayoutDefinition(key);
+
+	    // While we're at it, we should call the LD decode() event so we
+	    // can provide a page-level decode() functionality.  This won't
+	    // effect components in the page, or JSFT-based components.
+	    def.decode(context, root);
+	}
+
 	// Return the UIViewRoot
 	return root;
     }
