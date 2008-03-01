@@ -24,6 +24,7 @@ package com.sun.jsftemplating.util;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -56,10 +57,80 @@ public class Util {
 	if (loader == null) {
 	    if (obj != null) {
 		loader = obj.getClass().getClassLoader();
-	    } else {
-		loader = ClassLoader.getSystemClassLoader();
 	    }
 	}
+
+	// Wrap with custom ClassLoader if specified
+	loader = getCustomClassLoader(loader);
+
+	return loader;
+    }
+// NOTE: Maybe in addition to getClassLoader, we should have Iterator<ClassLoader> getClassLoaders() for cases where we want to attempt multiple ClassLoaders
+
+    /**
+     *	<p> Method to get the custom <code>ClassLoader</code> if one exists.
+     *	    If one does not exist, it will return the
+     *	    <code>ClassLoader</code> that is passed in.  If (null) is passed
+     *	    in for the parent <code>ClassLoader</code>, it will get the
+     *	    <b>System</b> <code>ClassLoader</code>, not the context
+     *	    <code>ClassLoader</code> or any other one.</p>
+     */
+    private static ClassLoader getCustomClassLoader(ClassLoader parent) {
+	// Figure out the parent ClassLoader
+	parent = (parent == null) ? ClassLoader.getSystemClassLoader() : parent;
+
+	// Check to see if we've calculated the ClassLoader for this parent
+	ClassLoader loader = classLoaderCache.get(parent);
+	if (loader != null) {
+//System.out.println("CACHED: " + loader);
+	    return loader;
+	}
+	loader = parent;
+
+	// Look to see if a custom ClassLoader was specified via an initParam
+	String clsName = (String) FacesContext.getCurrentInstance().
+	    getExternalContext().getInitParameterMap().get(CUSTOM_CLASS_LOADER);
+//System.out.println("Looking for new CL for parent: " + loader.getClass().getName());
+	if (clsName != null) {
+	    if (clsName.equals(loader.getClass().getName())) {
+		// It has already been wrapped
+		return loader;
+	    }
+	    try {
+		// Intantiate the custom classloader w/ "loader" as its parent
+		Class cls = Class.forName(clsName, true, parent);
+		loader = (ClassLoader) cls.getConstructor(
+			new Class[] {ClassLoader.class}).newInstance(parent);
+
+		// Set custom classloader as the context-classloader... This
+		// didn't work, JSF blew up... revisit this if necessary
+//		Thread.currentThread().setContextClassLoader(loader);
+	    } catch (ClassNotFoundException ex) {
+		throw new IllegalArgumentException("Unable to load class ("
+		    + clsName + ").  Make sure your context-param is "
+		    + "specified correctly and that your custom ClassLoader "
+		    + "is included in your application.", ex);
+	    } catch (NoSuchMethodException ex) {
+		throw new IllegalArgumentException("Unable to load class ("
+		    + clsName + ").  You must have a constructor that "
+		    + "allows the parent ClassLoader to be provided on your "
+		    + "custom ClassLoader.", ex);
+	    } catch (InstantiationException ex) {
+		throw new RuntimeException("Unable to instantiate class ("
+		    + clsName + ")!", ex);
+	    } catch (IllegalAccessException ex) {
+		throw new RuntimeException("Unable to access class ("
+		    + clsName + ")!", ex);
+	    } catch (java.lang.reflect.InvocationTargetException ex) {
+		throw new RuntimeException("Unable to instantiate class ("
+		    + clsName + ")!", ex);
+	    }
+	}
+
+	// Cache for next time
+	classLoaderCache.put(parent, loader);
+
+	// Return the ClassLoader (may be the same one passed in)
 	return loader;
     }
 
@@ -254,4 +325,17 @@ public class Util {
 	}
     }
 
+    /**
+     *	<p> This stores <code>CustomClassLoader</code>s keyed by the parent
+     *	    <code>ClassLoader</code>.</p>
+     */
+    private static Map<ClassLoader, ClassLoader> classLoaderCache =
+	new HashMap<ClassLoader, ClassLoader>(5);
+
+    /**
+     *	<p> This is the context-param that specifies the JSFTemplating
+     *	    custom <code>ClassLoader</code> to use.</p>
+     */
+    public static final String	CUSTOM_CLASS_LOADER =
+	"com.sun.jsftemplating.CLASSLOADER";
 }
