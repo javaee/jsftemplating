@@ -32,15 +32,15 @@ import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 
 /**
  *  <p>	This factory is responsible for instantiating a jMaki <code>
- *	AjaxWrapper UIComponent</code>.</p>
+ *	Page UIComponent</code>.</p>
  *
  *  <p>	The {@link com.sun.jsftemplating.layout.descriptors.ComponentType}
- *	id for this factory is: "<b>jmaki:ajax</b>".</p>
+ *	id for this factory is: "<b>jmaki:page</b>".</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
-@UIComponentFactory("jmaki:ajax")
-public class AjaxWrapperFactory extends ComponentFactoryBase {
+@UIComponentFactory("jmaki:page")
+public class PageFactory extends ComponentFactoryBase {
 
     /**
      *	<p> This is the factory method responsible for creating the
@@ -51,7 +51,7 @@ public class AjaxWrapperFactory extends ComponentFactoryBase {
      *			    with the requested <code>UIComponent</code>.
      *	@param	parent	    The parent <code>UIComponent</code>
      *
-     *	@return	The newly created <code>AjaxWrapper</code>.
+     *	@return	The newly created <code>Page</code>.
      */
     public UIComponent create(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	// Create the UIComponent
@@ -69,5 +69,5 @@ public class AjaxWrapperFactory extends ComponentFactoryBase {
      *	    <code>faces-config.xml</code> file mapping to the UIComponent class
      *	    to use for this <code>UIComponent</code>.</p>
      */
-    public static final String COMPONENT_TYPE	= "AjaxWrapper";
+    public static final String COMPONENT_TYPE	= "jmaki.Page";
 }
