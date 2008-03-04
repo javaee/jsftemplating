@@ -57,6 +57,9 @@ public class ResourcesFactory extends ComponentFactoryBase {
 	// Create the UIComponent
 	UIComponent comp = createComponent(context, COMPONENT_TYPE, descriptor, parent);
 
+	// jMaki doesn't do this -- 3/4/2008
+	comp.setRendererType("jmaki.ResourcesRenderer");
+
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);
 

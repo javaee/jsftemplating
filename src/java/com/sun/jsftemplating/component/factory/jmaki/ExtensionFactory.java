@@ -57,6 +57,9 @@ public class ExtensionFactory extends ComponentFactoryBase {
 	// Create the UIComponent
 	UIComponent comp = createComponent(context, COMPONENT_TYPE, descriptor, parent);
 
+	// jMaki doesn't do this -- 3/4/2008
+	comp.setRendererType("jmaki.ExtensionRenderer");
+
 	// Set all the attributes / properties
 	setOptions(context, descriptor, comp);
 
