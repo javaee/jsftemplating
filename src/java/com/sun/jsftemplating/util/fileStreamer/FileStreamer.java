@@ -263,7 +263,7 @@ public class FileStreamer {
 	mimeTypes.put("jpeg", "image/jpeg");
 	mimeTypes.put("jpe", "image/jpeg");
 	mimeTypes.put("jpg", "image/jpeg");
-	mimeTypes.put("js", "text/x-javascript");
+	mimeTypes.put("js", "application/javascript");
 	mimeTypes.put("jsf", "text/plain");
 	mimeTypes.put("m3u", "audio/x-mpegurl");
 	mimeTypes.put("maker", "application/x-maker");
