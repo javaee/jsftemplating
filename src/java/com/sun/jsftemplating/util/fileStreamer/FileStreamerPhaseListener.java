@@ -4,6 +4,10 @@
  */
 package com.sun.jsftemplating.util.fileStreamer;
 
+import com.sun.jsftemplating.annotation.Handler;
+import com.sun.jsftemplating.annotation.HandlerInput;
+import com.sun.jsftemplating.annotation.HandlerOutput;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.util.LogUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,7 +21,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- *
+ * <code>FileStreamerPhaseListener</code> provides a {@link PhaseListener} to wrap JSFTemplating's {@link FileStreamer} utility,
+ * a utility method to construct a <code>FileStreamPhaseListener</code>-compatible URL, and an event {@link Handler}
+ * to expose the utility method to the PDL.
  * @author Jason CTR Lee
  */
 public class FileStreamerPhaseListener implements PhaseListener {
@@ -91,9 +97,26 @@ public class FileStreamerPhaseListener implements PhaseListener {
         }
     }
 
+    /**
+     * This utility method will create a URL referencing the specifed resource, using the
+     * <code>contentSourceId</code> specified.  If the <code>contentSourceId</code> is null, 
+     * the default {@link ContentSource} ({@link Context#DEFAULT_CONTENT_SOURCE_ID Context.DEFAULT_CONTENT_SOURCE_ID}) 
+     * will be used instead.  The resulting URL will be recognizable by <code>FileStreamerPhaseListener</code>.  
+     * It will begin at the context root, leaving off the protocol, host, port, etc., 
+     * expecting the browser to complete the URL.  This will allow this method to work in 
+     * situations where the server sits on a private network, with network parameters that 
+     * differ from the public-facing server which took and forwarded the initial request.
+     * @param context The <code>FacesContext</code> of the current request
+     * @param contentSourceId The ID of the {@link ContentSource} which should be used to resolve the resource
+     * @param path The path to the desired resource
+     * @return The URL representing the resource
+     */
     public static String createResourceUrl(FacesContext context,
             String contentSourceId,
             String path) {
+        if (context == null) {
+            context = FacesContext.getCurrentInstance(); // Likely performance hit with this ThreadLocal look up.  DON'T DO THIS! :)
+        }
         StringBuilder sb = new StringBuilder(64);
         sb.append(context.getExternalContext().getRequestContextPath());
         String mapping = getFacesMapping(context);
@@ -222,5 +245,38 @@ public class FileStreamerPhaseListener implements PhaseListener {
 
     public void afterPhase(PhaseEvent arg0) {
         // no op
+    }
+
+    /**
+     * This handler will create a <code>FileStreamPhaseListener</code> resource URL for the 
+     * specified resource, using the <code>contentSourceId</code> provided, by calling 
+     * {@link FileStreamerPhaseListener#createResourceUrl FileStreamerPhaseListener.createResourceUrl()}.<br />
+     * Inputs:
+     * <ul>
+     * <li><code>path</code>: the path to the resource</li>
+     * <li><code>contentSourceId</code>: the ID of the ContentSource to use in the URL. If this is
+     * not provided {@link FileStreamerPhaseListener#createResourceUrl FileStreamerPhaseListener.createResourceUrl()} will
+     * use the default {@link ContentSource}.</li>
+     * </ul>
+     * Output:
+     * <ul>
+     * <li>url: the <code>FileStreamerPhaseListener</code>-compatible resource URL</li>
+     * </ul>
+     * @param context
+     */
+    @Handler (id="fileStreamer.getResourceUrl",
+        input={
+	    @HandlerInput(name="path", type=String.class, required=true),
+            @HandlerInput(name="contentSourceId", type=String.class)
+	},
+	output={
+	    @HandlerOutput(name="url", type=String.class)
+	}
+    )
+    public static void getResourceUrl(HandlerContext context) {
+        String path = (String) context.getInputValue("path");
+        String contentSourceId = (String) context.getInputValue("contentSourceId");
+        context.setOutputValue("url", FileStreamerPhaseListener.createResourceUrl(context.getFacesContext(), 
+                contentSourceId, path));
     }
 }
