@@ -64,6 +64,7 @@ import javax.faces.application.Application;
 import javax.faces.application.ApplicationFactory;
 import javax.faces.context.FacesContext;
 
+
 /**
  * @author Jason Lee
  *
@@ -72,9 +73,10 @@ public class FaceletsLayoutDefinitionReader {
     private URL url;
     private String key;
     private Document document;
-    private int _idNumber	    = 1;
+    private int _idNumber;
 
     public FaceletsLayoutDefinitionReader(String key, URL url) {
+	_idNumber = LayoutElementUtil.getStartingIdNumber(key);
 	InputStream is = null;
 	BufferedInputStream bs = null;
 	try{
@@ -422,7 +424,8 @@ public class FaceletsLayoutDefinitionReader {
      *	    increment the id number.</p>
      */
     public int getNextIdNumber() {
+	// Make sure we increment the global counter, if appropriate
+	LayoutElementUtil.incHighestId(_idNumber);
 	return _idNumber++;
     }
-
 }

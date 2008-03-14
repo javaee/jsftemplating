@@ -73,6 +73,7 @@ public class TemplateReader {
 		    "Template id's may not be null!");
 	}
 	_id = id;
+	_idNumber = LayoutElementUtil.getStartingIdNumber(id);
 	_tpl = new TemplateParser(url);
     }
 
@@ -651,6 +652,8 @@ public class TemplateReader {
      *	    increment the id number.</p>
      */
     public int getNextIdNumber() {
+	// Make sure we increment the global counter, if appropriate
+	LayoutElementUtil.incHighestId(_idNumber);
 	return _idNumber++;
     }
 
@@ -986,6 +989,6 @@ public class TemplateReader {
     private Stack<String> _tagStack = new Stack<String>();
 
     private TemplateParser  _tpl    = null;
-    private int _idNumber	    = 1;
+    private int _idNumber;
     private String _id		    = null; // The id of the LayoutDefinition
 }

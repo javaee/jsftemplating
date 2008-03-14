@@ -27,6 +27,8 @@ import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.LayoutFacet;
 
 import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -119,12 +121,12 @@ public class LayoutElementUtil {
      *	    this implementation, it may change in the future.</p>
      *
      *	<p> Since this implementation increments the number each call, it does
-     *	    not produce reproducible results between pages.  You may want to
-     *	    pass in your own number to use, see
+     *	    not produce reproducible results between pages.  You should pass in
+     *	    your own number to use, see
      *	    {@link #getGeneratedId(String, int)}.</p>
      */
     public static String getGeneratedId(String base) {
-	return getGeneratedId(base, (_idNum++ % MAX_ID));
+	return getGeneratedId(base, incHighestId(_highId));
     }
 
     /**
@@ -162,6 +164,30 @@ public class LayoutElementUtil {
 	    }
 	}
 	return base + num;
+    }
+
+    /**
+     *	<p> This method returns the next id that has not been used.</p>
+     */
+    public static synchronized int getStartingIdNumber(String key) {
+	Integer start = startMap.get(key);
+	if (start == null) {
+	    // Save for later
+	    start = incHighestId(_highId);
+	    startMap.put(key, start);
+	}
+	return start;
+    }
+
+    /**
+     *	<p> This method ensures the highest id is higher than the given
+     *	    int.</p>
+     */
+    public static synchronized int incHighestId(int num) {
+	if (num >= _highId) {
+	    _highId = num + 1;
+	}
+	return _highId;
     }
 
     /**
@@ -228,8 +254,10 @@ public class LayoutElementUtil {
      *	    this will ever be necessary (id's can be specified, and this many
      *	    unspecified ids is unlikely to be needed on a single page!).</p>
      */
-    public  static int	MAX_ID			= 0x00010000;
-    private static int	_idNum			= 1;
+//    public  static int	MAX_ID			= 0x00010000;
+    private static int _highId = 0;
+    private static Map<String, Integer> startMap =
+	    new ConcurrentHashMap<String, Integer>();
 
     public static final String DEFAULT_ID_BASE	= "id";
 }
