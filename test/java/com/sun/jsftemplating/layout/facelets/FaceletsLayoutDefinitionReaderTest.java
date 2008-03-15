@@ -67,6 +67,29 @@ public class FaceletsLayoutDefinitionReaderTest extends TestCase {
             fail();
         }
     }
+
+    public void timeTest(String fileName, int iterations) {
+        try {
+	    java.util.Date start = new java.util.Date();
+	    for (int x=0; x<iterations; x++) {
+		FaceletsLayoutDefinitionReader reader =
+		    new FaceletsLayoutDefinitionReader("foo", new URL(fileName));
+		LayoutDefinition ld = reader.read();
+	    }
+	    java.util.Date end = new java.util.Date();
+System.out.println("Faclets performance " + fileName + " (" + iterations + "), lower is better: " + (end.getTime() - start.getTime()));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            fail();
+        }
+    }
+
+    public void testSpeed() {
+	timeTest("file:test/files/speed-s.xhtml", 500);
+//	timeTest("file:test/files/speed-m.xhtml", 500);
+//	timeTest("file:test/files/speed-l.xhtml", 500);
+//	timeTest("file:test/files/speed-xl.xhtml", 500);
+    }
     
     /**
      * 

@@ -59,6 +59,29 @@ public class TemplateReaderTest extends TestCase {
 	}
     }
 
+    public void timeTest(String fileName, int iterations) {
+        try {
+	    java.util.Date start = new java.util.Date();
+	    for (int x=0; x<iterations; x++) {
+		TemplateReader reader =
+		    new TemplateReader("foo", new URL(fileName));
+		LayoutDefinition ld = reader.read();
+	    }
+	    java.util.Date end = new java.util.Date();
+System.out.println("Template performance " + fileName + " (" + iterations + "), lower is better: " + (end.getTime() - start.getTime()));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            fail();
+        }
+    }
+
+    public void testSpeed() {
+	timeTest("file:test/files/speed-s.jsf", 500);
+//	timeTest("file:test/files/speed-m.jsf", 500);
+//	timeTest("file:test/files/speed-l.jsf", 500);
+//	timeTest("file:test/files/speed-xl.jsf", 500);
+    }
+
     /**
      *	<p> This test reads <code>test/files/TemplateFormat2.jsf</code>.  This
      *	    file contains a bunch of {@link LayoutComposition} tags to
