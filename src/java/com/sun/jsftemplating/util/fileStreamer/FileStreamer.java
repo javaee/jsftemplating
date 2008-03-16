@@ -31,7 +31,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.sun.jsftemplating.util.Util;
-
+import java.io.File;
+import java.util.Properties;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
 
 /**
  *  <p>	This class provides the ability to retrieve information from an
@@ -45,12 +53,34 @@ import com.sun.jsftemplating.util.Util;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class FileStreamer {
+    public static final String CONTENT_SOURCES = "contentSources";
 
     /**
      *	<p> Only instantiate via factory method.</p>
      */
     private FileStreamer() {
-	super();
+        super();
+        try {
+            ServletContext sc = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+            @SuppressWarnings("unchecked")
+            Set<String> paths = (Set<String>) sc.getResourcePaths("/WEB-INF/lib/");
+            for (String path : paths) {
+                if ("jar".equalsIgnoreCase(path.substring(path.length() - 3))) {
+                    JarFile jarFile = new JarFile(new File(sc.getResource(path).getFile()));
+                    ZipEntry jarEntry = jarFile.getEntry("META-INF/jsftemplating/fileStreamer.properties");
+                    if (jarEntry != null) {
+                        Properties props = new Properties();
+                        InputStream is = jarFile.getInputStream(jarEntry);
+                        props.load(is);
+                        is.close();
+                        jarFile.close();
+                        processFileStreamerProperties(props);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(FileStreamer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -139,9 +169,21 @@ public class FileStreamer {
 	// Write Content
 	writeContent(source, ctx);
 
-	// Clean Up
-	source.cleanUp(ctx);
+        // Clean Up
+        source.cleanUp(ctx);
     }
+    
+    
+    protected void processFileStreamerProperties(Properties props) {
+        String contentSourcesProp = (String)props.get(CONTENT_SOURCES);
+        if ((contentSourcesProp != null) && (contentSourcesProp.length() > 0)) {
+            String[] contentSources = contentSourcesProp.split(",");
+            for (String cs : contentSources) {
+                this.registerContentSource(cs);
+            }
+        }
+    }
+
 
     /**
      *	<p> This method is responsible for copying the data from the given
@@ -151,49 +193,50 @@ public class FileStreamer {
      *	    </p>
      */
     protected void writeContent(ContentSource source, Context context) throws IOException {
-	// Get the InputStream
-	InputStream in = source.getInputStream(context);
+        // Get the InputStream
+        InputStream in = source.getInputStream(context);
 
-	// Get the OutputStream
-	if (in == null) {
+        // Get the OutputStream
+        if (in == null) {
 // FIXME: Provide generic "response complete" flag & check this before throwing an exception...
-	    throw new FileNotFoundException();
+            throw new FileNotFoundException();
 //	    String jspPage = (String) context.getAttribute("JSP_PAGE_SERVED"); 
 //	    if (jspPage != null && (jspPage.equals("false"))) {
 //		try {
-		    //Mainly to take care of javahelp2, bcz javahelp2 code needs an Exception to be thrown for FileNotFound.
-		    //We may have to localize this message.
+        //Mainly to take care of javahelp2, bcz javahelp2 code needs an Exception to be thrown for FileNotFound.
+        //We may have to localize this message.
 //		    ((HttpServletResponse)resp).sendError(404, "File Not Found");
 //		} catch (IOException ex) {
-		    //squelch it, just return.
+        //squelch it, just return.
 //		}
 //	    }
 
-	    // nothing to write, already done
+        // nothing to write, already done
 //	    return;
-	}
+        }
 
-	OutputStream out = context.getOutputStream();
+        OutputStream out = context.getOutputStream();
 
-	// Get the InputStream
-	InputStream stream = new BufferedInputStream(in);
+        // Get the InputStream
+        InputStream stream = new BufferedInputStream(in);
 
-	// Write the header
-	context.writeHeader(source);
+        // Write the header
+        context.writeHeader(source);
 
-	// Copy the data to the ServletOutputStream
-	byte [] buf = new byte[512]; // Set our buffer at 512 bytes
-	int read = stream.read(buf, 0, 512);
-	while (read != -1) {
-	    // Write data from the OutputStream to the InputStream
-	    out.write(buf, 0, read);
+        // Copy the data to the ServletOutputStream
+        byte[] buf = new byte[512]; // Set our buffer at 512 bytes
 
-	    // Read more...
-	    read = stream.read(buf, 0, 512);
-	}
+        int read = stream.read(buf, 0, 512);
+        while (read != -1) {
+            // Write data from the OutputStream to the InputStream
+            out.write(buf, 0, read);
 
-	// Close the Stream
-	stream.close();
+            // Read more...
+            read = stream.read(buf, 0, 512);
+        }
+
+        // Close the Stream
+        stream.close();
     }
 
     /**
@@ -346,7 +389,6 @@ public class FileStreamer {
      *	<p> The Default Content-type ("application/octet-stream").</p>
      */
     public static final String DEFAULT_CONTENT_TYPE =
-	    "application/octet-stream";
-
-    private static FileStreamer    _streamer	= new FileStreamer();
+            "application/octet-stream";
+    private static FileStreamer _streamer = new FileStreamer();
 }
