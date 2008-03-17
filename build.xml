@@ -65,11 +65,10 @@
     <!-- This target builds the custom processors for apt -->
     <target name="compile-apt-files" description="Compile the apt-generated files">
         <mkdir dir="${aptbuild}/." />
-        <echo message="${java.home}" />
 
         <!-- Compile the java code from ${src} into ${aptbuild} -->
         <javac srcdir="${src}" destdir="${aptbuild}/." includes="**/annotation/**.java" debug="${compile.debug}"
-            deprecation="${compile.deprecation}" optimize="${compile.optimize}">
+            deprecation="${compile.deprecation}" optimize="${compile.optimize}" target="${compile.target}" source="${source.version}">
             <classpath refid="dependencies" />
         </javac>
     </target>
@@ -85,14 +84,15 @@
 
     <target name="compile" depends="init, jar-apt-files" description="Compile source">
         <mkdir dir="${build}/." />
-	<echo>${jsf-api.jar}</echo>
 	<apt	srcdir="${src}"
 		fork="true"
 		destdir="${build}/."
 		debug="${compile.debug}"
 		deprecation="${compile.deprecation}"
 		excludes="**/annotation/**"
-		optimize="${compile.optimize}">
+		optimize="${compile.optimize}"
+		target="${compile.target}"
+		source="${source.version}">
 	    <classpath refid="dependencies" />
 	</apt>
     </target>
@@ -173,7 +173,7 @@
 
         <!-- Compile the java code from ${src} into ${build} -->
         <javac srcdir="${test}/java" destdir="${test}/build/." debug="${compile.debug}"
-            deprecation="${compile.deprecation}" optimize="${compile.optimize}">
+            deprecation="${compile.deprecation}" optimize="${compile.optimize}" target="${compile.target}" source="${source.version}">
             <classpath refid="test-compile-dependencies" />
         </javac>
     </target>
@@ -223,7 +223,7 @@
                        overwrite="yes"/>
     </target>
     
-    <target name="push-to-maven-prepare">
+    <target name="push-to-maven-prepare" depends="jar,jarsrc">
         <taskdef resource="maven-repository-importer.properties">
             <classpath>
                 <pathelement path="${maven-repository-importer.jar}" />

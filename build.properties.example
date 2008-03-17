@@ -49,10 +49,11 @@ dataprovider.jar=lib/external/woodstock/dataprovider.jar
 
 jsftemplating.home=${src}/com/sun/jsftemplating
 
-
+source.version=1.5
 compile.debug=true
 compile.optimize=false
 compile.deprecation=false
+compile.target=1.5
 
 #proxy.host=
 #proxy.port=
