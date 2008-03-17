@@ -88,8 +88,12 @@ public class Util {
 	loader = parent;
 
 	// Look to see if a custom ClassLoader was specified via an initParam
-	String clsName = (String) FacesContext.getCurrentInstance().
-	    getExternalContext().getInitParameterMap().get(CUSTOM_CLASS_LOADER);
+	FacesContext ctx = FacesContext.getCurrentInstance();
+	String clsName = null;
+	if (ctx != null) {
+	    clsName = (String) ctx.getExternalContext().
+		    getInitParameterMap().get(CUSTOM_CLASS_LOADER);
+	}
 //System.out.println("Looking for new CL for parent: " + loader.getClass().getName());
 	if (clsName != null) {
 	    if (clsName.equals(loader.getClass().getName())) {
