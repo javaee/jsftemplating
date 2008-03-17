@@ -245,7 +245,17 @@ public class FileStreamer {
      *	    <code>null</code> will be returned.</p>
      */
     public static String getMimeType(String extension) {
-	return mimeTypes.get(extension.toLowerCase());
+        String mimeType = null;
+        extension = extension.toLowerCase();
+        Object context = FacesContext.getCurrentInstance().getExternalContext().getContext();
+        if (context instanceof javax.servlet.ServletContext) {
+            mimeType = ((ServletContext) context).getMimeType(extension);
+        }
+        
+        if (mimeType == null) {
+	    mimeType = mimeTypes.get(extension);
+        }
+        return mimeType;
     }
 
     /**
