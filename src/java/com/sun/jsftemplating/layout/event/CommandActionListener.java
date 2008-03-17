@@ -129,7 +129,7 @@ public class CommandActionListener implements ActionListener, Serializable {
 	}
 
 	// Dispatch the Handlers from the LayoutElement
-	desc.dispatchHandlers(context, CommandEvent.EVENT_TYPE, event);
+	desc.dispatchHandlers(context, COMMAND_EVENT_TYPE, event);
     }
 
     /**
@@ -242,6 +242,11 @@ public class CommandActionListener implements ActionListener, Serializable {
 	}
 	return null;
     }
+
+    /**
+     *	<p> The "command" event type. ("command")</p>
+     */
+    public static final String	COMMAND_EVENT_TYPE  = "command";
 
     /**
      *	<p> Shared instance.</p>
