@@ -22,6 +22,9 @@
  */
 package com.sun.jsftemplating.util.fileStreamer;
 
+import com.sun.jsftemplating.util.FileUtil;
+import com.sun.jsftemplating.util.LogUtil;
+import com.sun.jsftemplating.util.Tuple;
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,13 +34,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.sun.jsftemplating.util.Util;
-import java.io.File;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
@@ -61,22 +63,15 @@ public class FileStreamer {
     private FileStreamer() {
         super();
         try {
-            ServletContext sc = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-            @SuppressWarnings("unchecked")
-            Set<String> paths = (Set<String>) sc.getResourcePaths("/WEB-INF/lib/");
-            for (String path : paths) {
-                if ("jar".equalsIgnoreCase(path.substring(path.length() - 3))) {
-                    JarFile jarFile = new JarFile(new File(sc.getResource(path).getFile()));
-                    ZipEntry jarEntry = jarFile.getEntry("META-INF/jsftemplating/fileStreamer.properties");
-                    if (jarEntry != null) {
-                        Properties props = new Properties();
-                        InputStream is = jarFile.getInputStream(jarEntry);
-                        props.load(is);
-                        is.close();
-                        jarFile.close();
-                        processFileStreamerProperties(props);
-                    }
-                }
+            List<Tuple> entries = FileUtil.getJarResources(FacesContext.getCurrentInstance(), "META-INF/jsftemplating/fileStreamer.properties");
+            for (Tuple tuple : entries) {
+                Properties props = new Properties();
+                JarFile jarFile = (JarFile)tuple.getElement(0);
+                InputStream is = jarFile.getInputStream((JarEntry)tuple.getElement(1));
+                props.load(is);
+                is.close();
+                jarFile.close();
+                processFileStreamerProperties(props);
             }
         } catch (Exception ex) {
             Logger.getLogger(FileStreamer.class.getName()).log(Level.SEVERE, null, ex);
@@ -179,6 +174,7 @@ public class FileStreamer {
         if ((contentSourcesProp != null) && (contentSourcesProp.length() > 0)) {
             String[] contentSources = contentSourcesProp.split(",");
             for (String cs : contentSources) {
+                LogUtil.config("Registering ContentSource " + cs);
                 this.registerContentSource(cs);
             }
         }

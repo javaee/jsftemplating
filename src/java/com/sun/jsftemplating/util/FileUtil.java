@@ -22,6 +22,7 @@
  */
 package com.sun.jsftemplating.util;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -29,6 +30,14 @@ import java.net.URL;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import javax.faces.context.ExternalContext;
 
 
 /**
@@ -158,6 +167,28 @@ public class FileUtil {
 
 	// Return a url to the file (hopefully)...
 	return url;
+    }
+    
+    public static List<Tuple> getJarResources(FacesContext facesContext, String resourcePath, String... searchPaths) throws IOException  {
+        List<Tuple> entries = new ArrayList<Tuple>();
+        ExternalContext ec = facesContext.getExternalContext();
+        for (String searchPath : searchPaths) {
+            Set<String> paths = ec.getResourcePaths(searchPath);
+            for (String path : paths) {
+                if ("jar".equalsIgnoreCase(path.substring(path.length() - 3))) {
+                    JarFile jarFile = new JarFile(new File(ec.getResource(path).getFile()));
+                    JarEntry jarEntry = jarFile.getJarEntry(resourcePath);
+                    if (jarEntry != null) {
+                        entries.add(new Tuple(jarFile, jarEntry));
+                    }
+                }
+            }
+        }
+        return entries;
+    }
+    
+    public static List<Tuple> getJarResources(FacesContext facesContext, String resourcePath) throws IOException  {
+        return getJarResources(facesContext, resourcePath, "/WEB-INF/lib/");
     }
 
     private static final Class [] REALPATH_ARGS	= new Class[] {String.class};
