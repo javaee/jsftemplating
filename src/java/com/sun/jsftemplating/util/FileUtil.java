@@ -169,7 +169,20 @@ public class FileUtil {
 	return url;
     }
     
+    /**
+     *	<p> This method looks for resources in jar files without using the
+     *	    ClassLoader.  It accepts directories in which it should scan for
+     *	    jar files.</p>
+     *
+     *	@param	facesContext	The <code>FacesContext</code>.
+     *	@param	resourcePath	The resource name to search in all jar files.
+     *	@param	searchPaths	The array of paths to search for jar files.
+     */
     public static List<Tuple> getJarResources(FacesContext facesContext, String resourcePath, String... searchPaths) throws IOException  {
+	if (searchPaths == null) {
+	    // Use default jar search path...
+	    searchPaths = DEFAULT_SEARCH_PATH;
+	}
         List<Tuple> entries = new ArrayList<Tuple>();
         ExternalContext ec = facesContext.getExternalContext();
         for (String searchPath : searchPaths) {
@@ -187,10 +200,7 @@ public class FileUtil {
         return entries;
     }
     
-    public static List<Tuple> getJarResources(FacesContext facesContext, String resourcePath) throws IOException  {
-        return getJarResources(facesContext, resourcePath, "/WEB-INF/lib/");
-    }
-
-    private static final Class [] REALPATH_ARGS	= new Class[] {String.class};
-    private static final Class [] GET_RES_ARGS	= new Class[] {String.class};
+    private static final Class []   REALPATH_ARGS	= new Class[] {String.class};
+    private static final Class []   GET_RES_ARGS	= new Class[] {String.class};
+    private static final String []  DEFAULT_SEARCH_PATH	= new String[] {"/WEB-INF/lib/"};
 }
