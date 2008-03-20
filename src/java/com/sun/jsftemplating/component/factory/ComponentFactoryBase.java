@@ -134,15 +134,6 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
     }
 
     /**
-     *	<p> This method converts the given <code>name</code> to a bean getter
-     *	    method name.  In other words, it capitalizes the first letter and
-     *	    prepends "get".</p>
-     */
-    private static String getGetterName(String name) {
-	return "get" + ((char) (name.charAt(0) & 0xFFDF)) + name.substring(1);
-    }
-
-    /**
      *	<p> This method is responsible for interating over the "instance"
      *	    handlers and applying them to the UIComponent.  An "instance"
      *	    handler is one that is defined <b>outside a renderer</b>, or <b>a
