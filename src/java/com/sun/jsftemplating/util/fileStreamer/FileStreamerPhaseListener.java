@@ -40,11 +40,11 @@ public class FileStreamerPhaseListener implements PhaseListener {
         if (event.getPhaseId() == PhaseId.RESTORE_VIEW) {
             FacesContext context = event.getFacesContext();
             ExternalContext extContext = context.getExternalContext();
-            Context fsContext = new FacesStreamerContext(context);
             String path = null;
 
             HttpServletRequest req = (HttpServletRequest) extContext.getRequest();
             if (req.getRequestURI().indexOf(STATIC_RESOURCE_IDENTIFIER) != -1) {
+		Context fsContext = new FacesStreamerContext(context);
                 context.responseComplete();
                 // Get the HttpServletResponse
                 Object obj = extContext.getResponse();
@@ -115,7 +115,8 @@ public class FileStreamerPhaseListener implements PhaseListener {
             String contentSourceId,
             String path) {
         if (context == null) {
-            context = FacesContext.getCurrentInstance(); // Likely performance hit with this ThreadLocal look up.  DON'T DO THIS! :)
+	    // Likely performance hit with this ThreadLocal look up.  DON'T DO THIS! :)
+            context = FacesContext.getCurrentInstance();
         }
         StringBuilder sb = new StringBuilder(64);
         sb.append(context.getExternalContext().getRequestContextPath());
