@@ -171,6 +171,8 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 	if (val instanceof String) {
 	    // Only try to do this if we have a String (not for Lists)
 	    if (ComponentUtil.isValueReference((String) val)) {
+// FIXME: resolve $x{y} values: Object newBinding = VariableResolver.resolveVariables(context, elt, parent, binding);??
+// FIXME: I believe I have a util method for this (resolveValue?)
 		ValueExpression ve =
 		    context.getApplication().getExpressionFactory().
 			createValueExpression(context.getELContext(),
@@ -204,11 +206,11 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
      *	    apply to this component (but may apply to their children or to
      *	    the behavior of this factory).</p>
      */
-    protected void setOption(FacesContext context, UIComponent comp, String key, Object value) {
+    protected void setOption(FacesContext context, UIComponent comp, LayoutComponent desc, String key, Object value) {
 	if (key.startsWith("column")) {
 	    return;
 	}
-	super.setOption(context, comp, key, value);
+	super.setOption(context, comp, desc, key, value);
     }
 
 
