@@ -36,12 +36,12 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.component.ComponentUtil;
+import com.sun.jsftemplating.el.VariableResolver;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.event.CommandActionListener;
 import com.sun.jsftemplating.layout.event.ValueChangeListener;
 import com.sun.jsftemplating.util.LogUtil;
-import com.sun.jsftemplating.util.TypeConverter;
 
 
 /**
@@ -102,8 +102,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	    // Get next property
 	    key = it.next();
 
-	    setOption(context, comp, key,
-		desc.getEvaluatedOption(context, key, comp));
+	    setOption(context, comp, desc, key, desc.getOption(key));
 	}
 
 	// Check for "command" handlers...
@@ -130,123 +129,8 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      *	    <code>ValueExpression</code>, if it is it will store it as
      *	    such.</p>
      */
-    protected void setOption(FacesContext context, UIComponent comp, String key, Object value) {
-	// Next check to see if the value contains a ValueExpression
-	if ((value instanceof String)
-		&& (ComponentUtil.isValueReference((String) value))) {
-	    ValueExpression ve =
-		context.getApplication().getExpressionFactory().
-		    createValueExpression(
-			    context.getELContext(), (String) value, Object.class);
-	    comp.setValueExpression((String) key, ve);
-	} else {
-	    // In JSF, you must directly modify the attribute Map
-	    Map<String, Object> attributes = comp.getAttributes();
-	    if (value == null) {
-		// Setting null, assume they want to remove the value
-		try {
-		    attributes.remove(key);
-		} catch (Exception ex) { // Switched from IAE to E b/c of MyFaces incompatibility
-		    // JSF is mesed up... it throws an exception if it has a
-		    // property descriptor and you call remove(...).  It also
-		    // throws an exception if you attempt to call put w/ null
-		    // and there is no property descriptor.  Either way you
-		    // MUST catch something and then handle the other case.
-		    try {
-			attributes.put(key, (Object) null);
-		    } catch (Exception iae) { // Switched from IAE to E b/c of MyFaces incompatibility
-			// We'll make this non-fatal, but log a message
-			if (LogUtil.infoEnabled()) {
-			    LogUtil.info("JSFT0006", new Object[] {
-				key, comp.getId(), comp.getClass().getName()});
-			    if (LogUtil.fineEnabled()) {
-				LogUtil.fine("Unable to set (" + key + ").", iae);
-			    }
-			}
-		    }
-		}
-	    } else {
-		try {
-		    // Attempt to set the value as given...
-		    attributes.put(key, value);
-		} catch (Exception ex) { // Switched from IAE to E b/c of MyFaces incompatibility
-		    // Ok, try a little harder...
-		    Class type = findPropertyType(comp, key);
-		    if (type != null) {
-			try {
-			    attributes.put(key, TypeConverter.asType(type, value));
-			} catch (Exception ex2) { // Switched from IAE to E b/c of MyFaces incompatibility
-			    throw new IllegalArgumentException(
-				"Failed to set property (" + key + ") with "
-				+ "value (" + value + "), which is of type ("
-				+ value.getClass().getName() + ").  Expected "
-				+ "type (" + type.getName() + ").  This "
-				+ "occured on the component named ("
-				+ comp.getId() + ") of type ("
-				+ comp.getClass().getName() + ").", ex2);
-			}
-		    } else {
-			throw new IllegalArgumentException(
-			    "Failed to set property (" + key + ") with value ("
-			    + value + "), which is of type ("
-			    + value.getClass().getName() + ").  This occured "
-			    + "on the component named (" + comp.getId()
-			    + ") of type (" + comp.getClass().getName()
-			    + ").", ex);
-		    }
-		}
-	    }
-	}
-    }
-
-    /**
-     *	<p> This method attempts to resolve the expected type for the given
-     *	    property <code>key</code> and <code>UIComponent</code>.</p>
-     */
-    private static Class findPropertyType(UIComponent comp, String key) {
-	// First check to see if we've done this before...
-	Class compClass = comp.getClass();
-	String cacheKey = compClass.getName() + ';' + key;
-	if (_typeCache.containsKey(cacheKey)) {
-	    // May return null if method previously executed unsuccessfully
-	    return _typeCache.get(cacheKey);
-	}
-
-	// Search a little...
-	Class val = null;
-	Method meth = null;
-	String methodName = getGetterName(key);
-	try {
-	    meth = compClass.getMethod(methodName);
-	} catch (NoSuchMethodException ex) {
-	    // May fail if we have a boolean property that has an "is" getter.
-	    try { 
-		// Try again, replace "get" with "is"
-		meth = compClass.getMethod(
-		    "is" + methodName.substring(3));
-	    } catch (NoSuchMethodException ex2) {
-		// Still not found, must not have getter / setter
-		ex2.printStackTrace();
-	    }
-	}
-	if (meth != null) {
-	    val = meth.getReturnType();
-	} else {
-	    Object obj = comp.getAttributes().get("key");
-	    if (val != null) {
-		val = obj.getClass();
-	    }
-	}
-
-	// Save the value for future calls for the same information
-	// NOTE: We do it this way to avoid modifying a shared Map
-	Map<String, Class> newTypeCache =
-		new HashMap<String, Class>(_typeCache);
-	newTypeCache.put(cacheKey, val);
-	_typeCache = newTypeCache;
-
-	// Return the result
-	return val;
+    protected void setOption(FacesContext context, UIComponent comp, LayoutComponent desc, String key, Object value) {
+	ComponentUtil.setOption(context, key, value, desc, comp);
     }
 
     /**
@@ -409,6 +293,4 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      */
     private Serializable _extraInfo = null;
 
-    private static Map<String, Class> _typeCache =
-	    new HashMap<String, Class>();
 }
