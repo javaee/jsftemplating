@@ -174,6 +174,7 @@ public class FileStreamer {
         if ((contentSourcesProp != null) && (contentSourcesProp.length() > 0)) {
             String[] contentSources = contentSourcesProp.split(",");
             for (String cs : contentSources) {
+                cs = cs.trim(); // In case it's a comma-and-space-delimited list :)
                 LogUtil.config("Registering ContentSource " + cs);
                 this.registerContentSource(cs);
             }
