@@ -1,11 +1,31 @@
-/**
+/*
+ * The contents of this file are subject to the terms 
+ * of the Common Development and Distribution License 
+ * (the License).  You may not use this file except in
+ * compliance with the License.
  * 
+ * You can obtain a copy of the license at 
+ * https://jsftemplating.dev.java.net/cddl1.html or
+ * jsftemplating/cddl1.txt.
+ * See the License for the specific language governing 
+ * permissions and limitations under the License.
+ * 
+ * When distributing Covered Code, include this CDDL 
+ * Header Notice in each file and include the License file 
+ * at jsftemplating/cddl1.txt.  
+ * If applicable, add the following below the CDDL Header, 
+ * with the fields enclosed by brackets [] replaced by
+ * you own identifying information: 
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * Copyright 2007 Sun Microsystems, Inc. All rights reserved.
  */
 package com.sun.jsftemplating.layout.descriptors;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -19,15 +39,11 @@ import com.sun.jsftemplating.layout.event.EncodeEvent;
 
 
 /**
- * @author Jason Lee
  *
+ * @author Jason Lee
+ * @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutComposition extends LayoutElementBase {
-    private static final long serialVersionUID = 1L;
-    private boolean required = true;
-    private String template;
-    private boolean trimming = true;
-
     /**
      * @param parent
      * @param id
@@ -138,9 +154,40 @@ public class LayoutComposition extends LayoutElementBase {
 
     /**
      *	<p> This handler pushes a value onto the
-     *	    <code>LayoutComposition</code> <code>Stack</code>.</p>
+     *	    <code>LayoutComposition</code> <code>Stack</code>.  In addition
+     *	    it puts any parameters that are defined into the global parameter
+     *	    <code>Map</code> so EL expressions can test to see if they may
+     *	    reference one a composition parameter.  However, this
+     *	    <code>Map</code> should not be used to determine the value --
+     *	    instead the value should be obtained by looking through the
+     *	    Stack of compositions.</p>
      */
     public static void push(FacesContext context, LayoutElement comp) {
+	if (comp instanceof LayoutComposition) {
+	    // This should be the case...
+	    Map<String, String> params =
+		    ((LayoutComposition) comp).getParameters();
+	    if (params != null) {
+		// Get the request-scoped global param map...
+		Map<String, String> globalParamMap =
+			LayoutComposition.getGlobalParamMap(context);
+
+		// Iterate over the params in this LayoutComposition and add
+		// them to the global parameters that we're tracking.  This
+		// will flatten the hierarchy for the parameter values... but
+		// that's ok, b/c we don't use this for obtaining the values
+		// (normally), we use it to quickly detect if there are values.
+		// We'll search the composition stack to actually obtain the
+		// values.
+		Iterator<Map.Entry<String, String>> it =
+			params.entrySet().iterator();
+		Map.Entry<String, String> entry = null;
+		while (it.hasNext()) {
+		    entry = it.next();
+		    globalParamMap.put(entry.getKey(), entry.getValue());
+		}
+	    }
+	}
 	getCompositionStack(context).push(comp);
     }
 
@@ -169,10 +216,30 @@ public class LayoutComposition extends LayoutElementBase {
     }
 
     /**
+     *	<p> This method retrieves a Map from the request scope for storing
+     *	    ui:param NVPs.  If the <code>Map</code> doesn't exist, it will be
+     *	    created.</p>
+     */
+    public static Map<String, String> getGlobalParamMap(FacesContext context) {
+	// First get the requestMap
+	Map<String, Object> requestMap =
+		context.getExternalContext().getRequestMap();
+	Map<String, String> paramMap = (Map<String, String>)
+		requestMap.get(GLOBAL_PARAM_MAP_KEY);
+	if (paramMap == null) {
+	    // Hasn't been created yet, create it
+	    paramMap = new HashMap<String, String>();
+	    requestMap.put(GLOBAL_PARAM_MAP_KEY, paramMap);
+	}
+	return paramMap;
+    }
+
+    /**
      *	<p> This method returns a <code>Map</code> that may be used to test
      *	    this code outside JSF.</p>
      */
     private static Map<String, Object> getTestMap() {
+// FIXME: Shouldn't we mock up the test environment instead of changing the code here?
 	if (_testMap == null) {
 	    _testMap = new HashMap<String, Object>();
 	}
@@ -192,14 +259,117 @@ public class LayoutComposition extends LayoutElementBase {
     }
 
     /**
+     *	<p> This method searches the given the entire <code>stack</code> for a
+     *	    template param with the given <code>name</code>.</p>
+     *
+     *	<p> A "template param" is a name-value-pair associated with a
+     *	    {@link LayoutComposition}.  This enables overridable values to be
+     *	    set on a LayoutComposition and consumed by the templates.  This is
+     *	    similar to a ui:define, except for values instead of
+     *	    <code>UIComponents</code>.</p>
+     *
+     *	@param	eltList	The <code>List</code> of LayoutCompositions in which
+     *			to search (must be non-null, NPE will be thrown).
+     *	@param	name	The name of the parameter to look for.
+     */
+    public static String findTemplateParam(List<LayoutElement> eltList, String name) {
+// FIME: Can I make this return a String?  If this is at create time I should still have #{} or maybe ${}
+	Iterator<LayoutElement> stackIt = eltList.iterator();
+	String val = null;
+	LayoutElement elt = null;
+	LayoutComposition comp = null;
+	while (stackIt.hasNext()) {
+	    elt = stackIt.next();
+	    if (elt instanceof LayoutComposition) {
+		// It should always be a LayoutComposition, however, I want
+		// to be safe in case things change in the future.
+		comp = (LayoutComposition) elt;
+		if ((val = comp.getParameter(name)) != null) {
+		    break;
+		}
+	    }
+	}
+
+	// Return the value (if found)
+	return val;
+    }
+
+    /**
+     *	<p> This method returns the <code>Map</code> of parameter values, or
+     *	    <code>null</code> if there are no parameter values for this
+     *	    <code>LayoutComposition</code>.</p>
+     */
+    protected Map<String, String> getParameters() {
+	return _params;
+    }
+
+    /**
+     *	<p> This method returns the parameter value for the requested
+     *	    parameter, or <code>null</code> if the requested parameter does
+     *	    not exist.</p>
+     */
+    public String getParameter(String name) {
+	String value = null;
+	if (_params != null) {
+	    value = _params.get(name);
+	}
+	return value;
+    }
+
+    /**
+     *	<p> This method sets the given parameter name with the given parameter
+     *	    value.</p>
+     */
+    public void setParameter(String name, String value) {
+	if (_params == null) {
+	    _params = new HashMap<String, String>();
+	}
+	_params.put(name, value);
+    }
+
+
+    private static final long serialVersionUID = 1L;
+
+    /**
      *	<p> This is the key used to store the <code>LayoutComposition</code>
      *	    stack.</p>
      */
     private static final String COMPOSITION_STACK_KEY	= "_composition";
 
     /**
+     *	<p> This is the key used to store the ui:param NVPs to assist in
+     *	    determining if an EL is referencing one.  It also may be used in
+     *	    somone attempts to locate a ui:param after the composition stack
+     *	    is no longer available (don't do that!).</p>
+     */
+    private static final String GLOBAL_PARAM_MAP_KEY	= "_uiparamCacheMap";
+
+    /**
      *	<p> This Map exists to allow test cases to run w/o an ExternalContext
      *	    "request map."</p>
      */
     private static Map _testMap = null;
+
+    /**
+     *	<p> This is a <code>Map</code> of parameters that may be passed from
+     *	    this <code>LayoutComposition</code> to the template.</p>
+     */
+    private Map<String, String> _params = null;
+
+    /**
+     *	<p> Flag to indicate that whether an exception should be thrown if the
+     *	    template is not found.</p>
+     */
+    private boolean required = true;
+
+    /**
+     *	<p> The filename of the template.</p>
+     */
+    private String template;
+
+    /**
+     *	<p> True if trimming should occur.</p>
+     */
+// FIXME: This info is only important at read-time, this probably should NOT exist
+    private boolean trimming = true;
 }
