@@ -42,6 +42,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
+import com.sun.jsftemplating.layout.descriptors.LayoutComposition;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.MessageUtil;
@@ -113,6 +114,17 @@ public class VariableResolver {
      *	    with the startToken and ends with the endToken.  In this case,
      *	    string substitution is NOT performed.  Instead the value of the
      *	    request attribute is returned.</p>
+     *
+     *	<p> This method has a "hack" attached at the end of its processing
+     *	    which looks at the resulting value and does magic.  If the value is
+     *	    a String that starts with "#{" then it will attempt to locate a
+     *	    composition parameter matching the next token value and replace or
+     *	    merge its content with the value.  It will replace the value if the
+     *	    value is in the format #{key}.  If there is additonal information
+     *	    after "key", it will attempt to merge value from the template
+     *	    parameter with the content after "key".  A default value may be
+     *	    provided for the template parameter by providing a ",default" (e.g.
+     *	    #{key,default}.</p>
      *
      *	@param	ctx		The FacesContext
      *	@param	desc		The closest LayoutElement to this string
@@ -231,6 +243,10 @@ public class VariableResolver {
 	    // Get the value...
 	    variable = ds.getValue(ctx, desc, component, (String) variable);
 	    if (expressionIsWholeString) {
+		if (variable instanceof String) {
+		    // See if we need to do EL magic manipulation...
+		    variable = replaceCompParams(ctx, desc, component, (String) variable);
+		}
 		return variable;
 	    }
 
@@ -242,7 +258,113 @@ public class VariableResolver {
 	}
 
 	// Return the string
-	return string;
+	return replaceCompParams(ctx, desc, component, string);
+    }
+
+    /**
+     *	<p> This method implements a "hack" which manipulates the given String
+     *	    when it starts with "#{". In this case, it will attempt to locate a
+     *	    composition parameter matching the next token and replace or merge
+     *	    its content with this String.  It will replace the String if the
+     *	    value is in the format #{key}.  If there is additonal content after
+     *	    "key" (besides a (,) comma), it will attempt to merge the value of
+     *	    the composition parameter matching key with the content after
+     *	    "key".  A default value may be provided for the template parameter
+     *	    by providing a ",default" at the end of the expression (e.g.
+     *	    #{key,default}.</p>
+     *
+     *	<p> This method does not support replacing template paramters in other
+     *	    locations within EL.</p>
+     *
+     *	@param	ctx	The <code>FacesContext</code>.
+     *	@param	string	The String to evaluate and manipulate if necessary.
+     *
+     *	@return	The same String passed in, or a new one based on method
+     *		description.
+     */
+    private static Object replaceCompParams(FacesContext ctx, LayoutElement desc, UIComponent comp, String string) {
+	Object newVal = string;
+	if (string.startsWith("#{")) {
+	    // First see if we have any params
+	    Map<String, String> globalParams =
+		LayoutComposition.getGlobalParamMap(ctx);
+	    if (globalParams.size() == 0) {
+		// No mappings, nothing to do
+		return string;
+	    }
+
+// FIXME: Instead get the map key first so we can fail fast.
+
+	    // Ok, we have to do magic...
+	    // Get what's inside the {}'s
+	    int idx = string.indexOf('}', 2);
+	    if (idx == -1) {
+		// Not a match...
+		return string;
+	    }
+
+	    // Get the EL content
+	    String newEL = string.substring(2, idx);
+
+	    // Get content after the EL (just in case)
+	    String afterEL = string.substring(idx + 1);
+
+	    // Look for ',' (default value)
+	    String defValue = string;
+	    idx = newEL.indexOf(',');
+	    if (idx > 0) {
+		// We have a ','... define default (yes I realize ',' could be
+		// at the beginning, I intentionally don't support that).
+		// Default is content after the ',':
+		defValue = newEL.substring(idx + 1);
+		newEL = newEL.substring(0, idx);
+	    }
+
+	    // Check for a '.' (if found, don't replace everything -- merge)
+	    idx = newEL.indexOf('.');
+	    String restOfEL = null;
+	    if (idx > 0) {
+		// '.' found, merge
+		restOfEL = newEL.substring(idx); // Keep '.'
+		newEL = newEL.substring(0, idx);
+	    }
+
+	    // Next we get the template value (if any)
+	    String value = globalParams.get(newEL);
+	    if (value != null) {
+		// We're not done yet!  This value is only a flag, we have to
+		// look at the composition stack to be accurate!
+		String param = LayoutComposition.findTemplateParam(
+			LayoutComposition.getCompositionStack(ctx), newEL);
+		if (param != null) {
+		    // call this b/c we potentially have $...{...} again!
+		    newVal = resolveVariables(ctx, desc, comp, param);
+		    if (restOfEL == null) {
+			// Ignore #{}, just swap it...
+			if ((afterEL != null) && !afterEL.equals("")) {
+			    // Turn it back to a String and append stuff
+			    newVal = "" + newVal + afterEL;
+			}
+		    } else {
+			param = ("" + newVal).trim();
+			// Are we merging 2 #{}'s? If not, fail (for now)
+			idx = param.length() - 1;
+			if ((idx < 2) || (param.charAt(0) != '#') || (param.charAt(1) != '{')
+				|| (param.charAt(idx) != '}')) {
+			    throw new IllegalArgumentException(
+				"Cannot merge template parameter value '"
+				+ param + "' with EL expression '"
+				+ string + "'!");
+			}
+
+			// Strip off #{} from template param value
+			param = param.substring(2, idx);
+			newVal = "#{" + param + restOfEL + "}" + afterEL;
+		    }
+		}
+	    }
+	}
+	return newVal;
     }
 
     /**
