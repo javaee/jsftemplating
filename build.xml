@@ -3,8 +3,8 @@
 
     <!-- Set properties -->
     <property name="version" value="1.2-SNAPSHOT"/>
-    <property file="build.properties" />
     <property file="user.properties" />
+    <property file="build.properties" />
 
     <path id="dependencies">
         <pathelement location="${servlet-api.jar}" />
