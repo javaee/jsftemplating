@@ -1,5 +1,24 @@
-/**
+/*
+ * The contents of this file are subject to the terms 
+ * of the Common Development and Distribution License 
+ * (the License).  You may not use this file except in
+ * compliance with the License.
  * 
+ * You can obtain a copy of the license at 
+ * https://jsftemplating.dev.java.net/cddl1.html or
+ * jsftemplating/cddl1.txt.
+ * See the License for the specific language governing 
+ * permissions and limitations under the License.
+ * 
+ * When distributing Covered Code, include this CDDL 
+ * Header Notice in each file and include the License file 
+ * at jsftemplating/cddl1.txt.  
+ * If applicable, add the following below the CDDL Header, 
+ * with the fields enclosed by brackets [] replaced by
+ * you own identifying information: 
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * Copyright 2007 Sun Microsystems, Inc. All rights reserved.
  */
 package com.sun.jsftemplating.layout.descriptors;
 
@@ -16,8 +35,10 @@ import javax.faces.context.FacesContext;
 
 
 /**
- * @author Jason Lee
+ *  <p>	This class represents a <code>ui:insert</code>.</p>
  *
+ *  @author Jason Lee
+ *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class LayoutInsert extends LayoutElementBase {
     private static final long serialVersionUID = 1L;
@@ -28,20 +49,35 @@ public class LayoutInsert extends LayoutElementBase {
      * @param id
      */
     public LayoutInsert(LayoutElement parent, String id) {
-        super(parent, id);
-        // TODO Auto-generated constructor stub
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+	super(parent, id);
     }
 
     /**
-     * @see com.sun.jsftemplating.layout.descriptors.LayoutElementBase#encodeThis(javax.faces.context.FacesContext, javax.faces.component.UIComponent)
+     *	<p> Returns the name of the {@link LayoutDefine} to look for when
+     *	    including content for this <code>LayoutInsert</code>.  This value
+     *	    may be <code>null</code> to indicate that it should use its body
+     *	    content.</p>
+     */
+    public String getName() {
+	return name;
+    }
+
+    /**
+     *	<p> Sets the name of the {@link LayoutDefine} to look for when including
+     *	    content for this <code>LayoutInsert</code>.  This value may be
+     *	    <code>null</code> to indicate that it should use its body content.</p>
+     */
+    public void setName(String name) {
+	this.name = name;
+    }
+
+    /**
+     * <p>  This method is override to enable searching of its content via the
+     *	    name of this insert (if supplied), or the rendering of its body if
+     *	    not supplied, or not found.  If this is encountered outside the
+     *	    context of a composition, it will render its body content also.</p>
+     *
+     * @see LayoutElementBase#encodeThis(javax.faces.context.FacesContext, javax.faces.component.UIComponent)
      */
     @Override
     protected boolean encodeThis(FacesContext context, UIComponent component) throws IOException {
@@ -136,5 +172,4 @@ public class LayoutInsert extends LayoutElementBase {
 	// Not found!
 	return null;
     }
-
 }
