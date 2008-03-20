@@ -27,22 +27,25 @@
  */
 package com.sun.jsftemplating.component;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.el.ELContext;
+import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
-import javax.faces.el.ValueBinding;
 
 import com.sun.jsftemplating.el.VariableResolver;
 import com.sun.jsftemplating.layout.descriptors.ComponentType;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.util.LogUtil;
+import com.sun.jsftemplating.util.TypeConverter;
 
 
 /**
@@ -413,53 +416,150 @@ public class ComponentUtil {
      *			    <code>UIComponent</code>
      *	@param	component   The <code>UIComponent</code>
      *
-     *	@return A <code>ValueExpression</code>, or the evaulated value (if no
-     *		<code>ValueExpression</code> is present).
+     *	@return A <code>ValueExpression</code>, or the "$...{...}" evaulated
+     *		value (if no <code>ValueExpression</code> is present).
      */
-    public static Object setOption(FacesContext context, String key, Object value, LayoutElement desc, UIComponent component) {
+    public static Object setOption(FacesContext context, String key, Object value, LayoutElement desc, UIComponent comp) {
 	// Invoke our own EL.  This is needed b/c JSF's EL is designed for
-	// Bean getters only.  It does not get CONSTANTS or pull data from
-	// other sources (such as session, request attributes, etc., etc.)
-	// Resolve our variables now because we cannot depend on the
-	// individual components to do this.  We may want to find a way to
-	// make this work as a regular ValueExpression... but for
-	// now, we'll just resolve it here.
-	value = VariableResolver.resolveVariables(
-		context, desc, component, value);
-	if (value == null) {
-	    // It is possible to resolve an expression to null
-	    return null;
-	}
+	// context-insensitive EL.  Resolve our variables now because we
+	// cannot depend on the individual components to do this later.  We
+	// need to find a way to make this work as a regular ValueExpression...
+	// for now, we'll continue to use it...
+	value = VariableResolver.resolveVariables(context, desc, comp, value);
 
 	// Next check to see if the value contains a JSF ValueExpression
 	if ((value instanceof String)
 		&& ComponentUtil.isValueReference((String) value)) {
-/*
-1.2+
 	    ValueExpression ve =
 		context.getApplication().getExpressionFactory().
 		    createValueExpression(
 			    context.getELContext(), (String) value, Object.class);
-	    if (component != null) {
-		component.setValueExpression(key, ve);
+	    if (comp != null) {
+		comp.setValueExpression(key, ve);
 	    }
 	    value = ve;
-*/
-	    // JSF 1.1 VB:
-	    ValueBinding vb =
-		context.getApplication().createValueBinding((String) value);
-	    if (component != null) {
-		component.setValueBinding(key, vb);
-	    }
-	    value = vb;
-	} else {
+	} else if (comp != null) {
 	    // In JSF, you must directly modify the attribute Map
-	    if (component != null) {
-		component.getAttributes().put(key, value);
+	    Map<String, Object> attributes = comp.getAttributes();
+	    if (value == null) {
+		// Setting null, assume they want to remove the value
+		try {
+		    attributes.remove(key);
+		} catch (Exception ex) { // Switched from IAE to E b/c of MyFaces incompatibility
+		    // JSF is mesed up... it throws an exception if it has a
+		    // property descriptor and you call remove(...).  It also
+		    // throws an exception if you attempt to call put w/ null
+		    // and there is no property descriptor.  Either way you
+		    // MUST catch something and then handle the other case.
+		    try {
+			attributes.put(key, (Object) null);
+		    } catch (Exception iae) { // Switched from IAE to E b/c of MyFaces incompatibility
+			// We'll make this non-fatal, but log a message
+			if (LogUtil.infoEnabled()) {
+			    LogUtil.info("JSFT0006", new Object[] {
+				key, comp.getId(), comp.getClass().getName()});
+			    if (LogUtil.fineEnabled()) {
+				LogUtil.fine("Unable to set (" + key + ").", iae);
+			    }
+			}
+		    }
+		}
+	    } else {
+		try {
+		    // Attempt to set the value as given...
+		    attributes.put(key, value);
+		} catch (Exception ex) { // Switched from IAE to E b/c of MyFaces incompatibility
+		    // Ok, try a little harder...
+		    Class type = findPropertyType(comp, key);
+		    if (type != null) {
+			try {
+			    attributes.put(key, TypeConverter.asType(type, value));
+			} catch (Exception ex2) { // Switched from IAE to E b/c of MyFaces incompatibility
+			    throw new IllegalArgumentException(
+				"Failed to set property (" + key + ") with "
+				+ "value (" + value + "), which is of type ("
+				+ value.getClass().getName() + ").  Expected "
+				+ "type (" + type.getName() + ").  This "
+				+ "occured on the component named ("
+				+ comp.getId() + ") of type ("
+				+ comp.getClass().getName() + ").", ex2);
+			}
+		    } else {
+			throw new IllegalArgumentException(
+			    "Failed to set property (" + key + ") with value ("
+			    + value + "), which is of type ("
+			    + value.getClass().getName() + ").  This occured "
+			    + "on the component named (" + comp.getId()
+			    + ") of type (" + comp.getClass().getName()
+			    + ").", ex);
+		    }
+		}
 	    }
 	}
+
+	// Return the value (which may be a ValueExpression)
 	return value;
     }
+
+    /**
+     *	<p> This method attempts to resolve the expected type for the given
+     *	    property <code>key</code> and <code>UIComponent</code>.</p>
+     */
+    private static Class findPropertyType(UIComponent comp, String key) {
+	// First check to see if we've done this before...
+	Class compClass = comp.getClass();
+	String cacheKey = compClass.getName() + ';' + key;
+	if (_typeCache.containsKey(cacheKey)) {
+	    // May return null if method previously executed unsuccessfully
+	    return _typeCache.get(cacheKey);
+	}
+
+	// Search a little...
+	Class val = null;
+	Method meth = null;
+	String methodName = getGetterName(key);
+	try {
+	    meth = compClass.getMethod(methodName);
+	} catch (NoSuchMethodException ex) {
+	    // May fail if we have a boolean property that has an "is" getter.
+	    try { 
+		// Try again, replace "get" with "is"
+		meth = compClass.getMethod(
+		    "is" + methodName.substring(3));
+	    } catch (NoSuchMethodException ex2) {
+		// Still not found, must not have getter / setter
+		ex2.printStackTrace();
+	    }
+	}
+	if (meth != null) {
+	    val = meth.getReturnType();
+	} else {
+	    Object obj = comp.getAttributes().get("key");
+	    if (val != null) {
+		val = obj.getClass();
+	    }
+	}
+
+	// Save the value for future calls for the same information
+	// NOTE: We do it this way to avoid modifying a shared Map
+	Map<String, Class> newTypeCache =
+		new HashMap<String, Class>(_typeCache);
+	newTypeCache.put(cacheKey, val);
+	_typeCache = newTypeCache;
+
+	// Return the result
+	return val;
+    }
+
+    /**
+     *	<p> This method converts the given <code>name</code> to a bean getter
+     *	    method name.  In other words, it capitalizes the first letter and
+     *	    prepends "get".</p>
+     */
+    public static String getGetterName(String name) {
+	return "get" + ((char) (name.charAt(0) & 0xFFDF)) + name.substring(1);
+    }
+
 
     /**
      *	<p> This method will attempt to resolve the given EL string.</p>
@@ -486,14 +586,13 @@ public class ComponentUtil {
 	// Next check to see if the result contains a JSF ValueExpression
 	if ((result != null) && (result instanceof String)
 		&& ComponentUtil.isValueReference((String) result)) {
+	    ELContext elctx = context.getELContext();
+	    ValueExpression ve =
+		context.getApplication().getExpressionFactory().
+		    createValueExpression(elctx, (String) result, Object.class);
+	    result = ve.getValue(elctx);
 /*
-1.2+
-		ELContext elctx = context.getELContext();
-		ValueExpression ve =
-		    context.getApplication().getExpressionFactory().
-			createValueExpression(elctx, (String) result, Object.class);
-		result = ve.getValue(elctx);
-*/
+1.1+
 		// JSF 1.1 VB:
 		try {
 		    ValueBinding vb =
@@ -505,6 +604,7 @@ public class ComponentUtil {
 		    }
 		    throw ex;
 		}
+*/
 	}
 
 	// Return the result
@@ -525,6 +625,10 @@ public class ComponentUtil {
         }
         return false;
     }
+
+
+    private static Map<String, Class> _typeCache =
+	    new HashMap<String, Class>();
 
     /**
      *	<p> This Map caches ComponentTypes by their factoryClass name.</p>
