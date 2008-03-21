@@ -255,8 +255,7 @@ public abstract class LayoutDefinitionManager {
      *	    <code>id</code>.</p>
      */
     private static LayoutComponent findById(FacesContext ctx, LayoutElement elt, String id) {
-	// Only set 'stack' for LayoutComposition, it serves as flag also
-	Stack<LayoutElement> stack = null;
+	boolean shouldPop = false;
 
 	// Check for special LE's
 	if (elt instanceof LayoutComposition) {
@@ -265,8 +264,8 @@ public abstract class LayoutDefinitionManager {
 	    String viewId = ((LayoutComposition) elt).getTemplate();
 	    if (viewId != null) {
 		// Add LayoutComposition to the stack
-		stack = LayoutComposition.getCompositionStack(ctx);
-		stack.push(elt);
+		LayoutComposition.push(ctx, elt);
+		shouldPop = true;
 
 		// Get the new LD to walk
 		try {
@@ -308,8 +307,8 @@ public abstract class LayoutDefinitionManager {
 	}
 
 	// Remove the LayoutComposition from the stack
-	if (stack != null) {
-	    stack.pop();
+	if (shouldPop) {
+	    LayoutComposition.pop(ctx);
 	}
 
 	// Return the result, or null if not found
