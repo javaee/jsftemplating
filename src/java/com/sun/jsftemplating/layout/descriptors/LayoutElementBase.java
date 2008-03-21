@@ -136,9 +136,7 @@ public abstract class LayoutElementBase implements LayoutElement {
 	FacesContext context = FacesContext.getCurrentInstance();
 	if (this instanceof LayoutComposition) {
 	    // Add LayoutComposition to the stack
-	    Stack<LayoutElement> stack =
-		LayoutComposition.getCompositionStack(context);
-	    stack.push(this);
+	    LayoutComposition.push(context, this);
 
 	    // Find the new LD tree...
 	    LayoutDefinition def = LayoutDefinitionManager.getLayoutDefinition(
@@ -146,7 +144,7 @@ public abstract class LayoutElementBase implements LayoutElement {
 
 	    // Recurse...
 	    result = def.findLayoutElement(id);
-	    stack.pop();
+	    LayoutComposition.pop(context);
 	}
 
 	// Next we need to walk deeper...
@@ -154,9 +152,7 @@ public abstract class LayoutElementBase implements LayoutElement {
 	    if ((elt instanceof LayoutComposition)
 		    && (((LayoutComposition) elt).getTemplate() != null)) {
 		// Add LayoutComposition to the stack
-		Stack<LayoutElement> stack =
-		    LayoutComposition.getCompositionStack(context);
-		stack.push(elt);
+		LayoutComposition.push(context, elt);
 
 		// Find the new LD tree...
 		LayoutDefinition def = LayoutDefinitionManager.getLayoutDefinition(
@@ -164,7 +160,7 @@ public abstract class LayoutElementBase implements LayoutElement {
 
 		// Recurse...
 		result = def.findLayoutElement(id);
-		stack.pop();
+		LayoutComposition.pop(context);
 	    } else if (elt instanceof LayoutInsert) {
 		// FIXME: Look through Stack/List of compositions we've already walked for inserted value.
 	    } else {
