@@ -483,9 +483,7 @@ public class LayoutViewHandler extends ViewHandler {
 		String template = compo.getTemplate();
 		if (template != null) {
 		    // Add LayoutComposition to the stack
-		    Stack<LayoutElement> stack =
-			LayoutComposition.getCompositionStack(context);
-		    stack.push(childElt);
+		    LayoutComposition.push(context, childElt);
 
 		    try {
 			// Add the template here.
@@ -499,7 +497,7 @@ public class LayoutViewHandler extends ViewHandler {
 		    }
 
 		    // Remove the LayoutComposition from the stack
-		    stack.pop();
+		    LayoutComposition.pop(context);
 		}
 	    } else if (childElt instanceof LayoutInsert) {
 		Stack<LayoutElement> stack =
