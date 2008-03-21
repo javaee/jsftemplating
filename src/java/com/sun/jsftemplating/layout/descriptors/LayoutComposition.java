@@ -365,7 +365,7 @@ public class LayoutComposition extends LayoutElementBase {
     /**
      *	<p> The filename of the template.</p>
      */
-    private String template;
+    private String template = null;
 
     /**
      *	<p> True if trimming should occur.</p>
