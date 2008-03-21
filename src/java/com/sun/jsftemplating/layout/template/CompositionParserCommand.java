@@ -82,29 +82,28 @@ public class CompositionParserCommand implements CustomParserCommand {
 	List<NameValuePair> nvps =
 	    reader.readNameValuePairs(name, templateAttName, true);
 
-	// Look for required attribute
-	// Find the template name
-	String tpl = null;
-	boolean required = true;
-	for (NameValuePair nvp : nvps) {
-	    if (nvp.getName().equals(templateAttName)) {
-		tpl = (String) nvp.getValue();
-	    } else if (nvp.getName().equals(REQUIRED_ATTRIBUTE)) {
-		required = Boolean.parseBoolean(nvp.getValue().toString());
-	    } else {
-		throw new SyntaxException("'" + name
-			+ "' tag contained unkown attribute '" + nvp.getName()
-			+ "' with value '" + nvp.getValue() + "'.");
-	    }
-	}
-
 	// Create new LayoutComposition
 	LayoutComposition compElt = new LayoutComposition(
 	    parent,
 	    LayoutElementUtil.getGeneratedId(name, reader.getNextIdNumber()),
 	    trimming);
-	compElt.setTemplate(tpl);
-	compElt.setRequired(required);
+
+	// Look for required attribute
+	// Find the template name
+	for (NameValuePair nvp : nvps) {
+	    if (nvp.getName().equals(templateAttName)) {
+		compElt.setTemplate((String) nvp.getValue());
+	    } else if (nvp.getName().equals(REQUIRED_ATTRIBUTE)) {
+		compElt.setRequired(
+		    Boolean.parseBoolean(nvp.getValue().toString()));
+	    } else {
+		// We are going to treat extra attributes on compositions to be
+		// ui:param values
+// FIXME: I probably need to go back to <String, Object>... value could be a List!
+		compElt.setParameter(nvp.getName(), (String) nvp.getValue());
+	    }
+	}
+
 	parent.addChildLayoutElement(compElt);
 
 	// See if this is a single tag or not...
