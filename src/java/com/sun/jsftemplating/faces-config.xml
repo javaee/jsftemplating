@@ -35,7 +35,7 @@
 
     <application>
         <!-- -->
-	<view-handler>com.sun.jsftemplating.layout.LayoutViewHandler</view-handler>
+	@VIEWHANDLER_ELEMENT@
 	<variable-resolver>com.sun.jsftemplating.el.PageSessionResolver</variable-resolver>
         <!-- -->
         <locale-config>

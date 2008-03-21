@@ -97,35 +97,52 @@
 	</apt>
     </target>
 
+    <macrodef name="build.jar">
+	<attribute name="jarfile"/>
+	<attribute name="xml" default="&lt;view-handler&gt;com.sun.jsftemplating.layout.LayoutViewHandler&lt;/view-handler&gt;"/>
+	<sequential>
+		<echo>Building @{jarfile}</echo>
+		<mkdir dir="${dist}/." />
+	        <!-- Copy JS file also b/c currently it needs to be out of .jar -->
+	        <copy todir="${dist}/.">
+	            <fileset dir="${src}/com/sun/jsftemplating/component/resources/">
+	                <include name="**/*.js" />
+	            </fileset>
+	        </copy>
+	        <copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" overwrite="true"/>
+		<filter token="VIEWHANDLER_ELEMENT" value="@{xml}"/>
+		<copy todir="${build}" filtering="true" overwrite="true">
+			<fileset file="${jsftemplating.home}/faces-config.xml"/>
+		</copy>
+	        <jar jarfile="@{jarfile}" update="true">
+		    <manifest>
+			<attribute name="Implementation-Title" value="JSFTemplating" />
+			<attribute name="Implementation-Version" value="1.2_${TODAY}" />
+			<attribute name="Implementation-URL" value="https://jsftemplating.dev.java.net" />
+			<section name="JSFTemplating">
+				<attribute name="Specific-Version" value="1.2" />
+				<attribute name="Extension-Name" value="com.sun.jsftemplating" />
+				<attribute name="JSF-RI-Dependencies" value="" />
+			</section>
+		   </manifest>
+			
+	            <fileset dir="${build}" includes="**/*.class, **/*.map" />
+	            <zipfileset dir="${src}" prefix="" includes="**/*.properties" />
+	            <zipfileset dir="${jsftemplating.home}/layout/pages" prefix="" includes="*.jsf" />
+	            <zipfileset dir="${jsftemplating.home}/component/layout" prefix="META-INF/jsftemplating" includes="*.xml,*.xhtml,*.jsf" />
+	            <zipfileset dir="${jsftemplating.home}/layout/xml" prefix="META-INF/jsftemplating" includes="*.dtd" />
+	            <zipfileset dir="${jsftemplating.home}/layout/facelets" prefix="META-INF/" includes="*.dtd,*.ent" />
+	            <zipfileset dir="${build}" prefix="META-INF" includes="faces-config.xml" />
+	        </jar>
+	</sequential>
+    </macrodef>
+    
+    <target name="base-jar" depends="compile" description="Package the 'base' jar, which does not enable ViewHandler by default">
+	<build.jar jarfile="${jsftemplating-base.jar}" xml=" "/>
+    </target>
+	
     <target name="jar" depends="compile" description="Package the project">
-        <mkdir dir="${dist}/." />
-        <!-- Copy JS file also b/c currently it needs to be out of .jar -->
-        <copy todir="${dist}/.">
-            <fileset dir="${src}/com/sun/jsftemplating/component/resources/">
-                <include name="**/*.js" />
-            </fileset>
-        </copy>
-        <copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" />
-        <jar jarfile="${jsftemplating.jar}" update="true">
-	    <manifest>
-		<attribute name="Implementation-Title" value="JSFTemplating" />
-		<attribute name="Implementation-Version" value="1.2_${TODAY}" />
-		<attribute name="Implementation-URL" value="https://jsftemplating.dev.java.net" />
-		<section name="JSFTemplating">
-			<attribute name="Specific-Version" value="1.2" />
-			<attribute name="Extension-Name" value="com.sun.jsftemplating" />
-			<attribute name="JSF-RI-Dependencies" value="" />
-		</section>
-	   </manifest>
-		
-            <fileset dir="${build}" includes="**/*.class, **/*.map" />
-            <zipfileset dir="${src}" prefix="" includes="**/*.properties" />
-            <zipfileset dir="${jsftemplating.home}/layout/pages" prefix="" includes="*.jsf" />
-            <zipfileset dir="${jsftemplating.home}/component/layout" prefix="META-INF/jsftemplating" includes="*.xml,*.xhtml,*.jsf" />
-            <zipfileset dir="${jsftemplating.home}/layout/xml" prefix="META-INF/jsftemplating" includes="*.dtd" />
-            <zipfileset dir="${jsftemplating.home}/layout/facelets" prefix="META-INF/" includes="*.dtd,*.ent" />
-            <zipfileset dir="${jsftemplating.home}" prefix="META-INF" includes="faces-config.xml" />
-        </jar>
+	<build.jar jarfile="${jsftemplating.jar}"/>
     </target>
 
     <target name="jarsrc" depends="jar" description="Package the project source">
@@ -212,6 +229,11 @@
                        fileDescription="Nightly snapshot of JSFTemplating"
                        overwrite="yes"/>
         <javaNetUpload projectName="jsftemplating"
+                       toFile="/nightly/jsftemplating-base.jar"
+                       fromFile="${dist}/jsftemplating-base.jar"
+                       fileDescription="Nightly snapshot of JSFTemplating.  Non-ViewHandler version of jar file -- needs extra configuration. For non-page use only."
+                       overwrite="yes"/>
+        <javaNetUpload projectName="jsftemplating"
                        toFile="/nightly/jsftemplating-dt.jar"
                        fromFile="${dist}/jsftemplating-dt.jar"
                        fileDescription="Nightly snapshot of the JSFTemplating design time lib"
@@ -233,6 +255,7 @@
         <!-- clean it -->
         <maven-repository-importer destdir="${build}/maven-repo" version="${version}">
             <artifact jar="${dist}/jsftemplating.jar" pom="jsftemplating.pom" srczip="${jsftemplating-src.jar}"/>
+            <artifact jar="${dist}/jsftemplating-base.jar" pom="jsftemplating-base.pom" srczip="${jsftemplating-src.jar}"/>
             <artifact jar="${dist}/jsftemplating-dt.jar" pom="jsftemplating-dt.pom" />
             <artifact jar="${dist}/jsftemplating-dynafaces-0.1.jar" pom="jsftemplating-dynafaces-0.1.pom" />
         </maven-repository-importer>
