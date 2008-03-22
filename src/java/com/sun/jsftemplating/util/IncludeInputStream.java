@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 
 
 /**
@@ -179,97 +180,15 @@ public class IncludeInputStream extends FilterInputStream {
 	// Get the file name...
 	String filename = buf.toString();
 
-	// Determine if we're in a JSF environment...
-	if (FACES_CONTEXT != null) {
-	    // We are... get a context root relative path...
-	    filename = convertRelativePath(filename);
-	}
-	File file = new File(filename);
-	// Make sure file exists (don't check read, let it throw an exception)
-	if (file.exists()) {
-	    // Open the included file
+	// Look for the file
+	URL url = FileUtil.searchForFile(filename, null);
+	if (url != null) {
 	    redirStream  = new IncludeInputStream(
-		new BufferedInputStream(new FileInputStream(file)));
-	} else {
-	    // Check Classpath?
-	    ClassLoader loader = Util.getClassLoader(this);
-		//Strip out leading '/'
-		if(filename.startsWith("/")) {
-			filename = Util.stripLeadingDelimeter(filename, '/');
-		}
-	    InputStream stream = loader.getResourceAsStream(filename);
-	    if (stream == null) {
-		stream = loader.getResourceAsStream("/" + filename);
-		if (stream == null) {
-		    stream = loader.getResourceAsStream(
-			    "META-INF/" + filename);
-		    if (stream == null) {
-			throw new FileNotFoundException(filename);
-		    }
-		}
-	    }
-	    redirStream  = new IncludeInputStream(
-		    new BufferedInputStream(stream));
+		    new BufferedInputStream(url.openStream()));
 	}
 
 	// Read the first character from the file to return
 	return redirStream.read();
-    }
-
-    /**
-     *	<p> This method converts a context-root relative path to the actual
-     *	    path using the ServletContext or PortletContext.  This requires
-     *	    the application to be running in a Servlet or Portlet
-     *	    environment... and further requires that it be running in JSF
-     *	    environment (which is used to access the Servlet or Portlet
-     *	    Context).</p>
-     *
-     *	@param	filename    The relative filename to convert to a full path.
-     *
-     *	@return	The full path based on the app's context root.
-     */
-    protected String convertRelativePath(String filename) {
-	// NOTE: This method uses reflection to avoid build/runtime
-	// NOTE: dependencies on JSF, this method is only used if the
-	// NOTE: FacesContext class is found in the classpath.
-
-	// Check for the file in docroot
-	Method method = null;
-	Object ctx = null;
-	String newFilename = null;
-	try {
-	    // The following should work w/ a ServletContext or PortletContext
-	    // Get the FacesContext...
-	    method = FACES_CONTEXT.getMethod(
-		    "getCurrentInstance", (Class []) null);
-	    ctx = method.invoke((Object) null, (Object []) null);
-
-	    // Get the ExternalContext...
-	    method = ctx.getClass().getMethod(
-		    "getExternalContext", (Class []) null);
-	    ctx = method.invoke(ctx, (Object []) null);
-
-	    // Get actual underlying external context...
-	    method = ctx.getClass().getMethod(
-		    "getContext", (Class []) null);
-	    ctx = method.invoke(ctx, (Object []) null);
-
-	    // Get the real path using the ServletContext/PortletContext
-	    method = ctx.getClass().getMethod(
-		    "getRealPath", GET_REAL_PATH_ARGS);
-	    newFilename = (String) method.invoke(ctx, new Object [] {filename});
-	    if (!(new File(newFilename)).exists()) {
-		// The file doesn't exist, fall back to absolute path
-		newFilename = filename;
-	    }
-	} catch (NoSuchMethodException ex) {
-	    throw new RuntimeException(ex);
-	} catch (IllegalAccessException ex) {
-	    throw new RuntimeException(ex);
-	} catch (InvocationTargetException ex) {
-	    throw new RuntimeException(ex);
-	}
-	return newFilename;
     }
 
     /**
@@ -292,22 +211,8 @@ public class IncludeInputStream extends FilterInputStream {
     private boolean eol = true;
     private IncludeInputStream redirStream = null;
 
-    private static final Class [] GET_REAL_PATH_ARGS =
-	    new Class[] {String.class};
-
     private static final String INCLUDE	    =	"include";
     private static final int	INCLUDE_LEN =	INCLUDE.length();
 
     private static final int	MARK_LIMIT  =	128;
-
-    private static Class FACES_CONTEXT;
-
-    static {
-	try {
-	    FACES_CONTEXT = Util.loadClass("javax.faces.context.FacesContext", "");
-	} catch (Exception ex) {
-	    // Ignore, this just means we're not in a JSF environment
-	    FACES_CONTEXT = null;
-	}
-    }
 }
