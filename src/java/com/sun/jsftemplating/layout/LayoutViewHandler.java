@@ -487,8 +487,7 @@ public class LayoutViewHandler extends ViewHandler {
 
 		    try {
 			// Add the template here.
-			buildUIComponentTree(context, parent,
-			    LayoutDefinitionManager.getLayoutDefinition(
+			buildUIComponentTree(context, parent, LayoutDefinitionManager.getLayoutDefinition(
 				context, template));
 		    } catch (LayoutDefinitionException ex) {
 			if (((LayoutComposition) childElt).isRequired()) {
@@ -498,6 +497,10 @@ public class LayoutViewHandler extends ViewHandler {
 
 		    // Remove the LayoutComposition from the stack
 		    LayoutComposition.pop(context);
+		} else {
+		    // In this case we don't have a template, so instead we
+		    // render the body
+		    buildUIComponentTree(context, parent, childElt);
 		}
 	    } else if (childElt instanceof LayoutInsert) {
 		Stack<LayoutElement> stack =
