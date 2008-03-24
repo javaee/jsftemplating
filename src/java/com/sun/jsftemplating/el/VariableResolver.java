@@ -283,88 +283,159 @@ public class VariableResolver {
      *		description.
      */
     private static Object replaceCompParams(FacesContext ctx, LayoutElement desc, UIComponent comp, String string) {
-	Object newVal = string;
-	if (string.startsWith("#{")) {
-	    // First see if we have any params
-	    Map<String, String> globalParams =
-		LayoutComposition.getGlobalParamMap(ctx);
-	    if (globalParams.size() == 0) {
-		// No mappings, nothing to do
-		return string;
-	    }
+	// Sanity check
+	if (string == null) {
+	    return null;
+	}
 
-// FIXME: Instead get the map key first so we can fail fast.
+	// First see if we have any params
+	Map<String, String> globalParams =
+	    LayoutComposition.getGlobalParamMap(ctx);
+	if (globalParams.size() == 0) {
+	    // No mappings, nothing to do
+	    return string;
+	}
 
-	    // Ok, we have to do magic...
-	    // Get what's inside the {}'s
-	    int idx = string.indexOf('}', 2);
-	    if (idx == -1) {
-		// Not a match...
-		return string;
-	    }
+	String token = null;
+	Object value = null;
+	int len, startEL, endEL = 0;
+	int loopStart = 0;
+	char chars[] = string.toCharArray();
+	boolean foundAtLeastOne = false, isWholeString = false;
+	StringBuilder buff = null;
+	Stack<LayoutElement> stack = null;
 
-	    // Get the EL content
-	    String newEL = string.substring(2, idx);
+	while (true) {
+	    startEL = findOpenEL(chars, loopStart);
+	    // Detect
+	    while (startEL != -1) {
+		// Get the next token
+		endEL = findChar(chars, startEL + 2, '}', '[', '.');
+		if (endEL == -1) {
+		    // Not a match, non-fatal
+		    startEL = -1;
+		    break;
+		}
+		token = string.substring(startEL + 2, endEL);
+		token = token.trim();
 
-	    // Get content after the EL (just in case)
-	    String afterEL = string.substring(idx + 1);
-
-	    // Look for ',' (default value)
-	    String defValue = string;
-	    idx = newEL.indexOf(',');
-	    if (idx > 0) {
-		// We have a ','... define default (yes I realize ',' could be
-		// at the beginning, I intentionally don't support that).
-		// Default is content after the ',':
-		defValue = newEL.substring(idx + 1);
-		newEL = newEL.substring(0, idx);
-	    }
-
-	    // Check for a '.' (if found, don't replace everything -- merge)
-	    idx = newEL.indexOf('.');
-	    String restOfEL = null;
-	    if (idx > 0) {
-		// '.' found, merge
-		restOfEL = newEL.substring(idx); // Keep '.'
-		newEL = newEL.substring(0, idx);
-	    }
-
-	    // Next we get the template value (if any)
-	    String value = globalParams.get(newEL);
-	    if (value != null) {
-		// We're not done yet!  This value is only a flag, we have to
-		// look at the composition stack to be accurate!
-		String param = LayoutComposition.findTemplateParam(
-			LayoutComposition.getCompositionStack(ctx), newEL);
-		if (param != null) {
-		    // call this b/c we potentially have $...{...} again!
-		    newVal = resolveVariables(ctx, desc, comp, param);
-		    if (restOfEL == null) {
-			// Ignore #{}, just swap it...
-			if ((afterEL != null) && !afterEL.equals("")) {
-			    // Turn it back to a String and append stuff
-			    newVal = "" + newVal + afterEL;
-			}
-		    } else {
-			param = ("" + newVal).trim();
-			// Are we merging 2 #{}'s? If not, fail (for now)
-			idx = param.length() - 1;
-			if ((idx < 2) || (param.charAt(0) != '#') || (param.charAt(1) != '{')
-				|| (param.charAt(idx) != '}')) {
-			    throw new IllegalArgumentException(
-				"Cannot merge template parameter value '"
-				+ param + "' with EL expression '"
-				+ string + "'!");
-			}
-
-			// Strip off #{} from template param value
-			param = param.substring(2, idx);
-			newVal = "#{" + param + restOfEL + "}" + afterEL;
+		// Check to see if this is template param
+		value = globalParams.get(token);
+		if (value != null) {
+		    // We're not done yet!  This value is only a flag, we have to
+		    // look at the composition stack to be accurate!
+		    if (stack == null) {
+			stack = LayoutComposition.getCompositionStack(ctx);
 		    }
+		    value = LayoutComposition.findTemplateParam(stack, token);
+		    break;
+		}
+		startEL = string.indexOf("#{", endEL + 1);
+	    }
+
+	    if (startEL == -1) {
+		if (!foundAtLeastOne) {
+		    // We didn't find anything to substitute
+		    return string;
+		}
+
+		// Append the rest of the String
+		buff.append(chars, loopStart, chars.length - loopStart);
+
+		// We're done
+		break;
+	    }
+
+	    // Only get here when we find one...
+	    foundAtLeastOne = true;
+	    if (buff == null) {
+		// Initialize the buffer
+		buff = new StringBuilder(100);
+	    }
+
+	    // Check to see if this expression starts at the beginning 
+	    isWholeString = (startEL == 0);
+
+	    // Add everything before the "#{"
+	    buff.append(chars, loopStart, startEL - loopStart);
+
+	    // We got "...#{replaceMe?*", look at the next char to see what to do
+	    if (chars[endEL] == '}') {
+		// Swap everything, no merge
+		endEL++;  // Move past '}'
+		if (isWholeString && (endEL >= chars.length)) {
+		    // Special case, #{} is entire string, return it
+		    return resolveVariables(ctx, desc, comp, value);
+		}
+		isWholeString = false;
+
+		// Ok, we just take the String value of "value" and add it
+		if (value != null) {
+		    buff.append(value);
+		}
+	    } else {
+		// Merge... we're just going to strip off "#{}" from value and
+		// insert it for now, later we might support more.
+		int start = 0;
+		if (token.startsWith("#{")) {
+		    start = 2;
+		}
+		int end = token.length();
+		if (token.charAt(end - 1) == '}') {
+		    end--;
+		}
+
+		// Add merged content...
+		buff.append("#{").append(token, start, end - start + 1);
+
+		// Find the end of the rest of the #{}...
+		end = findChar(chars, endEL + 1, '}');
+		if (end == -1) {
+		    throw new IllegalArgumentException(
+			"EL has unterminated #{} expression: (" + string + ")");
+		}
+		buff.append(chars, endEL, ++end - endEL);
+		endEL = end;
+	    }
+	    loopStart = endEL;
+	}
+
+	// Replace ${}, return the result...
+	return resolveVariables(ctx, desc, comp, buff.toString());
+    }
+
+    /**
+     *	<p> This looks for the first occurance of "<code>#{</code>" in
+     *	    <code>chars</code>.  It returns the index of the starting
+     *	    character, or -1 if not found.</p>
+     */
+    private static int findOpenEL(char chars[], int idx) {
+	int len = chars.length;
+	for (; idx<len; idx++) {
+	    if ((chars[idx] == '#') && (chars[idx + 1] == '{')) {
+		return idx;
+	    }
+	}
+	return -1;
+    }
+
+    /**
+     *	<p> This method searches the given <code>chars</code> from the
+     *	    <code>startingIndex</code> for any of the characters in
+     *	    <code>matchChars</code>.</p>
+     */
+    private static int findChar(char chars[], int idx, char ... matchChars) {
+	int len = chars.length;
+	for (; idx<len; idx++) {
+	    for (char ch : matchChars) {
+		if (chars[idx] == ch) {
+		    return idx;
 		}
 	    }
 	}
-	return newVal;
+
+	// Not found
+	return -1;
     }
 
     /**
