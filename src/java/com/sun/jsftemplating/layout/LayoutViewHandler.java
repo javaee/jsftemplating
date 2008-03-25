@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.faces.FactoryFinder;
 import javax.faces.application.StateManager;
@@ -423,22 +425,21 @@ public class LayoutViewHandler extends ViewHandler {
      *	    specified, then the {@link #DEFAULT_RESOURCE_PREFIX} will be
      *	    used.</p>
      */
-    public List<String> getResourcePrefixes() {
+    public Set<String> getResourcePrefixes() {
 	if (_resourcePrefix == null) {
-	    ArrayList<String> list = new ArrayList<String>();
-
+	    HashSet<String> set = new HashSet<String>();
 	    // Check to see if it's specified by a context param
 	    // Get context parameter map (initParams in JSF are context params)
 	    String initParam = (String) FacesContext.getCurrentInstance().
 		getExternalContext().getInitParameterMap().get(RESOURCE_PREFIX);
 	    if (initParam != null) {
-		list.add(initParam);
+		for(String token: initParam.split(",")) {
+		    set.add(token.trim());
+		}
 	    }
-// FIXME: Support more...
-
 	    // Add default...
-	    list.add(DEFAULT_RESOURCE_PREFIX);
-	    _resourcePrefix = list;
+	    set.add(DEFAULT_RESOURCE_PREFIX);
+	    _resourcePrefix = set;
 	}
 	return _resourcePrefix;
     }
@@ -449,7 +450,7 @@ public class LayoutViewHandler extends ViewHandler {
      *	    Currently, only 1 prefix is supported.  The prefix itself does not
      *	    manifest itself in the file system / classpath.</p>
      */
-    public void setResourcePrefixes(List<String> prefix) {
+    public void setResourcePrefixes(Set<String> prefix) {
 	_resourcePrefix = prefix;
     }
 
@@ -858,7 +859,7 @@ public class LayoutViewHandler extends ViewHandler {
     public static final String RESOURCE_PREFIX		=
 	"com.sun.jsftemplating.RESOURCE_PREFIX";
 
-    private List<String> _resourcePrefix = null;
+    private Set<String> _resourcePrefix = null;
 //private transient java.util.Date _time = null;
 
     private ViewHandler _oldViewHandler			= null;
