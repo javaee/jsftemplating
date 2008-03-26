@@ -204,7 +204,6 @@ public class FileUtil {
 	    filesFound.put(path, url);
 	}
 
-System.out.println("URL: " + url);
 	// Return a url to the file (hopefully)...
 	return url;
     }

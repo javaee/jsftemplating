@@ -82,7 +82,6 @@ public class Util {
 	// Check to see if we've calculated the ClassLoader for this parent
 	ClassLoader loader = classLoaderCache.get(parent);
 	if (loader != null) {
-//System.out.println("CACHED: " + loader);
 	    return loader;
 	}
 	loader = parent;
@@ -94,7 +93,6 @@ public class Util {
 	    clsName = (String) ctx.getExternalContext().
 		    getInitParameterMap().get(CUSTOM_CLASS_LOADER);
 	}
-//System.out.println("Looking for new CL for parent: " + loader.getClass().getName());
 	if (clsName != null) {
 	    if (clsName.equals(loader.getClass().getName())) {
 		// It has already been wrapped
