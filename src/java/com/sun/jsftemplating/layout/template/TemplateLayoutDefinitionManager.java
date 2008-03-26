@@ -147,32 +147,20 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
      *	@return		The requested {@link LayoutDefinition}.
      */
     public LayoutDefinition getLayoutDefinition(String key) throws LayoutDefinitionException {
-	// Remove leading "/" (we'll add it back if needed)
-	while (key.startsWith("/")) {
-	    key = key.substring(1);
+	// Make sure we found the url
+	URL url = FileUtil.searchForFile(key, ".jsf");
+	if (url == null) {
+	    throw new LayoutDefinitionException(
+		    "Unable to locate '" + key + "'");
 	}
 
-	// See if we already have this one.
-	LayoutDefinition ld = getCachedLayoutDefinition(key);
-	if (ld == null) {
-	    URL url = FileUtil.searchForFile(key, ".jsf");
-
-	    // Make sure we found the url
-	    if (url == null) {
-		throw new LayoutDefinitionException(
-			"Unable to locate '" + key + "'");
-	    }
-
-	    // Read the template file
-	    try {
-		ld  = new TemplateReader(key, url).read();
-	    } catch (IOException ex) {
-		throw new LayoutDefinitionException(
-		    "Unable to process '" + url.toString() + "'.", ex);
-	    }
-
-	    // Cache the LayoutDefinition
-	    putCachedLayoutDefinition(key, ld);
+	// Read the template file
+	LayoutDefinition ld = null;
+	try {
+	    ld  = new TemplateReader(key, url).read();
+	} catch (IOException ex) {
+	    throw new LayoutDefinitionException(
+		"Unable to process '" + url.toString() + "'.", ex);
 	}
 
 	// Dispatch "initPage" handlers
