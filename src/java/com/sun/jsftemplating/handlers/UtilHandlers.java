@@ -459,4 +459,16 @@ public class UtilHandlers {
     public static void renderResponse(HandlerContext context) {
 	context.getFacesContext().renderResponse();
     }
+
+    /**
+     *	<p> This handler gets the current system time in milliseconds.  It may
+     *	    be used to time things.</p>
+     */
+    @Handler(id="getDate",
+	output={
+	    @HandlerOutput(name="time", type=Long.class)
+	})
+    public static void getDate(HandlerContext context) {
+	context.setOutputValue("time", new java.util.Date().getTime());
+    }
 }
