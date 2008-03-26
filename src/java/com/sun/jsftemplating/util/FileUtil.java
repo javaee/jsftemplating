@@ -249,7 +249,9 @@ public class FileUtil {
     /**
      *	<p> This method looks for "/./" or "/../" elements in an absolute path
      *	    and removes them.  If a "/./" is found, it simply removes it.  If a
-     *	    "/../" is found, it removes it and the preceeding path element.</p>
+     *	    "/../" is found, it removes it and the preceeding path element.
+     *	    This method also removes duplate '/' characters (i.e. "//" becomes
+     *	    "/").</p>
      */
     public static String cleanUpPath(String absPath) {
 	// First lets remove any "/./" elements
@@ -269,6 +271,11 @@ public class FileUtil {
 		}
 	    }
 	    absPath = absPath.substring(0, prevElement) + absPath.substring(idx + 3);
+	}
+
+	// Remove "//"
+	while ((idx = absPath.indexOf("//")) != -1) {
+	    absPath = absPath.substring(0, idx) + absPath.substring(idx + 1);
 	}
 
 	// Return the fixed-up path
