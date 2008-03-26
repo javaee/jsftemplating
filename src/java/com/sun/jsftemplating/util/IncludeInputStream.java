@@ -185,6 +185,9 @@ public class IncludeInputStream extends FilterInputStream {
 	if (url != null) {
 	    redirStream  = new IncludeInputStream(
 		    new BufferedInputStream(url.openStream()));
+	} else {
+	    // Throw a FnF exception...
+	    throw new FileNotFoundException(filename);
 	}
 
 	// Read the first character from the file to return
