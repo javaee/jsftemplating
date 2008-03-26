@@ -38,6 +38,7 @@ import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
 import com.sun.jsftemplating.layout.facelets.DbFactory;
 import com.sun.jsftemplating.layout.facelets.NSContext;
+import com.sun.jsftemplating.util.FileUtil;
 import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.Util;
 
@@ -138,16 +139,16 @@ public abstract class LayoutDefinitionManager {
      *	    {@link #getLayoutDefinition} and return the result.</p>
      */
     public static LayoutDefinition getLayoutDefinition(FacesContext ctx, String key) throws LayoutDefinitionException {
-        // Remove leading '/' characters
-        while (key.startsWith("/")) {
-            key = key.substring(1);
-        }
+        // Determine the key we should use to cache this
+	String cacheKey = FileUtil.cleanUpPath(key.startsWith("/") ?
+		key : FileUtil.getAbsolutePath(ctx, key));
 
-        // Check to see if we already have it.
-        LayoutDefinition def = getCachedLayoutDefinition(key);
+        // Check to see if we already have it. 
+        LayoutDefinition def = getCachedLayoutDefinition(cacheKey);
         if (def == null) {
             // Obtain the correct LDM, and get the LD
             def = getLayoutDefinitionManager(ctx, key).getLayoutDefinition(key);
+	    putCachedLayoutDefinition(cacheKey, def);
         } else {
             // In the case where we found a cached version,
             // ensure we invoke "initPage" handlers
@@ -496,6 +497,7 @@ public abstract class LayoutDefinitionManager {
      *	@param	value	The {@link LayoutDefinition} to cache.
      */
     public static void putCachedLayoutDefinition(String key, LayoutDefinition value) {
+//System.out.println("CACHING LD: " + key);
 	if (isDebug()) {
 	    FacesContext ctx = FacesContext.getCurrentInstance();
 	    if (ctx != null) {
