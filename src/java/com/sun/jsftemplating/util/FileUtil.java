@@ -22,22 +22,23 @@
  */
 package com.sun.jsftemplating.util;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionException;
+
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-
-import javax.faces.context.FacesContext;
-
-import com.sun.jsftemplating.layout.LayoutDefinitionException;
-import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 
 
 /**
@@ -120,53 +121,159 @@ public class FileUtil {
      *	    <code>META-INF</code> folder.  If found a <code>URL</code> to the
      *	    file will be returned.</p>
      *
-     *	@param	relPath	The Path.
+     *	@param	path	The Path.
      *
      *	@param	defSuff	The suffix to use if the file specified in path is not
      *			found, it is sometimes useful to translate the path
      *			using a default suffix.
      */
-    public static URL searchForFile(String relPath, String defSuff) {
+    public static URL searchForFile(String path, String defSuff) {
 	// Remove leading '/' characters if needed
-	while (relPath.startsWith("/")) {
-	    relPath = relPath.substring(1);
+	boolean absolutePath = false;
+	while (path.startsWith("/")) {
+	    path = path.substring(1);
+	    absolutePath = true;
+	}
+
+	// Check to see if we have already found this before (on this request)
+	URL url = null;
+	FacesContext ctx = FacesContext.getCurrentInstance();
+	Map<String, URL> filesFound = null;
+	if (ctx != null) {
+	    filesFound = (Map<String, URL>)
+		ctx.getExternalContext().getRequestMap().get(FILES_FOUND);
+	    if (filesFound != null) {
+		url = filesFound.get(path);
+		if (url != null) {
+		    // We've already figured this out, abort before we start
+		    return url;
+		}
+	    }
+	}
+
+	// Next check relative path (i.e. determine the directory w/i the app
+	// they are in and prepend it to the path)
+	if (!absolutePath) {
+	    String absPath = getAbsolutePath(ctx, path);
+	    url = searchForFile(absPath, defSuff);
+
+	    // We're done, don't search anymore even if not found
+	    return url;
 	}
 
 	// Check for file in docroot.
-	URL url = getResource(relPath);
+	url = getResource(path);
 	if (url == null) {
 	    // Check the classpath for the file
-	    ClassLoader loader = Util.getClassLoader(relPath);
-	    url = loader.getResource(relPath);
+	    ClassLoader loader = Util.getClassLoader(path);
+	    url = loader.getResource(path);
 	    if (url == null) {
 		// Check w/ a leading '/'
-		url = loader.getResource("/" + relPath);
+		url = loader.getResource("/" + path);
 		if (url == null) {
 		    // Check in "META-INF/"
-		    url = loader.getResource("META-INF/" + relPath);
+		    url = loader.getResource("META-INF/" + path);
 		    if ((url == null) && (defSuff != null)) {
-			// Check to see if the extension is not .jsf, if not
-			// then try finding w/ the extension of .jsf
+			// Check to see if the extension is not .jsf, if
+			// not then try finding w/ the extension of .jsf
 			// This allows developers to write .jsf files and
 			// share them even if the FacesServlet is mapped
 			// differently
-			int idx = relPath.lastIndexOf('.');
+			int idx = path.lastIndexOf('.');
 			if (idx != -1) {
-			    String ext = relPath.substring(idx);
+			    String ext = path.substring(idx);
 			    if (!ext.equalsIgnoreCase(defSuff)) {
-				return searchForFile(
-				    relPath.substring(0, idx) + defSuff, null);
+				return searchForFile(path.substring(0,
+					idx) + defSuff, null);
 			    }
 			} else {
-			    return searchForFile(relPath + defSuff, null);
+			    return searchForFile(path + defSuff, null);
 			}
 		    }
 		}
 	    }
 	}
 
+	if ((url != null) && (ctx != null)) {
+	    // Cache what we found -- each LDM calls this method, help them...
+	    if (filesFound == null) {
+		filesFound = new HashMap<String, URL>(8);
+		ctx.getExternalContext().getRequestMap().
+			put(FILES_FOUND, filesFound);
+	    }
+	    filesFound.put(path, url);
+	}
+
+System.out.println("URL: " + url);
 	// Return a url to the file (hopefully)...
 	return url;
+    }
+
+    /**
+     *	<p> This method converts a path relative to the current viewId into an
+     *	    absolute path from the context-root.  It does this by prepending
+     *	    the current viewId to it.  It is expected that relPath does not
+     *	    contain a leading '/'.</p>
+     *
+     *	@param	ctx	The <code>FacesContext</code>.
+     *	@param	relPath	The relative path to convert.
+     *
+     *	@return	The absolute path (relative to the context-root).
+     */
+    public static String getAbsolutePath(FacesContext ctx, String relPath) {
+	// Sanity check
+	String absPath = null;
+	if (ctx != null) {
+	    // Make sure we have a ViewRoot
+	    UIViewRoot viewRoot = ctx.getViewRoot();
+	    if (viewRoot != null) {
+		// Get the viewId
+		String viewId = viewRoot.getViewId();
+		if (viewId == null) {
+		    viewId = "/";
+		} else if (!viewId.startsWith("/")) {
+		    // Ensure our viewId starts with a '/'
+		    viewId = "/" + viewId;
+		}
+		int slash = viewId.lastIndexOf('/');
+
+		// This will give our our base directory...
+		absPath = viewId.substring(0, ++slash);
+
+		// Append on the relative path
+		absPath += relPath; 
+	    }
+	}
+	return (absPath == null) ? ("/" + relPath) : absPath;
+    }
+
+    /**
+     *	<p> This method looks for "/./" or "/../" elements in an absolute path
+     *	    and removes them.  If a "/./" is found, it simply removes it.  If a
+     *	    "/../" is found, it removes it and the preceeding path element.</p>
+     */
+    public static String cleanUpPath(String absPath) {
+	// First lets remove any "/./" elements
+	int idx;
+	while ((idx = absPath.indexOf("/./")) != -1) {
+	    absPath = absPath.substring(0, idx) + absPath.substring(idx + 2);
+	}
+
+	// Next remove any "/../" elements
+	while ((idx = absPath.indexOf("/../")) != -1) {
+	    int prevElement = 0;
+	    if (idx > 0) {
+		// Find previous element
+		prevElement = absPath.lastIndexOf('/', idx - 1);
+		if (prevElement == -1) {
+		    prevElement = 0;
+		}
+	    }
+	    absPath = absPath.substring(0, prevElement) + absPath.substring(idx + 3);
+	}
+
+	// Return the fixed-up path
+	return absPath;
     }
     
     /**
@@ -200,6 +307,7 @@ public class FileUtil {
         return entries;
     }
     
+    private static final String	    FILES_FOUND		= "_filesFoundThisRequest";
     private static final Class []   REALPATH_ARGS	= new Class[] {String.class};
     private static final Class []   GET_RES_ARGS	= new Class[] {String.class};
     private static final String []  DEFAULT_SEARCH_PATH	= new String[] {"/WEB-INF/lib/"};
