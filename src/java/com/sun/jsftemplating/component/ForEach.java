@@ -48,7 +48,7 @@ public class ForEach extends TemplateComponentBase {
 
     /**
      *	<p> This is the location of the XML file that declares the layout for
-     *	    the <code>ForEach</code>. (jsftemplating/foreach.xml)</p>
+     *	    the <code>ForEach</code>. (/jsftemplating/foreach.xml)</p>
      */
-    public static final String	LAYOUT_KEY  =	"jsftemplating/foreach.xml";
+    public static final String	LAYOUT_KEY  =	"/jsftemplating/foreach.xml";
 }

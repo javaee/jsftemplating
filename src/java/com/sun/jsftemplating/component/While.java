@@ -48,7 +48,7 @@ public class While extends TemplateComponentBase {
 
     /**
      *	<p> This is the location of the XML file that declares the layout for
-     *	    the <code>While</code>. (jsftemplating/while.xml)</p>
+     *	    the <code>While</code>. (/jsftemplating/while.xml)</p>
      */
-    public static final String	LAYOUT_KEY  =	"jsftemplating/while.xml";
+    public static final String	LAYOUT_KEY  =	"/jsftemplating/while.xml";
 }

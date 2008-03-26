@@ -68,7 +68,7 @@ public class EventComponent extends TemplateComponentBase {
 
     /**
      *	<p> This is the location of the XML file that declares the layout for
-     *	    the EventComponent. (jsftemplating/event.xml)</p>
+     *	    the EventComponent. (/jsftemplating/event.xml)</p>
      */
-    public static final String	LAYOUT_KEY  =	"jsftemplating/event.xml";
+    public static final String	LAYOUT_KEY  =	"/jsftemplating/event.xml";
 }

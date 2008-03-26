@@ -51,7 +51,7 @@ public class AjaxRequest extends TemplateComponentBase {
 
     /**
      *	<p> This is the location of the XML file that declares the layout for
-     *	    the AjaxRequest. (jsftemplating/ajaxRequest.xml)</p>
+     *	    the AjaxRequest. (/jsftemplating/ajaxRequest.xml)</p>
      */
-    public static final String	LAYOUT_KEY  =	"jsftemplating/ajaxRequest.xml";
+    public static final String	LAYOUT_KEY  =	"/jsftemplating/ajaxRequest.xml";
 }

@@ -47,7 +47,7 @@ public class StaticText extends TemplateComponentBase {
 
     /**
      *	<p> This is the location of the XML file that declares the layout for
-     *	    the StaticText. (jsftemplating/staticText.xml)</p>
+     *	    the StaticText. (/jsftemplating/staticText.xml)</p>
      */
-    public static final String	LAYOUT_KEY  =	"jsftemplating/staticText.xml";
+    public static final String	LAYOUT_KEY  =	"/jsftemplating/staticText.xml";
 }

@@ -48,7 +48,7 @@ public class If extends TemplateComponentBase {
 
     /**
      *	<p> This is the location of the XML file that declares the layout for
-     *	    the If. (jsftemplating/if.xml)</p>
+     *	    the If. (/jsftemplating/if.xml)</p>
      */
-    public static final String	LAYOUT_KEY  =	"jsftemplating/if.xml";
+    public static final String	LAYOUT_KEY  =	"/jsftemplating/if.xml";
 }
