@@ -143,6 +143,7 @@ public class HandlerDefinition implements java.io.Serializable {
 	    // Find the class
 	    Class clzz = null;
 	    try {
+		clzz = Util.loadClass("com.sun.jsftemplating.layout.descriptors.handler.HandlerContext", _methodClass);
 		clzz = Util.loadClass(_methodClass, _methodClass);
 	    } catch (ClassNotFoundException ex) {
 		throw new RuntimeException("'"
@@ -153,7 +154,10 @@ public class HandlerDefinition implements java.io.Serializable {
 	    // Find the method on the class
 	    Method method = null;
 	    try {
-		method = clzz.getMethod(_methodName, EVENT_ARGS);
+		//method = clzz.getMethod(_methodName, EVENT_ARGS);
+		for (Method meth : clzz.getMethods()) {
+		    System.out.println("METHOD: " + meth);
+		}
 	    } catch (NoSuchMethodException ex) {
 		throw new RuntimeException(
 			"Method '" + _methodName + "' not found!", ex);

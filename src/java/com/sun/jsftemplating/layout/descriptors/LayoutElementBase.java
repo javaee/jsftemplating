@@ -545,6 +545,7 @@ public abstract class LayoutElementBase implements LayoutElement {
 	}
 	/******* REMOVE THIS IF TABLE IS EVER FIXED TO WORK RIGHT *******/
 
+// FIXME: May have to change to encodeAll()!!!
 	component.encodeBegin(context);
 	if (component.getRendersChildren()) {
 	    component.encodeChildren(context);

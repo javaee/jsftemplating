@@ -27,7 +27,7 @@ import java.io.IOException;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
-import javax.faces.el.ValueBinding;
+import javax.el.ValueExpression;
 
 import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
@@ -84,16 +84,11 @@ public class LayoutStaticText extends LayoutComponent {
 	    Object value = ComponentUtil.setOption(
 		context, "__value", getValue(),
 		getLayoutDefinition(), component);
-/*
-1.2+
+
+	    // JSF 1.2 VB:
 	    if (value instanceof ValueExpression) {
 		value =
 		    ((ValueExpression) value).getValue(context.getELContext());
-	    }
-*/
-	    // JSF 1.1 VB:
-	    if (value instanceof ValueBinding) {
-		value = ((ValueBinding) value).getValue(context);
 	    }
 
 	    if (value != null) {
