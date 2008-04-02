@@ -130,8 +130,9 @@ public class FileUtil {
     public static URL searchForFile(String path, String defSuff) {
 	// Remove leading '/' characters if needed
 	boolean absolutePath = false;
-	while (path.startsWith("/")) {
-	    path = path.substring(1);
+	String newPath = path;
+	while (newPath.startsWith("/")) {
+	    newPath = newPath.substring(1);
 	    absolutePath = true;
 	}
 
@@ -143,7 +144,7 @@ public class FileUtil {
 	    filesFound = (Map<String, URL>)
 		ctx.getExternalContext().getRequestMap().get(FILES_FOUND);
 	    if (filesFound != null) {
-		url = filesFound.get(path);
+		url = filesFound.get(newPath);
 		if (url != null) {
 		    // We've already figured this out, abort before we start
 		    return url;
@@ -151,10 +152,10 @@ public class FileUtil {
 	    }
 	}
 
-	// Next check relative path (i.e. determine the directory w/i the app
-	// they are in and prepend it to the path)
+	// Next check relative newPath (i.e. determine the directory w/i the app
+	// they are in and prepend it to the newPath)
 	if (!absolutePath) {
-	    String absPath = getAbsolutePath(ctx, path);
+	    String absPath = getAbsolutePath(ctx, newPath);
 	    url = searchForFile(absPath, defSuff);
 
 	    // We're done, don't search anymore even if not found
@@ -162,17 +163,17 @@ public class FileUtil {
 	}
 
 	// Check for file in docroot.
-	url = getResource(path);
+	url = getResource(newPath);
 	if (url == null) {
 	    // Check the classpath for the file
 	    ClassLoader loader = Util.getClassLoader(path);
-	    url = loader.getResource(path);
+	    url = loader.getResource(newPath);
 	    if (url == null) {
 		// Check w/ a leading '/'
-		url = loader.getResource("/" + path);
+		url = loader.getResource("/" + newPath);
 		if (url == null) {
 		    // Check in "META-INF/"
-		    url = loader.getResource("META-INF/" + path);
+		    url = loader.getResource("META-INF/" + newPath);
 		    if ((url == null) && (defSuff != null)) {
 			// Check to see if the extension is not .jsf, if
 			// not then try finding w/ the extension of .jsf
@@ -201,7 +202,7 @@ public class FileUtil {
 		ctx.getExternalContext().getRequestMap().
 			put(FILES_FOUND, filesFound);
 	    }
-	    filesFound.put(path, url);
+	    filesFound.put(newPath, url);
 	}
 
 	// Return a url to the file (hopefully)...
