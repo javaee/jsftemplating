@@ -145,7 +145,7 @@
 	<build.jar jarfile="${jsftemplating.jar}"/>
     </target>
 
-    <target name="jarsrc" depends="jar" description="Package the project source">
+    <target name="jarsrc" depends="jar, base-jar " description="Package the project source">
 	 <jar jarfile="${jsftemplating-src.jar}" basedir="${src}" excludes="**/CVS/*" update="true"/>
     </target>
 
