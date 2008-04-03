@@ -218,23 +218,27 @@
             </classpath>
         </taskdef>
 	
-	<antcall target="push-to-maven"/>
+        <antcall target="push-to-maven"/>
 
+        <echo>Uploading jsftemplating.jar</echo>
         <javaNetUpload projectName="jsftemplating"
                        toFile="/nightly/jsftemplating.jar"
                        fromFile="${dist}/jsftemplating.jar"
                        fileDescription="Nightly snapshot of JSFTemplating"
                        overwrite="yes"/>
+        <echo>Uploading jsftemplating-base.jar</echo>
         <javaNetUpload projectName="jsftemplating"
                        toFile="/nightly/jsftemplating-base.jar"
                        fromFile="${dist}/jsftemplating-base.jar"
                        fileDescription="Nightly snapshot of JSFTemplating.  Non-ViewHandler version of jar file -- needs extra configuration. For non-page use only."
                        overwrite="yes"/>
+        <echo>Uploading jsftemplating-dt.jar</echo>
         <javaNetUpload projectName="jsftemplating"
                        toFile="/nightly/jsftemplating-dt.jar"
                        fromFile="${dist}/jsftemplating-dt.jar"
                        fileDescription="Nightly snapshot of the JSFTemplating design time lib"
                        overwrite="yes"/>
+        <echo>Uploading jsftemplating-dynafaces-0.1.jar</echo>
         <javaNetUpload projectName="jsftemplating"
                        toFile="/nightly/jsftemplating-dynafaces-0.1.jar"
                        fromFile="${dist}/jsftemplating-dynafaces-0.1.jar"
