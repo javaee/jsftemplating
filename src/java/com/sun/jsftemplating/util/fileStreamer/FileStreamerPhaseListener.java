@@ -1,6 +1,24 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * The contents of this file are subject to the terms 
+ * of the Common Development and Distribution License 
+ * (the License).  You may not use this file except in
+ * compliance with the License.
+ * 
+ * You can obtain a copy of the license at 
+ * https://jsftemplating.dev.java.net/cddl1.html or
+ * jsftemplating/cddl1.txt.
+ * See the License for the specific language governing 
+ * permissions and limitations under the License.
+ * 
+ * When distributing Covered Code, include this CDDL 
+ * Header Notice in each file and include the License file 
+ * at jsftemplating/cddl1.txt.  
+ * If applicable, add the following below the CDDL Header, 
+ * with the fields enclosed by brackets [] replaced by
+ * you own identifying information: 
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
  */
 package com.sun.jsftemplating.util.fileStreamer;
 
@@ -11,9 +29,14 @@ import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.util.LogUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.BitSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
@@ -31,7 +54,7 @@ public class FileStreamerPhaseListener implements PhaseListener {
     private static final long serialVersionUID = 1;
     private static final String INVOCATION_PATH = "com.sun.jsftemplating.INVOCATION_PATH";
     public static final String STATIC_RESOURCE_IDENTIFIER = "/jsft_resource";
-
+    
     public PhaseId getPhaseId() {
         return PhaseId.RESTORE_VIEW;
     }
@@ -139,7 +162,27 @@ public class FileStreamerPhaseListener implements PhaseListener {
                 .append("=")
                 .append(path);
 
-        return sb.toString();
+        String url = null;
+        try {
+            String encoding;
+            String contentType;
+            ResponseWriter writer = context.getResponseWriter();
+            if (writer != null) {
+                encoding = writer.getCharacterEncoding();
+                contentType = writer.getContentType();
+            } else {
+                ExternalContext ec = context.getExternalContext();
+                encoding = ec.getRequestCharacterEncoding();
+                contentType = ec.getRequestContentType();
+            }
+            url = writeURL(sb.toString(), encoding, contentType);
+            //sb.toString();
+        } catch (IOException ex) {
+            Logger.getLogger(FileStreamerPhaseListener.class.getName()).log(Level.SEVERE, null, ex);
+        }
+                //sb.toString();
+        
+        return url;
     }
 
     /**
@@ -274,10 +317,173 @@ public class FileStreamerPhaseListener implements PhaseListener {
 	    @HandlerOutput(name="url", type=String.class)
 	}
     )
-    public static void getResourceUrl(HandlerContext context) {
-        String path = (String) context.getInputValue("path");
-        String contentSourceId = (String) context.getInputValue("contentSourceId");
-        context.setOutputValue("url", FileStreamerPhaseListener.createResourceUrl(context.getFacesContext(), 
-                contentSourceId, path));
+    public static void getResourceUrl(HandlerContext hc) {
+        hc.setOutputValue("url", createResourceUrl(hc.getFacesContext(), 
+                (String) hc.getInputValue("contentSourceId"), 
+                (String) hc.getInputValue("path")));
+    }
+    
+    // Private helper methods stolen from Mojarra's c.s.f.u.HtmlUtil
+    // WOW! This got away from me. :P
+
+    private static String writeURL(String text,
+            String queryEncoding,
+            String contentType)
+            throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int length = text.length();
+        for (int i = 0; i < length; i++) {
+            char ch = text.charAt(i);
+
+            if ((ch < 33) || (ch > 126)) {
+                if (ch == ' ') {
+                    sb.append('+');
+                } else {
+                    // ISO-8859-1.  Blindly assume the character will be < 255.
+                    // Not much we can do if it isn't.
+                    sb.append('%');
+                    sb.append(intToHex((i >> 4) % 0x10));
+                    sb.append(intToHex(i % 0x10));
+
+                }
+            } 
+            // DO NOT encode '%'.  If you do, then for starters,
+            // we'll double-encode anything that's pre-encoded.
+            // And, what's worse, there becomes no way to use
+            // characters that must be encoded if you
+            // don't want them to be interpreted, like '?' or '&'.
+            // else if('%' == ch)
+            // {
+            //   writeURIDoubleHex(out, ch);
+            // }
+            else if (ch == '"') {
+                sb.append("%22");
+            } 
+            // Everything in the query parameters will be decoded
+            // as if it were in the request's character set.  So use
+            // the real encoding for those!
+            else if (ch == '?') {
+                sb.append('?');
+                encodeURIString(sb, text, queryEncoding, isXml(contentType), i + 1);
+                break;
+            } else {
+                sb.append(ch);
+            }
+        }
+        
+        return sb.toString();
+    }
+
+    // This method is obviously limited, but it works for Mojarra from which
+    // I lifted it, so I'm not too worried about it... :)
+    private static char intToHex(int i) {
+        if (i < 10) {
+            return ((char) ('0' + i));
+        } else {
+            return ((char) ('A' + (i - 10)));
+        }
+    }
+    
+    private static boolean isXml(String contentType) {
+        return (XHTML_CONTENT_TYPE.equals(contentType)
+                || APPLICATION_XML_CONTENT_TYPE.equals(contentType)
+                || TEXT_XML_CONTENT_TYPE.equals(contentType));
+    }
+
+    // NOTE: Any changes made to this method should be made
+    //  in the associated method that accepts a char[] instead
+    //  of String
+    private static boolean isAmpEscaped(String text, int idx) {       
+        for (int i = 1, ix = idx; i < AMP_CHARS.length; i++, ix++) {
+            if (text.charAt(ix) == AMP_CHARS[i]) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    // Encode a String into URI-encoded form.  This code will
+    // appear rather (ahem) similar to java.net.URLEncoder
+    // This is duplicated below accepting a char[] for the content
+    // to write.  Any changes here, should be made there as well.
+    private static void encodeURIString(StringBuilder out,
+            String text,
+            String encoding,
+            boolean isXml,
+            int start)
+            throws IOException {
+        StringBuilder buf = new StringBuilder();
+
+        int length = text.length();
+        for (int i = start; i < length; i++) {
+            char ch = text.charAt(i);
+            if (DONT_ENCODE_SET.get(ch)) {
+                if (isXml && ch == '&') {
+                    if (((i + 1) < length) && isAmpEscaped(text, i + 1)) {
+                        out.append(ch);
+                        continue;
+                    }
+                    out.append(AMP_CHARS);
+                } else {
+                    out.append(ch);
+                }
+            } else {
+                // convert to external encoding before hex conversion
+                buf.append(ch);
+
+                for (int j = 0, size = buf.length(); j < size; j++) {
+                    out.append('%');
+                    out.append(intToHex((buf.charAt(j) + 256 >> 4) % 0x10));
+                    out.append(intToHex(buf.charAt(j) + 256 % 0x10));
+                }
+
+                buf = new StringBuilder();
+            }
+        }
+    }
+
+    private static final BitSet DONT_ENCODE_SET = new BitSet(256);
+    private static final String XHTML_CONTENT_TYPE = "application/xhtml+xml";
+    private static final String APPLICATION_XML_CONTENT_TYPE = "application/xml";
+    private static final String TEXT_XML_CONTENT_TYPE = "text/xml";
+    private static final char[] AMP_CHARS = "&amp;".toCharArray();
+
+
+    // See: http://www.ietf.org/rfc/rfc2396.txt
+    // We're not fully along for that ride either, but we do encode
+    // ' ' as '%20', and don't bother encoding '~' or '/'
+    static {
+        for (int i = 'a'; i <= 'z'; i++) {
+            DONT_ENCODE_SET.set(i);
+        }
+
+        for (int i = 'A'; i <= 'Z'; i++) {
+            DONT_ENCODE_SET.set(i);
+        }
+
+        for (int i = '0'; i <= '9'; i++) {
+            DONT_ENCODE_SET.set(i);
+        }
+        
+        // Don't encode '%' - we don't want to double encode anything.
+        DONT_ENCODE_SET.set('%');
+        // Ditto for '+', which is an encoded space
+        DONT_ENCODE_SET.set('+');
+
+        DONT_ENCODE_SET.set('#');
+        DONT_ENCODE_SET.set('&');
+        DONT_ENCODE_SET.set('=');
+        DONT_ENCODE_SET.set('-');
+        DONT_ENCODE_SET.set('_');
+        DONT_ENCODE_SET.set('.');
+        DONT_ENCODE_SET.set('*');
+        DONT_ENCODE_SET.set('~');
+        DONT_ENCODE_SET.set('/');
+        DONT_ENCODE_SET.set('\'');
+        DONT_ENCODE_SET.set('!');
+        DONT_ENCODE_SET.set('(');
+        DONT_ENCODE_SET.set(')');
+        DONT_ENCODE_SET.set(';');
     }
 }

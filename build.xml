@@ -137,15 +137,12 @@
 	</sequential>
     </macrodef>
     
-    <target name="base-jar" depends="compile" description="Package the 'base' jar, which does not enable ViewHandler by default">
-	<build.jar jarfile="${jsftemplating-base.jar}" xml=" "/>
-    </target>
-	
     <target name="jar" depends="compile" description="Package the project">
 	<build.jar jarfile="${jsftemplating.jar}"/>
+    <build.jar jarfile="${jsftemplating-base.jar}" xml=" "/>
     </target>
 
-    <target name="jarsrc" depends="jar, base-jar " description="Package the project source">
+    <target name="jarsrc" depends="jar" description="Package the project source">
 	 <jar jarfile="${jsftemplating-src.jar}" basedir="${src}" excludes="**/CVS/*" update="true"/>
     </target>
 

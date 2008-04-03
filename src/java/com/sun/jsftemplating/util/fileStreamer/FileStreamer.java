@@ -61,9 +61,8 @@ public class FileStreamer {
      *	<p> Only instantiate via factory method.</p>
      */
     private FileStreamer() {
-        super();
         try {
-            List<Tuple> entries = FileUtil.getJarResources(FacesContext.getCurrentInstance(), "META-INF/jsftemplating/fileStreamer.properties");
+            List<Tuple> entries = FileUtil.getJarResources(FacesContext.getCurrentInstance(), "/META-INF/jsftemplating/fileStreamer.properties");
             for (Tuple tuple : entries) {
                 Properties props = new Properties();
                 JarFile jarFile = (JarFile)tuple.getElement(0);
