@@ -101,6 +101,12 @@ public class LayoutViewHandler extends ViewHandler {
      */
     public LayoutViewHandler(ViewHandler oldViewHandler) {
 	_oldViewHandler = oldViewHandler;
+	// This is added here to ensure that if the ViewHandler is reloaded in
+	// a running application, that handlers, ct's, and resources will get
+	// re-read.  Ryan added a feature which may introduce this code path.
+	LayoutDefinitionManager.clearGlobalComponentTypes();
+	LayoutDefinitionManager.clearGlobalHandlerDefinitions();
+	LayoutDefinitionManager.clearGlobalResources();
     }
 
     /**
