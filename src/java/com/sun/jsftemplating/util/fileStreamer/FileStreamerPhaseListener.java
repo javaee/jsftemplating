@@ -142,11 +142,10 @@ public class FileStreamerPhaseListener implements PhaseListener {
             context = FacesContext.getCurrentInstance();
         }
         StringBuilder sb = new StringBuilder(64);
-        sb.append(context.getExternalContext().getRequestContextPath());
+        //sb.append(context.getExternalContext().getRequestContextPath());
         String mapping = getFacesMapping(context);
         if ((mapping.charAt(0) == '/')) { // prefix mapping
-            sb.append("/")
-                    .append(mapping)
+            sb.append(mapping)
                     .append(STATIC_RESOURCE_IDENTIFIER);
         } else {
             sb.append(STATIC_RESOURCE_IDENTIFIER)
