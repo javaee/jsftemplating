@@ -110,20 +110,10 @@
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/1">
             <compilation-unit>
                 <package-root>src/java</package-root>
-                <classpath mode="compile">${glassfish-home}/lib/javaee.jar</classpath>
-                <source-level>1.5</source-level>
-            </compilation-unit>
-            <compilation-unit>
                 <package-root>samples/editor/src/conf</package-root>
-                <source-level>1.5</source-level>
-            </compilation-unit>
-            <compilation-unit>
                 <package-root>samples/editor/src/java</package-root>
-                <classpath mode="compile">dist/jsftemplating-dt.jar:dist/jsftemplating.jar:samples/lib/dataprovider.jar:samples/lib/defaulttheme.jar:samples/lib/webui.jar:${glassfish-home}/lib/javaee.jar</classpath>
-                <source-level>1.5</source-level>
-            </compilation-unit>
-            <compilation-unit>
                 <package-root>samples/editor/web</package-root>
+                <classpath mode="compile">C:\Java\glassfish\lib\javaee.jar;C:\Java\glassfish\lib\jsf-api.jar;C:\Java\glassfish\lib\jsf-impl.jar</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>

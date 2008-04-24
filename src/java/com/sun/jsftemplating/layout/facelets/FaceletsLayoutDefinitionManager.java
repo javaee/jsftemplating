@@ -34,24 +34,35 @@ public class FaceletsLayoutDefinitionManager extends LayoutDefinitionManager {
 
     @Override
     public boolean accepts(String key) {
+        boolean accept = false;
         URL url = FileUtil.searchForFile(key, defaultSuffix);
         if (url == null) {
             return false;
         }
 
-        // Use the TemplateParser to help us read the file to see if it is a
-        // valid XML-format file
-        TemplateParser parser = new TemplateParser(url);
-        try {
-            parser.open();
-            parser.readUntil("=\"http://java.sun.com/jsf/facelets\"", true);
-        } catch (Exception ex) {
-            // Didn't work...
-            return false;
-        } finally {
-            parser.close();
+        // Eventually, we'll allow the old check-the-file-contents approach to
+        // be enable via a context-param.  For now, just going to force it to
+        // do it this way.
+        if (true) {
+            if (url.getPath().contains(".xhtml")) {
+                accept = true;
+            }
+        } else {
+            // Use the TemplateParser to help us read the file to see if it is a
+            // valid XML-format file
+            TemplateParser parser = new TemplateParser(url);
+            try {
+                parser.open();
+                parser.readUntil("=\"http://java.sun.com/jsf/facelets\"", true);
+            } catch (Exception ex) {
+                // Didn't work...
+            } finally {
+                parser.close();
+            }
+            accept = true;
         }
-        return true;
+
+        return accept;
     }
 
     /**
