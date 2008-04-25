@@ -898,22 +898,28 @@ public abstract class LayoutDefinitionManager {
      *	<p> Getter for the debug flag.</p>
      */
     public static boolean isDebug() {
-        if (_debug != null) {
-            return _debug.booleanValue();
-        }
-        boolean flag = Boolean.getBoolean(DEBUG_FLAG);
-        if (!flag) {
-            FacesContext ctx = FacesContext.getCurrentInstance();
-            if (ctx != null) {
-                String initParam =
-                        ctx.getExternalContext().getInitParameter(DEBUG_FLAG);
-                if (initParam != null) {
-                    flag = Boolean.parseBoolean(initParam);
-                }
-            }
-        }
-        _debug = Boolean.valueOf(flag);
-        return flag;
+	if (_debug != null) {
+	    return _debug.booleanValue();
+	}
+	boolean flag = Boolean.getBoolean(DEBUG_FLAG);
+	_debug = Boolean.valueOf(flag);
+	if (!flag) {
+	    FacesContext ctx = FacesContext.getCurrentInstance();
+	    if (ctx != null) {
+		String initParam =
+			ctx.getExternalContext().getInitParameter(DEBUG_FLAG);
+		if (initParam != null) {
+		    flag = Boolean.parseBoolean(initParam);
+		    _debug = Boolean.valueOf(flag);
+		} else {
+		    // Do this b/c the environment is not fully initialized,
+		    // we don't want it to cache the value we may have
+		    // incorrectly discovered at this point.
+		    _debug = null;
+		}
+	    }
+	}
+	return flag;
     }
 
     /**
