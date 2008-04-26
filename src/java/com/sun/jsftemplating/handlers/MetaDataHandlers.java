@@ -207,4 +207,15 @@ public class MetaDataHandlers {
 	// Set the result
 	ctx.setOutputValue("layoutDefinition", def);
     }
+
+    /**
+     *	<p> This handler returns true if jsft is running in debug mode.</p>
+     */
+    @Handler(id="isDebug",
+	output={
+	    @HandlerOutput(name="value", type=Boolean.class)})
+    public static void isDebug(HandlerContext ctx) {
+	// Set the result
+	ctx.setOutputValue("value", LayoutDefinitionManager.isDebug());
+    }
 }
