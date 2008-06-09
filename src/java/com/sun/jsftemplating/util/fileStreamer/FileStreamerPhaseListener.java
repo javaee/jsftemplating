@@ -337,7 +337,7 @@ public class FileStreamerPhaseListener implements PhaseListener {
             if ((ch < 33) || (ch > 126)) {
                 if (ch == ' ') {
                     sb.append('+');
-                } else {
+                } else if (ch != ':') {
                     // ISO-8859-1.  Blindly assume the character will be < 255.
                     // Not much we can do if it isn't.
                     sb.append('%');
@@ -484,5 +484,6 @@ public class FileStreamerPhaseListener implements PhaseListener {
         DONT_ENCODE_SET.set('(');
         DONT_ENCODE_SET.set(')');
         DONT_ENCODE_SET.set(';');
+        DONT_ENCODE_SET.set(':');
     }
 }
