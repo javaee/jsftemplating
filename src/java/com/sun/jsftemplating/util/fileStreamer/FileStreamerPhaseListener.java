@@ -29,7 +29,6 @@ import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.util.LogUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.BitSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;

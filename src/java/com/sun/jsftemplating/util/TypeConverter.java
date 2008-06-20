@@ -108,6 +108,7 @@ import java.util.Map;
  *		java.sql.Date
  *		java.sql.Time
  *		java.sql.Timestamp
+ *              java.util.Locale
  *
  *	Class name strings:
  *		"java.lang.Object"
@@ -124,6 +125,7 @@ import java.util.Map;
  *		"java.sql.Date"
  *		"java.sql.Time"
  *		"java.sql.Timestamp"
+ *              "java.util.Locale"
  *
  *	Logical type name string constants:
  *		TypeConverter.TYPE_UNKNOWN ("null")
@@ -144,6 +146,7 @@ import java.util.Map;
  *		TypeConverter.TYPE_DATE ("date")
  *		TypeConverter.TYPE_SQL_TIME ("sqltime")
  *		TypeConverter.TYPE_SQL_TIMESTAMP ("sqltimestamp")
+ *              TypeConverter.TYPE_LOCALE ("locale")
  *	</pre>
  *
  * The <code>TypeConverter</code> treats type keys of type <code>Class</code>
@@ -166,6 +169,7 @@ import java.util.Map;
  * @author	Todd Fast, todd.fast@sun.com
  * @author	Mike Frisino, michael.frisino@sun.com
  * @author	Ken Paulsen, ken.paulsen@sun.com (stripped down)
+ * @author      Jason Lee, jason@steeplesoft.com
  */
 public class TypeConverter extends Object {
 
@@ -857,7 +861,31 @@ public class TypeConverter extends Object {
     }
 
 
-
+    /**
+     * 
+     */
+    public static class LocaleTypeConversion implements TypeConversion {
+        public Object convertValue(Object value) {
+            if (value == null) {
+                return null;
+            }
+            if (!(value instanceof java.util.Locale)) {
+                String language = value.toString();
+                String country = null;
+                String locale = value.toString();
+                int index = locale.indexOf("_");
+                if (index > -1) {
+                   language = locale.substring(0, index);
+                   country = locale.substring(index+1);
+                   value = new java.util.Locale(language, country);
+                } else {
+                    value = new java.util.Locale(language);
+                }
+            }
+            
+            return value;
+        }
+    }
 
     /////////////////////////////////////////////////////////////////////////
     // Test classes
@@ -973,6 +1001,9 @@ public class TypeConverter extends Object {
 
     /** Logical type name "sqltime" */
     public static final String TYPE_SQL_TIME = "sqltime";
+    
+    /** Logial type name = "locale" */
+    public static final String TYPE_LOCALE = "locale";
 
     /** Logical type name "sqltimestamp" */
     public static final String TYPE_SQL_TIMESTAMP = "sqltimestamp";
@@ -1009,7 +1040,8 @@ public class TypeConverter extends Object {
 	    new SqlTimeTypeConversion();
     public static final TypeConversion SQL_TIMESTAMP_TYPE_CONVERSION =
 	    new SqlTimestampTypeConversion();
-
+    public static final TypeConversion LOCALE_TYPE_CONVERSION =
+            new LocaleTypeConversion();
 
 
 
@@ -1042,6 +1074,7 @@ public class TypeConverter extends Object {
 	registerTypeConversion(java.sql.Date.class, SQL_DATE_TYPE_CONVERSION);
 	registerTypeConversion(java.sql.Time.class, SQL_TIME_TYPE_CONVERSION);
 	registerTypeConversion(java.sql.Timestamp.class, SQL_TIMESTAMP_TYPE_CONVERSION);
+        registerTypeConversion(java.util.Locale.class, LOCALE_TYPE_CONVERSION);
 
 	// Add type conversions by class name
 	registerTypeConversion(Object.class.getName(), OBJECT_TYPE_CONVERSION);
@@ -1059,6 +1092,7 @@ public class TypeConverter extends Object {
 	registerTypeConversion(java.sql.Date.class.getName(), SQL_DATE_TYPE_CONVERSION);
 	registerTypeConversion(java.sql.Time.class.getName(), SQL_TIME_TYPE_CONVERSION);
 	registerTypeConversion(java.sql.Timestamp.class.getName(), SQL_TIMESTAMP_TYPE_CONVERSION);
+        registerTypeConversion(java.util.Locale.class.getName(), LOCALE_TYPE_CONVERSION);
 
 	// Add type conversions by name
 	registerTypeConversion(TYPE_UNKNOWN, UNKNOWN_TYPE_CONVERSION);
@@ -1079,5 +1113,6 @@ public class TypeConverter extends Object {
 	registerTypeConversion(TYPE_SQL_DATE, SQL_DATE_TYPE_CONVERSION);
 	registerTypeConversion(TYPE_SQL_TIME, SQL_TIME_TYPE_CONVERSION);
 	registerTypeConversion(TYPE_SQL_TIMESTAMP, SQL_TIMESTAMP_TYPE_CONVERSION);
+        registerTypeConversion(TYPE_LOCALE, LOCALE_TYPE_CONVERSION);
     }
 }
