@@ -49,6 +49,7 @@ import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.el.PageSessionResolver;
 import com.sun.jsftemplating.layout.LayoutViewHandler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
+import com.sun.jsftemplating.util.Util;
 
 
 /**
@@ -470,5 +471,24 @@ public class UtilHandlers {
 	})
     public static void getDate(HandlerContext context) {
 	context.setOutputValue("time", new java.util.Date().getTime());
+    }
+
+    /**
+     *	<p> This method converts '&lt;' and '&gt;' characters into "&amp;lt;"
+     *	    and "&amp;gt;" in an effort to avoid HTML from being processed.
+     *	    This can be used to avoid &lt;script&gt; tags, or to show code
+     *	    examples which might include HTML characters.  '&amp;' characters
+     *	    will also be converted to "&amp;amp;".</p>
+     */
+    @Handler(id="htmlEscape",
+	input={
+	    @HandlerInput(name="value", type=String.class, required=true)
+	},
+	output={
+	    @HandlerOutput(name="value", type=String.class)})
+    public static void htmlEscape(HandlerContext context) {
+	String value = (String) context.getInputValue("value");
+	value = Util.htmlEscape(value);
+	context.setOutputValue("value", value);
     }
 }
