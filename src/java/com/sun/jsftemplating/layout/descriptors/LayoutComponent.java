@@ -36,6 +36,7 @@ import com.sun.jsftemplating.component.ChildManager;
 import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.component.TemplateComponent;
 import com.sun.jsftemplating.el.VariableResolver;
+import com.sun.jsftemplating.layout.LayoutViewHandler;
 import com.sun.jsftemplating.layout.ViewRootUtil;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.event.AfterCreateEvent;
@@ -203,6 +204,7 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
 
 	// If overwrite...
 	if (isOverwrite()) {
+// FIXME: shouldn't this do a replace, not a remove?  Otherwise the order may change
 	    String id = getId(context, parent);
 	    if (parent.getFacets().remove(id) == null) {
 		UIComponent child = ComponentUtil.findChild(parent, id, null);
@@ -226,6 +228,16 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
 
 	dispatchHandlers(context, BEFORE_ENCODE,
 	    new BeforeEncodeEvent(childComponent));
+
+	// Add child components... (needs to be done here, LE's can't do it)
+	LayoutDefinition pageLD =
+	    ViewRootUtil.getLayoutDefinition((UIViewRoot) null);
+	if (pageLD != getLayoutDefinition()) {
+	    // Only do this for TemplateRenderer use-cases (LayoutViewHandler
+	    // does this for pages)
+	    LayoutViewHandler.buildUIComponentTree(
+		context, childComponent, this);
+	}
 
 	// Render the child UIComponent
 	encodeChild(context, childComponent);
