@@ -806,7 +806,8 @@ public class VariableResolver {
 	    boolean hasKey = component.getAttributes().containsKey(key);
 	    if (!hasKey) {
 		// Check the getter... JSF sucks when wrt attrs vs. props
-		if (component.getAttributes().get(key) != null) {
+		if ((component.getValueExpression(key) != null) ||
+		    (component.getAttributes().get(key) != null)) {
 		    hasKey = true;
 		}
 	    }
