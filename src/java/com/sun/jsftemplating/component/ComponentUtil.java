@@ -414,7 +414,7 @@ public class ComponentUtil {
      *	@param	value	    The Property value to set
      *	@param	desc	    The {@link LayoutElement} associated with the
      *			    <code>UIComponent</code>
-     *	@param	component   The <code>UIComponent</code>
+     *	@param	comp	    The <code>UIComponent</code>
      *
      *	@return A <code>ValueExpression</code>, or the "$...{...}" evaulated
      *		value (if no <code>ValueExpression</code> is present).
@@ -427,8 +427,12 @@ public class ComponentUtil {
 	// for now, we'll continue to use it...
 	value = VariableResolver.resolveVariables(context, desc, comp, value);
 
-	// Next check to see if the value contains a JSF ValueExpression
-	if ((value instanceof String)
+	// Next check to see if the value is/contains a JSF ValueExpression
+	if (value instanceof ValueExpression) {
+	    if (comp != null) {
+		comp.setValueExpression(key, (ValueExpression) value);
+	    }
+	} else if ((value instanceof String)
 		&& ComponentUtil.isValueReference((String) value)) {
 	    ValueExpression ve =
 		context.getApplication().getExpressionFactory().
