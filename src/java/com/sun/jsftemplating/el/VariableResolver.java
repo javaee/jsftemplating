@@ -67,6 +67,7 @@ import com.sun.jsftemplating.util.Util;
  *	<li>{@link #APPLICATION} -- {@link ApplicationDataSource}</li>
  *	<li>{@link #BOOLEAN} -- {@link BooleanDataSource}</li>
  *	<li>{@link #CONSTANT} -- {@link ConstantDataSource}</li>
+ *	<li>{@link #COPY_PROPERTY} -- {@link CopyPropertyDataSource}</li>
  *	<li>{@link #ESCAPE} -- {@link EscapeDataSource}</li>
  *	<li>{@link #EVAL} -- {@link EvalDataSource}</li>
  *	<li>{@link #HAS_FACET} -- {@link HasFacetDataSource}</li>
@@ -310,7 +311,9 @@ public class VariableResolver {
 	    // Detect
 	    while (startEL != -1) {
 		// Get the next token
-		endEL = findChar(chars, startEL + 2, '}', '[', '.');
+// FIXME: This is not nearly adequate!!
+// Need to find all real tokens in #{!(some == expression) || foo}
+		endEL = findChar(chars, startEL + 2, '}', '[', '.', '=', '>', '<', '!', '&', '|', '*', '+', '-', '?', '/', '%', '(');
 		if (endEL == -1) {
 		    // Not a match, non-fatal
 		    startEL = -1;
@@ -377,16 +380,17 @@ public class VariableResolver {
 		// Merge... we're just going to strip off "#{}" from value and
 		// insert it for now, later we might support more.
 		int start = 0;
-		if (token.startsWith("#{")) {
+		String strVal = value.toString();
+		if (strVal.startsWith("#{")) {
 		    start = 2;
 		}
-		int end = token.length();
-		if (token.charAt(end - 1) == '}') {
+		int end = strVal.length();
+		if (strVal.charAt(end - 1) == '}') {
 		    end--;
 		}
 
 		// Add merged content...
-		buff.append("#{").append(token, start, end - start + 1);
+		buff.append("#{").append(strVal, start, end);
 
 		// Find the end of the rest of the #{}...
 		end = findChar(chars, endEL + 1, '}');
@@ -687,13 +691,13 @@ public class VariableResolver {
     }
 
     /**
-     *	<p> This {@link VariableResolver.DataSource} provides access to
-     *	    UIComponent Properties.  It uses the data portion of the
-     *	    substitution String as a key to the UIComponent's properties via
-     *	    the attribute Map.  If the property is null, it will attempt to
+     *	<p> This {@link VariableResolver.DataSource} copies
+     *	    <code>UIComponent</code> properties.  It uses the data portion of
+     *	    the substitution String as a key to the UIComponent's properties
+     *	    via the attribute map.  If the property is null, it will attempt to
      *	    look at the parent's properties.</p>
      */
-    public static class PropertyDataSource implements DataSource {
+    public static class CopyPropertyDataSource implements DataSource {
 	/**
 	 *  <p>	See class JavaDoc.</p>
 	 *
@@ -705,24 +709,44 @@ public class VariableResolver {
 	 *
 	 *  @return The value resolved from key.
 	 */
-	public Object getValue(FacesContext ctx, LayoutElement desc,
-		UIComponent component, String key) {
+	public Object getValue(FacesContext ctx, LayoutElement desc, UIComponent component, String key) {
+	    return findPropertyValue(ctx, desc, component, key, true);
+	}
+
+	public Object findPropertyValue(FacesContext ctx, LayoutElement desc, UIComponent component, String key, boolean checkVE) {
+	    if (component == null) {
+		return "";
+	    }
 
 	    // Check to see if we should walk up the tree or not
 	    int idx = key.indexOf(',');
 	    boolean walk = false;
 	    if (idx > 0) {
-		walk = Boolean.valueOf(key.substring(idx + 1)).booleanValue();
+		walk = Boolean.valueOf(key.substring(idx + 1).trim()).booleanValue();
 		key = key.substring(0, idx);
 	    }
 
-	    if (component == null) {
-		return "";
-	    }
-	    Object value = component.getAttributes().get(key);
-	    while (walk && (value == null) && (component.getParent() != null)) {
-		component = component.getParent();
+	    Object value = null;
+	    if (checkVE) {
+		value = component.getValueExpression(key);
+		if (value == null) {
+		    value = component.getAttributes().get(key);
+		}
+	    } else {
 		value = component.getAttributes().get(key);
+	    }
+	    if (walk) {
+		while ((value == null) && (component.getParent() != null)) {
+		    component = component.getParent();
+		    if (checkVE) {
+			value = component.getValueExpression(key);
+			if (value == null) {
+			    value = component.getAttributes().get(key);
+			}
+		    } else {
+			value = component.getAttributes().get(key);
+		    }
+		}
 	    }
 /*
 	    if (LogUtil.finestEnabled()) {
@@ -732,6 +756,30 @@ public class VariableResolver {
 	    }
 */
 	    return value;
+	}
+    }
+
+    /**
+     *	<p> This {@link VariableResolver.DataSource} provides access to
+     *	    UIComponent Properties.  It uses the data portion of the
+     *	    substitution String as a key to the UIComponent's properties via
+     *	    the attribute Map.  If the property is null, it will attempt to
+     *	    look at the parent's properties.</p>
+     */
+    public static class PropertyDataSource extends CopyPropertyDataSource {
+	/**
+	 *  <p>	See class JavaDoc.</p>
+	 *
+	 *  @param  ctx		The <code>FacesContext</code>
+	 *  @param  desc	The <code>LayoutElement</code>
+	 *  @param  component	The <code>UIComponent</code>
+	 *  @param  key		The key used to obtain information from this
+	 *			<code>DataSource</code>.
+	 *
+	 *  @return The value resolved from key.
+	 */
+	public Object getValue(FacesContext ctx, LayoutElement desc, UIComponent component, String key) {
+	    return findPropertyValue(ctx, desc, component, key, false);
 	}
     }
 
@@ -1538,6 +1586,13 @@ public class VariableResolver {
     public static final String	    APPLICATION		= "application";
 
     /**
+     *	<p> Defines "copyProperty" in $copyProperty{...}.  This allows you to
+     *	    copy a property from the current UIComponent (or search for the
+     *	    property to copy by passing in "propName,true".</p>
+     */
+    public static final String	    COPY_PROPERTY	= "copyProperty";
+
+    /**
      *	<p> Defines "option" in $option{...}.  This allows you to obtain an
      *	    "option" that is defined in a {@link LayoutComponent}.</p>
      */
@@ -1663,6 +1718,7 @@ public class VariableResolver {
 	dataSourceMap.put("", attrDS);
 	dataSourceMap.put(ATTRIBUTE, attrDS);
 	dataSourceMap.put(APPLICATION, new ApplicationDataSource());
+	dataSourceMap.put(COPY_PROPERTY, new CopyPropertyDataSource());
 	dataSourceMap.put(OPTION, new OptionDataSource());
 	dataSourceMap.put(PAGE_SESSION, new PageSessionDataSource());
 	dataSourceMap.put(PROPERTY, new PropertyDataSource());
