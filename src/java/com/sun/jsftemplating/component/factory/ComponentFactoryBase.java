@@ -33,6 +33,7 @@ import javax.el.ValueExpression;
 import javax.faces.component.ActionSource;
 import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.component.ComponentUtil;
@@ -156,9 +157,16 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      */
     protected void storeInstanceHandlers(LayoutComponent desc, UIComponent comp) {
 	if (!desc.isNested()) {
-	    // This is not a nested LayoutComponent, it does should not store
-	    // instance handlers
-	    return;
+	    UIComponent parent = comp.getParent();
+	    if ((parent == null) || (parent instanceof UIViewRoot)) {
+		// This is not a nested LayoutComponent, it should not store
+		// instance handlers
+		// NOTE: could skip TemplateComponent children also.  Although
+		//	 this is harder to detect as dynamic children aren't
+		//	 defined in the template and therefor must be stored in
+		//	 the UIComponent tree.
+		return;
+	    }
 	}
 
 	// Iterate over the instance handlers
