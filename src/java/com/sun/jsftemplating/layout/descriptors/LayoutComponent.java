@@ -230,9 +230,9 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
 	    new BeforeEncodeEvent(childComponent));
 
 	// Add child components... (needs to be done here, LE's can't do it)
-	LayoutDefinition pageLD =
-	    ViewRootUtil.getLayoutDefinition((UIViewRoot) null);
-	if (pageLD != getLayoutDefinition()) {
+	// Use check for instance of TC.  If present we must instantiate its
+	// children as they were skipped when the tree was initially created.
+	if (parent instanceof TemplateComponent) {
 	    // Only do this for TemplateRenderer use-cases (LayoutViewHandler
 	    // does this for pages)
 	    LayoutViewHandler.buildUIComponentTree(
