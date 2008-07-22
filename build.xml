@@ -2,6 +2,7 @@
 <project name="JSFTemplating" default="jar" basedir=".">
 
     <!-- Set properties -->
+    <property name="dynafaces-version" value="0.1"/>
     <property name="version" value="1.2-SNAPSHOT"/>
     <property file="user.properties" />
     <property file="build.properties" />
@@ -238,10 +239,10 @@
                        fromFile="${dist}/jsftemplating-dt.jar"
                        fileDescription="Nightly snapshot of the JSFTemplating design time lib"
                        overwrite="yes"/>
-        <echo>Uploading jsftemplating-dynafaces-0.1.jar</echo>
+        <echo>Uploading jsftemplating-dynafaces.jar</echo>
         <javaNetUpload projectName="jsftemplating"
-                       toFile="/nightly/jsftemplating-dynafaces-0.1.jar"
-                       fromFile="${dist}/jsftemplating-dynafaces-0.1.jar"
+                       toFile="/nightly/jsftemplating-dynafaces.jar"
+                       fromFile="${dist}/jsftemplating-dynafaces.jar"
                        fileDescription="Nightly snapshot of the JSFTemplating DynaFaces support lib"
                        overwrite="yes"/>
     </target>
@@ -254,11 +255,13 @@
         </taskdef>
         <delete dir="${build}/maven-repo" />
         <!-- clean it -->
+        <maven-repository-importer destdir="${build}/maven-repo" version="${dynafaces-version}">
+            <artifact jar="${dist}/jsftemplating-dynafaces.jar" pom="jsftemplating-dynafaces.pom" />
+        </maven-repository-importer>
         <maven-repository-importer destdir="${build}/maven-repo" version="${version}">
             <artifact jar="${dist}/jsftemplating.jar" pom="jsftemplating.pom" srczip="${jsftemplating-src.jar}"/>
             <artifact jar="${dist}/jsftemplating-base.jar" pom="jsftemplating-base.pom" srczip="${jsftemplating-src.jar}"/>
             <artifact jar="${dist}/jsftemplating-dt.jar" pom="jsftemplating-dt.pom" />
-            <artifact jar="${dist}/jsftemplating-dynafaces-0.1.jar" pom="jsftemplating-dynafaces-0.1.pom" />
         </maven-repository-importer>
     </target>
 
