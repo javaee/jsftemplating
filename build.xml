@@ -3,7 +3,7 @@
 
     <!-- Set properties -->
     <property name="dynafaces-version" value="0.1"/>
-    <property name="version" value="1.2-SNAPSHOT"/>
+    <property name="version" value="1.2.2-SNAPSHOT"/>
     <property file="user.properties" />
     <property file="build.properties" />
 
