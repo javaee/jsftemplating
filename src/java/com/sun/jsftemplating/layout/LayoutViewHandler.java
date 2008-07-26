@@ -64,6 +64,9 @@ import com.sun.jsftemplating.layout.descriptors.Resource;
 import com.sun.jsftemplating.util.LayoutElementUtil;
 import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.SimplePatternMatcher;
+import com.sun.jsftemplating.util.TypeConversion;
+import com.sun.jsftemplating.util.TypeConverter;
+import com.sun.jsftemplating.util.UIComponentTypeConversion;
 import com.sun.jsftemplating.util.fileStreamer.Context;
 import com.sun.jsftemplating.util.fileStreamer.FacesStreamerContext;
 import com.sun.jsftemplating.util.fileStreamer.FileStreamer;
@@ -101,6 +104,9 @@ public class LayoutViewHandler extends ViewHandler {
      */
     public LayoutViewHandler(ViewHandler oldViewHandler) {
 	_oldViewHandler = oldViewHandler;
+
+// FIXME: Fire an initializtion event, work out how to listen for this event
+
 	// This is added here to ensure that if the ViewHandler is reloaded in
 	// a running application, that handlers, ct's, and resources will get
 	// re-read.  Ryan added a feature which may introduce this code path.
@@ -733,6 +739,7 @@ public class LayoutViewHandler extends ViewHandler {
 	
 	extCtx.getSessionMap().put(ViewHandler.CHARACTER_ENCODING_KEY,
 						encType);
+// FIXME: use the external context to set the character encoding, it is supported
 	response.setCharacterEncoding(encType);
 
 // FIXME: Portlet?
@@ -877,6 +884,29 @@ public class LayoutViewHandler extends ViewHandler {
     // TODO: should these keys be added to a new Class f.e. com.sun.jsftemplating.Keys?
     private static final String VIEW_MAPPINGS		= 
 	"com.sun.jsftemplating.VIEW_MAPPINGS";
+
+    /**
+     *	
+     */
+    private static final TypeConversion UICOMPONENT_TYPE_CONVERSION =
+	new UIComponentTypeConversion();
+
+    /*
+     *	<p> This is intended to initialize additional type conversions
+     *	    for the {@link TypeConverter}.  These additional type conversions
+     *	    are typically specific to JSF or JSFTemplating.  If you are
+     *	    reading this and want additional custom type conversions, bug
+     *	    Ken Paulsen to add an init event which will allow you to easily
+     *	    initialize your own type conversions.</p>
+     */
+    static {
+	// Add type conversions by class
+	TypeConverter.registerTypeConversion(UIComponent.class, UICOMPONENT_TYPE_CONVERSION);
+
+	// Add type conversions by class name
+	TypeConverter.registerTypeConversion(UIComponent.class.getName(), UICOMPONENT_TYPE_CONVERSION);
+    }
+
 
     private Collection<SimplePatternMatcher> _viewMappings = null;
 
