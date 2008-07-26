@@ -117,7 +117,7 @@
 	<delete file="${app.jar}" />
 	<delete file="${war.name}" />
 	<delete file="WEB-INF/lib/jsftemplating.jar" />
-	<delete file="WEB-INF/lib/jsftemplating-dynafaces-0.1.jar" />
+	<delete file="WEB-INF/lib/jsftemplating-dynafaces.jar" />
 	<delete file="WEB-INF/lib/webui-jsf.jar" />
 	<delete file="WEB-INF/lib/webui-jsf-suntheme.jar" />
 	<delete file="WEB-INF/lib/dataprovider.jar" />
