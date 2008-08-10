@@ -36,21 +36,6 @@
                     <type>java</type>
                     <location>src/java</location>
                 </source-folder>
-                <source-folder>
-                    <label>samples/editor/src/conf</label>
-                    <type>java</type>
-                    <location>samples/editor/src/conf</location>
-                </source-folder>
-                <source-folder>
-                    <label>samples/editor/src/java</label>
-                    <type>java</type>
-                    <location>samples/editor/src/java</location>
-                </source-folder>
-                <source-folder>
-                    <label>samples/editor/web</label>
-                    <type>java</type>
-                    <location>samples/editor/web</location>
-                </source-folder>
             </folders>
             <ide-actions>
                 <action name="build">
@@ -83,18 +68,6 @@
                         <label>src\java</label>
                         <location>src/java</location>
                     </source-folder>
-                    <source-folder style="packages">
-                        <label>samples/editor/src/conf</label>
-                        <location>samples/editor/src/conf</location>
-                    </source-folder>
-                    <source-folder style="packages">
-                        <label>samples/editor/src/java</label>
-                        <location>samples/editor/src/java</location>
-                    </source-folder>
-                    <source-folder style="packages">
-                        <label>samples/editor/web</label>
-                        <location>samples/editor/web</location>
-                    </source-folder>
                     <source-file>
                         <location>build.xml</location>
                     </source-file>
@@ -110,10 +83,7 @@
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/1">
             <compilation-unit>
                 <package-root>src/java</package-root>
-                <package-root>samples/editor/src/conf</package-root>
-                <package-root>samples/editor/src/java</package-root>
-                <package-root>samples/editor/web</package-root>
-                <classpath mode="compile">C:\Java\glassfish\lib\javaee.jar;C:\Java\glassfish\lib\jsf-api.jar;C:\Java\glassfish\lib\jsf-impl.jar</classpath>
+                <classpath mode="compile">/opt/glassfish/lib/javaee.jar</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
