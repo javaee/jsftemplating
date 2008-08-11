@@ -97,10 +97,9 @@ public class CompositionParserCommand implements CustomParserCommand {
 		compElt.setRequired(
 		    Boolean.parseBoolean(nvp.getValue().toString()));
 	    } else {
-		// We are going to treat extra attributes on compositions to be
-		// ui:param values
-// FIXME: I probably need to go back to <String, Object>... value could be a List!
-		compElt.setParameter(nvp.getName(), (String) nvp.getValue());
+                // We are going to treat extra attributes on compositions to be 
+                // ui:param values
+                compElt.setParameter(nvp.getName(), nvp.getValue());
 	    }
 	}
 
