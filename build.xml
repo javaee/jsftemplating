@@ -1,1 +1,298 @@
-<!-- Build file for JSFTemplating --><project name="JSFTemplating" default="jar" basedir=".">    <!-- Set properties -->    <property name="dynafaces-version" value="0.1"/>    <property name="version" value="1.2.2-SNAPSHOT"/>    <property file="user.properties" />    <property file="build.properties" />    <path id="dependencies">        <pathelement location="${servlet-api.jar}" />        <pathelement location="${jsf-api.jar}" />        <pathelement location="${el-api.jar}" />        <pathelement location="${jsftemplating-dt.jar}" />        <pathelement location="${jsftemplating-dynafaces.jar}" />        <pathelement location="${dataprovider.jar}" />        <path refid="apt-dependencies" />    </path>    <path id="apt-dependencies">        <pathelement location="${java.home}/lib/tools.jar" />        <pathelement location="${java.home}/../lib/tools.jar" />    </path>    <path id="javadoc-dependencies">        <path refid="dependencies" />        <path refid="apt-dependencies" />        <pathelement location="${jsftemplating-dynafaces.jar}" />    </path>    <path id="test-dependencies">        <pathelement location="${servlet-api.jar}" />        <pathelement location="${jsf-api.jar}" />        <pathelement location="${el-api.jar}" />        <pathelement location="${jsftemplating.jar}" />        <pathelement location="${junit.jar}" />        <pathelement location="${test}/build" />        <pathelement location="${test}/files" />        <pathelement location="${jsftemplating-dynafaces.jar}" />    </path>    <path id="test-compile-dependencies">        <pathelement location="${servlet-api.jar}" />        <pathelement location="${jsf-api.jar}" />        <pathelement location="${el-api.jar}" />        <pathelement location="${jsftemplating.jar}" />        <pathelement location="${junit.jar}" />    </path>    <target name="init" description="sets ant to execute">        <condition property="execute.ant" value="${ant.home}/bin/ant.bat" else="${ant.home}/bin/ant">            <os family="windows" />        </condition>        <echo message="Using ${execute.ant}" />        <echo message="java.home=${java.home}" />        <echo message="ant.home=${ant.home}" />	<tstamp>		<format property="TODAY" pattern="yyyymmdd" />	</tstamp>    </target>    <target name="build" depends="jar" description="Build the project"/>    <target name="all" depends="build, build-samples" description="Build the project and the samples"/>    <!-- This target builds the custom processors for apt -->    <target name="compile-apt-files" description="Compile the apt-generated files">        <mkdir dir="${aptbuild}/." />        <!-- Compile the java code from ${src} into ${aptbuild} -->        <javac srcdir="${src}" destdir="${aptbuild}/." includes="**/annotation/**.java" debug="${compile.debug}"            deprecation="${compile.deprecation}" optimize="${compile.optimize}" target="${compile.target}" source="${source.version}">            <classpath refid="dependencies" />        </javac>    </target>    <target name="jar-apt-files" depends="compile-apt-files" description="Package the apt-generated files">        <mkdir dir="${dist}/." />        <jar jarfile="${jsftemplating-dt.jar}" update="true">            <fileset dir="${aptbuild}" includes="**/*.class" />            <zipfileset dir="${jsftemplating.home}/annotation" prefix="META-INF/services"                includes="com.sun.mirror.apt.AnnotationProcessorFactory" />        </jar>    </target>    <target name="compile" depends="init, jar-apt-files" description="Compile source">        <mkdir dir="${build}/." />	<apt	srcdir="${src}"		fork="true"		destdir="${build}/."		debug="${compile.debug}"		deprecation="${compile.deprecation}"		excludes="**/annotation/**"		optimize="${compile.optimize}"		target="${compile.target}"		source="${source.version}">	    <classpath refid="dependencies" />	</apt>    </target>    <macrodef name="build.jar">	<attribute name="jarfile"/>	<attribute name="xml" default="&lt;view-handler&gt;com.sun.jsftemplating.layout.LayoutViewHandler&lt;/view-handler&gt;"/>	<sequential>		<echo>Building @{jarfile}</echo>		<mkdir dir="${dist}/." />	        <!-- Copy JS file also b/c currently it needs to be out of .jar -->	        <copy todir="${dist}/.">	            <fileset dir="${src}/com/sun/jsftemplating/component/resources/">	                <include name="**/*.js" />	            </fileset>	        </copy>	        <copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" overwrite="true"/>		<filter token="VIEWHANDLER_ELEMENT" value="@{xml}"/>		<copy todir="${build}" filtering="true" overwrite="true">			<fileset file="${jsftemplating.home}/faces-config.xml"/>		</copy>	        <jar jarfile="@{jarfile}" update="true">		    <manifest>			<attribute name="Implementation-Title" value="JSFTemplating" />			<attribute name="Implementation-Version" value="1.2_${TODAY}" />			<attribute name="Implementation-URL" value="https://jsftemplating.dev.java.net" />			<section name="JSFTemplating">				<attribute name="Specific-Version" value="1.2" />				<attribute name="Extension-Name" value="com.sun.jsftemplating" />				<attribute name="JSF-RI-Dependencies" value="" />			</section>		   </manifest>				            <fileset dir="${build}" includes="**/*.class, **/*.map" />	            <zipfileset dir="${src}" prefix="" includes="**/*.properties" />	            <zipfileset dir="${jsftemplating.home}/layout/pages" prefix="" includes="*.jsf" />	            <zipfileset dir="${jsftemplating.home}/component/layout" prefix="META-INF/jsftemplating" includes="*.xml,*.xhtml,*.jsf" />	            <zipfileset dir="${jsftemplating.home}/layout/xml" prefix="META-INF/jsftemplating" includes="*.dtd" />	            <zipfileset dir="${jsftemplating.home}/layout/facelets" prefix="META-INF/" includes="*.dtd,*.ent" />	            <zipfileset dir="${build}" prefix="META-INF" includes="faces-config.xml" />	        </jar>	</sequential>    </macrodef>        <target name="jar" depends="compile" description="Package the project">	<build.jar jarfile="${jsftemplating.jar}"/>    <build.jar jarfile="${jsftemplating-base.jar}" xml=" "/>    </target>    <target name="jarsrc" depends="jar" description="Package the project source">	 <jar jarfile="${jsftemplating-src.jar}" basedir="${src}" excludes="**/CVS/*" update="true"/>    </target>    <target name="javadoc" depends="build" description="Generate javadocs">        <!-- Generate javadoc -->        <javadoc destdir="${docs}" private="no" author="true" version="true" use="true"            windowtitle="Templating for JavaServer Faces Technology (https://jsftemplating.dev.java.net)"            serialwarn="false">            <doctitle>                <![CDATA[<h1><a href="https://jsftemplating.dev.java.net">Templating for JavaServer Faces Technology</a></h1>]]>            </doctitle>            <header>                <![CDATA[<h2>Templating for JavaServer Faces Technology</h2>]]>            </header>            <footer>                <![CDATA[<a href="https://jsftemplating.dev.java.net">https://jsftemplating.dev.java.net</a>]]>            </footer>            <fileset dir="${src}">                <include name="com/sun/jsftemplating/**/*.java" />            </fileset>            <classpath refid="javadoc-dependencies" />        </javadoc>    </target>    <target name="-set-proxy" if="proxy.host">        <echo>***** Setting proxy to ${proxy.host}:${proxy.port}</echo>        <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" proxyuser="${proxy.user}"            proxypassword="${proxy.pass}" />    </target>    <target name="test" depends="compileTest,-set-proxy" description="Run unit tests">        <java classname="com.sun.jsftemplating.UnitTests" fork="true">            <classpath refid="test-dependencies" />        </java>    </target>    <target name="compileTest" depends="jar">        <mkdir dir="${test}/build/." />        <!-- Compile the java code from ${src} into ${build} -->        <javac srcdir="${test}/java" destdir="${test}/build/." debug="${compile.debug}"            deprecation="${compile.deprecation}" optimize="${compile.optimize}" target="${compile.target}" source="${source.version}">            <classpath refid="test-compile-dependencies" />        </javac>    </target>    <target name="clean" description="Clean the project">        <!-- Delete the build / dist directories ;-->        <delete dir="${aptbuild}" />        <delete dir="${build}" />        <delete dir="${dist}" />        <delete dir="${test}/build" />        <delete dir="${docs}" />        <ant dir="samples" target="clean" />    </target>    <target name="build-samples" description="Build the samples">        <!-- build all sample apps under the samples directory -->        <ant dir="samples" target="build" />    </target>        <target name="nightly" depends="jarsrc" description="Upload nightly build to java.net">        <taskdef resource="org/kohsuke/javanettasks.properties">            <classpath>                <pathelement location="${javanettasks.jar}"/>                <pathelement location="${httpunit.jar}"/>                <pathelement location="${nekohtml.jar}"/>                <pathelement location="${dom4j.jar}"/>                <!-- <fileset dir="${tasks.home}/lib" includes="*.jar"/> -->            </classpath>        </taskdef>	        <antcall target="push-to-maven"/>        <echo>Uploading jsftemplating.jar</echo>        <javaNetUpload projectName="jsftemplating"                       toFile="/nightly/jsftemplating.jar"                       fromFile="${dist}/jsftemplating.jar"                       fileDescription="Nightly snapshot of JSFTemplating"                       overwrite="yes"/>        <echo>Uploading jsftemplating-base.jar</echo>        <javaNetUpload projectName="jsftemplating"                       toFile="/nightly/jsftemplating-base.jar"                       fromFile="${dist}/jsftemplating-base.jar"                       fileDescription="Nightly snapshot of JSFTemplating.  Non-ViewHandler version of jar file -- needs extra configuration. For non-page use only."                       overwrite="yes"/>        <echo>Uploading jsftemplating-dt.jar</echo>        <javaNetUpload projectName="jsftemplating"                       toFile="/nightly/jsftemplating-dt.jar"                       fromFile="${dist}/jsftemplating-dt.jar"                       fileDescription="Nightly snapshot of the JSFTemplating design time lib"                       overwrite="yes"/>        <echo>Uploading jsftemplating-dynafaces.jar</echo>        <javaNetUpload projectName="jsftemplating"                       toFile="/nightly/jsftemplating-dynafaces.jar"                       fromFile="${dist}/jsftemplating-dynafaces.jar"                       fileDescription="Nightly snapshot of the JSFTemplating DynaFaces support lib"                       overwrite="yes"/>    </target>        <target name="push-to-maven-prepare" depends="jar,jarsrc">        <taskdef resource="maven-repository-importer.properties">            <classpath>                <pathelement path="${maven-repository-importer.jar}" />            </classpath>        </taskdef>        <delete dir="${build}/maven-repo" />        <!-- clean it -->        <maven-repository-importer destdir="${build}/maven-repo" version="${dynafaces-version}">            <artifact jar="${dist}/jsftemplating-dynafaces.jar" pom="jsftemplating-dynafaces.pom" />        </maven-repository-importer>        <maven-repository-importer destdir="${build}/maven-repo" version="${version}">            <artifact jar="${dist}/jsftemplating.jar" pom="jsftemplating.pom" srczip="${jsftemplating-src.jar}"/>            <artifact jar="${dist}/jsftemplating-base.jar" pom="jsftemplating-base.pom" srczip="${jsftemplating-src.jar}"/>            <artifact jar="${dist}/jsftemplating-dt.jar" pom="jsftemplating-dt.pom" />        </maven-repository-importer>    </target>    <target name="push-to-maven" depends="push-to-maven-prepare" description="Publish artifacts to the java.net Maven repo">        <!-- import to CVS-->        <tstamp />        <echo>importing to CVS...</echo>	<copy todir="repo/" preservelastmodified="true">		<fileset dir="${build}/maven-repo"/>	</copy>	<cvs reallyquiet="true" command="-Q add repo/*"/>	<cvs>		<commandline>			<argument value="-Q"/>			<argument value="ci"/>			<argument line="-m"/>			<argument value="deploying jars to the maven repo" />			<argument value="repo/"/>		</commandline>	</cvs>	<!--        <cvs dest="${build}/maven-repo">            <commandline>                <argument value="-d:pserver:${java.net.user.name}@cvs.dev.java.net:/cvs" />                <argument line="-z9 import -ko -W *.jar -kb -m" />                <argument value="deploying new jars to the java.net maven repository" />                <argument value="jsftemplating/repo" />                <argument line="deployment-to-maven-repository t${DSTAMP}${TSTAMP}" />            </commandline>        </cvs>	-->    </target></project>
+<!-- Build file for JSFTemplating -->
+<project name="JSFTemplating" default="jar" basedir=".">
+
+    <!-- Set properties -->
+    <property name="dynafaces-version" value="0.1"/>
+    <property name="version" value="1.2.2-SNAPSHOT"/>
+    <property file="user.properties" />
+    <property file="build.properties" />
+
+    <path id="dependencies">
+        <pathelement location="${servlet-api.jar}" />
+        <pathelement location="${jsf-api.jar}" />
+        <pathelement location="${el-api.jar}" />
+        <pathelement location="${jsftemplating-dt.jar}" />
+        <pathelement location="${jsftemplating-dynafaces.jar}" />
+        <pathelement location="${dataprovider.jar}" />
+        <path refid="apt-dependencies" />
+    </path>
+
+    <path id="apt-dependencies">
+        <pathelement location="${java.home}/lib/tools.jar" />
+        <pathelement location="${java.home}/../lib/tools.jar" />
+    </path>
+
+    <path id="javadoc-dependencies">
+        <path refid="dependencies" />
+        <path refid="apt-dependencies" />
+        <pathelement location="${jsftemplating-dynafaces.jar}" />
+    </path>
+
+    <path id="test-dependencies">
+        <pathelement location="${servlet-api.jar}" />
+        <pathelement location="${jsf-api.jar}" />
+        <pathelement location="${el-api.jar}" />
+        <pathelement location="${jsftemplating.jar}" />
+        <pathelement location="${junit.jar}" />
+        <pathelement location="${test}/build" />
+        <pathelement location="${test}/files" />
+        <pathelement location="${jsftemplating-dynafaces.jar}" />
+    </path>
+
+    <path id="test-compile-dependencies">
+        <pathelement location="${servlet-api.jar}" />
+        <pathelement location="${jsf-api.jar}" />
+        <pathelement location="${el-api.jar}" />
+        <pathelement location="${jsftemplating.jar}" />
+        <pathelement location="${junit.jar}" />
+    </path>
+
+    <target name="init" description="sets ant to execute">
+        <condition property="execute.ant" value="${ant.home}/bin/ant.bat" else="${ant.home}/bin/ant">
+            <os family="windows" />
+        </condition>
+        <echo message="Using ${execute.ant}" />
+        <echo message="java.home=${java.home}" />
+        <echo message="ant.home=${ant.home}" />
+	<tstamp>
+		<format property="TODAY" pattern="yyyymmdd" />
+	</tstamp>
+    </target>
+
+    <target name="build" depends="jar" description="Build the project"/>
+
+    <target name="all" depends="build, build-samples" description="Build the project and the samples"/>
+
+    <!-- This target builds the custom processors for apt -->
+    <target name="compile-apt-files" description="Compile the apt-generated files">
+        <mkdir dir="${aptbuild}/." />
+
+        <!-- Compile the java code from ${src} into ${aptbuild} -->
+        <javac srcdir="${src}" destdir="${aptbuild}/." includes="**/annotation/**.java" debug="${compile.debug}"
+            deprecation="${compile.deprecation}" optimize="${compile.optimize}" target="${compile.target}" source="${source.version}">
+            <classpath refid="dependencies" />
+        </javac>
+    </target>
+
+    <target name="jar-apt-files" depends="compile-apt-files" description="Package the apt-generated files">
+        <mkdir dir="${dist}/." />
+        <jar jarfile="${jsftemplating-dt.jar}" update="true">
+            <fileset dir="${aptbuild}" includes="**/*.class" />
+            <zipfileset dir="${jsftemplating.home}/annotation" prefix="META-INF/services"
+                includes="com.sun.mirror.apt.AnnotationProcessorFactory" />
+        </jar>
+    </target>
+
+    <target name="compile" depends="init, jar-apt-files" description="Compile source">
+        <mkdir dir="${build}/." />
+	<apt	srcdir="${src}"
+		fork="true"
+		destdir="${build}/."
+		debug="${compile.debug}"
+		deprecation="${compile.deprecation}"
+		excludes="**/annotation/**"
+		optimize="${compile.optimize}"
+		target="${compile.target}"
+		source="${source.version}">
+	    <classpath refid="dependencies" />
+	</apt>
+    </target>
+
+    <macrodef name="build.jar">
+	<attribute name="jarfile"/>
+	<attribute name="xml" default="&lt;view-handler&gt;com.sun.jsftemplating.layout.LayoutViewHandler&lt;/view-handler&gt;"/>
+	<sequential>
+		<echo>Building @{jarfile}</echo>
+		<mkdir dir="${dist}/." />
+	        <!-- Copy JS file also b/c currently it needs to be out of .jar -->
+	        <copy todir="${dist}/.">
+	            <fileset dir="${src}/com/sun/jsftemplating/component/resources/">
+	                <include name="**/*.js" />
+	            </fileset>
+	        </copy>
+	        <copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" overwrite="true"/>
+		<filter token="VIEWHANDLER_ELEMENT" value="@{xml}"/>
+		<copy todir="${build}" filtering="true" overwrite="true">
+			<fileset file="${jsftemplating.home}/faces-config.xml"/>
+		</copy>
+	        <jar jarfile="@{jarfile}" update="true">
+		    <manifest>
+			<attribute name="Implementation-Title" value="JSFTemplating" />
+			<attribute name="Implementation-Version" value="1.2_${TODAY}" />
+			<attribute name="Implementation-URL" value="https://jsftemplating.dev.java.net" />
+			<section name="JSFTemplating">
+				<attribute name="Specific-Version" value="1.2" />
+				<attribute name="Extension-Name" value="com.sun.jsftemplating" />
+				<attribute name="JSF-RI-Dependencies" value="" />
+			</section>
+		   </manifest>
+			
+	            <fileset dir="${build}" includes="**/*.class, **/*.map" />
+	            <zipfileset dir="${src}" prefix="" includes="**/*.properties" />
+	            <zipfileset dir="${jsftemplating.home}/layout/pages" prefix="" includes="*.jsf" />
+	            <zipfileset dir="${jsftemplating.home}/component/layout" prefix="META-INF/jsftemplating" includes="*.xml,*.xhtml,*.jsf" />
+	            <zipfileset dir="${jsftemplating.home}/layout/xml" prefix="META-INF/jsftemplating" includes="*.dtd" />
+	            <zipfileset dir="${jsftemplating.home}/layout/facelets" prefix="META-INF/" includes="*.dtd,*.ent" />
+	            <zipfileset dir="${build}" prefix="META-INF" includes="faces-config.xml" />
+	        </jar>
+	</sequential>
+    </macrodef>
+    
+    <target name="jar" depends="compile" description="Package the project">
+	<build.jar jarfile="${jsftemplating.jar}"/>
+    <build.jar jarfile="${jsftemplating-base.jar}" xml=" "/>
+    </target>
+
+    <target name="jarsrc" depends="jar" description="Package the project source">
+	 <jar jarfile="${jsftemplating-src.jar}" basedir="${src}" excludes="**/CVS/*" update="true"/>
+    </target>
+
+    <target name="javadoc" depends="build" description="Generate javadocs">
+        <!-- Generate javadoc -->
+        <javadoc destdir="${docs}" private="no" author="true" version="true" use="true"
+            windowtitle="Templating for JavaServer Faces Technology (https://jsftemplating.dev.java.net)"
+            serialwarn="false">
+            <doctitle>
+                <![CDATA[<h1><a href="https://jsftemplating.dev.java.net">Templating for JavaServer Faces Technology</a></h1>]]>
+            </doctitle>
+            <header>
+                <![CDATA[<h2>Templating for JavaServer Faces Technology</h2>]]>
+            </header>
+            <footer>
+                <![CDATA[<a href="https://jsftemplating.dev.java.net">https://jsftemplating.dev.java.net</a>]]>
+            </footer>
+
+            <fileset dir="${src}">
+                <include name="com/sun/jsftemplating/**/*.java" />
+            </fileset>
+
+            <classpath refid="javadoc-dependencies" />
+        </javadoc>
+    </target>
+
+    <target name="-set-proxy" if="proxy.host">
+        <echo>***** Setting proxy to ${proxy.host}:${proxy.port}</echo>
+        <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" proxyuser="${proxy.user}"
+            proxypassword="${proxy.pass}" />
+    </target>
+
+    <target name="test" depends="compileTest,-set-proxy" description="Run unit tests">
+        <java classname="com.sun.jsftemplating.UnitTests" fork="true">
+            <classpath refid="test-dependencies" />
+        </java>
+    </target>
+
+
+    <target name="compileTest" depends="jar">
+        <mkdir dir="${test}/build/." />
+
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${test}/java" destdir="${test}/build/." debug="${compile.debug}"
+            deprecation="${compile.deprecation}" optimize="${compile.optimize}" target="${compile.target}" source="${source.version}">
+            <classpath refid="test-compile-dependencies" />
+        </javac>
+    </target>
+
+    <target name="clean" description="Clean the project">
+        <!-- Delete the build / dist directories ;-->
+        <delete dir="${aptbuild}" />
+        <delete dir="${build}" />
+        <delete dir="${dist}" />
+        <delete dir="${test}/build" />
+        <delete dir="${docs}" />
+        <ant dir="samples" target="clean" />
+    </target>
+
+    <target name="build-samples" description="Build the samples">
+        <!-- build all sample apps under the samples directory -->
+        <ant dir="samples" target="build" />
+    </target>
+    
+    <target name="nightly" depends="jarsrc" description="Upload nightly build to java.net">
+        <taskdef resource="org/kohsuke/javanettasks.properties">
+            <classpath>
+                <pathelement location="${javanettasks.jar}"/>
+                <pathelement location="${httpunit.jar}"/>
+                <pathelement location="${nekohtml.jar}"/>
+                <pathelement location="${dom4j.jar}"/>
+                <!-- <fileset dir="${tasks.home}/lib" includes="*.jar"/> -->
+            </classpath>
+        </taskdef>
+	
+        <antcall target="push-to-maven"/>
+
+        <echo>Uploading jsftemplating.jar</echo>
+        <javaNetUpload projectName="jsftemplating"
+                       toFile="/nightly/jsftemplating.jar"
+                       fromFile="${dist}/jsftemplating.jar"
+                       fileDescription="Nightly snapshot of JSFTemplating"
+                       overwrite="yes"/>
+        <echo>Uploading jsftemplating-base.jar</echo>
+        <javaNetUpload projectName="jsftemplating"
+                       toFile="/nightly/jsftemplating-base.jar"
+                       fromFile="${dist}/jsftemplating-base.jar"
+                       fileDescription="Nightly snapshot of JSFTemplating.  Non-ViewHandler version of jar file -- needs extra configuration. For non-page use only."
+                       overwrite="yes"/>
+        <echo>Uploading jsftemplating-dt.jar</echo>
+        <javaNetUpload projectName="jsftemplating"
+                       toFile="/nightly/jsftemplating-dt.jar"
+                       fromFile="${dist}/jsftemplating-dt.jar"
+                       fileDescription="Nightly snapshot of the JSFTemplating design time lib"
+                       overwrite="yes"/>
+        <echo>Uploading jsftemplating-dynafaces.jar</echo>
+        <javaNetUpload projectName="jsftemplating"
+                       toFile="/nightly/jsftemplating-dynafaces.jar"
+                       fromFile="${dist}/jsftemplating-dynafaces.jar"
+                       fileDescription="Nightly snapshot of the JSFTemplating DynaFaces support lib"
+                       overwrite="yes"/>
+    </target>
+    
+    <target name="push-to-maven-prepare" depends="jar,jarsrc">
+        <taskdef resource="maven-repository-importer.properties">
+            <classpath>
+                <pathelement path="${maven-repository-importer.jar}" />
+            </classpath>
+        </taskdef>
+        <delete dir="${build}/maven-repo" />
+        <!-- clean it -->
+        <maven-repository-importer destdir="${build}/maven-repo" version="${dynafaces-version}">
+            <artifact jar="${dist}/jsftemplating-dynafaces.jar" pom="jsftemplating-dynafaces.pom" />
+        </maven-repository-importer>
+        <maven-repository-importer destdir="${build}/maven-repo" version="${version}">
+            <artifact jar="${dist}/jsftemplating.jar" pom="jsftemplating.pom" srczip="${jsftemplating-src.jar}"/>
+            <artifact jar="${dist}/jsftemplating-base.jar" pom="jsftemplating-base.pom" srczip="${jsftemplating-src.jar}"/>
+            <artifact jar="${dist}/jsftemplating-dt.jar" pom="jsftemplating-dt.pom" />
+        </maven-repository-importer>
+    </target>
+
+    <target name="push-to-maven" depends="push-to-maven-prepare" description="Publish artifacts to the java.net Maven repo">
+        <!-- import to CVS-->
+        <tstamp />
+        <echo>importing to CVS...</echo>
+	<copy todir="repo/" preservelastmodified="true">
+		<fileset dir="${build}/maven-repo"/>
+	</copy>
+	<cvs reallyquiet="true" command="-Q add repo/*"/>
+	<cvs>
+		<commandline>
+			<argument value="-Q"/>
+			<argument value="ci"/>
+			<argument line="-m"/>
+			<argument value="deploying jars to the maven repo" />
+			<argument value="repo/"/>
+		</commandline>
+	</cvs>
+	<!--
+        <cvs dest="${build}/maven-repo">
+            <commandline>
+                <argument value="-d:pserver:${java.net.user.name}@cvs.dev.java.net:/cvs" />
+                <argument line="-z9 import -ko -W *.jar -kb -m" />
+                <argument value="deploying new jars to the java.net maven repository" />
+
+                <argument value="jsftemplating/repo" />
+                <argument line="deployment-to-maven-repository t${DSTAMP}${TSTAMP}" />
+            </commandline>
+        </cvs>
+	-->
+    </target>
+</project>
