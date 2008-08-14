@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -433,5 +434,53 @@ public class ScopeHandlers {
 	    // Add the cookie
 	    ((HttpServletResponse) resp).addCookie(cookie);
 	}
+    }
+
+    /**
+     *	<p> This {@link Handler} allows you to set a preference via the Java
+     *	    Preferences API.  The <code>root</code> specifies the path in
+     *	    which the preference should be stored (e.g. '/org/company/foo').
+     *	    The <code>key</code> is the name of the preference, and the
+     *	    <code>value</code> is the value of the preference.</p>
+     */
+    @Handler(id="setPreference",
+	input={
+	    @HandlerInput(name="root", type=String.class, required=true),
+	    @HandlerInput(name="key", type=String.class, required=true),
+	    @HandlerInput(name="value", type=String.class, required=true)
+	})
+    public static void setPreference(HandlerContext context) {
+	String nodeKey = (String) context.getInputValue("root");
+	String key = (String) context.getInputValue("key");
+	String value = (String) context.getInputValue("value");
+	Preferences prefs = Preferences.userRoot().node(nodeKey);
+	prefs.put(key, value);
+    }
+
+    /**
+     *	<p> This {@link Handler} allows you to get a preference via the Java
+     *	    Preferences API.  The <code>root</code> specifies the path in
+     *	    which the preference should be stored (e.g. '/org/company/foo').
+     *	    The <code>key</code> is the name of the preference, and the
+     *	    <code>default</code> is the value of the preference if it does
+     *	    not yet exist.  The preference value will be returned via the
+     *	    <code>value</code> output value.</p>
+     */
+    @Handler(id="getPreference",
+	input={
+	    @HandlerInput(name="root", type=String.class, required=true),
+	    @HandlerInput(name="key", type=String.class, required=true),
+	    @HandlerInput(name="default", type=String.class)
+	},
+	output={
+	    @HandlerOutput(name="value", type=String.class)
+	})
+    public static void getPreference(HandlerContext context) {
+	String nodeKey = (String) context.getInputValue("root");
+	String key = (String) context.getInputValue("key");
+	String def = (String) context.getInputValue("default");
+	Preferences prefs = Preferences.userRoot().node(nodeKey);
+	String value = prefs.get(key, def);
+	context.setOutputValue("value", value);
     }
 }
