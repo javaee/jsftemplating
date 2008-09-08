@@ -102,45 +102,43 @@
 	<attribute name="jarfile"/>
 	<attribute name="xml" default="&lt;view-handler&gt;com.sun.jsftemplating.layout.LayoutViewHandler&lt;/view-handler&gt;"/>
 	<sequential>
-		<echo>Building @{jarfile}</echo>
-		<mkdir dir="${dist}/." />
 	        <!-- Copy JS file also b/c currently it needs to be out of .jar -->
-	        <copy todir="${dist}/.">
-	            <fileset dir="${src}/com/sun/jsftemplating/component/resources/">
-	                <include name="**/*.js" />
-	            </fileset>
-	        </copy>
-	        <copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" overwrite="true"/>
 		<filter token="VIEWHANDLER_ELEMENT" value="@{xml}"/>
-		<copy todir="${build}" filtering="true" overwrite="true">
-			<fileset file="${jsftemplating.home}/faces-config.xml"/>
+		<copy todir="${build}/META-INF" filtering="true" overwrite="true">
+		    <fileset file="${jsftemplating.home}/faces-config.xml"/>
 		</copy>
-	        <jar jarfile="@{jarfile}" update="true">
-		    <manifest>
-			<attribute name="Implementation-Title" value="JSFTemplating" />
-			<attribute name="Implementation-Version" value="1.2_${TODAY}" />
-			<attribute name="Implementation-URL" value="https://jsftemplating.dev.java.net" />
-			<section name="JSFTemplating">
-				<attribute name="Specific-Version" value="1.2" />
-				<attribute name="Extension-Name" value="com.sun.jsftemplating" />
-				<attribute name="JSF-RI-Dependencies" value="" />
-			</section>
-		   </manifest>
-			
-	            <fileset dir="${build}" includes="**/*.class, **/*.map" />
-	            <zipfileset dir="${src}" prefix="" includes="**/*.properties" />
-	            <zipfileset dir="${jsftemplating.home}/layout/pages" prefix="" includes="*.jsf" />
-	            <zipfileset dir="${jsftemplating.home}/component/layout" prefix="META-INF/jsftemplating" includes="*.xml,*.xhtml,*.jsf" />
-	            <zipfileset dir="${jsftemplating.home}/layout/xml" prefix="META-INF/jsftemplating" includes="*.dtd" />
-	            <zipfileset dir="${jsftemplating.home}/layout/facelets" prefix="META-INF/" includes="*.dtd,*.ent" />
-	            <zipfileset dir="${build}" prefix="META-INF" includes="faces-config.xml" />
-	        </jar>
+		<echo>Building @{jarfile}</echo>
+
+		<!-- Apply bnd to generate OSGi header info -->
+		<taskdef resource="aQute/bnd/ant/taskdef.properties" classpath="${bnd.jar}" />
+		<bnd files="jsftemplating.bnd" sourcepath="${src}" classpath="${build}" output="@{jarfile}" />
 	</sequential>
     </macrodef>
     
     <target name="jar" depends="compile" description="Package the project">
+	<mkdir dir="${dist}/." />
+	<echo>Copying misc files to build directory.</echo>
+	<copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" overwrite="true"/>
+	<copy todir="${dist}/.">
+	    <fileset dir="${src}/com/sun/jsftemplating/component/resources/">
+		<include name="**/*.js" />
+	    </fileset>
+	</copy>
+	<copy todir="${build}/META-INF" filtering="false" overwrite="true">
+	    <fileset dir="${jsftemplating.home}/layout/facelets" includes="*.dtd,*.ent" />
+	</copy>
+	<copy todir="${build}" filtering="false" overwrite="true">
+	    <fileset dir="${src}" includes="**/*.properties" />
+	    <fileset dir="${jsftemplating.home}/layout/pages" includes="*.jsf" />
+	</copy>
+	<copy todir="${build}/META-INF/jsftemplating" filtering="false" overwrite="true">
+	    <fileset dir="${jsftemplating.home}/component/layout" includes="*.xml,*.xhtml,*.jsf" />
+	    <fileset dir="${jsftemplating.home}/layout/xml" includes="*.dtd" />
+	</copy>
+
+	<!-- build the 2 different jsftemplating.jar files -->
 	<build.jar jarfile="${jsftemplating.jar}"/>
-    <build.jar jarfile="${jsftemplating-base.jar}" xml=" "/>
+	<build.jar jarfile="${jsftemplating-base.jar}" xml=" "/>
     </target>
 
     <target name="jarsrc" depends="jar" description="Package the project source">
