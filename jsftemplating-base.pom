@@ -1,8 +1,0 @@
-<project>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.sun.jsftemplating</groupId>
-    <artifactId>jsftemplating-base</artifactId>
-    <version>@VERSION@</version>
-    <name>Templating for Java Server Faces</name>
-</project>
-
