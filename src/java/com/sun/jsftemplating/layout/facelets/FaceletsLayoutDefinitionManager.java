@@ -40,13 +40,10 @@ public class FaceletsLayoutDefinitionManager extends LayoutDefinitionManager {
             return false;
         }
 
-        // Eventually, we'll allow the old check-the-file-contents approach to
-        // be enable via a context-param.  For now, just going to force it to
-        // do it this way.
-        if (true) {
-            if (url.getPath().contains(".xhtml")) {
-                accept = true;
-            }
+        // Eventually, we may want this check to be configurable via a
+	// context-param...
+	if (url.getPath().contains(".xhtml")) {
+	    accept = true;
         } else {
             // Use the TemplateParser to help us read the file to see if it is a
             // valid XML-format file
