@@ -94,8 +94,7 @@ public class CompositionParserCommand implements CustomParserCommand {
 	    if (nvp.getName().equals(templateAttName)) {
 		compElt.setTemplate((String) nvp.getValue());
 	    } else if (nvp.getName().equals(REQUIRED_ATTRIBUTE)) {
-		compElt.setRequired(
-		    Boolean.parseBoolean(nvp.getValue().toString()));
+		compElt.setRequired(nvp.getValue().toString());
 	    } else {
                 // We are going to treat extra attributes on compositions to be 
                 // ui:param values

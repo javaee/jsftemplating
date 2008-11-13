@@ -39,6 +39,15 @@ import com.sun.jsftemplating.layout.event.EncodeEvent;
 
 
 /**
+ * <p>	This concept is borrowed from <a href="https://facelets.dev.java.net">
+ *	Facelets</a>.  A composition delegates to a "template" which performs
+ *	the layout for the content which exists in the body of this
+ *	composition component.  The composition may have {@link LayoutDefine}s
+ *	to provide named blocks which the template may "insert" at the
+ *	appropriate place.</p>
+ *
+ *  <p>	This {@link LayoutElement} implements the behavior not only for
+ *	compositions, but also decorate, and include.</p>
  *
  * @author Jason Lee
  * @author Ken Paulsen (ken.paulsen@sun.com)
@@ -67,13 +76,20 @@ public class LayoutComposition extends LayoutElementBase {
      *	    filesystem.</p>
      */
     public boolean isRequired() {
-	return required;
+	boolean result = false;
+	if (required != null) {
+	    Object answer = resolveValue(FacesContext.getCurrentInstance(), null, required);
+	    if (answer != null) {
+		result = Boolean.parseBoolean(answer.toString());
+	    }
+	}
+	return result;
     }
 
     /**
      *	<p> Setter for the template filename.</p>
      */
-    public void setRequired(boolean required) {
+    public void setRequired(String required) {
         this.required = required;
     }
 
@@ -81,7 +97,8 @@ public class LayoutComposition extends LayoutElementBase {
      *	<p> Accessor for the template filename.</p>
      */
     public String getTemplate() {
-        return template;
+	Object result = resolveValue(FacesContext.getCurrentInstance(), null, template);
+        return (result == null) ? null : result.toString();
     }
 
     /**
@@ -360,7 +377,7 @@ public class LayoutComposition extends LayoutElementBase {
      *	<p> Flag to indicate that whether an exception should be thrown if the
      *	    template is not found.</p>
      */
-    private boolean required = true;
+    private String required = null;
 
     /**
      *	<p> The filename of the template.</p>
