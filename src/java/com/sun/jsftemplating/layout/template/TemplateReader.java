@@ -340,11 +340,20 @@ public class TemplateReader {
      */
     public LayoutComponent createLayoutComponent(LayoutElement parent, boolean nested, String type) throws IOException {
 	// Ensure type is defined
-	ComponentType componentType = LayoutDefinitionManager.
-	    getGlobalComponentType(type);
+	ComponentType componentType =
+		LayoutDefinitionManager.getGlobalComponentType(type);
 	if (componentType == null) {
-	    throw new IllegalArgumentException("ComponentType '" + type
-		    + "' not defined!");
+	    // Look for local mapping...
+	    type = getMappedType(type);
+	    if (type != null) {
+		componentType =
+			LayoutDefinitionManager.getGlobalComponentType(type);
+	    }
+	    if (componentType == null) {
+		// Still not found...
+		throw new IllegalArgumentException("ComponentType '" + type
+			+ "' not defined!");
+	    }
 	}
 
 	// Get the NVPs
@@ -415,6 +424,41 @@ public class TemplateReader {
 	}
 
 	return component;
+    }
+
+    /**
+     *	<p> Attempt to find the correct component type after applying a locally
+     *	    defined mapping.</p>
+     */
+    private String getMappedType(String compType) {
+	int colonIdx = compType.indexOf(NAMESPACE_SEPARATOR);
+	String result = null;
+	if (colonIdx != -1) {
+	    // It appears we have a namespace prefix...
+	    String newPrefix = getNamespace(compType.substring(0, colonIdx));
+	    if (newPrefix != null) {
+		result = newPrefix + compType.substring(colonIdx);
+	    }
+	}
+	return result;
+    }
+
+    /**
+     *	<p> This method attempts to find a mapping for the requested component
+     *	    type.</p>
+     */
+    public String getNamespace(String compType) {
+	return _nsMappings.get(compType);
+    }
+
+    /**
+     *	<p> This method creates a namespace mapping.</p>
+     *	
+     *	@param	longName    The long name (i.e. http://foo/bar/).
+     *	@param	shortName   The short name (i.e. foo).
+     */
+    public void setNamespace(String longName, String shortName) {
+	_nsMappings.put(shortName, longName);
     }
 
     /**
@@ -692,6 +736,7 @@ public class TemplateReader {
 	map.put("include", new CompositionParserCommand(false, SRC_ATTRIBUTE));
 	map.put("decorate", new CompositionParserCommand(false, TEMPLATE_ATTRIBUTE));
 	map.put("insert", new InsertParserCommand());
+	map.put("namespace", new NamespaceParserCommand());
 	return map;
     }
 
@@ -815,6 +860,7 @@ public class TemplateReader {
 
 	    // Create new LayoutWhile
 	    LayoutElement parent = env.getParent();
+// FIXME: Support condition="..."
 	    LayoutElement elt =  new LayoutWhile(parent, condition);
 	    parent.addChildLayoutElement(elt);
 
@@ -955,7 +1001,8 @@ public class TemplateReader {
 	"template";
     public static final String SRC_ATTRIBUTE		    =
 	"src";
-
+    public static final char NAMESPACE_SEPARATOR	    =
+	':';
 
 
     public static final ProcessingContext LAYOUT_DEFINITION_CONTEXT	=
@@ -987,6 +1034,7 @@ public class TemplateReader {
      *	<p> This <code>Stack</code> keep track of the nesting.</p>
      */
     private Stack<String> _tagStack = new Stack<String>();
+    private Map<String, String> _nsMappings = new HashMap<String, String>();
 
     private TemplateParser  _tpl    = null;
     private int _idNumber;

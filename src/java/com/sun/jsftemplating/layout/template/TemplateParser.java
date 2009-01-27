@@ -219,8 +219,30 @@ public class TemplateParser {
      *	@throws {@link SyntaxException} if the syntax is not correct.
      */
     public NameValuePair getNVP(String defName, boolean requireQuotes) throws IOException {
+	return getNVP(defName, requireQuotes, "_.");
+    }
+
+    /**
+     *	<p> This method behaves the same as {@link #getNVP(String, boolean)},
+     *	    however, it adds the ability to specify the valid characters which
+     *	    may appear in the parameter name (via <code>otherChars</code>).</p>
+     *
+     *	@param	defName	The default name to use if ommitted.  If
+     *			<code>null</code>, no default will be used -- a
+     *			{@link SyntaxException} will be generated.
+     *
+     *	@param	requireQuotes	Flag indicating whether enforce the use of
+     *				quotes or not.
+     *
+     *	@param	otherChars  Other valid characters.
+     *
+     *	@return	A {@link NameValuePair} object containing the NVP info.
+     *
+     *	@throws {@link SyntaxException} if the syntax is not correct.
+     */
+    public NameValuePair getNVP(String defName, boolean requireQuotes, String otherChars) throws IOException {
 	// Read the name
-	String name = readToken("_.");
+	String name = readToken(otherChars);
 	Object value = null;
 
 	// Check for empty name
