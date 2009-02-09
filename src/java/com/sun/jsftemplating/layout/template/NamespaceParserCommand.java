@@ -82,8 +82,7 @@ public class NamespaceParserCommand implements CustomParserCommand {
 	parser.unread(ch);
 
 	// Next get the next NVP...
-        NameValuePair nvp =
-	    parser.getNVP(null, true, "\"\\:[]{};_/?p@+%|*&#!()'$^-.`~<>,");
+        NameValuePair nvp = parser.getNVP(null, true);
 
 	// Make sure we read the WS after the data...
 	parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);

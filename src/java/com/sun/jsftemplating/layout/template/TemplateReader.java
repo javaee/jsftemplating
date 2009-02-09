@@ -457,7 +457,7 @@ public class TemplateReader {
      *	@param	longName    The long name (i.e. http://foo/bar/).
      *	@param	shortName   The short name (i.e. foo).
      */
-    public void setNamespace(String longName, String shortName) {
+    public void setNamespace(String shortName, String longName) {
 	_nsMappings.put(shortName, longName);
     }
 
