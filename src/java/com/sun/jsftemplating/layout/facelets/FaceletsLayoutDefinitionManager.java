@@ -48,15 +48,16 @@ public class FaceletsLayoutDefinitionManager extends LayoutDefinitionManager {
             // Use the TemplateParser to help us read the file to see if it is a
             // valid XML-format file
             TemplateParser parser = new TemplateParser(url);
+            accept = true;
             try {
                 parser.open();
                 parser.readUntil("=\"http://java.sun.com/jsf/facelets\"", true);
             } catch (Exception ex) {
                 // Didn't work...
+		accept = false;
             } finally {
                 parser.close();
             }
-            accept = true;
         }
 
         return accept;
