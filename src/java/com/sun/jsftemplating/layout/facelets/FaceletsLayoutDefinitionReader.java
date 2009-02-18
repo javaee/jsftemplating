@@ -221,6 +221,8 @@ public class FaceletsLayoutDefinitionReader {
 	return lc;
     }
 
+/*
+This code is not used and does not appear to be correct, it should use FacesContext.getApplication()
     private Application getApplication() {
         ApplicationFactory appFactory = (ApplicationFactory) FactoryFinder
                 .getFactory(FactoryFinder.APPLICATION_FACTORY);
@@ -232,6 +234,7 @@ public class FaceletsLayoutDefinitionReader {
         return getApplication()
                 .evaluateExpressionGet(context, el, Object.class);
     }
+*/
 
     
     private LayoutElement createComponent(LayoutElement parent, Node node, boolean nested) {
@@ -293,8 +296,13 @@ public class FaceletsLayoutDefinitionReader {
 	    // to end correctly
 	    String body = node.getTextContent();
 	    body = (body == null) ? "/>" : (body.trim() + "/>");
-// FIXME: if type is not supplied it throws a NPE
-	    String eventName = node.getAttributes().getNamedItem("type").getNodeValue();
+	    Node type = node.getAttributes().getNamedItem("type");
+	    if (type == null) {
+		// Ensure type != null
+		throw new SyntaxException(
+		    "The 'type' attribute is required on 'ui:event'!");
+	    }
+	    String eventName = type.getNodeValue();
 	    InputStream is = new ByteArrayInputStream(body.getBytes());
 	    EventParserCommand command = new EventParserCommand();
 	    try {
