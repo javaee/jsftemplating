@@ -414,7 +414,8 @@ public class VariableResolver {
      *	    character, or -1 if not found.</p>
      */
     private static int findOpenEL(char chars[], int idx) {
-	int len = chars.length;
+	// Allow for a minimum of 3 characters after the # (i.e. {x})
+	int len = chars.length-3;
 	for (; idx<len; idx++) {
 	    if ((chars[idx] == '#') && (chars[idx + 1] == '{')) {
 		return idx;
