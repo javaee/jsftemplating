@@ -286,8 +286,28 @@ This code is not used and does not appear to be correct, it should use FacesCont
 	    */
 	} else if ("ui:debug".equals(nodeName)) {
 	} else if ("ui:include".equals(nodeName)) {
-		element = processComposition(parent, "src", attrs, id, false);
+	    element = processComposition(parent, "src", attrs, id, false);
 	} else if ("ui:param".equals(nodeName)) {
+	    // Handle "param"
+	    Node nameAttNode = attrs.getNamedItem("name");
+	    if (nameAttNode == null) {
+		throw new SyntaxException("The 'name' attribute is required on 'param'.");
+	    }
+	    Node valueNode = attrs.getNamedItem("value");
+	    if (valueNode == null) {
+		throw new SyntaxException("The 'value' attribute is required on 'param'.");
+	    }
+
+	    // For now only handle cases where the parent is a LayoutComposition
+	    if (!(parent instanceof LayoutComposition)) {
+		throw new SyntaxException("<" + nodeName
+		    + " name='" + nameAttNode.getNodeValue()
+		    + "' value='" + valueNode.getNodeValue()
+		    + "'> must be child of a 'composition' element!");
+	    }
+	    // Set the name=value on the parent LayoutComposition
+	    ((LayoutComposition) parent).setParameter(
+		nameAttNode.getNodeValue(), valueNode.getNodeValue());
 	} else if ("ui:remove".equals(nodeName)) {
 	    // Let the element remain null
 	} else if ("ui:repeat".equals(nodeName)) {
@@ -334,15 +354,14 @@ This code is not used and does not appear to be correct, it should use FacesCont
 	    element = new LayoutIf(parent, condition);
 	} else if ("ui:foreach".equals(nodeName)) {
 	    // Handle "foreach" conditions
-        Node valueNode = attrs.getNamedItem("value");
-        if (valueNode == null) {
-            throw new SyntaxException("The 'value' property is required on 'foreach'.");
-        }
-
-        Node varNode = attrs.getNamedItem("var");
-        if (varNode == null) {
-            throw new SyntaxException("The 'var' property is required on 'foreach'.");
-        }
+	    Node valueNode = attrs.getNamedItem("value");
+	    if (valueNode == null) {
+		throw new SyntaxException("The 'value' property is required on 'foreach'.");
+	    }
+	    Node varNode = attrs.getNamedItem("var");
+	    if (varNode == null) {
+		throw new SyntaxException("The 'var' property is required on 'foreach'.");
+	    }
 
 	    element = new LayoutForEach(parent, valueNode.getNodeValue(), varNode.getNodeValue());
 	} else if ("f:facet".equals(nodeName)) {
