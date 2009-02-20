@@ -79,6 +79,7 @@ public class FileStreamerPhaseListener implements PhaseListener {
 
                     // We have an HttpServlet response, do some extra stuff...
                     // Check the last modified time to see if we need to serve the resource
+// FIXME: Not sure why this is not part of the FacesStreamerContext...  investigate more later.
                     long mod = fsContext.getContentSource().getLastModified(fsContext);
                     if (mod != -1) {
                         long ifModifiedSince = req.getDateHeader("If-Modified-Since");
@@ -86,6 +87,8 @@ public class FileStreamerPhaseListener implements PhaseListener {
                         if (ifModifiedSince < (mod / 1000 * 1000)) {
                             // A ifModifiedSince of -1 will always be less
                             resp.setDateHeader("Last-Modified", mod);
+			    resp.setDateHeader("Expires",
+				new java.util.Date().getTime() + Context.EXPIRY_TIME);
                         } else {
                             // Set not modified header and complete response
                             resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);

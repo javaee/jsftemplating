@@ -103,6 +103,8 @@ public class ServletStreamerContext extends BaseContext {
 	long longTime = source.getLastModified(this);
 	if (longTime != -1) {
 	    resp.setDateHeader("Last-Modified", longTime);
+	    resp.setDateHeader("Expires",
+		new java.util.Date().getTime() + Context.EXPIRY_TIME);
 	}
 
 	// First check CONTENT_TYPE

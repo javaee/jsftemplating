@@ -126,8 +126,10 @@ public class FacesStreamerContext extends BaseContext {
 	// First check context
 	long longTime = source.getLastModified(this);
 	if (longTime != -1) {
-	    ((HttpServletResponse) resp).
-		setDateHeader("Last-Modified", longTime);
+	    HttpServletResponse httpResponse = ((HttpServletResponse) resp);
+	    httpResponse.setDateHeader("Last-Modified", longTime);
+	    httpResponse.setDateHeader("Expires",
+		new java.util.Date().getTime() + Context.EXPIRY_TIME);
 	}
 
 	// First check CONTENT_TYPE

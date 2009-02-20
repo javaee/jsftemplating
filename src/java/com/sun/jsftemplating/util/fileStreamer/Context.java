@@ -91,6 +91,13 @@ public interface Context {
     public void removeAttribute(String name);
 
     /**
+     *	<p> This is the number of milliseconds into the future until the
+     *	    content should expire.  This constant is currently set at about 7
+     *	    years.</p>
+     */
+    public static final long	EXPIRY_TIME = 1000 * 60 * 60 * 24 * 365 * 7;
+
+    /**
      *	<p> This is the {@link Context} attribute name used to
      *	    specify the filename extension of the content.  It is the
      *	    responsibility of the {@link ContentSource} to set
