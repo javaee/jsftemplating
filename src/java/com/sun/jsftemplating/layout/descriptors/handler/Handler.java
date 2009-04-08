@@ -225,6 +225,13 @@ public class Handler implements java.io.Serializable {
 	// Get the OutputMapping that describes how to store this output
 	OutputMapping outputDesc = getOutputValue(name);
 
+	// NOTE: Interesting that this method does not evaluate the EL in
+	// NOTE: getOutputKey... probably a bug.  Although it is very uncommon
+	// NOTE: (to get a output types output key which is dynamic from a
+	// NOTE: handler which just set the output value).  It is uncommon to
+	// NOTE: use this method at all, let alone for dynamicly key'd
+	// NOTE: OutputTypes, so this code path probably hasn't ever been
+	// NOTE: executed.
 	// Return the value
 	return outputDesc.getOutputType().
 	    getValue(context, outIODesc, outputDesc.getOutputKey());
@@ -267,12 +274,25 @@ public class Handler implements java.io.Serializable {
 	if (event instanceof UIComponentHolder) {
 	    component = ((UIComponentHolder) event).getUIComponent();
 	}
-	outputMapping.getOutputType().setValue(
-	    context, outIODesc, "" + ComponentUtil.resolveValue(
-		context.getFacesContext(),
-		context.getLayoutElement(),
-		component,
-		outputMapping.getOutputKey()), value);
+
+	// Most output types appreciate resolving EL for the "key", however
+	// in some cases (such as the EL output type), resolving the key
+	// is counterproductive.  Check output type to see if the output
+	// key should be resolved.
+	OutputType outType = outputMapping.getOutputType();
+	String outputKey = outputMapping.getOutputKey();
+// FIXME: For now I'm going to do instanceof instead of modifying the
+// FIXME: OutputType interface.  I can't think of another OutputType that would
+// FIXME: want this... if anyone ever has a use case, I'll happily modify the
+// FIXME: OutputType interface, or add a new interface to flag this code-path.
+	if (!(outType instanceof ELOutputType)) {
+	    outputKey = "" + ComponentUtil.resolveValue(
+		    context.getFacesContext(),
+		    context.getLayoutElement(),
+		    component,
+		    outputKey);
+	}
+	outType.setValue(context, outIODesc, outputKey, value);
     }
 
     /**
