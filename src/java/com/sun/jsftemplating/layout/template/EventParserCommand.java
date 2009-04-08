@@ -26,6 +26,7 @@ import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.SyntaxException;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
+import com.sun.jsftemplating.layout.descriptors.handler.OutputTypeManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -159,6 +160,9 @@ public class EventParserCommand implements CustomParserCommand {
 	    defVal = inputs.keySet().toArray()[0].toString();
 	}
 
+	// Get the outputs so we can see what outputs have been declared
+	Map outputs = def.getOutputDefs();
+
 	// Ensure we have an opening parenthesis
 	parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
 	int ch = parser.nextChar();
@@ -208,7 +212,7 @@ public class EventParserCommand implements CustomParserCommand {
 	    // Store the NVP..
 	    target = nvp.getTarget();
 	    if (target != null) {
-		// We have an OutputMapping
+		// "old-style" OutputMapping (key=>$attribute{value})
 		// NOTE: 'value' must be a String for an OutputMapping
 		handler.setOutputMapping(
 		    nvp.getName(), nvp.getValue().toString(), target);
@@ -221,8 +225,37 @@ public class EventParserCommand implements CustomParserCommand {
 		    // We have a Handler condition, set it
 		    handler.setCondition(nvp.getValue().toString());
 		} else {
-		    // We have an Input
-		    handler.setInputValue(nvp.getName(), nvp.getValue());
+		    // We still don't know if this is an input, output, or both
+		    // (EL is now supported as an output mapping: out="#{el}")
+		    boolean validIO = false;
+		    // We also check to see if the "old" output mapping was
+		    // used and DO NOT override it if it was.  This is useful
+		    // if there are cases where an input and output share a
+		    // name and the user does not fix this... the old syntax
+		    // can reliably declare an output without a namespace
+		    // problem.
+		    if (outputs.containsKey(name) && (handler.getOutputValue(name) == null)) {
+			// We have an Output... use 2 arg method for this
+			// syntax (expects EL, or uses simple String for a
+			// request attribute).
+			handler.setOutputMapping(
+				name, nvp.getValue().toString(),
+				OutputTypeManager.EL_TYPE);
+			validIO = true;
+		    }
+		    // Don't do "else" b/c it may be BOTH an input AND output
+		    if (inputs.containsKey(name)) {
+			// We have an Input
+			handler.setInputValue(name, nvp.getValue());
+			validIO = true;
+		    }
+		    if (!validIO) {
+			throw new IllegalArgumentException(
+			    "Input or output named \"" + name
+			    + "\" was declared for handler \""
+			    + handlerId + "\" in event \"" + eventName
+			    + "\", however, no such input or output exists!");
+		    }
 		}
 	    }
 	}
