@@ -419,7 +419,7 @@ public class UtilHandlers {
 	    @HandlerInput(name="encoding", type=String.class)
 	},
 	output={
-	    @HandlerOutput(name="value", type=String.class)})
+	    @HandlerOutput(name="result", type=String.class)})
     public static void urlencode(HandlerContext context) {
 	String value = (String) context.getInputValue("value");
 	String encoding = (String) context.getInputValue("encoding");
@@ -429,7 +429,7 @@ public class UtilHandlers {
 	} catch (UnsupportedEncodingException ex) {
 	    throw new IllegalArgumentException(ex);
 	}
-	context.setOutputValue("value", value);
+	context.setOutputValue("result", value);
     }
 
     /**
@@ -485,10 +485,10 @@ public class UtilHandlers {
 	    @HandlerInput(name="value", type=String.class, required=true)
 	},
 	output={
-	    @HandlerOutput(name="value", type=String.class)})
+	    @HandlerOutput(name="result", type=String.class)})
     public static void htmlEscape(HandlerContext context) {
 	String value = (String) context.getInputValue("value");
 	value = Util.htmlEscape(value);
-	context.setOutputValue("value", value);
+	context.setOutputValue("result", value);
     }
 }
