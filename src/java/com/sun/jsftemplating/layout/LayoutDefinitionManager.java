@@ -145,9 +145,11 @@ public abstract class LayoutDefinitionManager {
 
         // Check to see if we already have it. 
         LayoutDefinition def = getCachedLayoutDefinition(cacheKey);
+//System.out.println("GET LD (" + cacheKey + ", " + isDebug() + "):" + def);
         if (def == null) {
             // Obtain the correct LDM, and get the LD
             def = getLayoutDefinitionManager(ctx, key).getLayoutDefinition(key);
+//System.out.println("  Found LD (" + cacheKey + ")?:" + def);
 	    putCachedLayoutDefinition(cacheKey, def);
         } else {
             // In the case where we found a cached version,
@@ -338,10 +340,13 @@ public abstract class LayoutDefinitionManager {
      */
     public static LayoutDefinitionManager getLayoutDefinitionManager(FacesContext ctx, String key) throws LayoutDefinitionException {
         List<String> ldms = getLayoutDefinitionManagers(ctx);
+//System.out.println("LDMS: " + ldms);
         LayoutDefinitionManager mgr = null;
         for (String className : ldms) {
             mgr = getLayoutDefinitionManager(className);
+//System.out.println("LDM ("+className+"): " + mgr);
             if (mgr.accepts(key)) {
+//System.out.println("Accepts!");
                 return mgr;
             }
         }
@@ -716,20 +721,40 @@ public abstract class LayoutDefinitionManager {
      *	    file) and stores the information for later retrieval.</p>
      */
     public static Map<String, HandlerDefinition> getGlobalHandlerDefinitions() {
-        if (_globalHandlerDefs != null) {
+	return getGlobalHandlerDefinitions(HandlerAPFactory.HANDLER_FILE);
+    }
+
+    /**
+     *	<p> This method is the same as {@link #getGlobalHandlerDefinitions()},
+     *	    however, it accepts the full name of the <code>Handler.map</code>
+     *	    to use.  This allows different filenames to be used.  It will only
+     *	    read the same <code>filename</code> one time, however, it will read
+     *	    all occurances of that file name (it calls
+     *	    <code>ClassLoader.getResources(filename)</code></p>
+     */
+    public synchronized static Map<String, HandlerDefinition> getGlobalHandlerDefinitions(String filename) {
+	HashMap<String, HandlerDefinition> handlers = null;
+        if (_globalHandlerDefs == null) {
+	    // Create a new Map to hold the defs
+	    handlers = new HashMap<String, HandlerDefinition>();
+	} else if (_globalHandlerDefs.get(filename) != null) {
             // We've already done this, return the answer
             return _globalHandlerDefs;
-        }
+	} else {
+	    // Copy the old ones
+	    handlers = new HashMap<String, HandlerDefinition>(
+		_globalHandlerDefs);
+	}
 
-        // Create a new Map to hold the defs
-	HashMap<String, HandlerDefinition> handlers =
-		new HashMap<String, HandlerDefinition>();
+	// Add the 'filename' key as a flag that we've processed these
+	handlers.put(filename, NOOP_HD);
+
         Properties props = null;
         URL url = null;
         try {
             // Get all the properties files that define them
-            Enumeration<URL> urls = Util.getClassLoader(handlers).
-                            getResources(HandlerAPFactory.HANDLER_FILE);
+            Enumeration<URL> urls =
+		    Util.getClassLoader(filename).getResources(filename);
             InputStream is = null;
             while (urls.hasMoreElements()) {
                 try {
@@ -964,6 +989,8 @@ public abstract class LayoutDefinitionManager {
      *	    they can be defined once and shared across the application.</p>
      */
     private static Map<String, HandlerDefinition> _globalHandlerDefs = null;
+    private static final HandlerDefinition NOOP_HD =
+	    new HandlerDefinition("_NOOP_");
 
     /**
      *	<p> This <code>List</code> holds global {@link Resource}s so
