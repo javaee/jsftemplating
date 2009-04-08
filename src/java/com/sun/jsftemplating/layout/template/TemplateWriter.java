@@ -133,6 +133,7 @@ public class TemplateWriter {
 
 	// Add outputs
 	OutputMapping output = null;
+// FIXME: Support EL output mappings, e.g.: output1="#{requestScope.bar}"
 	for (String outputKey : def.getOutputDefs().keySet()) {
 	    output = handler.getOutputValue(outputKey);
 	    write(seperator + outputKey + "=>$" + output.getStringOutputType()
