@@ -148,7 +148,7 @@ public class Util {
      */
     public static Class loadClass(String className, Object obj) throws ClassNotFoundException {
 	// Get the context ClassLoader
-	ClassLoader loader = Thread.currentThread().getContextClassLoader();
+	ClassLoader loader = getClassLoader(obj);
 	Class cls = null;
 	if (loader != null) {
 	    try {
