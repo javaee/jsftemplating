@@ -97,13 +97,13 @@ public class NavigationHandlers {
 	    @HandlerInput(name="url", type=String.class, required=true)
 	},
 	output={
-	    @HandlerOutput(name="url", type=String.class)
+	    @HandlerOutput(name="result", type=String.class)
 	})
     public static void getActionURL(HandlerContext handlerCtx) {
 	String url = (String) handlerCtx.getInputValue("url");
 	FacesContext ctx = handlerCtx.getFacesContext();
-	handlerCtx.setOutputValue("url", ctx.getApplication().getViewHandler().
-		getActionURL(ctx, url));
+	handlerCtx.setOutputValue("result", ctx.getApplication().
+		getViewHandler().getActionURL(ctx, url));
     }
     
     /**
@@ -118,13 +118,13 @@ public class NavigationHandlers {
 	    @HandlerInput(name="url", type=String.class, required=true)
 	},
 	output={
-	    @HandlerOutput(name="url", type=String.class)
+	    @HandlerOutput(name="result", type=String.class)
 	})
     public static void getResourceURL(HandlerContext handlerCtx) {
 	String url = (String) handlerCtx.getInputValue("url");
 	FacesContext ctx = handlerCtx.getFacesContext();
-	handlerCtx.setOutputValue("url", ctx.getApplication().getViewHandler().
-		getResourceURL(ctx, url));
+	handlerCtx.setOutputValue("result", ctx.getApplication().
+		getViewHandler().getResourceURL(ctx, url));
     }
     
     /**
