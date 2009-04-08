@@ -186,6 +186,7 @@ public class OutputTypeManager {
     public static final String  PAGE_ATTRIBUTE_TYPE2	=   "pageSession";
     public static final String  SESSION_ATTRIBUTE_TYPE	=   "session";
     public static final String	APP_ATTRIBUTE_TYPE	=   "application";
+    public static final String	EL_TYPE			=   "el";
 
     static {
 	_outputTypes.put(REQUEST_ATTRIBUTE_TYPE,
@@ -197,5 +198,7 @@ public class OutputTypeManager {
 		new SessionAttributeOutputType());
 	_outputTypes.put(APP_ATTRIBUTE_TYPE,
 		new ApplicationAttributeOutputType());
+	_outputTypes.put(EL_TYPE,
+		new ELOutputType());
     }
 }
