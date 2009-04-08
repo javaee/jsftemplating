@@ -116,14 +116,15 @@ public class LayoutElementUtil {
     /**
      *	<p> This method produces a generated ID.  It optionally uses the given
      *	    base as a prefix to the generated ID ({@link #DEFAULT_ID_BASE} is
-     *	    used otherwise).  This implementation will generate an id that
-     *	    contains a number between 1 and {@link #MAX_ID}.  Do not depend on
-     *	    this implementation, it may change in the future.</p>
+     *	    used otherwise).  Do not depend on this implementation, it may
+     *	    change in the future.</p>
      *
-     *	<p> Since this implementation increments the number each call, it does
-     *	    not produce reproducible results between pages.  You should pass in
-     *	    your own number to use, see
-     *	    {@link #getGeneratedId(String, int)}.</p>
+     *	<p> Since this implementation increments the number each call, it may
+     *	    not produce reproducible results.  You should pass in
+     *	    your own number to use, see {@link #getGeneratedId(String, int)}.
+     *	    JSFT makes an effort to cause generated ids to be reproducible
+     *	    accross requests, but it is not guarenteed (particularly in highly
+     *	    dynamic pages in development mode).</p>
      */
     public static String getGeneratedId(String base) {
 	return getGeneratedId(base, incHighestId(_highId));
@@ -247,14 +248,6 @@ public class LayoutElementUtil {
 	}
     }
 
-    /**
-     *	<p> This value represents the maximum number that is contained in an
-     *	    auto generated id.  I intentionally did not make this final so that
-     *	    if needed it can be tweaked at runtime.  However, I do not think
-     *	    this will ever be necessary (id's can be specified, and this many
-     *	    unspecified ids is unlikely to be needed on a single page!).</p>
-     */
-//    public  static int	MAX_ID			= 0x00010000;
     private static int _highId = 0;
     private static Map<String, Integer> startMap =
 	    new ConcurrentHashMap<String, Integer>();
