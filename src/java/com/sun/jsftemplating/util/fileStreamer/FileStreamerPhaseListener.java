@@ -65,6 +65,7 @@ public class FileStreamerPhaseListener implements PhaseListener {
             String path = null;
 
             HttpServletRequest req = (HttpServletRequest) extContext.getRequest();
+// FIXME: Can we use path info instead of this (supported by external context)
             if (req.getRequestURI().indexOf(STATIC_RESOURCE_IDENTIFIER) != -1) {
 		Context fsContext = new FacesStreamerContext(context);
                 context.responseComplete();
@@ -308,7 +309,7 @@ public class FileStreamerPhaseListener implements PhaseListener {
      * <ul>
      * <li>url: the <code>FileStreamerPhaseListener</code>-compatible resource URL</li>
      * </ul>
-     * @param context
+     * @param hc    The {@link HandlerContext}.
      */
     @Handler (id="fileStreamer.getResourceUrl",
         input={
