@@ -340,7 +340,7 @@ public class ScopeHandlers {
 	    @HandlerInput(name="bundle", type=String.class, required=true),
 	    @HandlerInput(name="locale", type=Locale.class, required=false)},
 	output={
-	    @HandlerOutput(name="bundle", type=ResourceBundle.class)})
+	    @HandlerOutput(name="result", type=ResourceBundle.class)})
     public static void setResourceBundle(HandlerContext context) {
 	// Get the input
 	String key = (String) context.getInputValue("key");
@@ -359,7 +359,7 @@ public class ScopeHandlers {
 	    getRequestMap().put(key, bundle);
 
 	// Return it
-	context.setOutputValue("bundle", bundle);
+	context.setOutputValue("result", bundle);
     }
 
     /**
