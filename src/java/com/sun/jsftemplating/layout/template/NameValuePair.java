@@ -58,10 +58,12 @@ public class NameValuePair {
     }
 
     /**
-     *	<p> Target accessor.  If this value is non-null it can be assumed
-     *	that this is an output mapping.  Valid values for this are
-     *	currently attribute or session (this could be expanded in the
-     *	future).</p>
+     *	<p> Target accessor.  If this value is non-null it can be assumed that
+     *	    this is an output mapping.  However, if it is null it cannot be
+     *	    assumed to be an input mapping -- it may still be an output mapping
+     *	    or an in-out mapping which uses EL.  Valid values for this are
+     *	    currently: (null), "pageSession", "attribute", or "session" (this
+     *	    list may be expanded in the future).</p>
      */
     public String getTarget() {
 	return _target;
