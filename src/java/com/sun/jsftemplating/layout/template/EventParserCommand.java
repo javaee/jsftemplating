@@ -40,6 +40,24 @@ import java.util.Stack;
  *	an event.</p>
  */
 public class EventParserCommand implements CustomParserCommand {
+    /**
+     *	<p> This method processes a "custom" command.  These are commands that
+     *	    start with a !.  When this method receives control, the
+     *	    <code>name</code> (i.e. the token after the '!' character) has
+     *	    already been read.  It is passed via the <code>name</code>
+     *	    parameter.</p>
+     *
+     *	<p> This implementation processes events and their handlers.  2
+     *	    syntaxes are supported:</p>
+     *
+     *	<ul><li>&lt;event type="beforeCreate"&gt;handler1(input="foo" output="bar"); ... &lt;/event&gt;<li>
+     *	    <li>&lt;!beforeCreate handler1(input="foo" output="bar"); ... /&gt;</li></ul>
+     *
+     *	<p> The first format should be preferred.</p>
+     *
+     *	<p> The {@link ProcessingContext} and
+     *	    {@link ProcessingContextEnvironment} are both available.</p>
+     */
     public void process(ProcessingContext ctx, ProcessingContextEnvironment env, String eventName) throws IOException {
 	Handler handler = null;
 	List<Handler> handlers = new ArrayList<Handler>();
@@ -48,10 +66,63 @@ public class EventParserCommand implements CustomParserCommand {
 	Handler parentHandler = null;
 	Stack<Handler> handlerStack = new Stack<Handler>();
 
-	// Read the Handler(s)...
+	// Skip whitespace...
 	parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
-	int ch = parser.nextChar();
-	while ((ch != -1) && (ch != '/') && (ch != '>')) {
+	int ch = -1;
+
+	// We now support 2 syntaxes:
+	//   <!event type="beforeCreate">[handlers]</event>
+	//   <!beforeCreate [handlers] />
+	// If "eventName" is event, look for type and the closing '>' before
+	// trying to parse the handlers.
+	boolean useBodyContent = false;
+	if (eventName.equals("event")) {
+	    // We have the new syntax...
+	    useBodyContent = true;
+
+	    // Read type="...", no other options are supported at this time
+	    NameValuePair nvp = parser.getNVP(null);
+	    if (!nvp.getName().equals("type")) {
+		throw new SyntaxException(
+		    "When defining and event, you must supply the event type! "
+		    + "Found \"...event " + nvp.getName() + "\" instead.");
+	    }
+	    eventName = nvp.getValue().toString();
+
+	    // Ensure the next character is '>'
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
+	    ch = parser.nextChar();
+	    if (ch != '>') {
+		throw new SyntaxException(
+		    "Syntax error in event definition, found: '...event type=\""
+		    + eventName + "\" " + ((char) ch)
+		    + "\'.  Expected closing '>' for opening event element.");
+	    }
+
+	    // Get ready to read the handlers now...
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
+	    ch = parser.nextChar();
+	} else {
+	    // Make sure to read the first char for the old syntax...
+	    ch = parser.nextChar();
+	}
+
+	// Read the Handler(s)...
+	while (ch != -1) {
+	    if (useBodyContent) {
+		// If we're using the new format.... check for "</event>"
+		if (ch == '<') {
+		    // Just unread the '<', framework will validate the rest
+		    parser.unread('<');
+		    break;
+		}
+	    } else {
+		if ((ch == '/') || (ch == '>')) {
+		    // We found the end in the case where the handlers are
+		    // inside the tag (old syntax).
+		    break;
+		}
+	    }
 	    // Check for {}'s
 	    if ((ch == LEFT_CURLY) || (ch == RIGHT_CURLY)) {
 		if (ch == LEFT_CURLY) {
@@ -105,21 +176,24 @@ public class EventParserCommand implements CustomParserCommand {
 		    + "' when parsing handlers for '" + eventName
 		    + "' event.");
 	}
-	if (ch == '>') {
-	    throw new SyntaxException("Handlers for event '" + eventName
-		+ "' did not end with '/&gt;' but instead ended with '&gt;'!");
-	}
-	if (ch == '/') {
-	    // Make sure we have a "/>"...
-	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
-	    ch = parser.nextChar();
-	    if (ch != '>') {
-		throw new SyntaxException("Expected '/&gt;' a end of '"
-		    + eventName + "' event.  But found '/"
-		    + (char) ch + "'.");
+	if (!useBodyContent) {
+	    // Additional checks for old syntax...
+	    if (ch == '>') {
+		throw new SyntaxException("Handlers for event '" + eventName
+		    + "' did not end with '/&gt;' but instead ended with '&gt;'!");
 	    }
-	    reader.popTag();   // Get rid of this event tag from the Stack
-	    ctx.endSpecial(env, eventName);
+	    if (ch == '/') {
+		// Make sure we have a "/>"...
+		parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
+		ch = parser.nextChar();
+		if (ch != '>') {
+		    throw new SyntaxException("Expected '/&gt;' a end of '"
+			+ eventName + "' event.  But found '/"
+			+ (char) ch + "'.");
+		}
+		reader.popTag();   // Get rid of this event tag from the Stack
+		ctx.endSpecial(env, eventName);
+	    }
 	}
 
 	// Set the Handlers on the parent...
@@ -127,8 +201,8 @@ public class EventParserCommand implements CustomParserCommand {
     }
 
     /**
-     *  <p>	This method parses and creates an individual
-     *	<code>Handler</code>.</p>
+     *	<p> This method parses and creates an individual
+     *	    <code>Handler</code>.</p>
      */
     private Handler readHandler(TemplateParser parser, String eventName) throws IOException {
 	String target = null;

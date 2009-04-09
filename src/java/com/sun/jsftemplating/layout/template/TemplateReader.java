@@ -299,10 +299,16 @@ public class TemplateReader {
 			    tmpstr = tmpstr.substring(0,
 				    tmpstr.length() - "</f:verbatim>".length());
 			    ctx.staticText(env, tmpstr);
-			    break;
+			} else if (tmpstr.equals("ui:event")) {
+			    // Hard-code special case for event...
+// FIXME: Should also support substituting ! for a custom prefix
+			    pushTag(tmpstr);
+			    // Must pass in "event" to get correct behavior
+			    ctx.beginSpecial(env, "event");
+			} else {
+			    pushTag(tmpstr);
+			    ctx.beginComponent(env, tmpstr);
 			}
-			pushTag(tmpstr);
-			ctx.beginComponent(env, tmpstr);
 		    }
 		    break;
 		case '\'' :
@@ -737,6 +743,7 @@ public class TemplateReader {
 	map.put("decorate", new CompositionParserCommand(false, TEMPLATE_ATTRIBUTE));
 	map.put("insert", new InsertParserCommand());
 	map.put("namespace", new NamespaceParserCommand());
+	map.put("event", EVENT_PARSER_COMMAND);
 	return map;
     }
 
