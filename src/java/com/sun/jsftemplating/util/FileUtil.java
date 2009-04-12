@@ -26,10 +26,12 @@ import com.sun.jsftemplating.layout.LayoutDefinitionException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,22 +141,56 @@ public class FileUtil {
 	// Check to see if we have already found this before (on this request)
 	URL url = null;
 	FacesContext ctx = FacesContext.getCurrentInstance();
-	Map<String, URL> filesFound = null;
-	if (ctx != null) {
-	    filesFound = (Map<String, URL>)
-		ctx.getExternalContext().getRequestMap().get(FILES_FOUND);
-	    if (filesFound != null) {
-		url = filesFound.get(newPath);
-		if (url != null) {
-		    // We've already figured this out, abort before we start
-		    return url;
-		}
+	Map<String, URL> filesFound = getFilesFoundMap(ctx);
+	if (filesFound != null) {
+	    url = filesFound.get(newPath);
+	    if (url != null) {
+		// We've already figured this out, abort before we start
+		return url;
 	    }
 	}
 
 	// Next check relative newPath (i.e. determine the directory w/i the app
 	// they are in and prepend it to the newPath)
 	if (!absolutePath) {
+	    // Check for URL syntax... at this point it will look like a relative
+	    // path.
+	    //
+	    // NOTE: While this should not be exposed from the browser, it is
+	    // valid for server-side code to request page fragments via URLs.
+	    // If this is the case, "newPath" will be in the form:
+	    // <protocol>://...  We'll simply detect by checking for "://".
+	    if (newPath.contains("://")) {
+		// Looks like a URL...
+		try {
+		    // Read the contents
+		    byte[] content = readFromURL(new URL(newPath));
+
+		    // Use request scope in order to persist it appropriately...
+		    // Not retrievied, prevents GC from happenning early
+		    ctx.getExternalContext().getRequestMap().
+			put("__gf." + newPath, content);
+
+		    // Use special URL which will buffer the contents
+		    url = new URL(null, newPath, new CachedURLStreamHandler<byte[]>(content));
+
+		    // Cache the URL...
+		    if (filesFound != null) {
+			// Cache what we found -- each LDM calls this method, help them...
+			filesFound.put(newPath, url);
+		    }
+
+		    // We need to end early b/c this is a special case...
+		    return url;
+		} catch (IOException ex) {
+		    // This is probably bad, but we'll ignore it and see if
+		    // it can be found via a relative path.
+		//} catch (MalformedURLException ex) {
+		    // This is probably bad, but we'll ignore it and see if
+		    // it can be found via a relative path.
+		}
+	    }
+
 	    String absPath = getAbsolutePath(ctx, newPath);
 	    url = searchForFile(absPath, defSuff);
 
@@ -195,13 +231,8 @@ public class FileUtil {
 	    }
 	}
 
-	if ((url != null) && (ctx != null)) {
+	if ((url != null) && (filesFound != null)) {
 	    // Cache what we found -- each LDM calls this method, help them...
-	    if (filesFound == null) {
-		filesFound = new HashMap<String, URL>(8);
-		ctx.getExternalContext().getRequestMap().
-			put(FILES_FOUND, filesFound);
-	    }
 	    filesFound.put(newPath, url);
 	}
 
@@ -303,6 +334,7 @@ public class FileUtil {
             Set<String> paths = ec.getResourcePaths(searchPath);
             for (String path : paths) {
                 if ("jar".equalsIgnoreCase(path.substring(path.length() - 3))) {
+// FIXME: Can this be a URL?
                     JarFile jarFile = new JarFile(new File(ec.getResource(path).getFile()));
                     JarEntry jarEntry = jarFile.getJarEntry(resourcePath);
                     if (jarEntry != null) {
@@ -312,6 +344,65 @@ public class FileUtil {
             }
         }
         return entries;
+    }
+
+    /**
+     *	<p> This method read content from a <code>URL</code> and returns the
+     *	    result as a <code>byte[]</code>.</p>
+     */
+    public static byte[] readFromURL(URL url) throws IOException {
+	byte buffer[] = new byte[10000];
+	byte result[] = new byte[0];
+	
+	//try {
+	    int count = 0;
+	    int offset = 0;
+	    InputStream in = url.openStream();
+
+	    // Attempt to read up to 10K bytes.
+	    count = in.read(buffer);
+	    while (count != -1) {
+		// Make room for new content...
+		result = Arrays.copyOf(result, offset + count);
+
+		// Copy in new content...
+		System.arraycopy(buffer, 0, result, offset, count);
+
+		// Increment the offset
+		offset += count;
+
+		// Attempt to read up to 10K more bytes...
+		count = in.read(buffer);
+	    }
+	//} catch (IOException ex) {
+	    //throw new RuntimException("Error while trying to read from URL: " + url);
+	//}
+	return result;
+    }
+
+    /**
+     *	<p> This method provides access to a Map containing the URLs of files
+     *	    that have been found already on this particular request.  This is
+     *	    done to speed up the task of locating the appropriate URL.</p>
+     *
+     *	<p> The <code>Map</code> returned is keyed by the viewId (or String
+     *	    representation of the URL) for the file in question.  If the
+     *	    given <code>FacesContext</code> is <code>null</code>,
+     *	    <code>null</code> will be returned from this method.</p>
+     */
+    private static Map<String, URL> getFilesFoundMap(FacesContext ctx) {
+	Map<String, URL> filesFound = null;
+	// Only do this caching if we're in Faces...
+	if (ctx != null) {
+	    filesFound = (Map<String, URL>)
+		ctx.getExternalContext().getRequestMap().get(FILES_FOUND);
+	    if (filesFound == null) {
+		// Not yet created, create it...
+		filesFound = new HashMap<String, URL>(8);
+		ctx.getExternalContext().getRequestMap().put(FILES_FOUND, filesFound);
+	    }
+	}
+	return filesFound;
     }
     
     private static final String	    FILES_FOUND		= "_filesFoundThisRequest";
