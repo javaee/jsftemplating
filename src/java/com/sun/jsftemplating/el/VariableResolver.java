@@ -234,6 +234,13 @@ public class VariableResolver {
 	    type = string.substring(startIndex + startTokenLen, delimIndex);
 	    DataSource ds = dataSourceMap.get(type);
 	    if (ds == null) {
+		if ((type.indexOf('<') > -1) || (type.indexOf('&') > -1) ||
+			(type.indexOf('[') > -1) || (type.indexOf('#') > -1) ||
+			(type.indexOf('$') > -1) || (type.indexOf('%') > -1) ||
+			(type.indexOf('(') > -1) || (type.indexOf(')')) > -1) {
+		    // Do not consider this a valid EL expression, continue...
+		    continue;
+		}
 		throw new IllegalArgumentException("Invalid type '" + type
 			+ "' in attribute value: '" + string + "'.");
 	    }
