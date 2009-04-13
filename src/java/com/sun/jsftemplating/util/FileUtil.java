@@ -363,7 +363,12 @@ public class FileUtil {
 	    count = in.read(buffer);
 	    while (count != -1) {
 		// Make room for new content...
-		result = Arrays.copyOf(result, offset + count);
+		//result = Arrays.copyOf(result, offset + count);  Java 6 only...
+		// When I can depend on Java 6... replace the following 3 lines
+		// with the line above.
+		byte oldResult[] = result;
+		result = new byte[offset + count];
+		System.arraycopy(oldResult, 0, result, 0, offset);
 
 		// Copy in new content...
 		System.arraycopy(buffer, 0, result, offset, count);
