@@ -37,8 +37,8 @@ public class CachedURLStreamHandler<T> extends URLStreamHandler {
 
     /**
      *	<p> This constructor stores the given <code>T</code> object, which
-     *	    will be used by the {@link MapURLConnection} which is created when
-     *	    openConnection is called.  It stores this as a
+     *	    will be used by the {@link CachedURLConnection} which is created
+     *	    when openConnection is called.  It stores this as a
      *	    <em>WeakReference</em>, so it will be garbage collected if no
      *	    other "strong" references refer to it!</p>
      */
