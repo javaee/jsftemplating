@@ -1,5 +1,5 @@
 Export-Package=!com.sun.jsftemplating.annotation.*,*
 Import-Package=com.sun.data.provider.*;resolution:=optional,*
-Bundle-Version=1.2.8
+Bundle-Version=1.2.9-SNAPSHOT
 Bundle-SymbolicName=com.sun.jsftemplating
 Bundle-Description=JSFTemplating framework for JavaServer Faces 1.2
