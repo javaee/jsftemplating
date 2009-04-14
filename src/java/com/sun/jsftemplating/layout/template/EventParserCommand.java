@@ -24,9 +24,11 @@ package com.sun.jsftemplating.layout.template;
 
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.SyntaxException;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.OutputTypeManager;
+import com.sun.jsftemplating.util.LayoutElementUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,6 +67,7 @@ public class EventParserCommand implements CustomParserCommand {
 	TemplateParser parser = reader.getTemplateParser();
 	Handler parentHandler = null;
 	Stack<Handler> handlerStack = new Stack<Handler>();
+	LayoutElement parent = env.getParent();
 
 	// Skip whitespace...
 	parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
@@ -194,10 +197,16 @@ public class EventParserCommand implements CustomParserCommand {
 		reader.popTag();   // Get rid of this event tag from the Stack
 		ctx.endSpecial(env, eventName);
 	    }
+	} else {
+	    // We need to recurse in order for the end-tag code to properly
+	    // close out the context and make everything run correctly...
+	    // Process child LayoutElements (should be none)
+	    reader.process(EVENT_PROCESSING_CONTEXT, parent,
+		LayoutElementUtil.isLayoutComponentChild(parent));
 	}
 
 	// Set the Handlers on the parent...
-	env.getParent().setHandlers(eventName, handlers);
+	parent.setHandlers(eventName, handlers);
     }
 
     /**
@@ -341,8 +350,17 @@ public class EventParserCommand implements CustomParserCommand {
 	return handler;
     }
 
+    /**
+     *	<p> This is the {@link ProcessingContext} for events.  Currently does
+     *	    nothing.</p>
+     */
+    protected static class EventProcessingContext extends BaseProcessingContext {
+    }
+
     public static final String IF_HANDLER		    =	"if";
     public static final String CONDITION_ATTRIBUTE	    =	"condition";
+    public static final ProcessingContext EVENT_PROCESSING_CONTEXT  = 
+	new EventProcessingContext();
 
     public static final char LEFT_CURLY			    =	'{';
     public static final char RIGHT_CURLY		    =	'}';

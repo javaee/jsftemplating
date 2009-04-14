@@ -302,7 +302,7 @@ public class TemplateReader {
 			} else if (tmpstr.equals("ui:event")) {
 			    // Hard-code special case for event...
 // FIXME: Should also support substituting ! for a custom prefix
-			    pushTag(tmpstr);
+			    pushTag("!" + tmpstr);  // Mark as special
 			    // Must pass in "event" to get correct behavior
 			    ctx.beginSpecial(env, "event");
 			} else {
