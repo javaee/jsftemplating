@@ -70,13 +70,13 @@ public class LayoutComposition extends LayoutElementBase {
     }
 
     /**
-     *	<p> <code>true</code> if a template filename is required.
-     *	    <code>false</code> if it should be ignored when the template
-     *	    filename is not specified or does not exist on the
-     *	    filesystem.</p>
+     *	<p> <code>true</code> if a template filename is required to resolve to
+     *	    a valid file.  If the template filename is null, this property is
+     *	    not used.  <code>false</code> if it should be ignored when the does
+     *	    not exist.  The default is <code>true</code>.</p>
      */
     public boolean isRequired() {
-	boolean result = false;
+	boolean result = true;
 	if (required != null) {
 	    Object answer = resolveValue(FacesContext.getCurrentInstance(), null, required);
 	    if (answer != null) {
