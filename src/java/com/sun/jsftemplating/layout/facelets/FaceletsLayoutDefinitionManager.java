@@ -35,7 +35,13 @@ public class FaceletsLayoutDefinitionManager extends LayoutDefinitionManager {
     @Override
     public boolean accepts(String key) {
         boolean accept = false;
-        URL url = FileUtil.searchForFile(key, defaultSuffix);
+	URL url = null;
+	try {
+	    url = FileUtil.searchForFile(key, defaultSuffix);
+	} catch (IOException ex) {
+	    // Ignore this b/c we're just trying to detect if we're the right
+	    // LDM... if we're here, probably we're not.
+	}
         if (url == null) {
             return false;
         }
@@ -73,7 +79,13 @@ public class FaceletsLayoutDefinitionManager extends LayoutDefinitionManager {
      */
     public LayoutDefinition getLayoutDefinition(String key) throws LayoutDefinitionException {
 	// Make sure we found the url
-	URL url = FileUtil.searchForFile(key, defaultSuffix);
+	URL url = null;
+	try {
+	    url = FileUtil.searchForFile(key, defaultSuffix);
+	} catch (IOException ex) {
+	    throw new LayoutDefinitionException(
+		    "Unable to locate '" + key + "'", ex);
+	}
 	if (url == null) {
 	    throw new LayoutDefinitionException(
 		    "Unable to locate '" + key + "'");

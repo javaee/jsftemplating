@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,7 +130,7 @@ public class FileUtil {
      *			found, it is sometimes useful to translate the path
      *			using a default suffix.
      */
-    public static URL searchForFile(String path, String defSuff) {
+    public static URL searchForFile(String path, String defSuff) throws IOException {
 	// Remove leading '/' characters if needed
 	boolean absolutePath = false;
 	String newPath = path;
@@ -182,12 +183,12 @@ public class FileUtil {
 
 		    // We need to end early b/c this is a special case...
 		    return url;
+		} catch (MalformedURLException ex) {
+		    // This is probably bad, but we'll ignore it and see if
+		    // it can be found via a relative path.
 		} catch (IOException ex) {
-		    // This is probably bad, but we'll ignore it and see if
-		    // it can be found via a relative path.
-		//} catch (MalformedURLException ex) {
-		    // This is probably bad, but we'll ignore it and see if
-		    // it can be found via a relative path.
+		    // Rethrow it b/c this error probably should be shown.
+		    throw ex;
 		}
 	    }
 

@@ -92,7 +92,13 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
      *	    exception is thrown, it will return <code>false</code>.</p>
      */
     public boolean accepts(String key) {
-	URL url = FileUtil.searchForFile(key, ".jsf");
+	URL url = null;
+	try {
+	    url = FileUtil.searchForFile(key, ".jsf");
+	} catch (IOException ex) {
+	    // Ignore this b/c we're just trying to detect if we're the right
+	    // LDM... if we're here, probably we're not.
+	}
 	if (url == null) {
 	    return false;
 	}
@@ -148,7 +154,13 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
      */
     public LayoutDefinition getLayoutDefinition(String key) throws LayoutDefinitionException {
 	// Make sure we found the url
-	URL url = FileUtil.searchForFile(key, ".jsf");
+	URL url = null;
+	try {
+	    url = FileUtil.searchForFile(key, ".jsf");
+	} catch (IOException ex) {
+	    throw new LayoutDefinitionException(
+		    "Unable to locate '" + key + "'", ex);
+	}
 	if (url == null) {
 	    throw new LayoutDefinitionException(
 		    "Unable to locate '" + key + "'");
