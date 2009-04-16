@@ -350,10 +350,10 @@ public class TemplateReader {
 		LayoutDefinitionManager.getGlobalComponentType(type);
 	if (componentType == null) {
 	    // Look for local mapping...
-	    type = getMappedType(type);
-	    if (type != null) {
+	    String mappedType = getMappedType(type);
+	    if (mappedType != null) {
 		componentType =
-			LayoutDefinitionManager.getGlobalComponentType(type);
+			LayoutDefinitionManager.getGlobalComponentType(mappedType);
 	    }
 	    if (componentType == null) {
 		// Still not found...
