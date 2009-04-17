@@ -169,8 +169,10 @@ public class FileUtil {
 
 		    // Use request scope in order to persist it appropriately...
 		    // Not retrievied, prevents GC from happenning early
-		    ctx.getExternalContext().getRequestMap().
-			put("__gf." + newPath, content);
+		    if (ctx != null) {
+			ctx.getExternalContext().getRequestMap().
+			    put("__gf." + newPath, content);
+		    }
 
 		    // Use special URL which will buffer the contents
 		    url = new URL(null, newPath, new CachedURLStreamHandler<byte[]>(content));
