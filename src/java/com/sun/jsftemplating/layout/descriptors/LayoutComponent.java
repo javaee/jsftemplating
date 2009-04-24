@@ -207,7 +207,7 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
 // FIXME: shouldn't this do a replace, not a remove?  Otherwise the order may change
 	    String id = getId(context, parent);
 	    if (parent.getFacets().remove(id) == null) {
-		UIComponent child = ComponentUtil.findChild(parent, id, null);
+		UIComponent child = ComponentUtil.getInstance(context).findChild(parent, id, null);
 		if (child != null) {
 		    // Not a facet, try child...
 		    parent.getChildren().remove(child);
@@ -278,7 +278,8 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
 	String id = this.getId(context, parent);
 
 	// We have an id, use it to search for an already-created child
-	childComponent = ComponentUtil.findChild(parent, id, id);
+	ComponentUtil compUtil = ComponentUtil.getInstance(context);
+	childComponent = compUtil.findChild(parent, id, id);
 	if (childComponent != null) {
 	    return childComponent;
 	}
@@ -287,8 +288,7 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
 	this.beforeCreate(context, parent);
 
 	// Create UIComponent
-	childComponent =
-	    ComponentUtil.createChildComponent(context, this, parent);
+	childComponent = compUtil.createChildComponent(context, this, parent);
 
 	// Invoke "afterCreate" handlers
 	this.afterCreate(context, childComponent);

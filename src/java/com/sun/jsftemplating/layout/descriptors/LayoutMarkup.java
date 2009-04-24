@@ -110,9 +110,10 @@ public class LayoutMarkup extends LayoutElementBase implements LayoutElement {
      *	@param	context	The HandlerContext.
      */
     public static void afterEncodeHandler(HandlerContext context) throws IOException {
-	ResponseWriter writer = context.getFacesContext().getResponseWriter();
+	FacesContext ctx = context.getFacesContext();
+	ResponseWriter writer = ctx.getResponseWriter();
 	LayoutMarkup markup = (LayoutMarkup) context.getLayoutElement();
-	Object value = ComponentUtil.resolveValue(context.getFacesContext(),
+	Object value = ComponentUtil.getInstance(ctx).resolveValue(ctx,
 		markup, (UIComponent) context.getEventObject().getSource(),
 		markup.getTag());
 	if (value != null) {

@@ -20,11 +20,6 @@
  * 
  * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
  */
-/*
- * ComponentUtil.java
- *
- * Created on November 24, 2004, 3:06 PM
- */
 package com.sun.jsftemplating.component;
 
 import java.lang.reflect.Method;
@@ -56,10 +51,31 @@ import com.sun.jsftemplating.util.TypeConverter;
 public class ComponentUtil {
 
     /**
-     *	<p> This constructor is here to prevent this class from being
-     *	    instantiated.  It only contains static methods.</p>
+     *	<p> Default Constructor.</p>
      */
     private ComponentUtil() {
+    }
+
+    /**
+     *	<p> Method to get access to the ComponentUtil instance for the current
+     *	    application.</p>
+     */
+    public static ComponentUtil getInstance(FacesContext ctx) {
+	ComponentUtil cu = null;
+	if (ctx != null) {
+	    Map<String, Object> appMap =
+		    ctx.getExternalContext().getApplicationMap();
+	    cu = (ComponentUtil) appMap.get(COMPONENT_UTIL_KEY);
+	    if (cu == null) {
+		cu = new ComponentUtil();
+		// Perhaps a SoftReference would be a good idea here?
+		appMap.put(COMPONENT_UTIL_KEY, cu);
+	    }
+	} else {
+	    // Not JSF env, create every time...
+	    cu = new ComponentUtil();
+	}
+	return cu;
     }
 
     /**
@@ -73,7 +89,7 @@ public class ComponentUtil {
      *
      *	@return	The child <code>UIComponent</code> if it exists, null otherwise.
      */
-    public static UIComponent getChild(UIComponent parent, String id) {
+    public UIComponent getChild(UIComponent parent, String id) {
 	return findChild(parent, id, id);
     }
 
@@ -91,7 +107,7 @@ public class ComponentUtil {
      *
      *	@return	The child <code>UIComponent</code> if it exists, null otherwise.
      */
-    public static UIComponent findChild(UIComponent parent, String id, String facetName) {
+    public UIComponent findChild(UIComponent parent, String id, String facetName) {
 	// Sanity Check
 	if (parent == null) {
 	    return null;
@@ -150,7 +166,7 @@ public class ComponentUtil {
      *
      *	@see	#getChild(UIComponent, String, String, Properties)
      */
-    public static UIComponent getChild(UIComponent parent, String id, String factoryClass) {
+    public UIComponent getChild(UIComponent parent, String id, String factoryClass) {
 	return getChild(parent, id, factoryClass, id);
     }
 
@@ -168,7 +184,7 @@ public class ComponentUtil {
      *
      *	@see	#getChild(UIComponent, String, String)
      */
-    public static UIComponent getChild(UIComponent parent, String id, String factoryClass, String facetName) {
+    public UIComponent getChild(UIComponent parent, String id, String factoryClass, String facetName) {
 	return getChild(parent, id, getComponentType(factoryClass),
 		null, facetName);
     }
@@ -201,7 +217,7 @@ public class ComponentUtil {
      *
      *	@return	The child UIComponent that was found or created.
      */
-    public static UIComponent getChild(UIComponent parent, String id, String factoryClass, Properties properties) {
+    public UIComponent getChild(UIComponent parent, String id, String factoryClass, Properties properties) {
 	return getChild(parent, id, factoryClass, properties, id);
     }
 
@@ -221,7 +237,7 @@ public class ComponentUtil {
      *
      *	@return	The child UIComponent that was found or created.
      */
-    public static UIComponent getChild(UIComponent parent, String id, String factoryClass, Properties properties, String facetName) {
+    public UIComponent getChild(UIComponent parent, String id, String factoryClass, Properties properties, String facetName) {
 	return getChild(parent, id, getComponentType(factoryClass),
 		properties, facetName);
     }
@@ -244,7 +260,7 @@ public class ComponentUtil {
      *
      *	@return	The child <code>UIComponent</code> that was found or created.
      */
-    private static UIComponent getChild(UIComponent parent, String id, ComponentType type, Properties properties, String facetName) {
+    private UIComponent getChild(UIComponent parent, String id, ComponentType type, Properties properties, String facetName) {
 	LayoutComponent desc = new LayoutComponent(null, id, type);
 	if (properties != null) {
 		//Remove Generics for now. Check with Ken to change thisinto HashMap.
@@ -273,7 +289,7 @@ public class ComponentUtil {
      *
      *	@return	A ComponentType instance for <code>factoryClass</code>.
      */
-    private static ComponentType getComponentType(String factoryClass) {
+    private ComponentType getComponentType(String factoryClass) {
 	// Check the cache
 	ComponentType type = (ComponentType) _types.get(factoryClass);
 	if (type == null) {
@@ -343,7 +359,7 @@ public class ComponentUtil {
      *
      *	@return	The child <code>UIComponent</code> that was found or created.
      */
-    public static UIComponent getChild(UIComponent parent, LayoutComponent descriptor) {
+    public UIComponent getChild(UIComponent parent, LayoutComponent descriptor) {
 	FacesContext context = FacesContext.getCurrentInstance();
 	// First check to see if the UIComponent can create its own children
 	if (parent instanceof ChildManager) {
@@ -390,7 +406,7 @@ public class ComponentUtil {
      *	@see	ComponentType#getFactory()
      *	@see	com.sun.jsftemplating.component.factory.ComponentFactory#create(FacesContext, LayoutComponent, UIComponent)
      */
-    public static UIComponent createChildComponent(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
+    public UIComponent createChildComponent(FacesContext context, LayoutComponent descriptor, UIComponent parent) {
 	//  Make sure a LayoutComponent was provided.
 	if (descriptor == null) {
 	    throw new IllegalArgumentException("'descriptor' cannot be null!");
@@ -419,7 +435,7 @@ public class ComponentUtil {
      *	@return A <code>ValueExpression</code>, or the "$...{...}" evaulated
      *		value (if no <code>ValueExpression</code> is present).
      */
-    public static Object setOption(FacesContext context, String key, Object value, LayoutElement desc, UIComponent comp) {
+    public Object setOption(FacesContext context, String key, Object value, LayoutElement desc, UIComponent comp) {
 	// Invoke our own EL.  This is needed b/c JSF's EL is designed for
 	// context-insensitive EL.  Resolve our variables now because we
 	// cannot depend on the individual components to do this later.  We
@@ -432,8 +448,7 @@ public class ComponentUtil {
 	    if (comp != null) {
 		comp.setValueExpression(key, (ValueExpression) value);
 	    }
-	} else if ((value instanceof String)
-		&& ComponentUtil.isValueReference((String) value)) {
+	} else if ((value instanceof String) && isValueReference((String) value)) {
 	    ValueExpression ve =
 		context.getApplication().getExpressionFactory().
 		    createValueExpression(
@@ -509,7 +524,7 @@ public class ComponentUtil {
      *	<p> This method attempts to resolve the expected type for the given
      *	    property <code>key</code> and <code>UIComponent</code>.</p>
      */
-    private static Class findPropertyType(UIComponent comp, String key) {
+    private Class findPropertyType(UIComponent comp, String key) {
 	// First check to see if we've done this before...
 	Class compClass = comp.getClass();
 	String cacheKey = compClass.getName() + ';' + key;
@@ -560,7 +575,7 @@ public class ComponentUtil {
      *	    method name.  In other words, it capitalizes the first letter and
      *	    prepends "get".</p>
      */
-    public static String getGetterName(String name) {
+    public String getGetterName(String name) {
 	return "get" + ((char) (name.charAt(0) & 0xFFDF)) + name.substring(1);
     }
 
@@ -577,7 +592,7 @@ public class ComponentUtil {
      *
      *	@return The evaluated value (may be null).
      */
-    public static Object resolveValue(FacesContext context, LayoutElement elt, UIComponent parent, Object value) {
+    public Object resolveValue(FacesContext context, LayoutElement elt, UIComponent parent, Object value) {
 	// Invoke our own EL.  This is needed b/c JSF's EL is designed for
 	// Bean getters only.  It does not get CONSTANTS or pull data from
 	// other sources without adding a custom VariableResolver and/or
@@ -588,8 +603,7 @@ public class ComponentUtil {
 	    context, elt, parent, value);
 
 	// Next check to see if the result contains a JSF ValueExpression
-	if ((result != null) && (result instanceof String)
-		&& ComponentUtil.isValueReference((String) result)) {
+	if ((result != null) && (result instanceof String) && isValueReference((String) result)) {
 	    ELContext elctx = context.getELContext();
 	    ValueExpression ve =
 		context.getApplication().getExpressionFactory().
@@ -618,7 +632,7 @@ public class ComponentUtil {
     /**
      *	<p> Returns true if this expression looks like an EL expression.</p>
      */
-    public static boolean isValueReference(String value) {
+    public boolean isValueReference(String value) {
 	if (value == null) {
 	    return false;
 	}
@@ -631,12 +645,20 @@ public class ComponentUtil {
     }
 
 
+    // While this is static, the information seems reasonable to share across
+    // applications as it is very unlikely to be different... leaving for now
     private static Map<String, Class> _typeCache =
 	    new HashMap<String, Class>();
 
     /**
      *	<p> This Map caches ComponentTypes by their factoryClass name.</p>
      */
-    private static Map<String, ComponentType> _types =
+    private Map<String, ComponentType> _types =
 	    new HashMap<String, ComponentType>();
+
+    /**
+     *	<p> Application scope key for an instance of
+     *	    <code>ComponentUtil</code>.</p>
+     */
+    public static final String COMPONENT_UTIL_KEY   =	"_jsft_COMP_UTIL";
 }

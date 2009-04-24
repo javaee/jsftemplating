@@ -81,7 +81,7 @@ public class LayoutStaticText extends LayoutComponent {
 	    // This code depends on the side-effect of Util.setOption
 	    // converting the string to a ValueExpression if needed.  The
 	    // "__value" is arbitrary.
-	    Object value = ComponentUtil.setOption(
+	    Object value = ComponentUtil.getInstance(context).setOption(
 		context, "__value", getValue(),
 		getLayoutDefinition(), component);
 

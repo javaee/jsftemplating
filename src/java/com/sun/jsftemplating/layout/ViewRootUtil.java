@@ -136,7 +136,7 @@ public class ViewRootUtil {
 	}
 
 	// We have an id, use it to search for an already-created child
-	UIComponent childComponent = ComponentUtil.findChild(this, id, id);
+	UIComponent childComponent = ComponentUtil.getInstance(context).findChild(this, id, id);
 	if (childComponent != null) {
 	    return childComponent;
 	}
@@ -183,7 +183,7 @@ public class ViewRootUtil {
 	String id = descriptor.getId(context, this);
 	if ((id != null) && !(id.trim().equals(""))) {
 	    // We have an id, use it to search for an already-created child
-	    childComponent = ComponentUtil.findChild(this, id, id);
+	    childComponent = ComponentUtil.getInstance(context).findChild(this, id, id);
 	    if (childComponent != null) {
 		return childComponent;
 	    }
@@ -197,7 +197,7 @@ public class ViewRootUtil {
 
 	// Create UIComponent
 	childComponent =
-	    ComponentUtil.createChildComponent(context, descriptor, this);
+	    ComponentUtil.getInstance(context).createChildComponent(context, descriptor, this);
 
 	// Invoke "afterCreate" handlers
 	descriptor.afterCreate(context, childComponent);

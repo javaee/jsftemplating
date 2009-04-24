@@ -131,7 +131,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
      *	    such.</p>
      */
     protected void setOption(FacesContext context, UIComponent comp, LayoutComponent desc, String key, Object value) {
-	ComponentUtil.setOption(context, key, value, desc, comp);
+	ComponentUtil.getInstance(context).setOption(context, key, value, desc, comp);
     }
 
     /**
@@ -214,7 +214,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 			+ "component '" + child + "'!");
 	    }
 	    // Resolve the id if its dynamic
-	    facetName = (String) ComponentUtil.resolveValue(
+	    facetName = (String) ComponentUtil.getInstance(context).resolveValue(
 		    context, descriptor, child, facetName);
 	    parent.getFacets().put(facetName, child);
 	} else {
@@ -240,7 +240,7 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
 	    binding =
 		(String) desc.getEvaluatedOption(ctx, "binding", parent);
 	}
-	if ((binding != null) && ComponentUtil.isValueReference(binding)) {
+	if ((binding != null) && ComponentUtil.getInstance(ctx).isValueReference(binding)) {
 	    // Create a ValueExpression
 	    ValueExpression ve =
 		ctx.getApplication().getExpressionFactory().

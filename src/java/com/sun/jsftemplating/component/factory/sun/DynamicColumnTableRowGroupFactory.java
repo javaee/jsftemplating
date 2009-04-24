@@ -130,8 +130,9 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 	Object eventVal = null;
 	values = getColumnPropertyValues(context, desc, COLUMN_VALUE_KEY, parent);
 	int idx = 0;
+	ComponentUtil compUtil = ComponentUtil.getInstance(context);
 	for (LayoutComponent columnDesc : columns) {
-	    columnComp = ComponentUtil.createChildComponent(
+	    columnComp = compUtil.createChildComponent(
 		    context, columnDesc, comp);
 
 	    value = "" + values.get(idx++);
@@ -145,7 +146,7 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 	    } else {
 		// Create the column (value) child
 		// The child of each TableColumn will be a LayoutStaticText for now...
-		ComponentUtil.createChildComponent(context,
+		compUtil.createChildComponent(context,
 			new LayoutStaticText(columnDesc,
 			    columnDesc.getUnevaluatedId() + CHILD_SUFFIX, value),
 			columnComp);
@@ -170,7 +171,7 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 	}
 	if (val instanceof String) {
 	    // Only try to do this if we have a String (not for Lists)
-	    if (ComponentUtil.isValueReference((String) val)) {
+	    if (ComponentUtil.getInstance(context).isValueReference((String) val)) {
 // FIXME: resolve $x{y} values: Object newBinding = VariableResolver.resolveVariables(context, elt, parent, binding);??
 // FIXME: I believe I have a util method for this (resolveValue?)
 		ValueExpression ve =

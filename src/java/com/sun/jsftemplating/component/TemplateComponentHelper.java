@@ -83,7 +83,7 @@ public class TemplateComponentHelper {
 	// We have an id, use it to search for an already-created child
 // FIXME: I am doing this 2x if it falls through to create the child...
 // FIXME: think about optimizing this
-	UIComponent childComponent = ComponentUtil.findChild(comp, id, id);
+	UIComponent childComponent = ComponentUtil.getInstance(context).findChild(comp, id, id);
 	if (childComponent != null) {
 	    return childComponent;
 	}
@@ -125,9 +125,10 @@ public class TemplateComponentHelper {
 
 	// First pull off the id from the descriptor
 	String id = descriptor.getId(context, comp);
+	ComponentUtil compUtil = ComponentUtil.getInstance(context);
 	if ((id != null) && !(id.trim().equals(""))) {
 	    // We have an id, use it to search for an already-created child
-	    childComponent = ComponentUtil.findChild(comp, id, id);
+	    childComponent = compUtil.findChild(comp, id, id);
 	    if (childComponent != null) {
 		return childComponent;
 	    }
@@ -141,7 +142,7 @@ public class TemplateComponentHelper {
 
 	// Create UIComponent
 	childComponent =
-	    ComponentUtil.createChildComponent(context, descriptor, comp);
+	    compUtil.createChildComponent(context, descriptor, comp);
 
 	// Invoke "afterCreate" handlers
 	descriptor.afterCreate(context, childComponent);

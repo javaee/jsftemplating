@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.el.PermissionChecker;
@@ -160,13 +161,14 @@ public class Handler implements java.io.Serializable {
     public Object getInputValue(HandlerContext ctx, String name) {
 	// Make sure the requested name is valid
 	IODescriptor inDesc = getHandlerDefinition().getInputDef(name);
+	FacesContext facesCtx = ctx.getFacesContext();
 	if (inDesc == null) {
 	    throw new RuntimeException("Attempted to get input value '"
 		    + name + "', however, this is not a declared input "
 		    + "parameter in handler definition '"
 		    + getHandlerDefinition().getId() + "'!  Check your handler "
 		    + " and/or the XML (near LayoutElement '"
-		    + ctx.getLayoutElement().getId(ctx.getFacesContext(), null)
+		    + ctx.getLayoutElement().getId(facesCtx, null)
 		    + "')");
 	}
 
@@ -192,8 +194,8 @@ public class Handler implements java.io.Serializable {
 		component = (UIComponent) src;
 	    }
 	}
-	value = ComponentUtil.resolveValue(
-	    ctx.getFacesContext(), ctx.getLayoutElement(), component, value);
+	value = ComponentUtil.getInstance(facesCtx).resolveValue(
+	    facesCtx, ctx.getLayoutElement(), component, value);
 
 	// Make sure the value is the correct type...
 	value = TypeConverter.asType(inDesc.getType(), value);
@@ -286,11 +288,9 @@ public class Handler implements java.io.Serializable {
 // FIXME: want this... if anyone ever has a use case, I'll happily modify the
 // FIXME: OutputType interface, or add a new interface to flag this code-path.
 	if (!(outType instanceof ELOutputType)) {
-	    outputKey = "" + ComponentUtil.resolveValue(
-		    context.getFacesContext(),
-		    context.getLayoutElement(),
-		    component,
-		    outputKey);
+	    FacesContext ctx = context.getFacesContext();
+	    outputKey = "" + ComponentUtil.getInstance(ctx).resolveValue(
+		    ctx, context.getLayoutElement(), component, outputKey);
 	}
 	outType.setValue(context, outIODesc, outputKey, value);
     }

@@ -817,9 +817,9 @@ public class PermissionChecker {
 	 *	String and returns the result.</p>
 	 */
 	public Object getEvaluatedValue() {
-	    return ComponentUtil.resolveValue(
-		    FacesContext.getCurrentInstance(),
-		    getLayoutElement(), getUIComponent(), _value);
+	    FacesContext ctx = FacesContext.getCurrentInstance();
+	    return ComponentUtil.getInstance(ctx).resolveValue(
+		    ctx, getLayoutElement(), getUIComponent(), _value);
 	}
 
 	/**

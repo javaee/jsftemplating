@@ -65,13 +65,15 @@ public class ValidatorFactory extends ComponentFactoryBase {
 	// Check for the "binding" property
 	String binding = (String) descriptor.getOption("binding");
 	if (binding != null) {
-	    value = ComponentUtil.resolveValue(context, descriptor, parent, binding);
+	    value = ComponentUtil.getInstance(context).resolveValue(context, descriptor, parent, binding);
 	    if ((value != null) && !(value instanceof Validator)) {
 		// Warn developer that attempted to set a Validator that was
 		// not a Validator
 		if (LogUtil.warningEnabled()) {
 		    LogUtil.warning("JSFT0009", (Object) parent.getId());
 		}
+	    } else {
+		validator = (Validator) value;
 	    }
 	}
 
@@ -80,7 +82,7 @@ public class ValidatorFactory extends ComponentFactoryBase {
 	    // Check for the "validatorId" property
 	    String id = (String) descriptor.getOption("validatorId");
 	    if (id != null) {
-		id = (String) ComponentUtil.resolveValue(context, descriptor, parent, id);
+		id = (String) ComponentUtil.getInstance(context).resolveValue(context, descriptor, parent, id);
 		if (id != null) {
 		    // Create a new Validator
 		    Application app = context.getApplication();

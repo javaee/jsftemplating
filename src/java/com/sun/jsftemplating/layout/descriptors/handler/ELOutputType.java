@@ -67,8 +67,9 @@ public class ELOutputType implements OutputType {
 	}
 
 	// Get it from the EL expression
-	return ComponentUtil.resolveValue(
-	    context.getFacesContext(), context.getLayoutElement(), uicomp, key);
+	FacesContext ctx = context.getFacesContext();
+	return ComponentUtil.getInstance(ctx).resolveValue(
+	    ctx, context.getLayoutElement(), uicomp, key);
     }
 
     /**

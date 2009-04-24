@@ -159,7 +159,7 @@ public class DynamicTreeNodeFactory extends ComponentFactoryBase {
 	Properties properties = Util.mapToProperties(props);
 
 	// Create TreeNode
-	UIComponent node = ComponentUtil.getChild(
+	UIComponent node = ComponentUtil.getInstance(ctx).getChild(
 		(UIComponent) parent, id, factoryClass, properties);
 
 	// The above util method defaults to using a facet... change to child

@@ -262,8 +262,9 @@ public class ComponentHandlers {
 		LayoutDefinitionManager.getGlobalComponentType(type));
 
 	// Create the component...
-	UIComponent component = ComponentUtil.createChildComponent(
-		context.getFacesContext(), desc, parent);
+	FacesContext ctx = context.getFacesContext();
+	UIComponent component = ComponentUtil.getInstance(ctx).createChildComponent(
+		ctx, desc, parent);
 
 	// Return the result...
 	context.setOutputValue("component", component);
