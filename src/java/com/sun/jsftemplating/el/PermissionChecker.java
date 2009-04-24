@@ -310,6 +310,44 @@ public class PermissionChecker {
 	return idx;
     }
 
+    /**
+     *	<p> This returns a <code>Map&lt;String, Class&gt;</code> which
+     *	    represent user-registered functions.</p>
+     */
+    private static Map<String, Class> getFunctions(FacesContext ctx) {
+	Map<String, Class> funcs = null;
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	if (ctx != null) {
+	    Map<String, Object> appMap =
+		    ctx.getExternalContext().getApplicationMap();
+	    funcs = (Map<String, Class>) appMap.get(PERMISSION_FUNCTIONS);
+	    if (funcs == null) {
+		// Perhaps a SoftReference would be a good idea here?
+		funcs = new HashMap<String, Class>();
+	    }
+	} else {
+	    // Not JSF env, create every time...
+	    funcs = new HashMap<String, Class>();
+	}
+	return funcs;
+    }
+
+    /**
+     *	<p> This sets a <code>Map&lt;String, Class&gt;</code> which
+     *	    represent user-registered functions.</p>
+     */
+    private static void setFunctions(FacesContext ctx, Map<String, Class> map) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	if (ctx != null) {
+	    // Only set if we're in a JSF env
+	    ctx.getExternalContext().getApplicationMap().
+		    put(PERMISSION_FUNCTIONS, map);
+	}
+    }
 
     /**
      *	<p> This method is a factory method for constructing a new function
@@ -318,7 +356,7 @@ public class PermissionChecker {
      */
     protected static Function getFunction(String functionName) {
 	// Get the Function class
-	Class functionClass = _functions.get(functionName);
+	Class functionClass = getFunctions(null).get(functionName);
 	if (functionClass == null) {
 	    return null;
 	}
@@ -354,14 +392,23 @@ public class PermissionChecker {
      *	<p> Functions must implement PermissionChecker.Function interface</p>
      */
     public static void registerFunction(String functionName, Class function) {
+	// Get a copy of the existing f()'s
+	Map<String, Class> newFuncs =
+		new HashMap<String, Class>(getFunctions(null));
 	if (function == null) {
-	    _functions.remove(functionName);
+	    // Remove it...
+	    newFuncs.remove(functionName);
+	} else {
+	    if (!Function.class.isAssignableFrom(function)) {
+		throw new RuntimeException("'" + function.getName()
+		    + "' must implement '" + Function.class.getName() + "'");
+	    }
+	    // Add it...
+	    newFuncs.put(functionName, function);
 	}
-	if (!Function.class.isAssignableFrom(function)) {
-	    throw new RuntimeException("'" + function.getName()
-		+ "' must implement '" + Function.class.getName() + "'");
-	}
-	_functions.put(functionName, function);
+
+	// Save new copy of function Map
+	setFunctions(null, newFuncs);
     }
 
 
@@ -1189,6 +1236,8 @@ public class PermissionChecker {
  *    public static final char TILDA_OPERATOR	= '~';
  */
 
+    private static final String	PERMISSION_FUNCTIONS	=   "__jsft_permFuncs";
+
     /**
      *	<p> This holds the infix equation.</p>
      */
@@ -1198,12 +1247,6 @@ public class PermissionChecker {
      *	<p> This holds the postfix equation.</p>
      */
     private char[] _postfixArr = null;
-
-    /**
-     *	<p> This is a Map of Class objects which are user-registered
-     *	    functions.</p>
-     */
-    private static Map<String, Class> _functions = new HashMap<String, Class>();
 
     /**
      *	<p> This List holds the actual Function objects that correspond to the
