@@ -22,6 +22,8 @@
  */
 package com.sun.jsftemplating.layout.descriptors.handler;
 
+import javax.faces.context.FacesContext;
+
 
 /**
  *  <p>	This class holds OutputMapping value meta information for individual
@@ -97,7 +99,8 @@ public class OutputMapping implements java.io.Serializable {
      *	Accessor for targetOutputType.
      */
     public OutputType getOutputType() {
-	return OutputTypeManager.getInstance().getOutputType(_targetOutputType);
+	FacesContext ctx = FacesContext.getCurrentInstance();
+	return OutputTypeManager.getManager(ctx).getOutputType(ctx, _targetOutputType);
     }
 
     /**

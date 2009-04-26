@@ -314,7 +314,7 @@ public class TemplateParser {
 		// Next look for valid type...
 		target = readToken();
 		OutputTypeManager otm = OutputTypeManager.getInstance();
-		if (otm.getOutputType(target) == null) {
+		if (otm.getOutputType(null, target) == null) {
 		    throw new SyntaxException(
 			"Invalid OutputType ('" + target + "') for Name Value "
 			+ "Pair named: '" + name + "=>$" + target + "{...}'!  "

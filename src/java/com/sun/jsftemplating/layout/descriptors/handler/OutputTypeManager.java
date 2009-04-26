@@ -48,10 +48,11 @@ public class OutputTypeManager {
     }
 
     /**
-     *
+     *	<p> Attempts to get the <code>FacesContext</code> and returns the
+     *	    results from {@link #getManager(FacesContext)}.</p>
      */
     public static OutputTypeManager getInstance() {
-	return _defaultInstance;
+	return getManager(FacesContext.getCurrentInstance());
     }
 
     /**
@@ -79,27 +80,47 @@ public class OutputTypeManager {
 	if (initParams.containsKey(OUTPUT_TYPE_MANAGER_KEY)) {
 	    className = (String) initParams.get(OUTPUT_TYPE_MANAGER_KEY);
 	}
-	return getManager(className);
+	return getManager(context, className);
     }
 
 
     /**
-     *	This method is a singleton factory method for obtaining an instance of
-     *	a OutputTypeManager.  It is possible that multiple different
-     *	implementations of OutputTypeManagers will be used within the
-     *	same JVM.  This is OK, the purpose of the OutputTypeManager is
-     *	primarily performance.  Someone may provide a different
-     *	OutputTypeManager to locate OutputTypeManager's in a different way
-     *	(XML, database, file, java code, etc.).
+     *	<p> This method is a singleton factory method for obtaining an instance
+     *	    of an <code>OutputTypeManager</code>.  It is possible that multiple
+     *	    different implementations of <code>OutputTypeManager</code>s will
+     *	    be used within the same application.  This is fine.   Someone may
+     *	    provide a different <code>OutputTypeManager</code> to locate
+     *	    <code>OutputType</code>'s in a different way (XML, database, file,
+     *	    java code, etc.).</p>
      */
-    public static OutputTypeManager getManager(String className) {
+    public static OutputTypeManager getManager(FacesContext ctx, String className) {
 	if (className == null) {
 	    // Default case...
 	    return _defaultInstance;
 	}
+	OutputTypeManager ldm = null;
 
-	OutputTypeManager ldm = _instances.get(className);
+	// FacesContext
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<String, OutputTypeManager> instances = null;
+	if (ctx != null) {
+	    instances = (Map<String, OutputTypeManager>)
+		ctx.getExternalContext().getApplicationMap().get(OTM_INSTANCES);
+	}
+	if (instances == null) {
+	    // NO instances defined yet...
+	    instances = new HashMap<String, OutputTypeManager>(2);
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(OTM_INSTANCES, instances);
+	    }
+	} else {
+	    // See if we've found this before...
+	    ldm = instances.get(className);
+	}
 	if (ldm == null) {
+	    // Not found yet, try to find it...
 	    try {
 		ldm = (OutputTypeManager) Util.loadClass(className, className).
 		    getMethod("getInstance", (Class []) null).
@@ -117,7 +138,9 @@ public class OutputTypeManager {
 	    } catch (ClassCastException ex) {
 		throw new RuntimeException(ex);
 	    }
-	    _instances.put(className, ldm);
+
+	    // We found it
+	    instances.put(className, ldm);
 	}
 	return ldm;
     }
@@ -128,8 +151,44 @@ public class OutputTypeManager {
      *
      *	@return	The {@link OutputType}s.
      */
-    public List<OutputType> getOutputTypes() {
-	return new ArrayList<OutputType>(_outputTypes.values());
+    public List<OutputType> getOutputTypes(FacesContext ctx) {
+	return new ArrayList<OutputType>(getOutputTypeMap(ctx).values());
+    }
+
+    /**
+     *	<p> Returns the application scope <code>Map</code> which holds all the
+     *	    {@link OutputType}s.</p>
+     */
+    private Map<String, OutputType> getOutputTypeMap(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<String, OutputType> outputTypeMap = null;
+	if (ctx != null) {
+	    outputTypeMap = (Map<String, OutputType>)
+		ctx.getExternalContext().getApplicationMap().get(OTM_TYPE_MAP);
+	}
+	if (outputTypeMap == null) {
+	    // 1st time for this app... initialize it
+	    outputTypeMap = new HashMap<String, OutputType>(8);
+	    PageAttributeOutputType pageType = new PageAttributeOutputType();
+	    outputTypeMap.put(EL_TYPE, new ELOutputType());
+	    outputTypeMap.put(PAGE_ATTRIBUTE_TYPE, pageType);
+	    outputTypeMap.put(PAGE_ATTRIBUTE_TYPE2, pageType);
+	    outputTypeMap.put(APP_ATTRIBUTE_TYPE,
+		    new ApplicationAttributeOutputType());
+	    outputTypeMap.put(REQUEST_ATTRIBUTE_TYPE,
+		    new RequestAttributeOutputType());
+	    outputTypeMap.put(SESSION_ATTRIBUTE_TYPE,
+		    new SessionAttributeOutputType());
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(
+			OTM_TYPE_MAP, outputTypeMap);
+	    }
+	}
+
+	// Return the OutputType Map
+	return outputTypeMap;
     }
 
     /**
@@ -139,8 +198,8 @@ public class OutputTypeManager {
      *
      *	@return	The requested OutputType.
      */
-    public OutputType getOutputType(String name) {
-	return _outputTypes.get(name);
+    public OutputType getOutputType(FacesContext ctx, String name) {
+	return getOutputTypeMap(ctx).get(name);
     }
 
     /**
@@ -149,26 +208,17 @@ public class OutputTypeManager {
      *	@param	name	    The name of the OutputType.
      *	@param	outputType  The OutputType.
      */
-    public void setOutputType(String name, OutputType outputType) {
-	_outputTypes.put(name, outputType);
+    public void setOutputType(FacesContext ctx, String name, OutputType outputType) {
+	// Not thread safe...
+	getOutputTypeMap(ctx).put(name, outputType);
     }
-
-    /**
-     *	<p> Cache different subclasses. </p>
-     */
-    private static Map<String, OutputType> _outputTypes = new HashMap<String, OutputType>(8);
-
-    /**
-     *	<p> Cache different subclasses. </p>
-     */
-    private static Map<String, OutputTypeManager>_instances = new HashMap<String, OutputTypeManager>(2);
 
     /**
      *	<p> This is the default implementation of the OutputTypeManager, which
      *	    happens to be an instance of this class (because I'm too lazy to
      *	    do this right).</p>
      */
-    private static OutputTypeManager _defaultInstance =
+    private static final OutputTypeManager _defaultInstance =
 	new OutputTypeManager();
 
 
@@ -178,8 +228,12 @@ public class OutputTypeManager {
      *	    full class name of an {@link OutputTypeManager}.
      *	    ("outputTypeManagerImpl")</p>
      */
-    public static final String OUTPUT_TYPE_MANAGER_KEY =
+    public static final String OUTPUT_TYPE_MANAGER_KEY	=
 	"outputTypeManagerImpl";
+    private static final String OTM_INSTANCES		=
+	"__jsft_OutputTypeManagers";
+    private static final String OTM_TYPE_MAP		=
+	"__jsft_OutputType_map";
 
     public static final String  REQUEST_ATTRIBUTE_TYPE	=   "attribute";
     public static final String  PAGE_ATTRIBUTE_TYPE	=   "page";
@@ -187,18 +241,4 @@ public class OutputTypeManager {
     public static final String  SESSION_ATTRIBUTE_TYPE	=   "session";
     public static final String	APP_ATTRIBUTE_TYPE	=   "application";
     public static final String	EL_TYPE			=   "el";
-
-    static {
-	_outputTypes.put(REQUEST_ATTRIBUTE_TYPE,
-		new RequestAttributeOutputType());
-	PageAttributeOutputType pageType = new PageAttributeOutputType();
-	_outputTypes.put(PAGE_ATTRIBUTE_TYPE, pageType);
-	_outputTypes.put(PAGE_ATTRIBUTE_TYPE2, pageType);
-	_outputTypes.put(SESSION_ATTRIBUTE_TYPE,
-		new SessionAttributeOutputType());
-	_outputTypes.put(APP_ATTRIBUTE_TYPE,
-		new ApplicationAttributeOutputType());
-	_outputTypes.put(EL_TYPE,
-		new ELOutputType());
-    }
 }
