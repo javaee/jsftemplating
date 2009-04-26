@@ -193,6 +193,20 @@ public class Util {
     }
 
     /**
+     *	<p> Method which returns the Class for the given class name, or null
+     *	    if any exception occurs.  No exceptions are thrown.</p>
+     */
+    public static Class noExceptionLoadClass(String name) {
+	Class cls = null;
+	try {
+	    cls = Util.loadClass(name, null);
+	} catch (Exception ex) {
+	    // Ignore...
+	}
+	return cls;
+    }
+
+    /**
      *	<p> This method attempts load the requested Class.  If obj is a
      *	    String, it will use this value as the fully qualified class name.
      *	    If it is a Class, it will return it.  If it is anything else, it

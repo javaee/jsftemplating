@@ -384,20 +384,6 @@ ex.printStackTrace();
 	ctx.getExternalContext().getRequestMap().put(key, value);
     }
 
-    /**
-     *	<p> This method eats the exception that might be thrown when locating
-     *	    a class.</p>
-     */
-    private static Class loadClass(String className, Object obj) {
-	Class result = null;
-	try {
-	    result = Util.loadClass(className, obj);
-	} catch (ClassNotFoundException ex) {
-	    // Eat it.
-	}
-	return result;
-    }
-
 
     /**
      *
@@ -459,8 +445,8 @@ ex.printStackTrace();
 
     static {
 	// Initialize the DynamicFaces variables
-	_asyncResponseClass = loadClass(
-		"com.sun.faces.extensions.avatar.lifecycle.AsyncResponse", null);
+	_asyncResponseClass = Util.noExceptionLoadClass(
+		"com.sun.faces.extensions.avatar.lifecycle.AsyncResponse");
 	if (_asyncResponseClass != null) {
 	    _asyncResponseGetInstance =
 		Util.getMethod(_asyncResponseClass, "getInstance", Boolean.TYPE);

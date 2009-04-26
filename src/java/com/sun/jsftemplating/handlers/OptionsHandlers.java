@@ -117,20 +117,6 @@ public class OptionsHandlers {
     }
 
     /**
-     *	<p> Method which returns the Class for the given class name, or null
-     *	    if any exception occurs.  No exceptions are thrown.</p>
-     */
-    private static Class noExceptionLoadClass(String name) {
-	Class cls = null;
-	try {
-	    cls = Util.loadClass(name, null);
-	} catch (Exception ex) {
-	    // Ignore...
-	}
-	return cls;
-    }
-
-    /**
      *	<p> Method wich returns the constructor on the class with the given
      *	    arguments.  It will return null if any exceptions occur, no
      *	    exceptions will be thrown from this method.</p>
@@ -146,7 +132,7 @@ public class OptionsHandlers {
     }
 
     private static final Class	     SUN_OPTION_CLASS =
-	    noExceptionLoadClass("com.sun.webui.jsf.model.Option");
+	    Util.noExceptionLoadClass("com.sun.webui.jsf.model.Option");
     private static final Constructor SUN_OPTION_CONSTRUCTOR =
 	    noExceptionFindConstructor(
 		SUN_OPTION_CLASS, new Class[] {Object.class, String.class});
