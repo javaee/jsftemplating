@@ -42,11 +42,11 @@ import com.sun.jsftemplating.util.LogUtil;
 
 
 /**
- *  <p>	The purpose of this class is to provide a
- *	<code>ValueChangeListener</code> that can delegate to handlers (that
- *	are likely defined via the template).  It is safe to register this
- *	class as a managed bean at the Application scope.  Or to use it
- *	directly as an <code>ValueChangeListener</code>.</p>
+ *  <p>	This class provides a <code>ValueChangeListener</code> that can
+ *	delegate to handlers (that are likely defined via the template).  It
+ *	is safe to register this class as a managed bean at the Application
+ *	scope.  Or to use it directly as a
+ *	<code>ValueChangeListener</code>.</p>
  *
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
@@ -62,13 +62,32 @@ public class ValueChangeListener implements javax.faces.event.ValueChangeListene
     }
 
     /**
-     *	<p> This is the preferred way to obtain an instance of this object.</p>
+     *	<p> This delegates to {@link #getInstance(FacesContext)}.</p>
      */
     public static ValueChangeListener getInstance() {
-	if (_instance == null) {
-	    _instance = new ValueChangeListener();
+	return getInstance(FacesContext.getCurrentInstance());
+    }
+
+    /**
+     *	<p> This is the preferred way to obtain an instance of this object.</p>
+     */
+    public static ValueChangeListener getInstance(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
 	}
-	return _instance;
+	ValueChangeListener instance = null;
+	if (ctx != null) {
+	    instance = (ValueChangeListener) ctx.getExternalContext().
+		    getApplicationMap().get(VCL_INSTANCE);
+	}
+	if (instance == null) {
+	    instance = new ValueChangeListener();
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(
+			VCL_INSTANCE, instance);
+	    }
+	}
+	return instance;
     }
 
     /**
@@ -249,16 +268,17 @@ public class ValueChangeListener implements javax.faces.event.ValueChangeListene
     }
 
 
-    private static final long serialVersionUID = 1L;
-
     /**
-     *	<p> Shared instance.</p>
+     *	Application scope key for an instance of this class.
      */
-    private static ValueChangeListener _instance = null;
+    private static final String VCL_INSTANCE =	"__jsft_ValueChangeListener";
+
+    private static final long serialVersionUID = 2L;
 
     /**
      *	<p> This is the "event type" for handlers to be invoked to handle
      *	    value change event for this component.</p>
      */
     public static final String VALUE_CHANGE =	"valueChange";
+
 }
