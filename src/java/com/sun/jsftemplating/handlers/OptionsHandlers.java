@@ -30,6 +30,7 @@ package com.sun.jsftemplating.handlers;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
 import javax.faces.model.SelectItem;
@@ -53,59 +54,6 @@ public class OptionsHandlers {
     public OptionsHandlers() {
     }
 
-    /**
-     *	<p> This handler returns the "rave" version of Options
-     *	    of the given <code>labels</code> and <code>values</code>.
-     *	    <code>labels</code> and <code>values</code> arrays must be equal in
-     *	    size and in matching sequence.</p>
-     *
-     *	<p> Input value: <code>labels</code> -- Type:
-     *	    <code>java.util.Collection</code></p>
-     *
-     *	<p> Input value: <code>values</code> -- Type:
-     *	    <code>java.util.Collection</code></p>
-     *
-     *  <p> Output value: <code>options</code> -- Type:
-     *	    <code>SelectItem[] (castable to Option[])</code></p>
-     *
-     *	@param	context	The HandlerContext.
-     */
-    @Handler(id="getRaveOptions",
-	input={
-	    @HandlerInput(name="labels", type=Collection.class, required=true),
-	    @HandlerInput(name="values", type=Collection.class, required=true)},
-	output={
-	    @HandlerOutput(name="options", type=SelectItem[].class)})
-    public static void getRaveOptions(HandlerContext context) throws Exception {
-	Collection<String> labels = (Collection) context.getInputValue("labels");
-	Collection<String> values = (Collection) context.getInputValue("values");
-	if (labels.size() != values.size()) {
-	    throw new Exception("getRaveOptions Handler input "
-		+ "incorrect: Input 'labels' and 'values' size must be equal. "
-		+ "'labels' size: " + labels.size() + " 'values' size: "
-		+ values.size());
-	}
-
-	//SelectItem[] options = new SelectItem[labels.size()];
-	SelectItem[] options =
-	    (SelectItem []) Array.newInstance(RAVE_OPTION_CLASS, labels.size());
-	String[] labelsArray = (String[])labels.toArray(new String[labels.size()]);
-	String[] valuesArray = (String[])values.toArray(new String[values.size()]);
-	for (int i =0; i < labels.size(); i++) {
-	    SelectItem option = getRaveOption(valuesArray[i], labelsArray[i]);
-	    options[i] = option;
-	}
-	context.setOutputValue("options", options);
-    }
-
-    private static SelectItem getRaveOption(String value, String label) {
-	try {
-	    return (SelectItem) RAVE_OPTION_CONSTRUCTOR.newInstance(value, label);
-	} catch (Exception ex) {
-	    return null;
-	}
-    }
-    
     /**
      *	<p> This handler returns the Lockhart version of Options of the drop-down
      *	    of the given <code>labels</code> and <code>values</code>.
@@ -150,37 +98,56 @@ public class OptionsHandlers {
 	context.setOutputValue("options", options);
     }
 
+    /**
+     *	Creates a Woodstock Option instance.
+     */
     private static SelectItem getSunOption(String value, String label) {
 	try {
 	    return (SelectItem) SUN_OPTION_CONSTRUCTOR.newInstance(value, label);
-	} catch (Exception ex) {
-	    return null;
+	} catch (InstantiationException ex) {
+	    throw new RuntimeException("Unable to instantiate '"
+		    + SUN_OPTION_CLASS + "'!", ex);
+	} catch (IllegalAccessException ex) {
+	    throw new RuntimeException("Unable to instantiate '"
+		    + SUN_OPTION_CLASS + "'!", ex);
+	} catch (InvocationTargetException ex) {
+	    throw new RuntimeException("Unable to instantiate '"
+		    + SUN_OPTION_CLASS + "'!", ex);
 	}
     }
 
-    private static Class	     RAVE_OPTION_CLASS = null;
-    private static Constructor RAVE_OPTION_CONSTRUCTOR = null;
-    private static Class	     SUN_OPTION_CLASS = null;
-    private static Constructor SUN_OPTION_CONSTRUCTOR = null;
-
-    static {
+    /**
+     *	<p> Method which returns the Class for the given class name, or null
+     *	    if any exception occurs.  No exceptions are thrown.</p>
+     */
+    private static Class noExceptionLoadClass(String name) {
+	Class cls = null;
 	try {
-	    RAVE_OPTION_CLASS =
-	    	Util.loadClass("com.sun.rave.web.ui.model.Option", "");
-	    RAVE_OPTION_CONSTRUCTOR = RAVE_OPTION_CLASS.
-	    	getConstructor(new Class[] {Object.class, String.class});
+	    cls = Util.loadClass(name, null);
 	} catch (Exception ex) {
-	    // Ignore exception here, NPE will be thrown when attempting to
-	    // use RAVE_OPTION_CONSTRUCTOR.
+	    // Ignore...
 	}
-	try {
-            SUN_OPTION_CLASS =
-		Util.loadClass("com.sun.webui.jsf.model.Option", "");
-	    SUN_OPTION_CONSTRUCTOR = SUN_OPTION_CLASS.
-                getConstructor(new Class[] {Object.class, String.class});
-	} catch (Exception ex) {
-	    // Ignore exception here, NPE will be thrown when attempting to
-	    // use SUN_OPTION_CONSTRUCTOR.
-	}
+	return cls;
     }
+
+    /**
+     *	<p> Method wich returns the constructor on the class with the given
+     *	    arguments.  It will return null if any exceptions occur, no
+     *	    exceptions will be thrown from this method.</p>
+     */
+    private static Constructor noExceptionFindConstructor(Class cls, Class args[]) {
+	Constructor constructor = null;
+	try {
+	    constructor = cls.getConstructor(args);
+	} catch (Exception ex) {
+	    // Ignore...
+	}
+	return constructor;
+    }
+
+    private static final Class	     SUN_OPTION_CLASS =
+	    noExceptionLoadClass("com.sun.webui.jsf.model.Option");
+    private static final Constructor SUN_OPTION_CONSTRUCTOR =
+	    noExceptionFindConstructor(
+		SUN_OPTION_CLASS, new Class[] {Object.class, String.class});
 }
