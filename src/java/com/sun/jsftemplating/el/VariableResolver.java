@@ -56,10 +56,10 @@ import com.sun.jsftemplating.util.Util;
  *
  *  <p>	&lt;type&gt; refers to a registerd {@link VariableResolver.DataSource},
  *	custom {@link VariableResolver.DataSource}s can be registered via:
- *	{@link #setDataSource(String key,
- *	    VariableResolver.DataSource dataSource)}.
- *	However, there are many built-in {@link VariableResolver.DataSource}
- *	types that are pre-registered.</p>
+ *	{@link #setDataSource(FacesContext ctx, String key,
+ *	    VariableResolver.DataSource dataSource)}.  However, there are many
+ *	built-in {@link VariableResolver.DataSource} types that are
+ *	pre-registered.</p>
  *
  *  <p>	Below are the pre-registered types: </p>
  *
@@ -232,7 +232,7 @@ public class VariableResolver {
 
 	    // Pull off the type...
 	    type = string.substring(startIndex + startTokenLen, delimIndex);
-	    DataSource ds = dataSourceMap.get(type);
+	    DataSource ds = getDataSource(ctx, type);
 	    if (ds == null) {
 		if ((type.indexOf('<') > -1) || (type.indexOf('&') > -1) ||
 			(type.indexOf('[') > -1) || (type.indexOf('#') > -1) ||
@@ -526,8 +526,58 @@ public class VariableResolver {
      *
      *	@return	    The requested {@link VariableResolver.DataSource}
      */
-    public static VariableResolver.DataSource getDataSource(String key) {
-	return dataSourceMap.get(key);
+    public static VariableResolver.DataSource getDataSource(FacesContext ctx, String key) {
+	// Get the Map... and pull off the value (may be null)
+	return VariableResolver.getDataSourceMap(ctx).get(key);
+    }
+
+    /**
+     *	<p> Provides access to the application-scoped Map which stores the
+     *	    {@link VariableResolver#DataSource}'s for this application.</p>
+     */
+    private static Map<String, VariableResolver.DataSource> getDataSourceMap(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<String, VariableResolver.DataSource> dataSourceMap = null;
+	if (ctx != null) {
+	    dataSourceMap = (Map<String, VariableResolver.DataSource>)
+		ctx.getExternalContext().getApplicationMap().get(VR_APP_KEY);
+	}
+	if (dataSourceMap == null) {
+	    // 1st time... initialize it
+	    dataSourceMap = new HashMap<String, VariableResolver.DataSource>();
+	    AttributeDataSource attrDS = new AttributeDataSource();
+	    dataSourceMap.put("", attrDS);
+	    dataSourceMap.put(ATTRIBUTE, attrDS);
+	    dataSourceMap.put(APPLICATION, new ApplicationDataSource());
+	    dataSourceMap.put(COPY_PROPERTY, new CopyPropertyDataSource());
+	    dataSourceMap.put(OPTION, new OptionDataSource());
+	    dataSourceMap.put(PAGE_SESSION, new PageSessionDataSource());
+	    dataSourceMap.put(PROPERTY, new PropertyDataSource());
+	    dataSourceMap.put(HAS_PROPERTY, new HasPropertyDataSource());
+	    dataSourceMap.put(HAS_FACET, new HasFacetDataSource());
+	    dataSourceMap.put(SESSION, new SessionDataSource());
+	    dataSourceMap.put(STACK_TRACE, new StackTraceDataSource());
+	    dataSourceMap.put(REQUEST_PARAMETER, new RequestParameterDataSource());
+//	dataSourceMap.put(DISPLAY, new DisplayFieldDataSource());
+	    dataSourceMap.put(THIS, new ThisDataSource());
+	    dataSourceMap.put(ESCAPE, new EscapeDataSource());
+	    dataSourceMap.put(EVAL, new EvalDataSource());
+	    dataSourceMap.put(INT, new IntDataSource());
+	    dataSourceMap.put(BOOLEAN, new BooleanDataSource());
+	    dataSourceMap.put(CONSTANT, new ConstantDataSource());
+	    dataSourceMap.put(RESOURCE, new ResourceBundleDataSource());
+	    dataSourceMap.put(METHOD_BINDING, new MethodBindingDataSource());
+	    dataSourceMap.put(METHOD_EXPRESSION, new MethodExpressionDataSource());
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(
+			VR_APP_KEY, dataSourceMap);
+	    }
+	}
+
+	// Return the map...
+	return dataSourceMap;
     }
 
     /**
@@ -538,9 +588,10 @@ public class VariableResolver {
      *				{@link VariableResolver.DataSource}
      *	@param	dataSource	The {@link VariableResolver.DataSource}
      */
-    public static void setDataSource(String key,
-	    VariableResolver.DataSource dataSource) {
-	dataSourceMap.put(key, dataSource);
+    public static synchronized void setDataSource(FacesContext ctx, String key, VariableResolver.DataSource dataSource) {
+	// Get the Map... and pull off the value (may be null)
+	// NOTE: This is not thread safe.... although this is very rare
+	VariableResolver.getDataSourceMap(ctx).put(key, dataSource);
     }
 
     /**
@@ -1574,14 +1625,6 @@ public class VariableResolver {
 	*/
     }
 
-
-    /**
-     *	<p> Contains the {@link VariableResolver.DataSource}'s for
-     *	    $&lt;type&gt;{&lt;variable&gt;} syntax.</p>
-     */
-    private static Map<String, VariableResolver.DataSource> dataSourceMap =
-	    new HashMap<String, VariableResolver.DataSource>();
-
     /**
      *	<p> Defines "attribute" in $attribute{...}.  This allows you to
      *	    retrieve an HttpRequest attribute.</p>
@@ -1720,34 +1763,6 @@ public class VariableResolver {
      */
     public static final String	    RESOURCE		= "resource";
 
-
-    // Static initializer to setup DataSources
-    static {
-	AttributeDataSource attrDS = new AttributeDataSource();
-	dataSourceMap.put("", attrDS);
-	dataSourceMap.put(ATTRIBUTE, attrDS);
-	dataSourceMap.put(APPLICATION, new ApplicationDataSource());
-	dataSourceMap.put(COPY_PROPERTY, new CopyPropertyDataSource());
-	dataSourceMap.put(OPTION, new OptionDataSource());
-	dataSourceMap.put(PAGE_SESSION, new PageSessionDataSource());
-	dataSourceMap.put(PROPERTY, new PropertyDataSource());
-	dataSourceMap.put(HAS_PROPERTY, new HasPropertyDataSource());
-	dataSourceMap.put(HAS_FACET, new HasFacetDataSource());
-	dataSourceMap.put(SESSION, new SessionDataSource());
-	dataSourceMap.put(STACK_TRACE, new StackTraceDataSource());
-	dataSourceMap.put(REQUEST_PARAMETER, new RequestParameterDataSource());
-//	dataSourceMap.put(DISPLAY, new DisplayFieldDataSource());
-	dataSourceMap.put(THIS, new ThisDataSource());
-	dataSourceMap.put(ESCAPE, new EscapeDataSource());
-	dataSourceMap.put(EVAL, new EvalDataSource());
-	dataSourceMap.put(INT, new IntDataSource());
-	dataSourceMap.put(BOOLEAN, new BooleanDataSource());
-	dataSourceMap.put(CONSTANT, new ConstantDataSource());
-	dataSourceMap.put(RESOURCE, new ResourceBundleDataSource());
-	dataSourceMap.put(METHOD_BINDING, new MethodBindingDataSource());
-	dataSourceMap.put(METHOD_EXPRESSION, new MethodExpressionDataSource());
-    }
-
     /**
      *	Constant defining the arguments required for a Action MethodBinding.
      */
@@ -1757,6 +1772,11 @@ public class VariableResolver {
      *	Empty <code>Class[]</code> for methods that take no arguments.
      */
     private static final Class[] EMPTY_CLASS_ARRAY = {};
+
+    /**
+     *	<p> Application scope key to hold the VariableResolver DataSources.</p>
+     */
+    public static final String VR_APP_KEY	= "__jsft_vrds_map";
 
     /**
      *	Escape character.
