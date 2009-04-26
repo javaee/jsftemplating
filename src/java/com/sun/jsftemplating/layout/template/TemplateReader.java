@@ -45,6 +45,8 @@ import com.sun.jsftemplating.layout.descriptors.LayoutWhile;
 import com.sun.jsftemplating.util.LayoutElementUtil;
 import com.sun.jsftemplating.util.LogUtil;
 
+import javax.faces.context.FacesContext;
+
 
 /**
  *  <p>	This class is responsible for parsing templates.  It produces a
@@ -716,21 +718,48 @@ public class TemplateReader {
      *	<p> This method provides access to registered
      *	    {@link CustomParserCommand}s.</p>
      */
-    public static CustomParserCommand getCustomParserCommand(String id) {
-	return _parserCmds.get(id);
+    public CustomParserCommand getCustomParserCommand(String id) {
+	return parserCmds.get(id);
+    }
+
+    /**
+     *	<p> Provides access to the application-scoped Map which stores the
+     *	    parser commands for this application.</p>
+     */
+    private Map<String, CustomParserCommand> getCustomParserCommandMap(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<String, CustomParserCommand> commandMap = null;
+	if (ctx != null) {
+	    commandMap = (Map<String, CustomParserCommand>)
+		ctx.getExternalContext().getApplicationMap().get(PARSER_COMMANDS);
+	}
+	if (commandMap == null) {
+	    // 1st time... initialize it
+	    commandMap = initCustomParserCommands();
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(
+			PARSER_COMMANDS, commandMap);
+	    }
+	}
+
+	// Return the map...
+	return commandMap;
     }
 
     /**
      *	<p> This method allows you to set a {@link CustomParserCommand}.</p>
      */
-    public static void setCustomParserCommand(String id, CustomParserCommand command) {
-	_parserCmds.put(id, command);
+    public void setCustomParserCommand(String id, CustomParserCommand command) {
+	// Shared application-scope map, but not synchronized!
+	parserCmds.put(id, command);
     }
 
     /**
      *	<p> This method initializes the {@link CustomParserCommand}s.</p>
      */
-    protected static Map<String, CustomParserCommand> initCustomParserCommands() {
+    protected Map<String, CustomParserCommand> initCustomParserCommands() {
 // FIXME: Do initialization via @annotations??
 	Map<String, CustomParserCommand> map =
 	    new HashMap<String, CustomParserCommand>();
@@ -1034,8 +1063,10 @@ public class TemplateReader {
     public static final CustomParserCommand EVENT_PARSER_COMMAND =
 	new EventParserCommand();
 
-    private static Map<String, CustomParserCommand> _parserCmds	=
-	initCustomParserCommands();
+    private Map<String, CustomParserCommand> parserCmds	=
+	    getCustomParserCommandMap(FacesContext.getCurrentInstance());
+
+    private static final String PARSER_COMMANDS	= "__jsft_CustParserCMDs";
 
     /**
      *	<p> This <code>Stack</code> keep track of the nesting.</p>

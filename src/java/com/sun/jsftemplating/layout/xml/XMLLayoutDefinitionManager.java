@@ -95,8 +95,31 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
      *	@return	<code>XMLLayoutDefinitionManager</code> instance
      */
     public static LayoutDefinitionManager getInstance() {
+	return getInstance(FacesContext.getCurrentInstance());
+    }
+
+    /**
+     *  <p> This method returns an instance of this LayoutDefinitionManager.
+     *      The object returned is a singleton (only 1 instance will be
+     *      created per application).</p>
+     *
+     *	@return	<code>XMLLayoutDefinitionManager</code> instance
+     */
+    public static LayoutDefinitionManager getInstance(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	XMLLayoutDefinitionManager instance = null;
+	if (ctx != null) {
+	    instance = (XMLLayoutDefinitionManager)
+		ctx.getExternalContext().getApplicationMap().get(XLDM_INSTANCE);
+	}
 	if (instance == null) {
 	    instance = new XMLLayoutDefinitionManager();
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(
+			XLDM_INSTANCE, instance);
+	    }
 	}
 	return instance;
     }
@@ -235,11 +258,11 @@ public class XMLLayoutDefinitionManager extends LayoutDefinitionManager {
 	setAttribute(BASE_URI, baseURI);
     }
 
+
     /**
-     *	<p> This is used to ensure that only 1 instance of this class is
-     *	    created (per JVM).</p>
+     *	<p> Application scope key for an instance of this class.</p>
      */
-    private static LayoutDefinitionManager instance = null;
+    private static final String XLDM_INSTANCE = "__jsft_XML_LDM";
 
     /**
      *	<p> This is an attribute key which can be used to provide an

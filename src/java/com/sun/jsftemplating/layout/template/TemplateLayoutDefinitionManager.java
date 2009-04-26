@@ -22,16 +22,16 @@
  */
 package com.sun.jsftemplating.layout.template;
 
-import java.io.IOException;
-import java.net.URL;
-
-import javax.faces.context.FacesContext;
-
 import com.sun.jsftemplating.annotation.FormatDefinition;
 import com.sun.jsftemplating.layout.LayoutDefinitionException;
 import com.sun.jsftemplating.layout.LayoutDefinitionManager;
 import com.sun.jsftemplating.layout.descriptors.LayoutDefinition;
 import com.sun.jsftemplating.util.FileUtil;
+
+import java.io.IOException;
+import java.net.URL;
+
+import javax.faces.context.FacesContext;
 
 
 /**
@@ -61,15 +61,37 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
     /**
      *	<p> This method returns an instance of this LayoutDefinitionManager.
      *	    The object returned is a singleton (only 1 instance will be
-     *	    created per JVM).</p>
+     *	    created per application).</p>
      *
      *	@return	<code>TemplateLayoutDefinitionManager</code> instance
      */
     public static LayoutDefinitionManager getInstance() {
+	return getInstance(FacesContext.getCurrentInstance());
+    }
+
+    /**
+     *	<p> This method provides access to the application-scoped instance
+     *	    of the <code>TemplateLayoutDefinitionManager</code>.</p>
+     *
+     *	@param	ctx The <code>FacesContext</code> (may be null).
+     */
+    public static LayoutDefinitionManager getInstance(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	TemplateLayoutDefinitionManager instance = null;
+	if (ctx != null) {
+	    instance = (TemplateLayoutDefinitionManager)
+		ctx.getExternalContext().getApplicationMap().get(TLDM_INSTANCE);
+	}
 	if (instance == null) {
 	    instance = new TemplateLayoutDefinitionManager();
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(
+			TLDM_INSTANCE, instance);
+	    }
 	}
-	return instance;
+        return instance;
     }
 
     /**
@@ -182,10 +204,8 @@ public class TemplateLayoutDefinitionManager extends LayoutDefinitionManager {
 	return ld;
     }
 
-
     /**
-     *	<p> This is used to ensure that only 1 instance of this class is
-     *	    created (per JVM).</p>
+     *	<p> Application scope key for an instance of this class.</p>
      */
-    private static LayoutDefinitionManager instance = null;
+    private static final String TLDM_INSTANCE = "__jsft_TemplateLDM";
 }

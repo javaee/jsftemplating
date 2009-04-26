@@ -51,7 +51,6 @@ import com.sun.jsftemplating.util.LogUtil;
  *  @author Ken Paulsen	(ken.paulsen@sun.com)
  */
 public class CommandActionListener implements ActionListener, Serializable {
-    private static final long serialVersionUID = 1L;
 
     /**
      *	<p> Constructor.  It is not recommended this constructor be used,
@@ -63,13 +62,32 @@ public class CommandActionListener implements ActionListener, Serializable {
     }
 
     /**
-     *	<p> This is the preferred way to obtain an instance of this object.</p>
+     *	<p> This delegates to {@link #getInstance(FacesContext)}.</p>
      */
     public static CommandActionListener getInstance() {
-	if (_instance == null) {
-	    _instance = new CommandActionListener();
+	return getInstance(FacesContext.getCurrentInstance());
+    }
+
+    /**
+     *	<p> This is the preferred way to obtain an instance of this object.</p>
+     */
+    public static CommandActionListener getInstance(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
 	}
-	return _instance;
+	CommandActionListener instance = null;
+	if (ctx != null) {
+	    instance = (CommandActionListener) ctx.getExternalContext().
+		    getApplicationMap().get(CAL_INSTANCE);
+	}
+	if (instance == null) {
+	    instance = new CommandActionListener();
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(
+			CAL_INSTANCE, instance);
+	    }
+	}
+	return instance;
     }
 
     /**
@@ -244,12 +262,14 @@ public class CommandActionListener implements ActionListener, Serializable {
     }
 
     /**
+     *	Application scope key for an instance of this class.
+     */
+    private static final String CAL_INSTANCE =	"__jsft_CommandActionListener";
+
+    private static final long serialVersionUID = 2L;
+
+    /**
      *	<p> The "command" event type. ("command")</p>
      */
     public static final String	COMMAND_EVENT_TYPE  = "command";
-
-    /**
-     *	<p> Shared instance.</p>
-     */
-    private static CommandActionListener _instance = null;
 }

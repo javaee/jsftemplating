@@ -96,7 +96,7 @@ public class BaseProcessingContext implements ProcessingContext {
      */
     public void beginSpecial(ProcessingContextEnvironment env, String content) throws IOException {
 	CustomParserCommand command =
-	    TemplateReader.getCustomParserCommand(content);
+	    env.getReader().getCustomParserCommand(content);
 	if (command == null) {
 	    // If there is no Custom command for this, use the default...
 	    command = TemplateReader.EVENT_PARSER_COMMAND;
