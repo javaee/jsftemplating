@@ -25,6 +25,9 @@ package com.sun.jsftemplating.util;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.faces.context.FacesContext;
 
 
 /**
@@ -174,19 +177,107 @@ import java.util.Map;
 public class TypeConverter extends Object {
 
     /**
-     * Cannot instantiate
+     *	<p> Cannot instantiate.</p>
      */
     private TypeConverter() {
 	super();
     }
 
     /**
-     * Return the map of type conversion objects.  The keys for the values
-     * in this map may be arbitrary objects, but the values are of type
-     * <code>TypeConversion</code>.
+     *	<p> Returns the <code>Map</code> of {@link TypeConversion} objects
+     *	    registered for this application.  The keys for the values in this
+     *	    <code>Map</code> may be arbitrary objects, the values are of type
+     *	    {@link TypeConversion}.  The <code>Map</code> will be a
+     *	    <code>ConcurrentHashMap</code>.</p>
      */
-    public static Map<Object, TypeConversion> getTypeConversions() {
-	return typeConversions;
+    public static Map<Object, TypeConversion> getTypeConversions(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<Object, TypeConversion> conversions = null;
+	if (ctx != null) {
+	    conversions = (Map<Object, TypeConversion>)
+		ctx.getExternalContext().getApplicationMap().get(CONVERSIONS);
+	}
+	if (conversions == null) {
+	    // 1st time... initialize it
+	    conversions =
+		new ConcurrentHashMap<Object, TypeConversion>(80, 0.75f, 1);
+
+	    // Add type conversions by class
+	    conversions.put(Object.class, OBJECT_TYPE_CONVERSION);
+	    conversions.put(String.class, STRING_TYPE_CONVERSION);
+	    conversions.put(Integer.class, INTEGER_TYPE_CONVERSION);
+	    conversions.put(Integer.TYPE, INTEGER_TYPE_CONVERSION);
+	    conversions.put(Double.class, DOUBLE_TYPE_CONVERSION);
+	    conversions.put(Double.TYPE, DOUBLE_TYPE_CONVERSION);
+	    conversions.put(Boolean.class, BOOLEAN_TYPE_CONVERSION);
+	    conversions.put(Boolean.TYPE, BOOLEAN_TYPE_CONVERSION);
+	    conversions.put(Long.class, LONG_TYPE_CONVERSION);
+	    conversions.put(Long.TYPE, LONG_TYPE_CONVERSION);
+	    conversions.put(Float.class, FLOAT_TYPE_CONVERSION);
+	    conversions.put(Float.TYPE, FLOAT_TYPE_CONVERSION);
+	    conversions.put(Short.class, SHORT_TYPE_CONVERSION);
+	    conversions.put(Short.TYPE, SHORT_TYPE_CONVERSION);
+	    conversions.put(BigDecimal.class, BIG_DECIMAL_TYPE_CONVERSION);
+	    conversions.put(Byte.class, BYTE_TYPE_CONVERSION);
+	    conversions.put(Byte.TYPE, BYTE_TYPE_CONVERSION);
+	    conversions.put(Character.class, CHARACTER_TYPE_CONVERSION);
+	    conversions.put(Character.TYPE, CHARACTER_TYPE_CONVERSION);
+	    conversions.put(java.util.Date.class, DATE_TYPE_CONVERSION);
+	    conversions.put(java.sql.Date.class, SQL_DATE_TYPE_CONVERSION);
+	    conversions.put(java.sql.Time.class, SQL_TIME_TYPE_CONVERSION);
+	    conversions.put(java.sql.Timestamp.class, SQL_TIMESTAMP_TYPE_CONVERSION);
+	    conversions.put(java.util.Locale.class, LOCALE_TYPE_CONVERSION);
+
+	    // Add type conversions by class name
+	    conversions.put(Object.class.getName(), OBJECT_TYPE_CONVERSION);
+	    conversions.put(String.class.getName(), STRING_TYPE_CONVERSION);
+	    conversions.put(Integer.class.getName(), INTEGER_TYPE_CONVERSION);
+	    conversions.put(Double.class.getName(), DOUBLE_TYPE_CONVERSION);
+	    conversions.put(Boolean.class.getName(), BOOLEAN_TYPE_CONVERSION);
+	    conversions.put(Long.class.getName(), LONG_TYPE_CONVERSION);
+	    conversions.put(Float.class.getName(), FLOAT_TYPE_CONVERSION);
+	    conversions.put(Short.class.getName(), SHORT_TYPE_CONVERSION);
+	    conversions.put(BigDecimal.class.getName(), BIG_DECIMAL_TYPE_CONVERSION);
+	    conversions.put(Byte.class.getName(), BYTE_TYPE_CONVERSION);
+	    conversions.put(Character.class.getName(), CHARACTER_TYPE_CONVERSION);
+	    conversions.put(java.util.Date.class.getName(), DATE_TYPE_CONVERSION);
+	    conversions.put(java.sql.Date.class.getName(), SQL_DATE_TYPE_CONVERSION);
+	    conversions.put(java.sql.Time.class.getName(), SQL_TIME_TYPE_CONVERSION);
+	    conversions.put(java.sql.Timestamp.class.getName(), SQL_TIMESTAMP_TYPE_CONVERSION);
+	    conversions.put(java.util.Locale.class.getName(), LOCALE_TYPE_CONVERSION);
+
+	    // Add type conversions by name
+	    conversions.put(TYPE_UNKNOWN, UNKNOWN_TYPE_CONVERSION);
+	    conversions.put(TYPE_OBJECT, OBJECT_TYPE_CONVERSION);
+	    conversions.put(TYPE_STRING, STRING_TYPE_CONVERSION);
+	    conversions.put(TYPE_INT, INTEGER_TYPE_CONVERSION);
+	    conversions.put(TYPE_INTEGER, INTEGER_TYPE_CONVERSION);
+	    conversions.put(TYPE_DOUBLE, DOUBLE_TYPE_CONVERSION);
+	    conversions.put(TYPE_BOOLEAN, BOOLEAN_TYPE_CONVERSION);
+	    conversions.put(TYPE_LONG, LONG_TYPE_CONVERSION);
+	    conversions.put(TYPE_FLOAT, FLOAT_TYPE_CONVERSION);
+	    conversions.put(TYPE_SHORT, SHORT_TYPE_CONVERSION);
+	    conversions.put(TYPE_BIG_DECIMAL, BIG_DECIMAL_TYPE_CONVERSION);
+	    conversions.put(TYPE_BYTE, BYTE_TYPE_CONVERSION);
+	    conversions.put(TYPE_CHAR, CHARACTER_TYPE_CONVERSION);
+	    conversions.put(TYPE_CHARACTER, CHARACTER_TYPE_CONVERSION);
+	    conversions.put(TYPE_DATE, DATE_TYPE_CONVERSION);
+	    conversions.put(TYPE_SQL_DATE, SQL_DATE_TYPE_CONVERSION);
+	    conversions.put(TYPE_SQL_TIME, SQL_TIME_TYPE_CONVERSION);
+	    conversions.put(TYPE_SQL_TIMESTAMP, SQL_TIMESTAMP_TYPE_CONVERSION);
+	    conversions.put(TYPE_LOCALE, LOCALE_TYPE_CONVERSION);
+
+	    if (ctx != null) {
+		// Save it for next time...
+		ctx.getExternalContext().getApplicationMap().put(
+			CONVERSIONS, conversions);
+	    }
+	}
+
+	// Return all the type conversions...
+	return conversions;
     }
 
     /**
@@ -194,8 +285,8 @@ public class TypeConverter extends Object {
      * method can be used by developers to register custom type conversion
      * objects.
      */
-    public static void registerTypeConversion(Object key, TypeConversion conversion) {
-	typeConversions.put(key, conversion);
+    public static void registerTypeConversion(FacesContext ctx, Object key, TypeConversion conversion) {
+	getTypeConversions(ctx).put(key, conversion);
     }
 
     /**
@@ -255,7 +346,7 @@ public class TypeConverter extends Object {
 	}
 
 	// Find the type conversion object
-	TypeConversion conversion = typeConversions.get(typeKey);
+	TypeConversion conversion = getTypeConversions(null).get(typeKey);
 
 	// Convert the value
 	if (conversion != null) {
@@ -948,8 +1039,12 @@ public class TypeConverter extends Object {
     // Class variables
     /////////////////////////////////////////////////////////////////////////
 
-    private static final Map<Object, TypeConversion> typeConversions =
-	    new HashMap<Object, TypeConversion>();
+    /**
+     *	<p> Application scope key for storing {@link TypeConversion}s for this
+     *	    application.</p>
+     */
+    private static final String CONVERSIONS =	"__jsft_TypeConversions";
+
 
     /** Logical type name "null" */
     public static final String TYPE_UNKNOWN = "null";
@@ -1042,77 +1137,4 @@ public class TypeConverter extends Object {
 	    new SqlTimestampTypeConversion();
     public static final TypeConversion LOCALE_TYPE_CONVERSION =
             new LocaleTypeConversion();
-
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Initializers
-    ////////////////////////////////////////////////////////////////////////////////
-
-    static {
-	// Add type conversions by class
-	registerTypeConversion(Object.class, OBJECT_TYPE_CONVERSION);
-	registerTypeConversion(String.class, STRING_TYPE_CONVERSION);
-	registerTypeConversion(Integer.class, INTEGER_TYPE_CONVERSION);
-	registerTypeConversion(Integer.TYPE, INTEGER_TYPE_CONVERSION);
-	registerTypeConversion(Double.class, DOUBLE_TYPE_CONVERSION);
-	registerTypeConversion(Double.TYPE, DOUBLE_TYPE_CONVERSION);
-	registerTypeConversion(Boolean.class, BOOLEAN_TYPE_CONVERSION);
-	registerTypeConversion(Boolean.TYPE, BOOLEAN_TYPE_CONVERSION);
-	registerTypeConversion(Long.class, LONG_TYPE_CONVERSION);
-	registerTypeConversion(Long.TYPE, LONG_TYPE_CONVERSION);
-	registerTypeConversion(Float.class, FLOAT_TYPE_CONVERSION);
-	registerTypeConversion(Float.TYPE, FLOAT_TYPE_CONVERSION);
-	registerTypeConversion(Short.class, SHORT_TYPE_CONVERSION);
-	registerTypeConversion(Short.TYPE, SHORT_TYPE_CONVERSION);
-	registerTypeConversion(BigDecimal.class, BIG_DECIMAL_TYPE_CONVERSION);
-	registerTypeConversion(Byte.class, BYTE_TYPE_CONVERSION);
-	registerTypeConversion(Byte.TYPE, BYTE_TYPE_CONVERSION);
-	registerTypeConversion(Character.class, CHARACTER_TYPE_CONVERSION);
-	registerTypeConversion(Character.TYPE, CHARACTER_TYPE_CONVERSION);
-	registerTypeConversion(java.util.Date.class, DATE_TYPE_CONVERSION);
-	registerTypeConversion(java.sql.Date.class, SQL_DATE_TYPE_CONVERSION);
-	registerTypeConversion(java.sql.Time.class, SQL_TIME_TYPE_CONVERSION);
-	registerTypeConversion(java.sql.Timestamp.class, SQL_TIMESTAMP_TYPE_CONVERSION);
-        registerTypeConversion(java.util.Locale.class, LOCALE_TYPE_CONVERSION);
-
-	// Add type conversions by class name
-	registerTypeConversion(Object.class.getName(), OBJECT_TYPE_CONVERSION);
-	registerTypeConversion(String.class.getName(), STRING_TYPE_CONVERSION);
-	registerTypeConversion(Integer.class.getName(), INTEGER_TYPE_CONVERSION);
-	registerTypeConversion(Double.class.getName(), DOUBLE_TYPE_CONVERSION);
-	registerTypeConversion(Boolean.class.getName(), BOOLEAN_TYPE_CONVERSION);
-	registerTypeConversion(Long.class.getName(), LONG_TYPE_CONVERSION);
-	registerTypeConversion(Float.class.getName(), FLOAT_TYPE_CONVERSION);
-	registerTypeConversion(Short.class.getName(), SHORT_TYPE_CONVERSION);
-	registerTypeConversion(BigDecimal.class.getName(), BIG_DECIMAL_TYPE_CONVERSION);
-	registerTypeConversion(Byte.class.getName(), BYTE_TYPE_CONVERSION);
-	registerTypeConversion(Character.class.getName(), CHARACTER_TYPE_CONVERSION);
-	registerTypeConversion(java.util.Date.class.getName(), DATE_TYPE_CONVERSION);
-	registerTypeConversion(java.sql.Date.class.getName(), SQL_DATE_TYPE_CONVERSION);
-	registerTypeConversion(java.sql.Time.class.getName(), SQL_TIME_TYPE_CONVERSION);
-	registerTypeConversion(java.sql.Timestamp.class.getName(), SQL_TIMESTAMP_TYPE_CONVERSION);
-        registerTypeConversion(java.util.Locale.class.getName(), LOCALE_TYPE_CONVERSION);
-
-	// Add type conversions by name
-	registerTypeConversion(TYPE_UNKNOWN, UNKNOWN_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_OBJECT, OBJECT_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_STRING, STRING_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_INT, INTEGER_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_INTEGER, INTEGER_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_DOUBLE, DOUBLE_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_BOOLEAN, BOOLEAN_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_LONG, LONG_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_FLOAT, FLOAT_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_SHORT, SHORT_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_BIG_DECIMAL, BIG_DECIMAL_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_BYTE, BYTE_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_CHAR, CHARACTER_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_CHARACTER, CHARACTER_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_DATE, DATE_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_SQL_DATE, SQL_DATE_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_SQL_TIME, SQL_TIME_TYPE_CONVERSION);
-	registerTypeConversion(TYPE_SQL_TIMESTAMP, SQL_TIMESTAMP_TYPE_CONVERSION);
-        registerTypeConversion(TYPE_LOCALE, LOCALE_TYPE_CONVERSION);
-    }
 }

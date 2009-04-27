@@ -901,10 +901,9 @@ public class LayoutViewHandler extends ViewHandler {
      */
     static {
 	// Add type conversions by class
-	TypeConverter.registerTypeConversion(UIComponent.class, UICOMPONENT_TYPE_CONVERSION);
-
+	TypeConverter.registerTypeConversion(null, UIComponent.class, UICOMPONENT_TYPE_CONVERSION);
 	// Add type conversions by class name
-	TypeConverter.registerTypeConversion(UIComponent.class.getName(), UICOMPONENT_TYPE_CONVERSION);
+	TypeConverter.registerTypeConversion(null, UIComponent.class.getName(), UICOMPONENT_TYPE_CONVERSION);
     }
 
 
