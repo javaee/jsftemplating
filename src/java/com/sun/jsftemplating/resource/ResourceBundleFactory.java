@@ -70,7 +70,7 @@ public class ResourceBundleFactory implements ResourceFactory {
 	}
 
 	// Obtain the ResourceBundle
-	Object resource = ResourceBundleManager.getInstance().getBundle(
+	Object resource = ResourceBundleManager.getInstance(context).getBundle(
 	    descriptor.getExtraInfo(), Util.getLocale(context));
 
 	// The id does not exist in the request scope yet.

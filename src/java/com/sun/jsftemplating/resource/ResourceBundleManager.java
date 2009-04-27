@@ -22,13 +22,15 @@
  */
 package com.sun.jsftemplating.resource;
 
+import com.sun.jsftemplating.util.Util;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import com.sun.jsftemplating.util.Util;
+import javax.faces.context.FacesContext;
 
 
 /**
@@ -37,7 +39,6 @@ import com.sun.jsftemplating.util.Util;
  *  @author Ken Paulsen (ken.paulsen@sun.com)
  */
 public class ResourceBundleManager {
-
 
     /**
      *	<p> Use {@link #getInstance()} to obtain an instance.</p>
@@ -48,12 +49,36 @@ public class ResourceBundleManager {
 
     /**
      *	<p> Use this method to get the instance of this class.</p>
+     *
+     *	@deprecated Use ResourceBundleManager#getInstance(FacesContext).
      */
     public static ResourceBundleManager getInstance() {
-	if (_instance == null) {
-	    _instance = new ResourceBundleManager();
+	return getInstance(null);
+    }
+
+    /**
+     *	<p> Use this method to get the instance of this class.</p>
+     */
+    public static ResourceBundleManager getInstance(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
 	}
-	return _instance;
+	ResourceBundleManager mgr = null;
+	if (ctx != null) {
+	    // Look in application scope for it...
+	    mgr = (ResourceBundleManager) ctx.getExternalContext().
+		    getApplicationMap().get(RB_MGR);
+	}
+	if (mgr == null) {
+	    // 1st time... create / initialize it
+	    mgr = new ResourceBundleManager();
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(RB_MGR, mgr);
+	    }
+	}
+
+	// Return the map...
+	return mgr;
     }
 
     /**
@@ -140,10 +165,13 @@ public class ResourceBundleManager {
 	return bundle;
     }
 
+
     /**
-     *	<p> Singleton.</p>
+     *	<p> Application scope key which stores the
+     *	    <code>ResourceBundleManager</code> instance for this
+     *	    application.</p>
      */
-    private static ResourceBundleManager _instance = null;
+    private static final String RB_MGR	=   "__jsft_ResourceBundleMgr";
 
     /**
      *	<p> The cache of <code>ResourceBundle</code>s.</p>

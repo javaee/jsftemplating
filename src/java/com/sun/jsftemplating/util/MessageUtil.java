@@ -92,13 +92,14 @@ public class MessageUtil extends Object {
 	    throw new RuntimeException(
 		    "'baseName' is null for key '" + key + "'!");
 	}
+	FacesContext ctx = FacesContext.getCurrentInstance();
 	if (locale == null) {
-	    locale = Util.getLocale(FacesContext.getCurrentInstance());
+	    locale = Util.getLocale(ctx);
 	}
 
 	// Get the ResourceBundle
 	ResourceBundle bundle =
-	    ResourceBundleManager.getInstance().getBundle(baseName, locale);
+	    ResourceBundleManager.getInstance(ctx).getBundle(baseName, locale);
 	if (bundle == null) {
 	    // FIXME: Log a warning
 	    return key;

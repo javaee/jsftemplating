@@ -346,17 +346,17 @@ public class ScopeHandlers {
 	String key = (String) context.getInputValue("key");
 	String name = (String) context.getInputValue("bundle");
 	Locale locale = (Locale) context.getInputValue("locale");
+	FacesContext ctx = context.getFacesContext();
 	if (locale == null) {
-	    locale = Util.getLocale(FacesContext.getCurrentInstance());
+	    locale = Util.getLocale(ctx);
 	}
 
 	// Get the ResourceBundle
-	ResourceBundle bundle =
-	    ResourceBundleManager.getInstance().getBundle(name, locale);
+	ResourceBundle bundle = ResourceBundleManager.getInstance(ctx).
+		getBundle(name, locale);
 
 	// Store it in the Request Map
-	context.getFacesContext().getExternalContext().
-	    getRequestMap().put(key, bundle);
+	ctx.getExternalContext().getRequestMap().put(key, bundle);
 
 	// Return it
 	context.setOutputValue("result", bundle);
