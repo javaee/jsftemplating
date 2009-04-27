@@ -109,7 +109,7 @@ public class LayoutDefinition extends LayoutElementBase {
      *	@param	type	The <code>ComponentType</code>.
      *
      *	@deprecated Reader's should use global {@link ComponentType}s (see
-     *	    {@link com.sun.jsftemplating.layout.LayoutDefinitionManager#addGlobalComponentType(ComponentType)})
+     *	    {@link com.sun.jsftemplating.layout.LayoutDefinitionManager#addGlobalComponentType(FacesContext, ComponentType)})
      *	    or should cache {@link ComponentType}s locally, this information is
      *	    not needed in the <code>LayoutDefinition</code>.
      */

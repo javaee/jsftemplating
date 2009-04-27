@@ -606,7 +606,7 @@ public abstract class LayoutDefinitionManager {
      *	<p> It is recommended that this method not be used directly.  The map
      *	    returned by this method is shared across the application and is not
      *	    thread safe.  Instead access this Map via
-     *	    {@link LayoutDefinitionManager#getGlobalComponentType(String)}.</p>
+     *	    {@link LayoutDefinitionManager#getGlobalComponentType(FacesContext, String)}.</p>
      *
      *	<p> This method will initialize the global {@link ComponentType}s if
      *	    they are not initialized.  It does this by finding all files in the
