@@ -99,7 +99,8 @@ public class FileStreamerPhaseListener implements PhaseListener {
 
                 // Stream the content
                 try {
-                    FileStreamer.getFileStreamer().streamContent(fsContext);
+                    FileStreamer.getFileStreamer(context).
+			    streamContent(fsContext);
                     context.responseComplete();
                 } catch (FileNotFoundException ex) {
                     if (LogUtil.infoEnabled()) {

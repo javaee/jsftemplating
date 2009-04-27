@@ -49,9 +49,6 @@ public class MessageUtil extends Object {
      *	<p> Use this to get an instance of this class.</p>
      */
     public static MessageUtil getInstance() {
-	if (_instance == null) {
-	    _instance = new MessageUtil();
-	}
 	return _instance;
     }
 
@@ -142,5 +139,8 @@ public class MessageUtil extends Object {
 	return (result != null) ? result : message;
     }
 
-    private static MessageUtil _instance = null;
+    /**
+     *	<p> Singleton.  This one is OK to share across VMs (no state).</p>
+     */
+    private static final MessageUtil _instance = new MessageUtil();
 }

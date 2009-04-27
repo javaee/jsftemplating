@@ -60,9 +60,9 @@ public class FileStreamer {
     /**
      *	<p> Only instantiate via factory method.</p>
      */
-    private FileStreamer() {
+    private FileStreamer(FacesContext ctx) {
         try {
-            List<Tuple> entries = FileUtil.getJarResources(FacesContext.getCurrentInstance(), "/META-INF/jsftemplating/fileStreamer.properties");
+            List<Tuple> entries = FileUtil.getJarResources(ctx, "/META-INF/jsftemplating/fileStreamer.properties");
             for (Tuple tuple : entries) {
                 Properties props = new Properties();
                 JarFile jarFile = (JarFile)tuple.getElement(0);
@@ -80,8 +80,24 @@ public class FileStreamer {
     /**
      *	<p> Use this method to obtain the instance of this class.</p>
      */
-    public static FileStreamer getFileStreamer() {
-	return _streamer;
+    public static FileStreamer getFileStreamer(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	FileStreamer streamer = null;
+	if (ctx != null) {
+	    streamer = (FileStreamer) ctx.getExternalContext().
+		    getApplicationMap().get(STREAMER_INST);
+	}
+	if (streamer == null) {
+	    // 1st time... initialize it
+	    streamer = new FileStreamer(ctx);
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().
+			put(STREAMER_INST, streamer);
+	    }
+	}
+	return streamer;
     }
 
     /**
@@ -135,7 +151,34 @@ public class FileStreamer {
      */
     public void registerContentSource(ContentSource source) {
 	// Add the new instance to the registered ContentSources
-	_contentSources.put(source.getId(), source);
+	getContentSources(null).put(source.getId(), source);
+    }
+
+    /**
+     *	<p> This method provides access to the application's registered
+     *	    {@link ContentSource}s.</p>
+     */
+    private Map<String, ContentSource> getContentSources(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<String, ContentSource> sources = null;
+	if (ctx != null) {
+	    sources = (Map<String, ContentSource>) ctx.getExternalContext().
+		getApplicationMap().get(FS_CONTENT_SOURCES);
+	}
+	if (sources == null) {
+	    // 1st time... initialize it
+	    sources = new HashMap<String, ContentSource>();
+	    sources.put(ResourceContentSource.ID, new ResourceContentSource());
+	    if (ctx != null) {
+		// Save in application scope for next time...
+		ctx.getExternalContext().getApplicationMap().put(FS_CONTENT_SOURCES, sources);
+	    }
+	}
+
+	// Return the map...
+	return sources;
     }
 
     /**
@@ -143,7 +186,7 @@ public class FileStreamer {
      *	    {@link ContentSource} must be previously registered.</p>
      */
     public ContentSource getContentSource(String id) {
-	return _contentSources.get(id);
+	return getContentSources(null).get(id);
     }
 
     /**
@@ -260,6 +303,17 @@ public class FileStreamer {
     public static String getDefaultMimeType() {
 	return DEFAULT_CONTENT_TYPE;
     }
+
+    /**
+     *	<p> Application scope key for an instance of this class.</p>
+     */
+    private static final String	STREAMER_INST	    =   "__jsft_FileStreamer";
+
+    /**
+     *	<p> Application scope key for <code>FileStreamer</code>
+     *	    {@link ContentSource}s.</p>
+     */
+    private static final String	FS_CONTENT_SOURCES  =   "__jsft_FS_Sources";
 
     /**
      *	HashMap to hold mimetypes by extension.
@@ -382,19 +436,9 @@ public class FileStreamer {
 	mimeTypes.put("Z", "application/x-compress");
     }
 
-
-    private static Map<String, ContentSource> _contentSources =
-	    new HashMap<String, ContentSource>();
-
-    static {
-	_contentSources.put(
-	    ResourceContentSource.ID, new ResourceContentSource());
-    }
-
     /**
      *	<p> The Default Content-type ("application/octet-stream").</p>
      */
     public static final String DEFAULT_CONTENT_TYPE =
             "application/octet-stream";
-    private static FileStreamer _streamer = new FileStreamer();
 }

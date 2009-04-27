@@ -178,14 +178,5 @@ public class ClasspathEntityResolver implements EntityResolver2 {
     public static final String	LOGGER_NAME	= "javax.enterpise.system.tools.admin.guiframework";
 
     private static final Class [] STRING_ARG = new Class[] {String.class};
-    private static Class FACES_CONTEXT;
-
-    static {
-	try {
-	    FACES_CONTEXT = Util.loadClass("javax.faces.context.FacesContext", "");
-	} catch (Exception ex) {
-	    // Ignore, this just means we're not in a JSF environment
-	    FACES_CONTEXT = null;
-	}
-    }
+    private static final Class FACES_CONTEXT = Util.noExceptionLoadClass("javax.faces.context.FacesContext");
 }

@@ -51,7 +51,7 @@ public class FacesStreamerContext extends BaseContext {
      */
     public FacesStreamerContext(FacesContext ctx) {
 	setFacesContext(ctx);
-	init(ctx);
+	init();
     }
 
     /**
@@ -61,7 +61,13 @@ public class FacesStreamerContext extends BaseContext {
      *	    provide a way to get to the ServletConfig init parameters, as of
      *	    JSF 1.2).</p>
      */
-    protected synchronized void init(FacesContext ctx) {
+    protected synchronized void init() {
+	FacesContext ctx = getFacesContext();
+	boolean initDone = false;
+	if (ctx != null) {
+	    initDone = ctx.getExternalContext().getApplicationMap().
+		    containsKey(INIT_DONE);
+	}
 	if (initDone) {
 	    return;
 	}
@@ -69,14 +75,17 @@ public class FacesStreamerContext extends BaseContext {
 	// Register ContentSources
 	String sources = ctx.getExternalContext().getInitParameter(CONTENT_SOURCES);
 	if ((sources != null) && (sources.trim().length() != 0)) {
-	    FileStreamer fs = FileStreamer.getFileStreamer();
+	    FileStreamer fs = FileStreamer.getFileStreamer(ctx);
 	    StringTokenizer tokens = new StringTokenizer(sources, " \t\n\r\f,;:");
 	    while (tokens.hasMoreTokens()) {
 		fs.registerContentSource(tokens.nextToken());
 	    }
 	}
 
-	initDone = true;
+	if (ctx != null) {
+	    // Mark initialization as complete
+	    ctx.getExternalContext().getApplicationMap().put(INIT_DONE, true);
+	}
     }
 
     /**
@@ -94,15 +103,16 @@ public class FacesStreamerContext extends BaseContext {
 	}
 
 	// Get the ContentSource id
-	String id = getFacesContext().getExternalContext().
-		getRequestParameterMap().get(Context.CONTENT_SOURCE_ID);
+	FacesContext ctx = getFacesContext();
+	String id = ctx.getExternalContext().getRequestParameterMap().
+		get(Context.CONTENT_SOURCE_ID);
 	if (id == null) {
 	    // Use the default ContentSource
 	    id = Context.DEFAULT_CONTENT_SOURCE_ID;
 	}
 
 	// Get the ContentSource
-	src = FileStreamer.getFileStreamer().getContentSource(id);
+	src = FileStreamer.getFileStreamer(ctx).getContentSource(id);
 	if (src == null) {
 	    throw new RuntimeException("The ContentSource with id '" + id
 		    + "' is not registered!");
@@ -196,8 +206,14 @@ public class FacesStreamerContext extends BaseContext {
 	setAttribute(FACES_CONTEXT, ctx);
     }
 
+
     /**
-     *	<p> The attribute value to access the FacesContext.  See
+     *	<p> Flag indicating initialization for this class has been completed.</p>
+     */
+    private static final String INIT_DONE	    =	"__jsft_StreamContextInitialized";
+
+    /**
+     *	<p> The attribute value to access the <code>FacesContext</code>.  See
      *	    {@link #getFacesContext()}.</p>
      */
     public static final String FACES_CONTEXT    = "facesContext";
@@ -211,11 +227,5 @@ public class FacesStreamerContext extends BaseContext {
      *	    must explicitly set the disposition for "inline" behavior with a
      *	    filename.</p>
      */
-    public static final String DEFAULT_DISPOSITION =	"attachment";
-
-    /**
-     *	<p> This is a flag to indicate if initialization has been
-     *	    completed.</p>
-     */
-    private static boolean initDone = false;
+    public static final String DEFAULT_DISPOSITION  =	"attachment";
 }

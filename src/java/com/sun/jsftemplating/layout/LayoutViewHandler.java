@@ -332,7 +332,7 @@ public class LayoutViewHandler extends ViewHandler {
 
 	// Stream the content
 	try {
-	    FileStreamer.getFileStreamer().streamContent(fsContext);
+	    FileStreamer.getFileStreamer(context).streamContent(fsContext);
 	} catch (FileNotFoundException ex) {
 	    if (LogUtil.infoEnabled()) {
 		LogUtil.info("JSFT0004", (Object) path);
