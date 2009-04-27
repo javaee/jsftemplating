@@ -341,7 +341,7 @@ public abstract class LayoutDefinitionManager {
 //System.out.println("LDMS: " + ldms);
         LayoutDefinitionManager mgr = null;
         for (String className : ldms) {
-            mgr = getLayoutDefinitionManager(className);
+            mgr = getLayoutDefinitionManagerByClass(ctx, className);
 //System.out.println("LDM ("+className+"): " + mgr);
             if (mgr.accepts(key)) {
 //System.out.println("Accepts!");
@@ -424,15 +424,27 @@ public abstract class LayoutDefinitionManager {
      *	    of a <code>LayoutDefintionManager</code>.  It is possible that
      *	    multiple different implementations of
      *	    <code>LayoutDefinitionManager</code>s will be used within the same
-     *	    JVM.  This is OK, the purpose of the
-     *	    <code>LayoutDefinitionManager</code> is primarily performance.
-     *	    Someone may provide a different <code>LayoutDefinitionManager</code>
-     *	    to locate {@link LayoutDefinition}'s in a different way (XML,
-     *	    database, file, java code, etc.).</p>
+     *	    application.  This is OK.  Someone may provide a different
+     *	    <code>LayoutDefinitionManager</code> to locate
+     *	    {@link LayoutDefinition}'s in a different way (XML, database, file,
+     *	    java code, new file format, etc.).</p>
      */
-    public static LayoutDefinitionManager getLayoutDefinitionManager(String className) {
-        LayoutDefinitionManager ldm =
-                (LayoutDefinitionManager) _instances.get(className);
+    public static LayoutDefinitionManager getLayoutDefinitionManagerByClass(FacesContext ctx, String className) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<String, LayoutDefinitionManager> ldms = null;
+	if (ctx != null) {
+	    ldms = (Map<String, LayoutDefinitionManager>)
+		ctx.getExternalContext().getApplicationMap().get(LDMS);
+	}
+	if (ldms == null) {
+            ldms = new HashMap<String, LayoutDefinitionManager>(4);
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(LDMS, ldms);
+	    }
+	}
+        LayoutDefinitionManager ldm = ldms.get(className);
         if (ldm == null) {
             try {
                 ldm = (LayoutDefinitionManager)
@@ -459,7 +471,7 @@ public abstract class LayoutDefinitionManager {
             } catch (NullPointerException ex) {
                 throw new LayoutDefinitionException(ex);
             }
-            _instances.put(className, ldm);
+            ldms.put(className, ldm);
         }
         return ldm;
     }
@@ -1026,6 +1038,12 @@ public abstract class LayoutDefinitionManager {
     private static final String HD_MAP	=   "__jsft_HandlerDefs";
 
     /**
+     *	<p> This key stores the {@link LayoutDefinitionManager} instances for
+     *	    this application.</p>
+     */
+    private static final String LDMS	=   "__jsft_LayoutDefMgrs";
+
+    /**
      *	<p> This map contains sub-class specific attributes that may be needed
      *	    by specific implementations of
      *	    <code>LayoutDefinitionManager</code>s.  For example, setting an
@@ -1034,14 +1052,6 @@ public abstract class LayoutDefinitionManager {
      *	    <code>LayoutDefinitions</code> from XML files.</p>
      */
     private Map<String, Object> _attributes = new HashMap<String, Object>();
-
-    /**
-     *	<p> Static <code>Map</code> of <code>LayoutDefinitionManager</code s.
-     *	    Normally this will only contain the default
-     *	    {@link LayoutDefinitionManager}.</p>
-     */
-    private static Map<String, LayoutDefinitionManager> _instances =
-            new HashMap<String, LayoutDefinitionManager>(4);
 
     /**
      *	<p> Static <code>Map</code> of cached {@link LayoutDefinition}s.</p>
