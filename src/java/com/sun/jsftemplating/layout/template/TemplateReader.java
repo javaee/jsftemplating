@@ -156,7 +156,7 @@ public class TemplateReader {
 	//	 this at the application scope.  Here, "global" means across
 	//	 pages, not across sessions.
 // FIXME: This isn't implemented yet...
-	ld.setResources(LayoutDefinitionManager.getGlobalResources());
+	ld.setResources(LayoutDefinitionManager.getGlobalResources(null));
 
 /*
 	// Look to see if there is an EVENT_ELEMENT defined
@@ -1064,7 +1064,7 @@ public class TemplateReader {
 	new EventParserCommand();
 
     private Map<String, CustomParserCommand> parserCmds	=
-	    getCustomParserCommandMap(FacesContext.getCurrentInstance());
+	    getCustomParserCommandMap(null);
 
     private static final String PARSER_COMMANDS	= "__jsft_CustParserCMDs";
 

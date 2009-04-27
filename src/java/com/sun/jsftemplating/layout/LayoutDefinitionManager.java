@@ -51,7 +51,6 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,6 +62,8 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.faces.context.FacesContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -994,9 +995,7 @@ public abstract class LayoutDefinitionManager {
      *	    This can be done by... FIXME: TBD...</p>
      */
     public static void addGlobalResource(Resource res) {
-        synchronized (LayoutDefinitionManager.class) {
-            getGlobalResources().add(res);
-        }
+	getGlobalResources(null).add(res);
     }
 
     /**
@@ -1007,20 +1006,39 @@ public abstract class LayoutDefinitionManager {
      *
      *	<p> This method will find global resources by... FIXME: TBD...</p>
      */
-    public static List<Resource> getGlobalResources() {
+    public static List<Resource> getGlobalResources(FacesContext ctx) {
 // FIXME: TBD...
-        if (_globalResources == null) {
-            _globalResources = new ArrayList<Resource>();
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	List<Resource> globalResources = null;
+	if (ctx != null) {
+	    globalResources = (List<Resource>) ctx.getExternalContext().
+		    getApplicationMap().get(RES_MAP);
+	}
+        if (globalResources == null) {
+            globalResources = new CopyOnWriteArrayList<Resource>();
 // FIXME: Find / Initialize resources...
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().
+			put(RES_MAP, globalResources);
+	    }
         }
-        return _globalResources;
+
+	// Return the Resources List
+        return globalResources;
     }
 
     /**
      *	<p> This method clears the cached global {@link Resource}s.</p>
      */
     public static void clearGlobalResources(FacesContext ctx) {
-        _globalResources = null;
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	if (ctx != null) {
+	    ctx.getExternalContext().getApplicationMap().remove(RES_MAP);
+	}
     }
 
     /**
@@ -1122,7 +1140,13 @@ public abstract class LayoutDefinitionManager {
      *	<p> This key stores the {@link ComponentType} instances for this
      *	    application.</p>
      */
-    private static final String CT_MAP    =   "__jsft_ComponentTypeMap";
+    private static final String CT_MAP	    =   "__jsft_ComponentTypeMap";
+
+    /**
+     *	<p> This key stores the global {@link Resource} instances for this
+     *	    application.</p>
+     */
+    private static final String RES_MAP	    =   "__jsft_ResourceMap";
 
     /**
      *	<p> This map contains sub-class specific attributes that may be needed
@@ -1142,12 +1166,6 @@ public abstract class LayoutDefinitionManager {
 
     private static final HandlerDefinition NOOP_HD =
 	    new HandlerDefinition("_NOOP_");
-
-    /**
-     *	<p> This <code>List</code> holds global {@link Resource}s so
-     *	    they can be defined once and shared across the application.</p>
-     */
-    private static List<Resource> _globalResources = null;
 
     /**
      *	<p> This is the default input and output type.</p>
