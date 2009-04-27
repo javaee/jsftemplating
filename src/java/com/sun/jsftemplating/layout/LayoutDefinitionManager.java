@@ -361,16 +361,25 @@ public abstract class LayoutDefinitionManager {
      *	    a <code>LayoutDefinitionManager</code> implementation.</p>
      */
     public static List<String> getLayoutDefinitionManagers(FacesContext ctx) {
-        if (_ldmKeys == null) {
-            List<String> keys = new ArrayList<String>();
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	List<String> keys = null;
+	if (ctx != null) {
+	    keys = (List<String>) ctx.getExternalContext().
+		    getApplicationMap().get(LDM_KEYS);
+	}
+        if (keys == null) {
+	    // 1st time... initialize it
+            keys = new ArrayList<String>();
             String def = "";
 
             // Check to see what the default should be...
             if (ctx != null) {
                 Map initParams = ctx.getExternalContext().getInitParameterMap();
                 if (initParams.containsKey(LAYOUT_DEFINITION_MANAGER_KEY)) {
-                    def = ((String)
-                            initParams.get(LAYOUT_DEFINITION_MANAGER_KEY)).trim();
+                    def = ((String) initParams.
+			    get(LAYOUT_DEFINITION_MANAGER_KEY)).trim();
                     keys.add(def);
                 }
             }
@@ -415,9 +424,15 @@ public abstract class LayoutDefinitionManager {
                 throw new RuntimeException(ex);
             }
 
-            _ldmKeys = keys;
+	    if (ctx != null) {
+		// Save the result in Application Scope
+		ctx.getExternalContext().getApplicationMap().
+			put(LDM_KEYS, keys);
+	    }
         }
-        return _ldmKeys;
+
+	// Return the LDM keys
+        return keys;
     }
 
     /**
@@ -1065,19 +1080,25 @@ public abstract class LayoutDefinitionManager {
      *	<p> This key stores the {@link HandlerDefinition}'s for this
      *	    application.</p>
      */
-    private static final String HD_MAP	=   "__jsft_HandlerDefs";
+    private static final String HD_MAP	    =   "__jsft_HandlerDefs";
 
     /**
      *	<p> This key stores the {@link LayoutDefinitionManager} instances for
      *	    this application.</p>
      */
-    private static final String LDMS	=   "__jsft_LayoutDefMgrs";
+    private static final String LDMS	    =   "__jsft_LayoutDefMgrs";
 
     /**
      *	<p> This key stores the {@link LayoutDefinition} instances for this
      *	    application.</p>
      */
-    private static final String LD_MAP	=   "__jsft_LayoutDefMap";
+    private static final String LD_MAP	    =   "__jsft_LayoutDefMap";
+
+    /**
+     *	<p> This key stores the {@link LayoutDefinitionManager} class names
+     *	    for this application.</p>
+     */
+    private static final String LDM_KEYS    =   "__jsft_LayoutDefMap";
 
     /**
      *	<p> This map contains sub-class specific attributes that may be needed
@@ -1103,12 +1124,6 @@ public abstract class LayoutDefinitionManager {
      *	    they can be defined once and shared across the application.</p>
      */
     private static List<Resource> _globalResources = null;
-
-    /**
-     *	<p> This <code>List</code> contains the classnames of known
-     *	    {@link LayoutDefinitionManager} instances.</p>
-     */
-    private static List<String> _ldmKeys = null;
 
     /**
      *	<p> This is the default input and output type.</p>
