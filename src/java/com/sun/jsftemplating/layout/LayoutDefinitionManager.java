@@ -979,11 +979,14 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     *	<p> Setter for the debug flag.</p>
+     *	<p> Setter for the debug flag.  Sets {@link #DEBUG_FLAG} equal to
+     *	    <code>flag</code> in application scope.</p>
      */
-    public static void setDebug(boolean flag) {
-        _debug = Boolean.valueOf(flag);
+    public static void setDebug(FacesContext ctx, boolean flag) {
+	ctx.getExternalContext().getApplicationMap().
+		put(DEBUG_FLAG, flag);
     }
+
 
     /**
      *	<p> This map contains sub-class specific attributes that may be needed
@@ -1053,11 +1056,6 @@ public abstract class LayoutDefinitionManager {
      *	    the DEBUG flag.</p>
      */
     public static final String DEBUG_FLAG = "com.sun.jsftemplating.DEBUG";
-
-    /**
-     *	<p> DEBUG flag.  Not final so that it can be switch at runtime.</p>
-     */
-    private static Boolean _debug = null;
 
     /**
      *	<p> This is the prefix of a request-scoped variable that caches
