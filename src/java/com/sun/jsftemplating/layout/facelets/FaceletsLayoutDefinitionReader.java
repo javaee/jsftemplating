@@ -75,7 +75,7 @@ public class FaceletsLayoutDefinitionReader {
     private int _idNumber;
 
     public FaceletsLayoutDefinitionReader(String key, URL url) {
-	_idNumber = LayoutElementUtil.getStartingIdNumber(key);
+	_idNumber = LayoutElementUtil.getStartingIdNumber(null, key);
 	InputStream is = null;
 	BufferedInputStream bs = null;
 	try{

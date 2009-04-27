@@ -41,7 +41,6 @@ import javax.faces.context.FacesContext;
  */
 public class Util {
 
-
     /**
      *	<p> This method returns the ContextClassLoader unless it is null, in
      *	    which case it returns the ClassLoader that loaded "obj".  Unless it
@@ -80,6 +79,9 @@ public class Util {
 	parent = (parent == null) ? ClassLoader.getSystemClassLoader() : parent;
 
 	// Check to see if we've calculated the ClassLoader for this parent
+	FacesContext ctx = FacesContext.getCurrentInstance();
+	Map<ClassLoader, ClassLoader> classLoaderCache =
+		getClassLoaderCache(ctx);
 	ClassLoader loader = classLoaderCache.get(parent);
 	if (loader != null) {
 	    return loader;
@@ -87,7 +89,6 @@ public class Util {
 	loader = parent;
 
 	// Look to see if a custom ClassLoader was specified via an initParam
-	FacesContext ctx = FacesContext.getCurrentInstance();
 	String clsName = null;
 	if (ctx != null) {
 	    clsName = (String) ctx.getExternalContext().
@@ -134,6 +135,33 @@ public class Util {
 
 	// Return the ClassLoader (may be the same one passed in)
 	return loader;
+    }
+
+    /**
+     *	<p> Provides access to the application-scoped Map which stores custom
+     *	    ClassLoaders which may wrap a parent ClassLoader in this
+     *	    application.</p>
+     */
+    private static Map<ClassLoader, ClassLoader> getClassLoaderCache(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<ClassLoader, ClassLoader> map = null;
+	if (ctx != null) {
+	    map = (Map<ClassLoader, ClassLoader>) ctx.getExternalContext().
+		    getApplicationMap().get(CLASSLOADER_CACHE);
+	}
+	if (map == null) {
+	    // 1st time... initialize it
+	    map = new HashMap<ClassLoader, ClassLoader>(4);
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(
+			CLASSLOADER_CACHE, map);
+	    }
+	}
+
+	// Return the map...
+	return map;
     }
 
     /**
@@ -306,6 +334,7 @@ public class Util {
 	}
 	return buf.toString();
     }
+
     /**
      *	<p> This method strips leading delimeter. </p>
      *
@@ -341,12 +370,12 @@ public class Util {
 	}
     }
 
+
     /**
-     *	<p> This stores <code>CustomClassLoader</code>s keyed by the parent
-     *	    <code>ClassLoader</code>.</p>
+     *	<p> Application scope attribute name for storing custom
+     *	    <code>ClassLoaders</code>.</p>
      */
-    private static Map<ClassLoader, ClassLoader> classLoaderCache =
-	new HashMap<ClassLoader, ClassLoader>(5);
+    private static final String CLASSLOADER_CACHE   =	"__jsft_ClassLoaders";
 
     /**
      *	<p> This is the context-param that specifies the JSFTemplating

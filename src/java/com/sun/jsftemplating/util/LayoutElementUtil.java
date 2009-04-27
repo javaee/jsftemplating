@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.faces.context.FacesContext;
+
 
 /**
  *  <p>	This class is a utility class for misc {@link LayoutElement} related
@@ -170,13 +172,37 @@ public class LayoutElementUtil {
     /**
      *	<p> This method returns the next id that has not been used.</p>
      */
-    public static synchronized int getStartingIdNumber(String key) {
+    public static int getStartingIdNumber(FacesContext ctx, String key) {
+	if (ctx == null) {
+	    // Make sure we have the FacesContext...
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<String, Integer> startMap = null;
+	if (ctx != null) {
+	    // Check Application Scope for the Map...
+	    startMap = (Map<String, Integer>) ctx.getExternalContext().
+		    getApplicationMap().get(ID_IDX_MAP);
+	}
+	if (startMap == null) {
+	    // Not found, 1st time... create / initialize it
+	    startMap = new ConcurrentHashMap<String, Integer>(50, 0.75f, 3);
+	    if (ctx != null) {
+		// Save for later
+		ctx.getExternalContext().getApplicationMap().
+			put(ID_IDX_MAP, startMap);
+	    }
+	}
+
+	// Now look for the desired start key...
 	Integer start = startMap.get(key);
 	if (start == null) {
 	    // Save for later
+// FIXME: Why do I need _highId?  Isn't key+0 good enough?
 	    start = incHighestId(_highId);
 	    startMap.put(key, start);
 	}
+
+	// Return the answer...
 	return start;
     }
 
@@ -248,9 +274,14 @@ public class LayoutElementUtil {
 	}
     }
 
+
+    /**
+     *	<p> Application scope key for the id index <code>Map</code>.</p>
+     */
+    private static final String ID_IDX_MAP	= "__jsft_ID_Index_Map";
+
+    // May need to make this application-scoped...
     private static int _highId = 0;
-    private static Map<String, Integer> startMap =
-	    new ConcurrentHashMap<String, Integer>();
 
     public static final String DEFAULT_ID_BASE	= "id";
 }

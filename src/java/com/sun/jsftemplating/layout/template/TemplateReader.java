@@ -75,7 +75,7 @@ public class TemplateReader {
 		    "Template id's may not be null!");
 	}
 	_id = id;
-	_idNumber = LayoutElementUtil.getStartingIdNumber(id);
+	_idNumber = LayoutElementUtil.getStartingIdNumber(null, id);
 	_tpl = new TemplateParser(url);
     }
 
