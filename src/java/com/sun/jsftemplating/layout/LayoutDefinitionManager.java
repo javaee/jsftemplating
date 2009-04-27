@@ -731,18 +731,14 @@ public abstract class LayoutDefinitionManager {
      *	    <code>ClassLoader.getResources(filename)</code></p>
      */
     public synchronized static Map<String, HandlerDefinition> getGlobalHandlerDefinitions(String filename) {
-	HashMap<String, HandlerDefinition> handlers = null;
-        if (_globalHandlerDefs == null) {
-	    // Create a new Map to hold the defs
-	    handlers = new HashMap<String, HandlerDefinition>();
-	} else if (_globalHandlerDefs.get(filename) != null) {
+	Map<String, HandlerDefinition> handlers = getApplicationHandlerDefinitions(null);
+	if (handlers.containsKey(filename)) {
             // We've already done this, return the answer
-            return _globalHandlerDefs;
-	} else {
-	    // Copy the old ones
-	    handlers = new HashMap<String, HandlerDefinition>(
-		_globalHandlerDefs);
+            return handlers;
 	}
+
+	// Copy the old ones while we modify it...
+	handlers = new HashMap<String, HandlerDefinition>(handlers);
 
 	// Add the 'filename' key as a flag that we've processed these
 	handlers.put(filename, NOOP_HD);
@@ -751,8 +747,8 @@ public abstract class LayoutDefinitionManager {
         URL url = null;
         try {
             // Get all the properties files that define them
-            Enumeration<URL> urls =
-		    Util.getClassLoader(filename).getResources(filename);
+            Enumeration<URL> urls = Util.getClassLoader(filename).
+		    getResources(filename);
             InputStream is = null;
             while (urls.hasMoreElements()) {
                 try {
@@ -775,15 +771,44 @@ public abstract class LayoutDefinitionManager {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        _globalHandlerDefs = handlers;
-        return _globalHandlerDefs;
+
+	// Store the results in application scope...
+	FacesContext ctx = FacesContext.getCurrentInstance();
+	ctx.getExternalContext().getApplicationMap().put(HD_MAP, handlers);
+
+	// return the complete Map
+        return handlers;
+    }
+
+    /**
+     *	<p> This method returns the current application's
+     *	    {@link HandlerDefinition} <code>Map</code>.</p>
+     */
+    private static Map<String, HandlerDefinition> getApplicationHandlerDefinitions(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<String, HandlerDefinition> map = null;
+	if (ctx != null) {
+	    map = (Map<String, HandlerDefinition>) ctx.getExternalContext().
+		getApplicationMap().get(HD_MAP);
+	}
+	if (map == null) {
+	    // Initialize it...
+	    map = new HashMap<String, HandlerDefinition>();
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(HD_MAP, map);
+	    }
+	}
+
+	return map;
     }
 
     /**
      *	<p> This method processes a single {@link HandlerDefinition}'s
      *	    meta-data.</p>
      */
-    private static void readGlobalHandlerDefinition(HashMap<String, HandlerDefinition> hdMap, Map<String, String> props, Map.Entry<Object, Object> entry) {
+    private static void readGlobalHandlerDefinition(Map<String, HandlerDefinition> hdMap, Map<String, String> props, Map.Entry<Object, Object> entry) {
         // Get the key.class value...
         String key = (String) entry.getKey();
         // Strip off .class
@@ -874,10 +899,16 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     *	<p> This method clears cached global {@link HandlerDefinition}s.</p>
+     *	<p> This method clears cached global application
+     *	    {@link HandlerDefinition}s.</p>
      */
-    public static void clearGlobalHandlerDefinitions() {
-        _globalHandlerDefs = null;
+    public static void clearGlobalHandlerDefinitions(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	if (ctx != null) {
+	    ctx.getExternalContext().getApplicationMap().remove(HD_MAP);
+	}
     }
 
     /**
@@ -989,6 +1020,12 @@ public abstract class LayoutDefinitionManager {
 
 
     /**
+     *	<p> This key stores the {@link HandlerDefinition}'s for this
+     *	    application.</p>
+     */
+    private static final String HD_MAP	=   "__jsft_HandlerDefs";
+
+    /**
      *	<p> This map contains sub-class specific attributes that may be needed
      *	    by specific implementations of
      *	    <code>LayoutDefinitionManager</code>s.  For example, setting an
@@ -1018,11 +1055,6 @@ public abstract class LayoutDefinitionManager {
      */
     private static Map<String, ComponentType> _globalComponentTypes = null;
 
-    /**
-     *	<p> This <code>Map</code> holds global {@link HandlerDefinition}s so
-     *	    they can be defined once and shared across the application.</p>
-     */
-    private static Map<String, HandlerDefinition> _globalHandlerDefs = null;
     private static final HandlerDefinition NOOP_HD =
 	    new HandlerDefinition("_NOOP_");
 

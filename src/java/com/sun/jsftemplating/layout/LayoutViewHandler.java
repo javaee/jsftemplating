@@ -111,7 +111,7 @@ public class LayoutViewHandler extends ViewHandler {
 	// a running application, that handlers, ct's, and resources will get
 	// re-read.  Ryan added a feature which may introduce this code path.
 	LayoutDefinitionManager.clearGlobalComponentTypes();
-	LayoutDefinitionManager.clearGlobalHandlerDefinitions();
+	LayoutDefinitionManager.clearGlobalHandlerDefinitions(null);
 	LayoutDefinitionManager.clearGlobalResources();
     }
 
