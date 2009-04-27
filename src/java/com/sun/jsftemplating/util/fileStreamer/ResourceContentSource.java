@@ -124,10 +124,10 @@ public class ResourceContentSource implements ContentSource {
      *	    used for caching.</p>
      */
     public long getLastModified(Context context) {
-	if (LayoutDefinitionManager.isDebug()) {
+	FacesContext fc = FacesContext.getCurrentInstance();
+	if (LayoutDefinitionManager.isDebug(fc)) {
 	    // When in debug mode, don't cache resources... otherwise always
 	    // allow browser to always cache them
-	    FacesContext fc = FacesContext.getCurrentInstance();
 	    if (fc != null) {
 		// Check to see if this resource exists in the FileSystem, if
 		// it doesn't we will let the browser cache it b/c it can't be

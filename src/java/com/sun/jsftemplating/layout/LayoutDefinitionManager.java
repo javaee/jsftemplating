@@ -92,14 +92,12 @@ import org.w3c.dom.NodeList;
  */
 public abstract class LayoutDefinitionManager {
 
-
     /**
      *	<p> Constructor.</p>
      */
     protected LayoutDefinitionManager() {
         super();
     }
-
 
     /**
      *	<p> This method is responsible for finding/creating the requested
@@ -145,7 +143,7 @@ public abstract class LayoutDefinitionManager {
 
         // Check to see if we already have it. 
         LayoutDefinition def = getCachedLayoutDefinition(cacheKey);
-//System.out.println("GET LD (" + cacheKey + ", " + isDebug() + "):" + def);
+//System.out.println("GET LD (" + cacheKey + ", " + isDebug(ctx) + "):" + def);
         if (def == null) {
             // Obtain the correct LDM, and get the LD
             def = getLayoutDefinitionManager(ctx, key).getLayoutDefinition(key);
@@ -476,8 +474,8 @@ public abstract class LayoutDefinitionManager {
      *	@return The {@link LayoutDefinition} or <code>null</code>.
      */
     public static LayoutDefinition getCachedLayoutDefinition(String key) {
-        if (isDebug()) {
-            FacesContext ctx = FacesContext.getCurrentInstance();
+	FacesContext ctx = FacesContext.getCurrentInstance();
+        if (isDebug(ctx)) {
 	    if (ctx != null) {
 		// Make sure we cache during the life of the request, even
 		// in Debug mode
@@ -503,8 +501,8 @@ public abstract class LayoutDefinitionManager {
      */
     public static void putCachedLayoutDefinition(String key, LayoutDefinition value) {
 //System.out.println("CACHING LD: " + key);
-	if (isDebug()) {
-	    FacesContext ctx = FacesContext.getCurrentInstance();
+	FacesContext ctx = FacesContext.getCurrentInstance();
+	if (isDebug(ctx)) {
 	    if (ctx != null) {
 		// Make sure we cache during the life of the request, even
 		// in Debug mode
@@ -920,31 +918,64 @@ public abstract class LayoutDefinitionManager {
     }
 
     /**
-     *	<p> Getter for the debug flag.</p>
+     *	<p> Getter for the debug flag.  This version of this method invokes
+     *	    the isDebug(FacesContext) method.</p>
      */
     public static boolean isDebug() {
-	if (_debug != null) {
-	    return _debug.booleanValue();
+	return isDebug(null);
+    }
+
+    /**
+     *	<p> Returns true if this application is running in debug-mode.  Note,
+     *	    because this method may be called during initialization before
+     *	    it is able to properly deterimine if this flag has been set, it
+     *	    will not cache its determination if it does not find an explicit
+     *	    setting for this flag.  This means you should always set this flag
+     *	    for best performance since not setting it will force it to be
+     *	    calculated on every request for this value.</p>
+     *
+     *	<p> A <code>ServletContext</code> initialization paramter by the
+     *	    name of <code>{@link #DEBUG_FLAG}
+     *	    ("com.sun.jsftemplating.DEBUG")</code> is the recommended means
+     *	    of setting this flag.</p>
+     */
+    public static boolean isDebug(FacesContext ctx) {
+	// Check Application Scope First...
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
 	}
-	boolean flag = Boolean.getBoolean(DEBUG_FLAG);
-	_debug = Boolean.valueOf(flag);
-	if (!flag) {
-	    FacesContext ctx = FacesContext.getCurrentInstance();
-	    if (ctx != null) {
-		String initParam =
-			ctx.getExternalContext().getInitParameter(DEBUG_FLAG);
-		if (initParam != null) {
-		    flag = Boolean.parseBoolean(initParam);
-		    _debug = Boolean.valueOf(flag);
-		} else {
-		    // Do this b/c the environment is not fully initialized,
-		    // we don't want it to cache the value we may have
-		    // incorrectly discovered at this point.
-		    _debug = null;
-		}
+	Object objVal = null;
+	if (ctx != null) {
+	    objVal = (Boolean) ctx.getExternalContext().
+		getApplicationMap().get(DEBUG_FLAG);
+	    if (objVal != null) {
+		return (Boolean) objVal;
 	    }
 	}
-	return flag;
+
+	// Not found... next check for a system property...
+	String flag = System.getProperty(DEBUG_FLAG);
+	if (flag == null) {
+	    if (ctx != null) {
+		flag = ctx.getExternalContext().getInitParameter(DEBUG_FLAG);
+	    }
+	}
+
+	// Figure out what we have and save it if explicitly set...
+	boolean isDebug = false;
+	if ((ctx != null) && (flag != null)) { 
+	    // The environment may not be fully initialized, we don't want it
+	    // to cache the value we may have incorrectly discovered... so only
+	    // cache if found if explicitly found.
+	    //
+	    // Save it in application scope for easier resolution later...
+	    isDebug = Boolean.parseBoolean(flag);
+	    ctx.getExternalContext().getApplicationMap().
+		    put(DEBUG_FLAG, isDebug);
+	}
+
+	// Return the flag value...
+	return isDebug;
     }
 
     /**
@@ -1027,14 +1058,6 @@ public abstract class LayoutDefinitionManager {
      *	<p> DEBUG flag.  Not final so that it can be switch at runtime.</p>
      */
     private static Boolean _debug = null;
-
-    /**
-     *	<p> DEBUG flag.</p>
-     *
-     *	@deprecated Use isDebug() instead.  This value will not reflect
-     *	            runtime changes in this flag.
-     */
-    public static final boolean DEBUG = isDebug();
 
     /**
      *	<p> This is the prefix of a request-scoped variable that caches

@@ -244,7 +244,7 @@ public class LayoutViewHandler extends ViewHandler {
 	    }
 
 	    // Get the Tree and pre-walk it
-	    if (LayoutDefinitionManager.isDebug()) {
+	    if (LayoutDefinitionManager.isDebug(context)) {
 		// Make sure to reset all the client ids we're about to check
 		getClientIdMap(context).clear();
 	    }
@@ -552,7 +552,7 @@ public class LayoutViewHandler extends ViewHandler {
 		child = ((LayoutComponent) childElt).
 			getChild(context, parent);
 
-		if (LayoutDefinitionManager.isDebug()) {
+		if (LayoutDefinitionManager.isDebug(context)) {
 		    // To help developer avoid duplicate ids, we'll check the
 		    // ids here.
 		    Map idMap = getClientIdMap(context);

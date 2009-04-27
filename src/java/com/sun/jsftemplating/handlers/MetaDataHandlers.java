@@ -216,6 +216,7 @@ public class MetaDataHandlers {
 	    @HandlerOutput(name="value", type=Boolean.class)})
     public static void isDebug(HandlerContext ctx) {
 	// Set the result
-	ctx.setOutputValue("value", LayoutDefinitionManager.isDebug());
+	ctx.setOutputValue("value",
+	    LayoutDefinitionManager.isDebug(ctx.getFacesContext()));
     }
 }
