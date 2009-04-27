@@ -48,7 +48,7 @@ public class LayoutStaticText extends LayoutComponent {
      */
     public LayoutStaticText(LayoutElement parent, String id, String value) {
 	super(parent, id,
-	    LayoutDefinitionManager.getGlobalComponentType("staticText"));
+	    LayoutDefinitionManager.getGlobalComponentType(null, "staticText"));
 	addOption("value", value);
 	_value = value;
     }

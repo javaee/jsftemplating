@@ -151,6 +151,6 @@ public class BaseProcessingContext implements ProcessingContext {
      *	<p>  This is a static reference to the "staticText"
      *	    {@link ComponentType}.</p>
     public static final ComponentType STATIC_TEXT = 
-	LayoutDefinitionManager.getGlobalComponentType("staticText");
+	LayoutDefinitionManager.getGlobalComponentType(null, "staticText");
      */
 }

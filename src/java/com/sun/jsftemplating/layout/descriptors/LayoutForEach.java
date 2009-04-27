@@ -57,7 +57,7 @@ public class LayoutForEach extends LayoutComponent {
      */
     public LayoutForEach(LayoutElement parent, String listBinding, String key) {
 	super(parent, null,
-	    LayoutDefinitionManager.getGlobalComponentType("foreach"));
+	    LayoutDefinitionManager.getGlobalComponentType(null, "foreach"));
 	if ((listBinding == null) || listBinding.equals("")) {
 	    throw new IllegalArgumentException("'listBinding' is required!");
 	}

@@ -57,7 +57,7 @@ public class LayoutIf extends LayoutComponent {
      */
     public LayoutIf(LayoutElement parent, String condition) {
 	this(parent, condition,
-	    LayoutDefinitionManager.getGlobalComponentType("if"));
+	    LayoutDefinitionManager.getGlobalComponentType(null, "if"));
     }
 
     /**

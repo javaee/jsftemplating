@@ -62,7 +62,6 @@ import com.sun.jsftemplating.util.Util;
 import javax.faces.FactoryFinder;
 import javax.faces.application.Application;
 import javax.faces.application.ApplicationFactory;
-import javax.faces.context.FacesContext;
 
 
 /**
@@ -203,7 +202,8 @@ public class FaceletsLayoutDefinitionReader {
 	    parent = parent.getLayoutDefinition(); // parent to the LayoutDefinition
 	    parent.getChildLayoutElements().clear(); // a ui:composition clears everything outside of it
 	}	
-	LayoutComponent lc = new LayoutComponent(parent, id, LayoutDefinitionManager.getGlobalComponentType("event"));
+	LayoutComponent lc = new LayoutComponent(parent, id,
+		LayoutDefinitionManager.getGlobalComponentType(null, "event"));
 	parent.addChildLayoutElement(lc);
 	LayoutComposition comp = processComposition(lc, "template", attrs, id+"_lc", trimming);	
 
@@ -275,9 +275,9 @@ This code is not used and does not appear to be correct, it should use FacesCont
 	    }
 	    UIComponent comp = (UIComponent) obj;
 	    String family = comp.getFamily(); // TODO:  is the correct?
-	    System.out.println(LayoutDefinitionManager.getGlobalComponentTypes());
+	    System.out.println(LayoutDefinitionManager.getGlobalComponentTypes(null));
 	    ComponentType componentType = 
-		LayoutDefinitionManager.getGlobalComponentType(family);
+		LayoutDefinitionManager.getGlobalComponentType(null, family);
 	    LayoutComponent lc = new LayoutComponent(parent, id, componentType);
     	    addAttributesToComponent(lc, node);
 	    lc.setFacetChild(false);
@@ -388,12 +388,12 @@ This code is not used and does not appear to be correct, it should use FacesCont
 	    if (nsURI != null) {
 		// Do lookup using namespace...
 		componentType = LayoutDefinitionManager.getGlobalComponentType(
-			nsURI + ':' + node.getLocalName());
+			null, nsURI + ':' + node.getLocalName());
 	    }
 	    if (componentType == null) {
 		// Try w/o using namespace
-		componentType =
-		    LayoutDefinitionManager.getGlobalComponentType(nodeName);
+		componentType = LayoutDefinitionManager.
+			getGlobalComponentType(null, nodeName);
 	    }
 	    if (componentType == null) {
 		String value = node.getNodeValue();

@@ -65,16 +65,16 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
      *	<p> This is the factory method responsible for creating the
      *	    <code>UIComponent</code>.</p>
      *
-     *	@param	context	    The <code>FacesContext</code>
+     *	@param	ctx	    The <code>FacesContext</code>
      *	@param	desc	    The {@link LayoutComponent} descriptor associated
      *			    with the requested <code>UIComponent</code>.
      *	@param	parent	    The parent <code>UIComponent</code>
      *
      *	@return	The newly created <code>TableRowGroup</code>.
      */
-    public UIComponent create(FacesContext context, LayoutComponent desc, UIComponent parent) {
+    public UIComponent create(FacesContext ctx, LayoutComponent desc, UIComponent parent) {
 	// Create the UIComponent
-	UIComponent comp = super.create(context, desc, parent);
+	UIComponent comp = super.create(ctx, desc, parent);
 	String id = comp.getId();
 
 	// Dynamically create the child columns...
@@ -95,13 +95,13 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 
 	// Now determine the # of columns
 	List<Object> values = getColumnPropertyValues(
-		context, desc, colAttKeys.get(0), parent);
+		ctx, desc, colAttKeys.get(0), parent);
 	int size = values.size();
 
 	// Create the LC's for the columns
 	List<LayoutComponent> columns = new ArrayList<LayoutComponent>(size);
 	ComponentType colType =
-	    LayoutDefinitionManager.getGlobalComponentType(COLUMN_TYPE);
+	    LayoutDefinitionManager.getGlobalComponentType(ctx, COLUMN_TYPE);
 	for (int idx = 0; idx < size; idx++) {
 	    LayoutComponent column = new LayoutComponent(
 		desc, id + COLUMN_SEPERATOR + idx, colType);
@@ -114,7 +114,7 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 		// Skip the value as it is added as a child.
 		continue;
 	    }
-	    values = getColumnPropertyValues(context, desc, key, parent);
+	    values = getColumnPropertyValues(ctx, desc, key, parent);
 
 	    // Loop through the columns
 	    int idx = 0;
@@ -128,15 +128,15 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 	UIComponent columnComp = null;
 	String value = null;
 	Object eventVal = null;
-	values = getColumnPropertyValues(context, desc, COLUMN_VALUE_KEY, parent);
+	values = getColumnPropertyValues(ctx, desc, COLUMN_VALUE_KEY, parent);
 	int idx = 0;
-	ComponentUtil compUtil = ComponentUtil.getInstance(context);
+	ComponentUtil compUtil = ComponentUtil.getInstance(ctx);
 	for (LayoutComponent columnDesc : columns) {
 	    columnComp = compUtil.createChildComponent(
-		    context, columnDesc, comp);
+		    ctx, columnDesc, comp);
 
 	    value = "" + values.get(idx++);
-	    eventVal = desc.dispatchHandlers(context,
+	    eventVal = desc.dispatchHandlers(ctx,
 		    CreateChildEvent.EVENT_TYPE,
 		    new CreateChildEvent(columnComp, value));
 
@@ -146,7 +146,7 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 	    } else {
 		// Create the column (value) child
 		// The child of each TableColumn will be a LayoutStaticText for now...
-		compUtil.createChildComponent(context,
+		compUtil.createChildComponent(ctx,
 			new LayoutStaticText(columnDesc,
 			    columnDesc.getUnevaluatedId() + CHILD_SUFFIX, value),
 			columnComp);
@@ -162,8 +162,8 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
      *	    property name.  If the value is not a <code>List</code>,
      *	    it will throw an exception.</p>
      */
-    private List<Object> getColumnPropertyValues(FacesContext context, LayoutComponent parentDesc, String propertyName, UIComponent parent) {
-	Object val = parentDesc.getEvaluatedOption(context, propertyName, parent);
+    private List<Object> getColumnPropertyValues(FacesContext ctx, LayoutComponent parentDesc, String propertyName, UIComponent parent) {
+	Object val = parentDesc.getEvaluatedOption(ctx, propertyName, parent);
 	if (val == null) {
 	    throw new IllegalArgumentException(
 		"DynamicColumnTableRowGroupFactory requires a valid '"
@@ -171,14 +171,14 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
 	}
 	if (val instanceof String) {
 	    // Only try to do this if we have a String (not for Lists)
-	    if (ComponentUtil.getInstance(context).isValueReference((String) val)) {
-// FIXME: resolve $x{y} values: Object newBinding = VariableResolver.resolveVariables(context, elt, parent, binding);??
+	    if (ComponentUtil.getInstance(ctx).isValueReference((String) val)) {
+// FIXME: resolve $x{y} values: Object newBinding = VariableResolver.resolveVariables(ctx, elt, parent, binding);??
 // FIXME: I believe I have a util method for this (resolveValue?)
 		ValueExpression ve =
-		    context.getApplication().getExpressionFactory().
-			createValueExpression(context.getELContext(),
+		    ctx.getApplication().getExpressionFactory().
+			createValueExpression(ctx.getELContext(),
 				(String) val, Object.class);
-		val = ve.getValue(context.getELContext());
+		val = ve.getValue(ctx.getELContext());
 	    }
 	}
 	if (!(val instanceof List)) {
@@ -207,11 +207,11 @@ public class DynamicColumnTableRowGroupFactory extends TableRowGroupFactory {
      *	    apply to this component (but may apply to their children or to
      *	    the behavior of this factory).</p>
      */
-    protected void setOption(FacesContext context, UIComponent comp, LayoutComponent desc, String key, Object value) {
+    protected void setOption(FacesContext ctx, UIComponent comp, LayoutComponent desc, String key, Object value) {
 	if (key.startsWith("column")) {
 	    return;
 	}
-	super.setOption(context, comp, desc, key, value);
+	super.setOption(ctx, comp, desc, key, value);
     }
 
 

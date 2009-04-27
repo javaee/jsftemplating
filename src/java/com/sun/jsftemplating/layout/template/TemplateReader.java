@@ -348,14 +348,14 @@ public class TemplateReader {
      */
     public LayoutComponent createLayoutComponent(LayoutElement parent, boolean nested, String type) throws IOException {
 	// Ensure type is defined
-	ComponentType componentType =
-		LayoutDefinitionManager.getGlobalComponentType(type);
+	ComponentType componentType = LayoutDefinitionManager.
+		getGlobalComponentType(null, type);
 	if (componentType == null) {
 	    // Look for local mapping...
 	    String mappedType = getMappedType(type);
 	    if (mappedType != null) {
-		componentType =
-			LayoutDefinitionManager.getGlobalComponentType(mappedType);
+		componentType = LayoutDefinitionManager.
+			getGlobalComponentType(null, mappedType);
 	    }
 	    if (componentType == null) {
 		// Still not found...

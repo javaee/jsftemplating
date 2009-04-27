@@ -1413,7 +1413,8 @@ public class XMLLayoutDefinitionReader {
 	    // Check global component types (defined via @annotations).  This
 	    // is now the preferred way to define types, however, locally
 	    // defined types should have precedence
-	    compType = LayoutDefinitionManager.getGlobalComponentType(type);
+	    compType = LayoutDefinitionManager.
+		    getGlobalComponentType(null, type);
 	    if (compType == null) {
 		throw new IllegalArgumentException("ComponentType '" + type
 			+ "' not defined!");

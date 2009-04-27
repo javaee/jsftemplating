@@ -131,8 +131,9 @@ public class MetaDataHandlers {
 	})
     public static void getGlobalComponentTypeInformation(HandlerContext context) {
 	// Get the known global HandlerDefinitions
-	Map<String, ComponentType> defs =
-	    new TreeMap(LayoutDefinitionManager.getGlobalComponentTypes());
+	Map<String, ComponentType> defs = new TreeMap(
+		LayoutDefinitionManager.getGlobalComponentTypes(
+		    context.getFacesContext()));
 
 	// Provide a Set of ids
 	context.setOutputValue("ids", defs.keySet());

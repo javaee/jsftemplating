@@ -614,12 +614,21 @@ public abstract class LayoutDefinitionManager {
      *	    each of these files (which must be <code>Properties</code> files)
      *	    and stores each identifier / fully qualified classname as an entry
      *	    in the <code>Map&lt;String, {@link ComponentType}&gt;</code>.</p>
+     *
+     *	@param	ctx The <code>FacesContext</code>.
      */
-    public static Map<String, ComponentType> getGlobalComponentTypes() {
-        if (_globalComponentTypes == null) {
-            // We haven't initialized the global ComponentTypes yet
-            Map types = new HashMap<String, ComponentType>();
-
+    public static Map<String, ComponentType> getGlobalComponentTypes(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<String, ComponentType> types = null;
+	if (ctx != null) {
+	    types = (Map<String, ComponentType>) ctx.getExternalContext().
+		    getApplicationMap().get(CT_MAP);
+	}
+        if (types == null) {
+            // We haven't initialized the global ComponentTypes yet...
+            types = new ConcurrentHashMap<String, ComponentType>(200, 0.75f, 2);
             try {
                 Properties props = null;
                 URL url = null;
@@ -646,12 +655,18 @@ public abstract class LayoutDefinitionManager {
                     }
                 }
                 readComponentsFromTaglibXml(types);
-                _globalComponentTypes = types;
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
+
+	    // Save it for next time...
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(CT_MAP, types);
+	    }
         }
-        return _globalComponentTypes;
+
+	// Return all the global ComponentTypes
+        return types;
     }
     
     private static void readComponentsFromTaglibXml(Map<String, ComponentType> types) throws IOException {
@@ -734,8 +749,8 @@ public abstract class LayoutDefinitionManager {
      *	<p> This method retrieves a globally defined {@link ComponentType} (a
      *	    {@link ComponentType} available across the application).</p>
      */
-    public static ComponentType getGlobalComponentType(String typeID) {
-        return getGlobalComponentTypes().get(typeID);
+    public static ComponentType getGlobalComponentType(FacesContext ctx, String typeID) {
+        return getGlobalComponentTypes(ctx).get(typeID);
     }
 
     /**
@@ -745,17 +760,20 @@ public abstract class LayoutDefinitionManager {
      *	    annotation in each <code>ComponentFactory</code> and compile
      *	    using "<code>apt</code>".</p>
      */
-    public static void addGlobalComponentType(ComponentType type) {
-        synchronized (LayoutDefinitionManager.class) {
-            getGlobalComponentTypes().put(type.getId(), type);
-        }
+    public static void addGlobalComponentType(FacesContext ctx, ComponentType type) {
+	getGlobalComponentTypes(ctx).put(type.getId(), type);
     }
 
     /**
      *	<p> This method clears the cached global {@link ComponentType}s.</p>
      */
-    public static void clearGlobalComponentTypes() {
-        _globalComponentTypes = null;
+    public static void clearGlobalComponentTypes(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	if (ctx != null) {
+	    ctx.getExternalContext().getApplicationMap().remove(CT_MAP);
+	}
     }
 
     /**
@@ -1001,7 +1019,7 @@ public abstract class LayoutDefinitionManager {
     /**
      *	<p> This method clears the cached global {@link Resource}s.</p>
      */
-    public static void clearGlobalResources() {
+    public static void clearGlobalResources(FacesContext ctx) {
         _globalResources = null;
     }
 
@@ -1089,16 +1107,22 @@ public abstract class LayoutDefinitionManager {
     private static final String LDMS	    =   "__jsft_LayoutDefMgrs";
 
     /**
+     *	<p> This key stores the {@link LayoutDefinitionManager} class names
+     *	    for this application.</p>
+     */
+    private static final String LDM_KEYS    =   "__jsft_LayoutDefMgrKeys";
+
+    /**
      *	<p> This key stores the {@link LayoutDefinition} instances for this
      *	    application.</p>
      */
     private static final String LD_MAP	    =   "__jsft_LayoutDefMap";
 
     /**
-     *	<p> This key stores the {@link LayoutDefinitionManager} class names
-     *	    for this application.</p>
+     *	<p> This key stores the {@link ComponentType} instances for this
+     *	    application.</p>
      */
-    private static final String LDM_KEYS    =   "__jsft_LayoutDefMap";
+    private static final String CT_MAP    =   "__jsft_ComponentTypeMap";
 
     /**
      *	<p> This map contains sub-class specific attributes that may be needed

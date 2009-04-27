@@ -53,7 +53,7 @@ public class LayoutWhile extends LayoutIf {
      */
     public LayoutWhile(LayoutElement parent, String condition) {
 	super(parent, condition,
-	    LayoutDefinitionManager.getGlobalComponentType("while"));
+	    LayoutDefinitionManager.getGlobalComponentType(null, "while"));
     }
 
 
