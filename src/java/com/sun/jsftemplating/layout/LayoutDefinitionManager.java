@@ -51,6 +51,7 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -142,13 +143,13 @@ public abstract class LayoutDefinitionManager {
 		key : FileUtil.getAbsolutePath(ctx, key));
 
         // Check to see if we already have it. 
-        LayoutDefinition def = getCachedLayoutDefinition(cacheKey);
+        LayoutDefinition def = getCachedLayoutDefinition(ctx, cacheKey);
 //System.out.println("GET LD (" + cacheKey + ", " + isDebug(ctx) + "):" + def);
         if (def == null) {
             // Obtain the correct LDM, and get the LD
             def = getLayoutDefinitionManager(ctx, key).getLayoutDefinition(key);
 //System.out.println("  Found LD (" + cacheKey + ")?:" + def);
-	    putCachedLayoutDefinition(cacheKey, def);
+	    putCachedLayoutDefinition(ctx, cacheKey, def);
         } else {
             // In the case where we found a cached version,
             // ensure we invoke "initPage" handlers
@@ -481,12 +482,15 @@ public abstract class LayoutDefinitionManager {
      *	    {@link LayoutDefinition}.  If it has not been cached, this method
      *	    returns <code>null</code>.</p>
      *
+     *	@param	ctx	The <code>FacesContext</code>.
      *	@param	key	Key for the cached {@link LayoutDefinition} to obtain.
      *
      *	@return The {@link LayoutDefinition} or <code>null</code>.
      */
-    public static LayoutDefinition getCachedLayoutDefinition(String key) {
-	FacesContext ctx = FacesContext.getCurrentInstance();
+    private static LayoutDefinition getCachedLayoutDefinition(FacesContext ctx, String key) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
         if (isDebug(ctx)) {
 	    if (ctx != null) {
 		// Make sure we cache during the life of the request, even
@@ -499,7 +503,35 @@ public abstract class LayoutDefinitionManager {
             return null;
         }
 
-        return _layoutDefinitions.get(key);
+        return getLayoutDefinitionMap(ctx).get(key);
+    }
+
+    /**
+     *	<p> This method returns the LD Map which is stored in application
+     *	    scope.  If it has not been created yet, it will be created as a
+     *	    <code>ConcurrentHashMap</p>.
+     */
+    private static Map<String, LayoutDefinition> getLayoutDefinitionMap(FacesContext ctx) {
+	if (ctx == null) {
+	    ctx = FacesContext.getCurrentInstance();
+	}
+	Map<String, LayoutDefinition> ldMap = null;
+	if (ctx != null) {
+	    ldMap = (Map<String, LayoutDefinition>)
+		ctx.getExternalContext().getApplicationMap().get(LD_MAP);
+	}
+	if (ldMap == null) {
+	    // 1st time... initialize it
+	    // Consider using a SoftReference here...
+	    ldMap = new ConcurrentHashMap<String, LayoutDefinition>(
+		    400, 0.75f, 2);
+	    if (ctx != null) {
+		ctx.getExternalContext().getApplicationMap().put(LD_MAP, ldMap);
+	    }
+	}
+
+	// Return the map...
+	return ldMap;
     }
 
     /**
@@ -508,12 +540,12 @@ public abstract class LayoutDefinitionManager {
      *	    define {@link LayoutDefinition}s on the fly (not recommended unless
      *	    you know what you're doing. ;)</p>
      *
+     *	@param	ctx	The <code>FacesContext</code>.
      *	@param	key	The {@link LayoutDefinition} key to cache.
      *	@param	value	The {@link LayoutDefinition} to cache.
      */
-    public static void putCachedLayoutDefinition(String key, LayoutDefinition value) {
+    public static void putCachedLayoutDefinition(FacesContext ctx, String key, LayoutDefinition value) {
 //System.out.println("CACHING LD: " + key);
-	FacesContext ctx = FacesContext.getCurrentInstance();
 	if (isDebug(ctx)) {
 	    if (ctx != null) {
 		// Make sure we cache during the life of the request, even
@@ -522,9 +554,7 @@ public abstract class LayoutDefinitionManager {
 		    put(CACHE_PREFIX + key, value);
 	    }
 	} else {
-	    synchronized (_layoutDefinitions) {
-		_layoutDefinitions.put(key, value);
-	    }
+	    getLayoutDefinitionMap(ctx).put(key, value);
 	}
     }
 
@@ -1044,6 +1074,12 @@ public abstract class LayoutDefinitionManager {
     private static final String LDMS	=   "__jsft_LayoutDefMgrs";
 
     /**
+     *	<p> This key stores the {@link LayoutDefinition} instances for this
+     *	    application.</p>
+     */
+    private static final String LD_MAP	=   "__jsft_LayoutDefMap";
+
+    /**
      *	<p> This map contains sub-class specific attributes that may be needed
      *	    by specific implementations of
      *	    <code>LayoutDefinitionManager</code>s.  For example, setting an
@@ -1052,12 +1088,6 @@ public abstract class LayoutDefinitionManager {
      *	    <code>LayoutDefinitions</code> from XML files.</p>
      */
     private Map<String, Object> _attributes = new HashMap<String, Object>();
-
-    /**
-     *	<p> Static <code>Map</code> of cached {@link LayoutDefinition}s.</p>
-     */
-    private static Map<String, LayoutDefinition> _layoutDefinitions =
-            new HashMap<String, LayoutDefinition>();
 
     /**
      *	<p> This <code>Map</code> holds global {@link ComponentType}s so they
