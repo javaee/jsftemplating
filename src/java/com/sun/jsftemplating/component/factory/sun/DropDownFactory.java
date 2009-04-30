@@ -32,6 +32,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.annotation.UIComponentFactory;
+import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
 import com.sun.jsftemplating.util.Util;
@@ -70,10 +71,13 @@ public class DropDownFactory extends ComponentFactoryBase {
 
 	// Check to see if the user is passing in Lists to be converted to a
 	// List of Option objects for the "items" property.
-	Object labels = descriptor.getEvaluatedOption(context, "labels", comp);
+	ComponentUtil compUtil = ComponentUtil.getInstance(context);
+	Object labels = compUtil.resolveValue(
+		context, descriptor, comp, descriptor.getOption("labels"));
 	if (labels != null) {
 	    List optionList = new ArrayList();
-	    Object values = descriptor.getEvaluatedOption(context, "values", comp);
+	    Object values = compUtil.resolveValue(
+		    context, descriptor, comp, descriptor.getOption("values"));
 	    if (values == null) {
 		values = labels;
 	    }
