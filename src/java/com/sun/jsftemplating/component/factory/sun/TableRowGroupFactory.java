@@ -30,6 +30,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.annotation.UIComponentFactory;
+import com.sun.jsftemplating.component.ComponentUtil;
 import com.sun.jsftemplating.component.dataprovider.MultipleListDataProvider;
 import com.sun.jsftemplating.component.factory.ComponentFactoryBase;
 import com.sun.jsftemplating.layout.descriptors.LayoutComponent;
@@ -67,7 +68,9 @@ public class TableRowGroupFactory extends ComponentFactoryBase {
 	setOptions(context, descriptor, comp);
 
 	// Handle "data" option specially...
-	Object data = descriptor.getEvaluatedOption(context, "data", comp);
+	ComponentUtil compUtil = ComponentUtil.getInstance(context);
+	Object data = compUtil.resolveValue(
+		context, descriptor, comp, descriptor.getOption("data"));
 	if (data != null) {
 	    // Create a DataProvider
 	    if (!(data instanceof List)) {
