@@ -62,13 +62,18 @@ public class FileStreamerPhaseListener implements PhaseListener {
         if (event.getPhaseId() == PhaseId.RESTORE_VIEW) {
             FacesContext context = event.getFacesContext();
             ExternalContext extContext = context.getExternalContext();
-            String path = null;
-
             HttpServletRequest req = (HttpServletRequest) extContext.getRequest();
+
 // FIXME: Can we use path info instead of this (supported by external context)
             if (req.getRequestURI().indexOf(STATIC_RESOURCE_IDENTIFIER) != -1) {
+		String path = null;
 		Context fsContext = new FacesStreamerContext(context);
+
+		// Mark the response complete to ensure no further JSF
+		// processing will occur for this request.  We will then
+		// continue to serve the response for this resource request.
                 context.responseComplete();
+
                 // Get the HttpServletResponse
                 Object obj = extContext.getResponse();
                 HttpServletResponse resp = null;
@@ -101,7 +106,6 @@ public class FileStreamerPhaseListener implements PhaseListener {
                 try {
                     FileStreamer.getFileStreamer(context).
 			    streamContent(fsContext);
-                    context.responseComplete();
                 } catch (FileNotFoundException ex) {
                     if (LogUtil.infoEnabled()) {
                         LogUtil.info("JSFT0004", (Object) path);
