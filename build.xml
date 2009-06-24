@@ -4,7 +4,7 @@
     <!-- Set properties -->
     <property name="dynafaces-version" value="0.1"/>
     <!-- NOTE: Change jsftemplating.bnd also to change the version! -->
-    <property name="version" value="1.2.9-SNAPSHOT"/>
+    <property name="version" value="1.2.10-SNAPSHOT"/>
     <property file="user.properties" />
     <property file="build.properties" />
 
@@ -103,16 +103,16 @@
 	<attribute name="jarfile"/>
 	<attribute name="xml" default="&lt;view-handler&gt;com.sun.jsftemplating.layout.LayoutViewHandler&lt;/view-handler&gt;"/>
 	<sequential>
-	        <!-- Copy JS file also b/c currently it needs to be out of .jar -->
-		<filter token="VIEWHANDLER_ELEMENT" value="@{xml}"/>
-		<copy todir="${build}/META-INF" filtering="true" overwrite="true">
-		    <fileset file="${jsftemplating.home}/faces-config.xml"/>
-		</copy>
-		<echo>Building @{jarfile}</echo>
+	    <!-- Copy JS file also b/c currently it needs to be out of .jar -->
+	    <filter token="VIEWHANDLER_ELEMENT" value="@{xml}"/>
+	    <copy todir="${build}/META-INF" filtering="true" overwrite="true">
+		<fileset file="${jsftemplating.home}/faces-config.xml"/>
+	    </copy>
+	    <echo>Building @{jarfile}</echo>
 
-		<!-- Apply bnd to generate OSGi header info -->
-		<taskdef resource="aQute/bnd/ant/taskdef.properties" classpath="${bnd.jar}" />
-		<bnd files="jsftemplating.bnd" sourcepath="${src}" classpath="${build}" output="@{jarfile}" />
+	    <!-- Apply bnd to generate OSGi header info -->
+	    <taskdef resource="aQute/bnd/ant/taskdef.properties" classpath="${bnd.jar}" />
+	    <bnd files="jsftemplating.bnd" sourcepath="${src}" classpath="${build}" output="@{jarfile}" />
 	</sequential>
     </macrodef>
     
