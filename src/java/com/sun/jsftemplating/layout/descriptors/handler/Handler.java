@@ -442,26 +442,29 @@ public class Handler implements java.io.Serializable {
 		result = method.invoke(instance, new Object[] {handlerContext});
 	    }
 
-	    // Execute all child handlers
-	    // NOTE: 'handler' in handlerContext will change.
-	    // being changed before we execute this Handler.
-	    // FIRST: Execute handlerDef child handlers
-	    List<Handler> handlers = handlerDef.getChildHandlers();
-	    Object retVal = null;
-	    LayoutElement elt = handlerContext.getLayoutElement();
-	    if (handlers.size() > 0) {
-		retVal = elt.dispatchHandlers(handlerContext, handlers);
-		if (retVal != null) {
-		    result = retVal;
+	    // Execute all the child handlers
+	    if ((result == null) || (!result.toString().equals("false"))) {
+		// NOTE: 'handler' in handlerContext will change.
+		// before we execute this Handler.
+		// FIRST: Execute handlerDef child handlers
+		List<Handler> handlers = handlerDef.getChildHandlers();
+		Object retVal = null;
+		LayoutElement elt = handlerContext.getLayoutElement();
+		if (handlers.size() > 0) { 
+		    retVal = elt.dispatchHandlers(handlerContext, handlers);
+		    if (retVal != null) {
+			result = retVal;
+		    }
 		}
-	    }
-	    // NEXT: Execute instance child handlers
-	    // Useful for applying a condition to a group
-	    handlers = getChildHandlers();
-	    if (handlers.size() > 0) {
-		retVal = elt.dispatchHandlers(handlerContext, handlers);
-		if (retVal != null) {
-		    result = retVal;
+
+		// NEXT: Execute instance child handlers
+		// Useful for applying a condition to a group
+		handlers = getChildHandlers();
+		if (handlers.size() > 0) { 
+		    retVal = elt.dispatchHandlers(handlerContext, handlers);
+		    if (retVal != null) {
+			result = retVal;
+		    }
 		}
 	    }
 	} else {
