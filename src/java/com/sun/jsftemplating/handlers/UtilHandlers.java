@@ -48,6 +48,7 @@ import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
 import com.sun.jsftemplating.el.PageSessionResolver;
 import com.sun.jsftemplating.layout.LayoutViewHandler;
+import com.sun.jsftemplating.layout.descriptors.LayoutElement;
 import com.sun.jsftemplating.layout.descriptors.handler.HandlerContext;
 import com.sun.jsftemplating.util.Util;
 
@@ -67,11 +68,70 @@ public class UtilHandlers {
     public UtilHandlers() {
     }
 
+    /**
+     *	<p> This handler uses the special "condition" attribute to determine if
+     *	    it should execute (and therefor any of its child handlers.  So the
+     *	    implementation itself does nothing.</p>
+     */
     @Handler(id="if",
 	input={@HandlerInput(name="condition", type=String.class)})
     public static void ifHandler(HandlerContext context) {
 	// Do nothing, the purpose of this handler is to provide condition
 	// support which is handled by the parser / runtime.
+    }
+
+    /**
+     *	<p> A utility handler that resembles the for() method in Java. Handlers
+     *	    inside the for loop will be executed in a loop.  The starting index
+     *	    is specified by <code>start</code>.  The index will increase
+     *	    sequentially untill it is equal to <code>end</code>.
+     *	    <code>var</code> will be a request attribute that is set to the
+     *	    current index value as the loop iterates.</p>
+     *	<p> For example:</p>
+     *
+     *	<code>forLoop(start="1"  end="3" var="foo") {...}</code>
+     *
+     *	<p>The handlers inside the {...} will be executed 2 times
+     *	   (with foo=1 and foo=2).</p>
+     *
+     *	<ul><li><code>start</code> -- type: <code>Integer</code> Starting
+     *		index, defaults to zero if not specified.</li>
+     *	    <li><code>end</code> -- type: <code>Integer</code>; Ending index.
+     *		Required.</li>
+     *	    <li><code>var</code> -- type: <code>String</code>; Request
+     *		attribute to be set in the for loop to the value of the
+     *		index.</li></ul>
+     *  
+     *	@param	handlerCtx	The {@link HandlerContext}.
+     */
+    @Handler(id="for",
+    	input={
+	    @HandlerInput(name="start", type=Integer.class),
+	    @HandlerInput(name="end", type=Integer.class, required=true),
+	    @HandlerInput(name="var", type=String.class, required=true)})
+    public static boolean forLoop(HandlerContext handlerCtx) {
+	Integer startInt = (Integer) handlerCtx.getInputValue("start");
+	int start = (startInt == null) ? 0 : startInt;
+	int end = (Integer) handlerCtx.getInputValue("end");
+	String var = (String) handlerCtx.getInputValue("var");
+
+	List<com.sun.jsftemplating.layout.descriptors.handler.Handler> handlers =
+	    handlerCtx.getHandler().getChildHandlers();
+	if (handlers.size() > 0) {
+	    // We have child handlers in the loop... execute while we iterate
+	    LayoutElement elt = handlerCtx.getLayoutElement();
+	    Map<String, Object> requestMap = handlerCtx.getFacesContext().
+		    getExternalContext().getRequestMap();
+	    for (int idx=start; idx < end; idx++) {
+		requestMap.put(var, idx);
+		// Ignore whats returned by the handler... we need to return
+		// false anyway to prevent children from being executed again
+		elt.dispatchHandlers(handlerCtx, handlers);
+	    }
+	}
+
+	// This will prevent the child handlers from executing again
+	return false;
     }
 
     /**
