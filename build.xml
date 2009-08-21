@@ -246,7 +246,7 @@
                        overwrite="yes"/>
     </target>
     
-    <target name="push-to-maven-prepare" depends="jar,jarsrc">
+    <target name="push-to-maven-prepare" depends="jar,jarsrc" description="Prepare artifacts for deployment to the Maven repo">
         <taskdef resource="maven-repository-importer.properties">
             <classpath>
                 <pathelement path="${maven-repository-importer.jar}" />
