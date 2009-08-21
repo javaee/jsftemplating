@@ -535,7 +535,7 @@ public class TemplateParser {
 		    if (next == 'n') {
 			// Special case, insert a '\n' character.
 			buf.append('\n');
-		    } else if (next != '\t') {
+		    } else if (next == 't') {
 			// Special case, insert a '\t' character.
 			buf.append('\t');
 		    } else if (next != '\n') {
