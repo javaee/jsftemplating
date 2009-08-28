@@ -80,7 +80,7 @@ public class ServletStreamerContext extends BaseContext {
 	}
 
 	// Get the ContentSource
-	src = FileStreamer.getFileStreamer(null).getContentSource(id);
+	src = FileStreamer.getFileStreamer(getServletConfig().getServletContext()).getContentSource(id);
 	if (src == null) {
 	    throw new RuntimeException("The ContentSource with id '" + id
 		    + "' is not registered!");
