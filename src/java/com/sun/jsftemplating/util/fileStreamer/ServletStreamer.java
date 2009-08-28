@@ -67,7 +67,7 @@ public class ServletStreamer extends HttpServlet {
 	// Register ContentSources
 	String sources = config.getInitParameter(Context.CONTENT_SOURCES);
 	if ((sources != null) && (sources.trim().length() != 0)) {
-	    FileStreamer fs = FileStreamer.getFileStreamer(null);
+	    FileStreamer fs = FileStreamer.getFileStreamer(config.getServletContext());
 	    StringTokenizer tokens = new StringTokenizer(sources, " \t\n\r\f,;:");
 	    while (tokens.hasMoreTokens()) {
 		fs.registerContentSource(tokens.nextToken());
@@ -98,7 +98,7 @@ public class ServletStreamer extends HttpServlet {
 
 	// Stream Content
 	try {
-	    FileStreamer.getFileStreamer(null).streamContent(context);
+	    FileStreamer.getFileStreamer(getServletContext()).streamContent(context);
 	} catch (FileNotFoundException ex) {
 	    if (LogUtil.infoEnabled()) {
 		LogUtil.info("JSFT0004", (Object) request.getPathInfo());
