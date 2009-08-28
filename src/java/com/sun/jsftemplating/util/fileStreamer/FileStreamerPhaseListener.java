@@ -43,10 +43,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * <code>FileStreamerPhaseListener</code> provides a {@link PhaseListener} to wrap JSFTemplating's {@link FileStreamer} utility,
- * a utility method to construct a <code>FileStreamPhaseListener</code>-compatible URL, and an event {@link Handler}
- * to expose the utility method to the PDL.
- * @author Jason CTR Lee
+ *  <p>	<code>FileStreamerPhaseListener</code> provides a
+ *	<code>PhaseListener</code> to wrap JSFTemplating's
+ *	{@link FileStreamer} utility, a utility method to construct a
+ *	<code>FileStreamPhaseListener</code>-compatible URL, and an event
+ *	{@link Handler} to expose the utility method to the PDL.</p>
+ *
+ *  @author Jason CTR Lee
  */
 public class FileStreamerPhaseListener implements PhaseListener {
 
@@ -62,10 +65,12 @@ public class FileStreamerPhaseListener implements PhaseListener {
         if (event.getPhaseId() == PhaseId.RESTORE_VIEW) {
             FacesContext context = event.getFacesContext();
             ExternalContext extContext = context.getExternalContext();
-            HttpServletRequest req = (HttpServletRequest) extContext.getRequest();
 
-// FIXME: Can we use path info instead of this (supported by external context)
-            if (req.getRequestURI().indexOf(STATIC_RESOURCE_IDENTIFIER) != -1) {
+	    String pathInfo = extContext.getRequestPathInfo();
+	    if (pathInfo == null) {
+		pathInfo = extContext.getRequestServletPath();
+	    }
+            if ((pathInfo != null) && (pathInfo.indexOf(STATIC_RESOURCE_IDENTIFIER) != -1)) {
 		String path = null;
 		Context fsContext = new FacesStreamerContext(context);
 
@@ -88,6 +93,7 @@ public class FileStreamerPhaseListener implements PhaseListener {
 // FIXME: Not sure why this is not part of the FacesStreamerContext...  investigate more later.
                     long mod = fsContext.getContentSource().getLastModified(fsContext);
                     if (mod != -1) {
+			HttpServletRequest req = (HttpServletRequest) extContext.getRequest();
                         long ifModifiedSince = req.getDateHeader("If-Modified-Since");
                         // Round down to the nearest second for a proper compare
                         if (ifModifiedSince < (mod / 1000 * 1000)) {
