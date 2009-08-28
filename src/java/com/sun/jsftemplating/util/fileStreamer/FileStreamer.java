@@ -58,7 +58,8 @@ public class FileStreamer {
     public static final String CONTENT_SOURCES = "contentSources";
 
     /**
-     *	<p> Only instantiate via factory method.</p>
+     *	<p> Only instantiate via factory method.  This method has JSF-specific
+     *	    features.</p>
      */
     private FileStreamer(FacesContext ctx) {
         try {
@@ -78,6 +79,14 @@ public class FileStreamer {
     }
 
     /**
+     *	<p> This private constructor should only be used when in a non-JSF
+     *	    environment.</p>
+     */
+    private FileStreamer() {
+	super();
+    }
+
+    /**
      *	<p> Use this method to obtain the instance of this class.</p>
      */
     public static FileStreamer getFileStreamer(FacesContext ctx) {
@@ -88,14 +97,35 @@ public class FileStreamer {
 	if (ctx != null) {
 	    streamer = (FileStreamer) ctx.getExternalContext().
 		    getApplicationMap().get(STREAMER_INST);
-	}
-	if (streamer == null) {
-	    // 1st time... initialize it
-	    streamer = new FileStreamer(ctx);
-	    if (ctx != null) {
+	    if (streamer == null) {
+		// 1st time... initialize it
+		streamer = new FileStreamer(ctx);
 		ctx.getExternalContext().getApplicationMap().
 			put(STREAMER_INST, streamer);
 	    }
+	} else {
+	    // No FacesConfig... just return a new instance.
+	    streamer = new FileStreamer();
+	}
+	return streamer;
+    }
+
+    /**
+     *	<p> This method should be used if you are NOT using JSF, but instead
+     *	    a plain <code>Servlet</code> environment.</p>
+     */
+    public static FileStreamer getFileStreamer(ServletContext ctx) {
+	FileStreamer streamer = null;
+	if (ctx != null) {
+	    streamer = (FileStreamer) ctx.getAttribute(STREAMER_INST);
+	    if (streamer == null) {
+		// 1st time... initialize it
+		streamer = new FileStreamer();
+		ctx.setAttribute(STREAMER_INST, streamer);
+	    }
+	} else {
+	    // No ServletConfig... just return a new instance.
+	    streamer = new FileStreamer();
 	}
 	return streamer;
     }
@@ -287,7 +317,7 @@ public class FileStreamer {
         String mimeType = null;
         extension = extension.toLowerCase();
         Object context = FacesContext.getCurrentInstance().getExternalContext().getContext();
-        if (context instanceof javax.servlet.ServletContext) {
+        if (context instanceof ServletContext) {
             mimeType = ((ServletContext) context).getMimeType(extension);
         }
         
