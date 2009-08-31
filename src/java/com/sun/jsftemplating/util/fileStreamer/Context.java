@@ -35,16 +35,34 @@ import java.util.Set;
 public interface Context {
 
     /**
+     *	<p> Accessor to get the {@link FileStreamer} instance.</p>
+     */
+    public FileStreamer getFileStreamer();
+
+    /**
      *	<p> This method locates the appropriate {@link ContentSource} for this
      *	    <code>Context</code>.</p>
      */
     public ContentSource getContentSource();
 
     /**
+     *	<p> This method allows the Context to restrict access to resources.
+     *	    It returns <code>true</code> if the user is allowed to view the
+     *	    resource.  It returns <code>false</code> if the user should not
+     *	    be allowed access to the resource.</p>
+     */
+    public boolean hasPermission(ContentSource src);
+
+    /**
      *	<p> This method is responsible for setting the response header
      *	    information.</p>
      */
     public void writeHeader(ContentSource source) throws IOException;
+
+    /**
+     *	<p> This method is responsible for sending an error.</p>
+     */
+    public void sendError(int code, String msg) throws IOException;
 
     /**
      *	<p> This method is responsible for returning an
@@ -160,13 +178,44 @@ public interface Context {
     public static final String CONTENT_SOURCE_ID    = "contentSourceId";
 
     /**
-     *	<p> This String ("ContentSources") is the name if the
+     *	<p> This String ("ContentSources") is the name of the
      *	    <code>Servlet</code> init parameter or context param (depending
      *	    on environment implementation) that should be used to register
      *	    all available {@link ContentSource} implementations.  This should
      *	    be a list of full classnames of the {@link ContentSource}s.</p>
      */
-    public static final String CONTENT_SOURCES	    = "ContentSources";
+    public static final String CONTENT_SOURCES	= "ContentSources";
+
+    /**
+     *	<p> This String ("com.sun.jsftemplating.FS_ALLOW_PATHS") is the name of
+     *	    the <code>Servlet</code> init parameter or context param (depending
+     *	    on environment implementation) that should be used to register all
+     *	    valid paths for resources to be streamed by {@link FileStreamer}.
+     *	    This should be specified as a comma (or semi-colon) separated list
+     *	    of path prefixes.  Paths are relative to the context root of the
+     *	    application.  Any path starting with one of the paths in this list
+     *	    may be served using FileStreamer (provided it is not explicitly
+     *	    excluded via {@link #DENY_PATHS}).  Leading "/" characters maybe
+     *	    specified, but will be removed when doing a comparison.  A value of
+     *	    "/" will provide access to the entire application, which is the
+     *	    default value if not specified.</p>
+     */
+    public static final String ALLOW_PATHS  = "com.sun.jsftemplating.FS_ALLOW_PATHS";
+
+    /**
+     *	<p> This String ("com.sun.jsftemplating.FS_DENY_PATHS") is the name of
+     *	    the <code>Servlet</code> init parameter or context param (depending
+     *	    on environment implementation) that should be used to register all
+     *	    valid paths for resources to be streamed by {@link FileStreamer}.
+     *	    This should be specified as a comma (or semi-colon) separated list
+     *	    of path prefixes.  Paths are relative to the context root of the
+     *	    application.  Any path starting with one of the paths in this list
+     *	    may <b>NOT</b> be served using FileStreamer.  Leading '/'
+     *	    characters maybe specified, but will be removed when doing a
+     *	    comparison.  The default value is:
+     *	    "<code>META-INF/,WEB-INF/</code>".</p>
+     */
+    public static final String DENY_PATHS   = "com.sun.jsftemplating.FS_DENY_PATHS";
 
     /**
      *	<p> This is the id of the default {@link ContentSource}.  This is set
