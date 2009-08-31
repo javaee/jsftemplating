@@ -22,17 +22,19 @@
  */
 package com.sun.jsftemplating.util.fileStreamer;
 
+import com.sun.jsftemplating.layout.LayoutDefinitionManager;
+import com.sun.jsftemplating.util.FileUtil;
+import com.sun.jsftemplating.util.LogUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
-import com.sun.jsftemplating.layout.LayoutDefinitionManager;
-import com.sun.jsftemplating.util.FileUtil;
 
 
 /**
@@ -95,7 +97,67 @@ public class ResourceContentSource implements ContentSource {
      */
     public String getResourcePath(Context ctx) {
 	// Check the ctx for the path...
-	return (String) ctx.getAttribute(Context.FILE_PATH);
+	String path = (String) ctx.getAttribute(Context.FILE_PATH + "norm");
+	if (path != null) {
+	    return path;
+	}
+
+	// Not yet calculated, calculate it...
+	String origPath = (String) ctx.getAttribute(Context.FILE_PATH);
+
+	// Store for next time... and return
+	path = normalize(origPath);
+	ctx.setAttribute(Context.FILE_PATH + "norm", path);
+	return path;
+    }
+
+    /**
+     *	<p> This method attempts to normalize the paths that we are using for
+     *	    comparison purposes and to ensure illegal paths are prevented for
+     *	    security reasons.</p>
+     */
+    public static String normalize(String origPath) {
+	String path = origPath;
+
+	// Normalize it...
+	if (path != null) {
+	    path = path.replace('\\', '/');
+	    // Remove leading '/' chars
+	    while (path.charAt(0) == '/') {
+		path = path.substring(1);
+	    }
+	    // Replace all double "//" with "/"
+	    while (path.indexOf("//") != -1) {
+		path = path.replace("//", "/");
+	    }
+	    for (int idx = path.indexOf("../"); idx != -1; idx = path.indexOf("../")) {
+		if (idx == 0) {
+		    // Make sure we're not trying to go before the context root
+		    LogUtil.info("JSFT0010", origPath);
+		    throw new IllegalArgumentException(
+			"Invalid Resource Path: '" + origPath + "'");
+		}
+		if (path.charAt(idx-1) != '/') {
+		    // Not a "../" match...
+		    continue;
+		}
+		// Create new path after evaluating ".."
+		int prevPathIdx = path.lastIndexOf('/', idx-2) + 1;
+		path = path.substring(0, prevPathIdx)	// before x/../
+		    + path.substring(idx + 3);		// after  x/../
+		while ((path.length() > 0) && (path.charAt(0) == '/')) {
+		    // Remove leading '/' chars
+		    path = path.substring(1);
+		}
+	    }
+	    // We check for "../" so ".." at the end of a path could occur,
+	    // which is fine, unless it is also at the beginning...
+	    if (path.equals("..")) {
+		path = null;
+	    }
+	}
+
+	return path;
     }
 
     /**
