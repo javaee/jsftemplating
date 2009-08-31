@@ -40,6 +40,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
@@ -117,11 +118,11 @@ public class FileStreamer {
     public static FileStreamer getFileStreamer(ServletContext ctx) {
 	FileStreamer streamer = null;
 	if (ctx != null) {
-	    streamer = (FileStreamer) ctx.getAttribute(STREAMER_INST);
+	    streamer = (FileStreamer) ctx.getAttribute(STREAMER_INST + "srvlt");
 	    if (streamer == null) {
 		// 1st time... initialize it
 		streamer = new FileStreamer();
-		ctx.setAttribute(STREAMER_INST, streamer);
+		ctx.setAttribute(STREAMER_INST + "srvlt", streamer);
 	    }
 	} else {
 	    // No ServletConfig... just return a new instance.
@@ -234,7 +235,11 @@ public class FileStreamer {
 	ContentSource source = ctx.getContentSource();
 
 	// Write Content
-	writeContent(source, ctx);
+	if (ctx.hasPermission(source)) {
+	    writeContent(source, ctx);
+	} else {
+	    ctx.sendError(404, "File Not Found");
+	}
 
         // Clean Up
         source.cleanUp(ctx);
