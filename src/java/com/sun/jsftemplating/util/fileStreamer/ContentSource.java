@@ -56,6 +56,12 @@ public interface ContentSource {
     public InputStream getInputStream(Context ctx) throws IOException;
 
     /**
+     *	<p> This method returns the path of the resource that was
+     *	    requested.</p>
+     */
+    public String getResourcePath(Context ctx);
+
+    /**
      *	<p> This method may be used to clean up any temporary resources.  It
      *	    will be invoked after the <code>InputStream</code> has been
      *	    completely read.</p>
