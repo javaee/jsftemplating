@@ -93,5 +93,15 @@ public abstract class BaseContext implements Context {
 	_att.remove(name);
     }
 
+    /**
+     *	<p> Application scope key for allowed paths.</p>
+     */
+    protected static final String   ALLOWED_PATHS_KEY   =   "__jsft_AllowPath";
+
+    /**
+     *	<p> Application scope key for denied paths.</p>
+     */
+    protected static final String   DENIED_PATHS_KEY   =   "__jsft_DenyPath";
+
     private Map<String, Object> _att	    = new HashMap<String, Object>();
 }
