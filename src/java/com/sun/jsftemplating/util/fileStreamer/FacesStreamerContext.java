@@ -24,8 +24,11 @@ package com.sun.jsftemplating.util.fileStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
@@ -63,29 +66,64 @@ public class FacesStreamerContext extends BaseContext {
      */
     protected synchronized void init() {
 	FacesContext ctx = getFacesContext();
-	boolean initDone = false;
-	if (ctx != null) {
-	    initDone = ctx.getExternalContext().getApplicationMap().
-		    containsKey(INIT_DONE);
+	if (ctx == null) {
+	    // Should not happen in a normal env...
+	    return;
 	}
+	ExternalContext extCtx = ctx.getExternalContext();
+	boolean initDone = extCtx.getApplicationMap().containsKey(INIT_DONE);
 	if (initDone) {
 	    return;
 	}
 
 	// Register ContentSources
-	String sources = ctx.getExternalContext().getInitParameter(CONTENT_SOURCES);
+	String sources = extCtx.getInitParameter(CONTENT_SOURCES);
+	FileStreamer fs = getFileStreamer();
 	if ((sources != null) && (sources.trim().length() != 0)) {
-	    FileStreamer fs = FileStreamer.getFileStreamer(ctx);
 	    StringTokenizer tokens = new StringTokenizer(sources, " \t\n\r\f,;:");
 	    while (tokens.hasMoreTokens()) {
 		fs.registerContentSource(tokens.nextToken());
 	    }
 	}
 
+	// Set Valid path parameters...
+	String allow = extCtx.getInitParameter(ALLOW_PATHS);
+	List<String> paths = new ArrayList<String>();
+	if (allow != null) {
+	    StringTokenizer tok = new StringTokenizer(allow, ",:;");
+	    while (tok.hasMoreTokens()) {
+		paths.add(ResourceContentSource.normalize(tok.nextToken()));
+	    }
+	} else {
+	    paths.add("");
+	}
+	setAllowedPaths(extCtx, paths);
+
+	// Set invalid paths...
+	String deny = extCtx.getInitParameter(DENY_PATHS);
+	paths = new ArrayList<String>();
+	if (deny != null) {
+	    StringTokenizer tok = new StringTokenizer(deny, ",:;");
+	    while (tok.hasMoreTokens()) {
+		paths.add(ResourceContentSource.normalize(tok.nextToken()));
+	    }
+	} else {
+	    paths.add("WEB-INF/");
+	    paths.add("META-INF/");
+	}
+	setDeniedPaths(extCtx, paths);
+
 	if (ctx != null) {
 	    // Mark initialization as complete
-	    ctx.getExternalContext().getApplicationMap().put(INIT_DONE, true);
+	    extCtx.getApplicationMap().put(INIT_DONE, true);
 	}
+    }
+
+    /**
+     *	<p> Accessor to get the {@link FileStreamer} instance.</p>
+     */
+    public FileStreamer getFileStreamer() {
+	return FileStreamer.getFileStreamer(getFacesContext());
     }
 
     /**
@@ -112,7 +150,7 @@ public class FacesStreamerContext extends BaseContext {
 	}
 
 	// Get the ContentSource
-	src = FileStreamer.getFileStreamer(ctx).getContentSource(id);
+	src = getFileStreamer().getContentSource(id);
 	if (src == null) {
 	    throw new RuntimeException("The ContentSource with id '" + id
 		    + "' is not registered!");
@@ -121,6 +159,72 @@ public class FacesStreamerContext extends BaseContext {
 	// Return the ContentSource
 	setAttribute("_contentSource", src);
 	return src;
+    }
+
+    /**
+     *	<p> This method allows the Context to restrict access to resources.
+     *	    It returns <code>true</code> if the user is allowed to view the
+     *	    resource.  It returns <code>false</code> if the user should not
+     *	    be allowed access to the resource.</p>
+     */
+    public boolean hasPermission(ContentSource src) {
+	String filename = src.getResourcePath(this);
+	ExternalContext extCtx = getFacesContext().getExternalContext();
+	boolean ok = false;
+
+	// Ensure it is in our list of OK paths...
+	List<String> paths = getAllowedPaths(extCtx);
+	for (String path : paths) {
+	    if (filename.startsWith(path)) {
+		ok = true;
+		break;
+	    }
+	}
+
+	// ...and ensure it is not in our blacklisted paths...
+	if (ok) {
+	    // Only check if ok so far...
+	    paths = getDeniedPaths(extCtx);
+	    for (String path : paths) {
+		if (filename.startsWith(path)) {
+		    ok = false;
+		    break;
+		}
+	    }
+	}
+
+	return ok;
+    }
+
+    /**
+     *	<p> This methods sets the allowed paths for resources.   Paths may be
+     *	    further restricted using the {@link #setDeniedPaths} method.</p>
+     */
+    public List<String> getAllowedPaths(ExternalContext extCtx) {
+	return (List<String>) extCtx.getApplicationMap().get(ALLOWED_PATHS_KEY);
+    }
+
+    /**
+     *	<p> This methods sets the allowed paths for resources.   Paths may be
+     *	    further restricted using the {@link #setDeniedPaths} method.</p>
+     */
+    public void setAllowedPaths(ExternalContext ctx, List<String> paths) {
+	ctx.getApplicationMap().put(ALLOWED_PATHS_KEY, paths);
+    }
+
+    /**
+     *	<p> This methods sets the list of paths in which resources should not
+     *	    be served.</p>
+     */
+    public void setDeniedPaths(ExternalContext ctx, List<String> paths) {
+	ctx.getApplicationMap().put(DENIED_PATHS_KEY, paths);
+    }
+
+    /**
+     *	<p> This methods sets the list of paths for resources.</p>
+     */
+    public List<String> getDeniedPaths(ExternalContext extCtx) {
+	return (List<String>) extCtx.getApplicationMap().get(DENIED_PATHS_KEY);
     }
 
     /**
@@ -173,6 +277,21 @@ public class FacesStreamerContext extends BaseContext {
 	    }
 	    ((HttpServletResponse) resp).setHeader("Content-Disposition",
 		       disposition);
+	}
+    }
+
+    /**
+     *	<p> This method is responsible for sending an error.</p>
+     */
+    public void sendError(int code, String msg) throws IOException {
+// FIXME: JSF 2.0 now provides: externalContext.responseSendError(int, String)
+// FIXME: Portal
+	HttpServletResponse resp = (HttpServletResponse)
+	    getFacesContext().getExternalContext().getResponse();
+	if (msg == null) {
+	    resp.sendError(code);
+	} else {
+	    resp.sendError(code, msg);
 	}
     }
 
