@@ -24,8 +24,11 @@ package com.sun.jsftemplating.util.fileStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -54,6 +57,23 @@ public class ServletStreamerContext extends BaseContext {
 	setServletResponse(resp);
 	setServletConfig(config);
 	setAttribute(Context.FILE_PATH, request.getPathInfo());
+
+// FIXME: initialize allowed / denied paths...
+	List<String> paths = new ArrayList<String>();
+	paths.add("");  // Add default value
+	ServletContext ctx = config.getServletContext();
+	setAllowedPaths(ctx, paths);
+	paths = new ArrayList<String>();
+	paths.add("META-INF/");
+	paths.add("WEB-INF/");
+	setDeniedPaths(ctx, paths);
+    }
+
+    /**
+     *	<p> Accessor to get the {@link FileStreamer} instance.</p>
+     */
+    public FileStreamer getFileStreamer() {
+	return FileStreamer.getFileStreamer(getServletConfig().getServletContext());
     }
 
     /**
@@ -80,7 +100,7 @@ public class ServletStreamerContext extends BaseContext {
 	}
 
 	// Get the ContentSource
-	src = FileStreamer.getFileStreamer(getServletConfig().getServletContext()).getContentSource(id);
+	src = getFileStreamer().getContentSource(id);
 	if (src == null) {
 	    throw new RuntimeException("The ContentSource with id '" + id
 		    + "' is not registered!");
@@ -89,6 +109,72 @@ public class ServletStreamerContext extends BaseContext {
 	// Return the ContentSource
 	setAttribute("_contentSource", src);  // cache result
 	return src;
+    }
+
+    /**
+     *	<p> This method allows the Context to restrict access to resources.
+     *	    It returns <code>true</code> if the user is allowed to view the
+     *	    resource.  It returns <code>false</code> if the user should not
+     *	    be allowed access to the resource.</p>
+     */
+    public boolean hasPermission(ContentSource src) {
+	String filename = src.getResourcePath(this);
+	ServletContext srvCtx = getServletConfig().getServletContext();
+	List<String> paths = getAllowedPaths(srvCtx);
+	boolean ok = false;
+
+	// Ensure it is in our list of OK paths...
+	for (String path : paths) {
+	    if (filename.startsWith(path)) {
+		ok = true;
+		break;
+	    }
+	}
+
+	// ...and ensure it is not in our blacklisted paths...
+	if (ok) {
+	    // Only check if ok so far...
+	    paths = getDeniedPaths(srvCtx);
+	    for (String path : paths) {
+		if (filename.startsWith(path)) {
+		    ok = false;
+		    break;
+		}
+	    }
+	}
+
+	return ok;
+    }
+
+    /**
+     *	<p> This methods sets the allowed paths for resources.   Paths may be
+     *	    further restricted using the {@link #setDeniedPaths} method.</p>
+     */
+    public List<String> getAllowedPaths(ServletContext ctx) {
+	return (List<String>) ctx.getAttribute(ALLOWED_PATHS_KEY);
+    }
+
+    /**
+     *	<p> This methods sets the allowed paths for resources.   Paths may be
+     *	    further restricted using the {@link #setDeniedPaths} method.</p>
+     */
+    public void setAllowedPaths(ServletContext ctx, List<String> paths) {
+	ctx.setAttribute(ALLOWED_PATHS_KEY, paths);
+    }
+
+    /**
+     *	<p> This methods sets the list of paths in which resources should not
+     *	    be served.</p>
+     */
+    public void setDeniedPaths(ServletContext ctx, List<String> paths) {
+	ctx.setAttribute(DENIED_PATHS_KEY, paths);
+    }
+
+    /**
+     *	<p> This methods sets the list of paths for resources.</p>
+     */
+    public List<String> getDeniedPaths(ServletContext ctx) {
+	return (List<String>) ctx.getAttribute(DENIED_PATHS_KEY);
     }
 
     /**
@@ -137,6 +223,18 @@ public class ServletStreamerContext extends BaseContext {
 		disposition += ";filename=\"" + filename + "\"";
 	    }
 	    resp.setHeader("Content-Disposition", disposition);
+	}
+    }
+
+    /**
+     *	<p> This method is responsible for sending an error.</p>
+     */
+    public void sendError(int code, String msg) throws IOException {
+	HttpServletResponse resp = getServletResponse();
+	if (msg == null) {
+	    resp.sendError(code);
+	} else {
+	    resp.sendError(code, msg);
 	}
     }
 
