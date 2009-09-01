@@ -1,7 +1,0 @@
-<project>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.sun.jsftemplating</groupId>
-    <artifactId>jsftemplating-dynafaces</artifactId>
-    <version>@VERSION@</version>
-    <name>JSFTemplating Dynafaces support lib</name>
-</project>
