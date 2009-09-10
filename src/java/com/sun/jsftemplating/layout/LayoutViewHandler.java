@@ -230,6 +230,10 @@ public class LayoutViewHandler extends ViewHandler {
 	    throw ex;
 	}
 
+	// We need to do this again b/c an initPage handler may have changed
+	// the viewRoot
+	viewRoot = context.getViewRoot();
+
 	// Check to make sure we found a LD and that the response isn't
 	// already finished (initPage could complete the response...
 	// i.e. during a redirect).
@@ -662,7 +666,7 @@ public class LayoutViewHandler extends ViewHandler {
 	// Make sure we have a def
 	LayoutDefinition def = ViewRootUtil.getLayoutDefinition(viewToRender);
 	if (def == null) {
-	    // No def, fall back to default behavior
+	    // PartialRequest or No def, fall back to default behavior
 	    _oldViewHandler.renderView(context, viewToRender);
 	} else {
 	    // Start document
@@ -774,7 +778,7 @@ public class LayoutViewHandler extends ViewHandler {
     public void writeState(FacesContext context) throws IOException {
 	// Check to see if we should delegate back to the legacy ViewHandler
 	UIViewRoot root = context.getViewRoot();
-	if ((root == null)
+	if ((root == null) || context.getPartialViewContext().isPartialRequest()
 		|| (ViewRootUtil.getLayoutDefinition(root) == null)) {
 	    // Use old behavior...
 	    _oldViewHandler.writeState(context);
