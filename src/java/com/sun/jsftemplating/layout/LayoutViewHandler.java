@@ -670,14 +670,25 @@ public class LayoutViewHandler extends ViewHandler {
 	    _oldViewHandler.renderView(context, viewToRender);
 	} else {
 	    // Start document
-	    ResponseWriter writer = setupResponseWriter(context);
-	    writer.startDocument();
+	    if (!context.getPartialViewContext().isPartialRequest()) {
+		ResponseWriter writer = setupResponseWriter(context);
+		writer.startDocument();
 
-	    // Render content
-	    def.encode(context, viewToRender);
+		// Render content
+		def.encode(context, viewToRender);
 
-	    // End document
-	    writer.endDocument();
+		// End document
+		writer.endDocument();
+	    } else {
+		// NOTE: This "if" branch has been added to avoid the
+		// NOTE: start/endDocument calls being called 2x on PartialView
+		// NOTE: requests.  JSF Issue #1307 has been filed to resolve
+		// NOTE: this correctly (assuming checking here is not
+		// NOTE: correct... which I do not feel that it is).
+		//
+		// Render content
+		def.encode(context, viewToRender);
+	    }
 	}
 //System.out.println("PROCESSING TIME: " + (new java.util.Date().getTime() - _time.getTime()));
     }
