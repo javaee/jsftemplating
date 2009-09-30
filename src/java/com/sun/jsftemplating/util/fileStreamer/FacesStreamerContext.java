@@ -299,10 +299,7 @@ public class FacesStreamerContext extends BaseContext {
      *	<p> This method is returns the <code>ServletOutputStream</code>.</p>
      */
     public OutputStream getOutputStream() throws IOException {
-// FIXME: Portlet?
-	ServletResponse resp = (ServletResponse)
-	    getFacesContext().getExternalContext().getResponse();
-	return resp.getOutputStream();
+	return getFacesContext().getExternalContext().getResponseOutputStream();
     }
 
     /**
