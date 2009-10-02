@@ -1,6 +1,6 @@
 Export-Package=!com.sun.jsftemplating.annotation.*,!com.sun.data.*,*
 Import-Package=com.sun.data.*;resolution:=optional,*
 -classpath=lib/external/woodstock/dataprovider.jar
-Bundle-Version=2.0.1-SNAPSHOT
+Bundle-Version=2.0.1
 Bundle-SymbolicName=com.sun.jsftemplating
 Bundle-Description=JSFTemplating framework for JavaServer Faces 2.0
