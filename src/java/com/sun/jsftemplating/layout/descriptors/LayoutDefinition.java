@@ -220,8 +220,8 @@ public class LayoutDefinition extends LayoutElementBase {
     public void encode(FacesContext context, UIComponent component) throws IOException {
 	if (component instanceof UIViewRoot) {
 	    component.encodeBegin(context);
-	    if (isDynaFacesRequest()) {
-		// Dynamic Faces is now overriding this, so this is required...
+	    if (context.getPartialViewContext().isPartialRequest() || isDynaFacesRequest()) {
+		// JSF / Dynamic Faces is now overriding this, so this is required...
 		component.encodeChildren(context);
 	    } else {
 		// This is not an ajax request... behave normal

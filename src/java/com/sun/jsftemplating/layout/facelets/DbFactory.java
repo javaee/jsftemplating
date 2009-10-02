@@ -22,7 +22,6 @@ import javax.xml.parsers.ParserConfigurationException;
 public class DbFactory {
     public static DocumentBuilder getInstance() throws ParserConfigurationException {
 	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	factory.setValidating(true);
 	factory.setNamespaceAware(true);
 	factory.setValidating(false);
 	factory.setIgnoringComments(true);

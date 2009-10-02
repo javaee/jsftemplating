@@ -230,6 +230,10 @@ public class LayoutViewHandler extends ViewHandler {
 	    throw ex;
 	}
 
+	// We need to do this again b/c an initPage handler may have changed
+	// the viewRoot
+	viewRoot = context.getViewRoot();
+
 	// Check to make sure we found a LD and that the response isn't
 	// already finished (initPage could complete the response...
 	// i.e. during a redirect).
@@ -662,18 +666,29 @@ public class LayoutViewHandler extends ViewHandler {
 	// Make sure we have a def
 	LayoutDefinition def = ViewRootUtil.getLayoutDefinition(viewToRender);
 	if (def == null) {
-	    // No def, fall back to default behavior
+	    // PartialRequest or No def, fall back to default behavior
 	    _oldViewHandler.renderView(context, viewToRender);
 	} else {
 	    // Start document
-	    ResponseWriter writer = setupResponseWriter(context);
-	    writer.startDocument();
+	    if (!context.getPartialViewContext().isPartialRequest()) {
+		ResponseWriter writer = setupResponseWriter(context);
+		writer.startDocument();
 
-	    // Render content
-	    def.encode(context, viewToRender);
+		// Render content
+		def.encode(context, viewToRender);
 
-	    // End document
-	    writer.endDocument();
+		// End document
+		writer.endDocument();
+	    } else {
+		// NOTE: This "if" branch has been added to avoid the
+		// NOTE: start/endDocument calls being called 2x on PartialView
+		// NOTE: requests.  JSF Issue #1307 has been filed to resolve
+		// NOTE: this correctly (assuming checking here is not
+		// NOTE: correct... which I do not feel that it is).
+		//
+		// Render content
+		def.encode(context, viewToRender);
+	    }
 	}
 //System.out.println("PROCESSING TIME: " + (new java.util.Date().getTime() - _time.getTime()));
     }
@@ -774,7 +789,7 @@ public class LayoutViewHandler extends ViewHandler {
     public void writeState(FacesContext context) throws IOException {
 	// Check to see if we should delegate back to the legacy ViewHandler
 	UIViewRoot root = context.getViewRoot();
-	if ((root == null)
+	if ((root == null) || context.getPartialViewContext().isPartialRequest()
 		|| (ViewRootUtil.getLayoutDefinition(root) == null)) {
 	    // Use old behavior...
 	    _oldViewHandler.writeState(context);

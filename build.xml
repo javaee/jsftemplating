@@ -4,7 +4,7 @@
     <!-- Set properties -->
     <property name="dynafaces-version" value="0.1"/>
     <!-- NOTE: Change jsftemplating.bnd also to change the version! -->
-    <property name="version" value="1.2.12-SNAPSHOT"/>
+    <property name="version" value="2.0.1"/>
     <property file="user.properties" />
     <property file="build.properties" />
 

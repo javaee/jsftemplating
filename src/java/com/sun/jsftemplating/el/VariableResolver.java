@@ -52,7 +52,7 @@ import com.sun.jsftemplating.util.Util;
 /**
  *  <p>	VariableResolver is used to parse expressions of the format.</p>
  *
- *  <p>	<dd>$&lt;type$gt;{&lt;key&gt;}</dd></p>
+ *  <p>	<dd>$&lt;type&gt;{&lt;key&gt;}</dd></p>
  *
  *  <p>	&lt;type&gt; refers to a registerd {@link VariableResolver.DataSource},
  *	custom {@link VariableResolver.DataSource}s can be registered via:

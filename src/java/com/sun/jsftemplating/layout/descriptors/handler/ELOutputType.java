@@ -59,6 +59,14 @@ public class ELOutputType implements OutputType {
 		"ELOutputType's key may not be null!");
 	}
 
+	// Make sure it is an EL expression...
+	if (!key.startsWith("#{")) {
+	    // If the key is not an EL expression, make it one... while this
+	    // may cover some user-errors, I think it adds a nice ease-of-use
+	    // feature that people may like...
+	    key = "#{requestScope['" + key + "']}";
+	}
+
 	// See if we can find the UIComp...
 	UIComponent uicomp = null;
 	Object eventObj = context.getEventObject();
