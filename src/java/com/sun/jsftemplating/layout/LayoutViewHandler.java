@@ -297,7 +297,7 @@ public class LayoutViewHandler extends ViewHandler {
      *	<p> If this is a resource request, this method will handle the
      *	    request.</p>
      */
-    public UIViewRoot serveResource(FacesContext context, String path) {
+    public static UIViewRoot serveResource(FacesContext context, String path) {
 	// Mark the response complete so no more processing occurs
 	context.responseComplete();
 
