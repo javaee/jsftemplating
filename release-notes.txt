@@ -1,0 +1,6 @@
+
+JSFTemplating 2.0.2
+============================================================
+- Changed urlencode handler to use UTF-8 if no encoding is specified
+  (vs. system default), also changed behavior to return null if null
+  is given to encode (vs. throwing a NPE).
