@@ -468,8 +468,9 @@ public class UtilHandlers {
     }
 
     /**
-     *	<p> This handler prints out the contents of the given UIComponent's
-     *	    attribute map.</p>
+     *	<p> This handler url encodes the given String.  It will return null if
+     *	    null is given and it will use a default encoding of "UTF-8" if no
+     *	    encoding is specified.</p>
      *
      *	@param	context	The HandlerContext.
      */
@@ -483,11 +484,16 @@ public class UtilHandlers {
     public static void urlencode(HandlerContext context) {
 	String value = (String) context.getInputValue("value");
 	String encoding = (String) context.getInputValue("encoding");
-	try {
-	    value = (encoding == null) ?
-		URLEncoder.encode(value) : URLEncoder.encode(value, encoding);
-	} catch (UnsupportedEncodingException ex) {
-	    throw new IllegalArgumentException(ex);
+	if (encoding == null) {
+	    encoding = "UTF-8";
+	}
+	// The value could be null if an EL expression maps to null
+	if (value != null) {
+	    try {
+		value = URLEncoder.encode(value, encoding);
+	    } catch (UnsupportedEncodingException ex) {
+		throw new IllegalArgumentException(ex);
+	    }
 	}
 	context.setOutputValue("result", value);
     }
