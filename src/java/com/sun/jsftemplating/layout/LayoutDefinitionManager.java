@@ -38,6 +38,7 @@ import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.descriptors.handler.IODescriptor;
 import com.sun.jsftemplating.layout.facelets.DbFactory;
 import com.sun.jsftemplating.layout.facelets.NSContext;
+import com.sun.jsftemplating.layout.template.TemplateLayoutDefinitionManager;
 import com.sun.jsftemplating.util.FileUtil;
 import com.sun.jsftemplating.util.LogUtil;
 import com.sun.jsftemplating.util.Util;
@@ -373,17 +374,21 @@ public abstract class LayoutDefinitionManager {
         if (keys == null) {
 	    // 1st time... initialize it
             keys = new ArrayList<String>();
-            String def = "";
 
             // Check to see what the default should be...
             if (ctx != null) {
                 Map initParams = ctx.getExternalContext().getInitParameterMap();
                 if (initParams.containsKey(LAYOUT_DEFINITION_MANAGER_KEY)) {
-                    def = ((String) initParams.
-			    get(LAYOUT_DEFINITION_MANAGER_KEY)).trim();
-                    keys.add(def);
+                    keys.add(((String) initParams.
+			    get(LAYOUT_DEFINITION_MANAGER_KEY)).trim());
                 }
             }
+
+	    // Make "template" format the default (if none specified)
+	    String tplFormat = TemplateLayoutDefinitionManager.class.getName();
+	    if (!keys.contains(tplFormat)) {
+		keys.add(tplFormat);
+	    }
 
             try {
                 // Get all the files that define them
@@ -397,25 +402,20 @@ public abstract class LayoutDefinitionManager {
                     try {
                         is = urls.nextElement().openStream();
                         rdr = new BufferedReader(new InputStreamReader(is));
-                        line = rdr.readLine();
-                        while (line != null) {
+                        for (line = rdr.readLine(); line != null; line = rdr.readLine()) {
                             line = line.trim();
 
                             if (line.equals("") || line.startsWith("#")) {
                                 // Skip comments
                                 continue;
                             }
-                            if (line.equals(def)) {
-                                // Skip the default one so that it doesn't get
-                                // added again (we want it first)
+			    if (keys.contains(line)) {
+                                // Skip ones already added...
                                 continue;
                             }
 
                             // Add it!
                             keys.add(line);
-
-                            // Get the next line
-                            line = rdr.readLine();
                         }
                     } finally {
                         Util.closeStream(is);
