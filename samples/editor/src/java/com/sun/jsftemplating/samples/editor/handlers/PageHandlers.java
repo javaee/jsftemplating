@@ -124,7 +124,7 @@ public class PageHandlers {
 
 	// Create the new LayoutComponent
 	ComponentType type = LayoutDefinitionManager.getGlobalComponentType(
-		(String) context.getInputValue("type"));
+		facesCtx, (String) context.getInputValue("type"));
 	if (type == null) {
 	    throw new IllegalArgumentException("Unkown ComponentType: "
 		    + context.getInputValue("type"));
@@ -202,7 +202,7 @@ public class PageHandlers {
 	    ld = LayoutDefinitionManager.getLayoutDefinition(
 		facesCtx, "template.jsf");
 // FIXME... must *clone* this tree... or read it directly from the Reader instead of through the Manager
-	    LayoutDefinitionManager.putCachedLayoutDefinition(pageName, ld);
+	    LayoutDefinitionManager.putCachedLayoutDefinition(facesCtx, pageName, ld);
 	    // Write it to disk...
 	    writePage(facesCtx.getExternalContext().getContext(), pageName, ld);
 	}
