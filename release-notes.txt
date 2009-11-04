@@ -6,3 +6,7 @@ JSFTemplating 2.0.2
   is given to encode (vs. throwing a NPE).
 - Ensured JSFT "template" LayoutDefinitionManager is used first (unless
   overridden) and that no LDM's are added more than once.
+- Removed DynaFaces references (DF is no longer supported w/ this version)
+- Added change to no process JSF2 Ajax requests targeted to @all via JSF2
+  but instead handle them as a Full Page request.
+

@@ -670,7 +670,7 @@ public class LayoutViewHandler extends ViewHandler {
 	    _oldViewHandler.renderView(context, viewToRender);
 	} else {
 	    // Start document
-	    if (!context.getPartialViewContext().isPartialRequest()) {
+	    if (!context.getPartialViewContext().isPartialRequest() || context.getPartialViewContext().isRenderAll()) {
 		ResponseWriter writer = setupResponseWriter(context);
 		writer.startDocument();
 
