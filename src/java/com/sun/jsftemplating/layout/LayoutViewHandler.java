@@ -789,7 +789,9 @@ public class LayoutViewHandler extends ViewHandler {
     public void writeState(FacesContext context) throws IOException {
 	// Check to see if we should delegate back to the legacy ViewHandler
 	UIViewRoot root = context.getViewRoot();
-	if ((root == null) || context.getPartialViewContext().isPartialRequest()
+// FIXME: For now I am treating "@all" Ajax requests as normal requests...
+// FIXME: Otherwise the view state is not written.
+	if ((root == null) || (context.getPartialViewContext().isPartialRequest() && !context.getPartialViewContext().isRenderAll())
 		|| (ViewRootUtil.getLayoutDefinition(root) == null)) {
 	    // Use old behavior...
 	    _oldViewHandler.writeState(context);

@@ -2,7 +2,6 @@
 <project name="JSFTemplating" default="jar" basedir=".">
 
     <!-- Set properties -->
-    <property name="dynafaces-version" value="0.1"/>
     <!-- NOTE: Change jsftemplating.bnd also to change the version! -->
     <property name="version" value="2.0.2-SNAPSHOT"/>
     <property file="user.properties" />
@@ -13,7 +12,6 @@
         <pathelement location="${jsf-api.jar}" />
         <pathelement location="${el-api.jar}" />
         <pathelement location="${jsftemplating-dt.jar}" />
-        <pathelement location="${jsftemplating-dynafaces.jar}" />
         <pathelement location="${dataprovider.jar}" />
         <path refid="apt-dependencies" />
     </path>
@@ -26,7 +24,6 @@
     <path id="javadoc-dependencies">
         <path refid="dependencies" />
         <path refid="apt-dependencies" />
-        <pathelement location="${jsftemplating-dynafaces.jar}" />
     </path>
 
     <path id="test-dependencies">
@@ -37,7 +34,6 @@
         <pathelement location="${junit.jar}" />
         <pathelement location="${test}/build" />
         <pathelement location="${test}/files" />
-        <pathelement location="${jsftemplating-dynafaces.jar}" />
     </path>
 
     <path id="test-compile-dependencies">
@@ -119,7 +115,6 @@
     <target name="jar" depends="compile" description="Package the project">
 	<mkdir dir="${dist}/." />
 	<echo>Copying misc files to build directory.</echo>
-	<copy file="${jsftemplating-dynafaces.jar}" todir="${dist}" overwrite="true"/>
 	<copy todir="${dist}/.">
 	    <fileset dir="${src}/com/sun/jsftemplating/component/resources/">
 		<include name="**/*.js" />
@@ -238,12 +233,6 @@
                        fromFile="${dist}/jsftemplating-dt.jar"
                        fileDescription="Nightly snapshot of the JSFTemplating design time lib"
                        overwrite="yes"/>
-        <echo>Uploading jsftemplating-dynafaces.jar</echo>
-        <javaNetUpload projectName="jsftemplating"
-                       toFile="/nightly/jsftemplating-dynafaces.jar"
-                       fromFile="${dist}/jsftemplating-dynafaces.jar"
-                       fileDescription="Nightly snapshot of the JSFTemplating DynaFaces support lib"
-                       overwrite="yes"/>
     </target>
     
     <target name="push-to-maven-prepare" depends="jar,jarsrc" description="Prepare artifacts for deployment to the Maven repo">
@@ -254,9 +243,6 @@
         </taskdef>
         <delete dir="${build}/maven-repo" />
         <!-- clean it -->
-        <maven-repository-importer destdir="${build}/maven-repo" version="${dynafaces-version}">
-            <artifact jar="${dist}/jsftemplating-dynafaces.jar" pom="jsftemplating-dynafaces.pom" />
-        </maven-repository-importer>
         <maven-repository-importer destdir="${build}/maven-repo" version="${version}">
             <artifact jar="${dist}/jsftemplating.jar" pom="jsftemplating.pom" srczip="${jsftemplating-src.jar}"/>
             <artifact jar="${dist}/jsftemplating-base.jar" pom="jsftemplating-base.pom" srczip="${jsftemplating-src.jar}"/>

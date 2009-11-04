@@ -214,14 +214,18 @@ public class LayoutDefinition extends LayoutElementBase {
     /**
      *	<p> This function overrides the superclass in order to call
      *	    encodeBegin / encodeEnd on the UIViewRoot (and only for UIViewRoot
-     *	    instances).  This is especially important for DynamicFaces.</p>
+     *	    instances).  This is especially important for Ajax requests.</p>
      */
     @Override
     public void encode(FacesContext context, UIComponent component) throws IOException {
 	if (component instanceof UIViewRoot) {
 	    component.encodeBegin(context);
-	    if (context.getPartialViewContext().isPartialRequest() || isDynaFacesRequest()) {
-		// JSF / Dynamic Faces is now overriding this, so this is required...
+// FIXME: For now I am treating "@all" Ajax requests as normal requests...
+// FIXME: Otherwise the partialviewcontext tries to render the whole view, and
+// FIXME: fails b/c JSFT may use Facets for top-level components.  Need to find
+// FIXME: a better way to handle this.
+	    if (context.getPartialViewContext().isPartialRequest() && !context.getPartialViewContext().isRenderAll()) {
+		// JSF is now overriding this, so this is required...
 		component.encodeChildren(context);
 	    } else {
 		// This is not an ajax request... behave normal
@@ -231,41 +235,6 @@ public class LayoutDefinition extends LayoutElementBase {
 	} else {
 	    super.encode(context, component);
 	}
-    }
-
-    /**
-     *	<p> This method reflectively calls dyna-faces to determine if this
-     *	    request will be handled by dynafaces.</p>
-     */
-    private boolean isDynaFacesRequest() {
-	if (_asyncResponseClass == null) {
-	    // DynamicFaces not installed, abort
-	    return false;
-	}
-
-	// Check the request...
-	boolean result = false;
-	try {
-	    // See if this is an DynaFaces Ajax request
-	    result = ((Boolean) _asyncResponseIsAjaxRequest.invoke(null)).
-				    booleanValue();
-	    if (result) {
-		// See if this is a "render all" ajax request, in which case
-		// we'll consider it NOT to be an Ajax request.
-		Object async = _asyncResponseGetInstance.invoke(null,
-					Boolean.FALSE);
-		result = !((Boolean) _asyncResponseIsRenderAll.invoke(async)).
-					booleanValue();
-	    }
-	} catch (Exception ex) {
-// FIXME: Log
-System.out.println("Incorrect Dynafaces Version?");
-ex.printStackTrace();
-	    return false;
-	}
-
-	// Return the answer
-	return result;
     }
 
     /**
@@ -434,30 +403,4 @@ ex.printStackTrace();
      *	    information about the <code>LayoutDefinition</code>.</p>
      */
     private Map<String, Object> _attributes = new HashMap<String, Object>();
-
-    /**
-     *	<p> The DynamicFaces AsyncResponse Class.</p>
-     */
-    private static final Class _asyncResponseClass;
-    private static final Method _asyncResponseGetInstance;
-    private static final Method _asyncResponseIsAjaxRequest;
-    private static final Method _asyncResponseIsRenderAll;
-
-    static {
-	// Initialize the DynamicFaces variables
-	_asyncResponseClass = Util.noExceptionLoadClass(
-		"com.sun.faces.extensions.avatar.lifecycle.AsyncResponse");
-	if (_asyncResponseClass != null) {
-	    _asyncResponseGetInstance =
-		Util.getMethod(_asyncResponseClass, "getInstance", Boolean.TYPE);
-	    _asyncResponseIsAjaxRequest =
-		Util.getMethod(_asyncResponseClass, "isAjaxRequest");
-	    _asyncResponseIsRenderAll =
-		Util.getMethod(_asyncResponseClass, "isRenderAll");
-	} else {
-	    _asyncResponseGetInstance = null;
-	    _asyncResponseIsAjaxRequest = null;
-	    _asyncResponseIsRenderAll = null;
-	}
-    }
 }
