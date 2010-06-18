@@ -1,4 +1,10 @@
 
+JSFTemplating 2.0.3
+============================================================
+- Made duplicate component ids in debug mode non-fatal, but
+  still logs a warning message.
+- Now building for Java 6
+
 JSFTemplating 2.0.2
 ============================================================
 - Changed urlencode handler to use UTF-8 if no encoding is specified
