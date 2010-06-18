@@ -562,10 +562,15 @@ public class LayoutViewHandler extends ViewHandler {
 		    Map idMap = getClientIdMap(context);
 		    String id = child.getClientId(context);
 		    if (idMap.containsKey(id)) {
-			throw new IllegalArgumentException("The clientId ("
-			    + id + ") appears more than once!  Make sure you "
-			    + "have not included multiple times in the same "
-			    + "NamingContainer.");
+			if (LogUtil.warningEnabled()) {
+			    LogUtil.warning("JSFT0011", (Object) id);
+			}
+
+			// Clear the map as a way to prevent this message from
+			// being shown tons of times as may occur in some
+			// valid use cases.  Remember this is just a debug-time
+			// only helpful message anyway...
+			idMap.clear();
 		    }
 		    idMap.put(id, id);
 		}
