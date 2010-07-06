@@ -120,10 +120,10 @@ public class ResourceContentSource implements ContentSource {
 	String path = origPath;
 
 	// Normalize it...
-	if (path != null) {
+	if ((path != null) && (path.length() > 0)) {
 	    path = path.replace('\\', '/');
 	    // Remove leading '/' chars
-	    while (path.charAt(0) == '/') {
+	    while ((path.length() > 0) && (path.charAt(0) == '/')) {
 		path = path.substring(1);
 	    }
 	    // Replace all double "//" with "/"
