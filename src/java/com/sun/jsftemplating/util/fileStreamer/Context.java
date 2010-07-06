@@ -212,8 +212,12 @@ public interface Context {
      *	    application.  Any path starting with one of the paths in this list
      *	    may <b>NOT</b> be served using FileStreamer.  Leading '/'
      *	    characters maybe specified, but will be removed when doing a
-     *	    comparison.  The default value is:
-     *	    "<code>META-INF/,WEB-INF/</code>".</p>
+     *	    comparison.  In addition to supporting prefix patterns, any path
+     *	    starting with an asterisk (<code>*</code>) character will be
+     *	    interpreted as a suffix pattern.  Any path ending with the
+     *	    characters following the asterisk will match and will <b>NOT</b>
+     *	    be served.  The default value is:</p>
+     *	    <p><code>META-INF/,WEB-INF/</code>"</p>
      */
     public static final String DENY_PATHS   = "com.sun.jsftemplating.FS_DENY_PATHS";
 

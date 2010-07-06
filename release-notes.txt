@@ -2,6 +2,8 @@
 JSFTemplating 2.0.4
 ============================================================
 - Fixed NPE in ResourceContentSource when empty file ("") was requested.
+- Added ability to define suffix resource exclusions (i.e. *.jsf,
+  *.xml, etc.) for FileStreamer
 
 JSFTemplating 2.0.3
 ============================================================

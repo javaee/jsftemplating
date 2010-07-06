@@ -136,7 +136,12 @@ public class ServletStreamerContext extends BaseContext {
 	    // Only check if ok so far...
 	    paths = getDeniedPaths(srvCtx);
 	    for (String path : paths) {
-		if (filename.startsWith(path)) {
+		if (path.startsWith("*") && filename.endsWith(path.substring(1))) {
+		    // Matched suffix pattern
+		    ok = false;
+		    break;
+		} else if (filename.startsWith(path)) {
+		    // Matched prefix pattern
 		    ok = false;
 		    break;
 		}

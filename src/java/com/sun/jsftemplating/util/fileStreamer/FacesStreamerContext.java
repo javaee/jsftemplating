@@ -87,12 +87,15 @@ public class FacesStreamerContext extends BaseContext {
 	}
 
 	// Set Valid path parameters...
+	String path, end;
 	String allow = extCtx.getInitParameter(ALLOW_PATHS);
 	List<String> paths = new ArrayList<String>();
 	if (allow != null) {
 	    StringTokenizer tok = new StringTokenizer(allow, ",:;");
 	    while (tok.hasMoreTokens()) {
-		paths.add(ResourceContentSource.normalize(tok.nextToken()));
+		path = tok.nextToken();
+		end = path.endsWith("/") ? "/" : "";
+		paths.add(ResourceContentSource.normalize(path) + end);
 	    }
 	} else {
 	    paths.add("");
@@ -105,7 +108,9 @@ public class FacesStreamerContext extends BaseContext {
 	if (deny != null) {
 	    StringTokenizer tok = new StringTokenizer(deny, ",:;");
 	    while (tok.hasMoreTokens()) {
-		paths.add(ResourceContentSource.normalize(tok.nextToken()));
+		path = tok.nextToken();
+		end = path.endsWith("/") ? "/" : "";
+		paths.add(ResourceContentSource.normalize(path) + end);
 	    }
 	} else {
 	    paths.add("WEB-INF/");
@@ -186,7 +191,12 @@ public class FacesStreamerContext extends BaseContext {
 	    // Only check if ok so far...
 	    paths = getDeniedPaths(extCtx);
 	    for (String path : paths) {
-		if (filename.startsWith(path)) {
+		if (path.startsWith("*") && filename.endsWith(path.substring(1))) {
+		    // Matched suffix pattern
+		    ok = false;
+		    break;
+		} else if (filename.startsWith(path)) {
+		    // Matched prefix pattern
 		    ok = false;
 		    break;
 		}
