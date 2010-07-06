@@ -155,6 +155,11 @@ public class ResourceContentSource implements ContentSource {
 	    if (path.equals("..")) {
 		path = null;
 	    }
+
+	    // Last ensure path does not end in a '/'
+	    if (path.endsWith("/")) {
+		path = path.substring(0, path.length()-1);
+	    }
 	}
 
 	return path;
