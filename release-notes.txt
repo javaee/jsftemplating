@@ -1,4 +1,8 @@
 
+JSFTemplating 2.0.4
+============================================================
+- Fixed NPE in ResourceContentSource when empty file ("") was requested.
+
 JSFTemplating 2.0.3
 ============================================================
 - Made duplicate component ids in debug mode non-fatal, but
