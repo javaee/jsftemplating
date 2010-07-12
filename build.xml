@@ -360,7 +360,7 @@
         </artifact:deploy>
     </target>
 
-    <target name="push-to-maven2" depends="initialize.maven" description="Publish artifacts to the java.net Maven2 repo" >
+    <target name="push-to-maven2" depends="initialize.maven,jarsrc" description="Publish artifacts to the java.net Maven2 repo" >
         <antcall target="push.jsftemplating.artifact"/>
         <antcall target="push.jsftemplating-dt.artifact"/>
     </target>
