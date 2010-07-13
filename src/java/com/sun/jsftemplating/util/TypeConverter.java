@@ -353,7 +353,7 @@ public class TypeConverter extends Object {
 	    return conversion.convertValue(value);
 	} else {
 	    throw new IllegalArgumentException("Could not find type conversion for "
-		    + "type \"" + typeKey + "\" (value = \"" + value + "\"");
+		    + "type \"" + typeKey + "\" (value = \"" + value + "\")");
 	}
     }
 
