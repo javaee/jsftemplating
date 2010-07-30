@@ -5,6 +5,9 @@ JSFTemplating 2.0.4
 - Added ability to define suffix resource exclusions (i.e. *.jsf,
   *.xml, etc.) for FileStreamer
 - Changed build to no longer generate jsftemplating-base.jar
+- Added flag for components to suppress duplicate id checking in debug mode.
+  Flag is "skipIdCheck" and should be set as an attribute in the .jsf file
+  of the component which should avoid checking for duplicate ids.
 
 JSFTemplating 2.0.3
 ============================================================
