@@ -517,6 +517,15 @@ public class LayoutComponent extends LayoutElementBase implements LayoutElement 
      */
     public static final String FACET_NAME   = "_facetName";
 
+    /**
+     *	<p> This defines the attribute name on the tag that flags that
+     *	    duplicate ID's should not be checked for this component.  If
+     *	    specified on a component, the check will be skipped, regardless
+     *	    of the value of the attribute.  The attribute name is
+     *	    ("skipIdCheck").</p>
+     */
+    public static final String SKIP_ID_CHECK= "skipIdCheck";
+
     public static final String CLASS_NAME  = LayoutComponent.class.getName();
 
     /**

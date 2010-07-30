@@ -562,7 +562,7 @@ public class LayoutViewHandler extends ViewHandler {
 		    Map idMap = getClientIdMap(context);
 		    String id = child.getClientId(context);
 		    if (idMap.containsKey(id)) {
-			if (LogUtil.warningEnabled()) {
+			if (!((LayoutComponent) childElt).containsOption(LayoutComponent.SKIP_ID_CHECK) && LogUtil.warningEnabled()) {
 			    LogUtil.warning("JSFT0011", (Object) id);
 			}
 
