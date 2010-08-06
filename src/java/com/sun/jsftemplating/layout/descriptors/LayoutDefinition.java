@@ -36,6 +36,7 @@ import javax.faces.context.FacesContext;
 
 import com.sun.jsftemplating.component.TemplateComponent;
 import com.sun.jsftemplating.layout.descriptors.handler.Handler;
+import com.sun.jsftemplating.layout.descriptors.handler.HandlerDefinition;
 import com.sun.jsftemplating.layout.event.DecodeEvent;
 import com.sun.jsftemplating.layout.event.InitPageEvent;
 import com.sun.jsftemplating.util.Util;
@@ -191,10 +192,10 @@ public class LayoutDefinition extends LayoutElementBase {
      *	@param	key	The key used to retrieve the attribute
      *
      *	@return	The requested attribute or null.
-     */
     public Object getAttribute(String key) {
 	return _attributes.get(key);
     }
+     */
 
 
     /**
@@ -205,11 +206,24 @@ public class LayoutDefinition extends LayoutElementBase {
      *	    object).
      *
      *	@param	value	The Object to store.
-     */
     public void setAttribute(String key, Object value) {
 	_attributes.put(key, value);
     }
+     */
 
+    /**
+     *	<p> This method sets a locally defined {@link HandlerDefinition}.</p>
+     */
+    public void setHandlerDefinition(String key, HandlerDefinition value) {
+	_attributes.put(key, value);
+    }
+
+    /**
+     *	<p> This method accesses a locally defined {@link HandlerDefinition}.</p>
+     */
+    public HandlerDefinition getHandlerDefinition(String key) {
+	return _attributes.get(key);
+    }
 
     /**
      *	<p> This function overrides the superclass in order to call
@@ -402,5 +416,5 @@ public class LayoutDefinition extends LayoutElementBase {
      *	<p> Map of attributes.  Attributes can be used to store extra
      *	    information about the <code>LayoutDefinition</code>.</p>
      */
-    private Map<String, Object> _attributes = new HashMap<String, Object>();
+    private Map<String, HandlerDefinition> _attributes = new HashMap<String, HandlerDefinition>();
 }

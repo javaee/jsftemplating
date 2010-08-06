@@ -58,8 +58,14 @@ public class HandlerUtil {
      */
     public static Object dispatchHandler(String handlerId, LayoutElement elt, Object ... args) {
 	// Get the Handler
-	HandlerDefinition def =
-		LayoutDefinitionManager.getGlobalHandlerDefinition(handlerId);
+	HandlerDefinition def = elt.getLayoutDefinition().getHandlerDefinition(handlerId);
+	if (def == null) {
+	    def = LayoutDefinitionManager.getGlobalHandlerDefinition(handlerId);
+	}
+	if (def == null) {
+	    throw new IllegalArgumentException(
+		"Unable to locate handler definition for '" + handlerId + "'!");
+	}
 	Handler handler = new Handler(def);
 	if (args != null) {
 	    // Basic check to make sure we have valid arguments

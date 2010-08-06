@@ -307,6 +307,12 @@ public class TemplateReader {
 			    pushTag("!" + tmpstr);  // Mark as special
 			    // Must pass in "event" to get correct behavior
 			    ctx.beginSpecial(env, "event");
+			} else if (tmpstr.equals("handler")) {
+			    // Hard-code special case for handler...
+// FIXME: Should also support substituting ! for a custom prefix
+			    pushTag("!" + tmpstr);  // Mark as special
+			    // Must pass in "handler" to get correct behavior
+			    ctx.beginSpecial(env, "handler");
 			} else {
 			    pushTag(tmpstr);
 			    ctx.beginComponent(env, tmpstr);

@@ -79,7 +79,35 @@ public class EventParserCommand implements CustomParserCommand {
 	// If "eventName" is event, look for type and the closing '>' before
 	// trying to parse the handlers.
 	boolean useBodyContent = false;
-	if (eventName.equals("event")) {
+	boolean createHandlerDefinitionOnLayoutDefinition = false;
+	if (eventName.equals("handler")) {
+	    // We have a <handler id="foo"> tag...
+	    createHandlerDefinitionOnLayoutDefinition = true;
+	    useBodyContent = true;
+
+	    // Read type="...", no other options are supported at this time
+	    NameValuePair nvp = parser.getNVP(null);
+	    if (!nvp.getName().equals("id")) {
+		throw new SyntaxException(
+		    "When defining and event, you must supply the event type! "
+		    + "Found \"...event " + nvp.getName() + "\" instead.");
+	    }
+	    eventName = nvp.getValue().toString();
+
+	    // Ensure the next character is '>'
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
+	    ch = parser.nextChar();
+	    if (ch != '>') {
+		throw new SyntaxException(
+		    "Syntax error in event definition, found: '...handler id=\""
+		    + eventName + "\" " + ((char) ch)
+		    + "\'.  Expected closing '>' for opening handler element.");
+	    }
+
+	    // Get ready to read the handlers now...
+	    parser.skipCommentsAndWhiteSpace(TemplateParser.SIMPLE_WHITE_SPACE);
+	    ch = parser.nextChar();
+	} else if (eventName.equals("event")) {
 	    // We have the new syntax...
 	    useBodyContent = true;
 
@@ -155,7 +183,7 @@ public class EventParserCommand implements CustomParserCommand {
 	    parser.unread(ch);
 
 	    // Read a Handler
-	    handler = readHandler(parser, eventName);
+	    handler = readHandler(parser, eventName, parent);
 
 	    // Add the handler to the appropriate place
 	    if (parentHandler == null) {
@@ -206,31 +234,42 @@ public class EventParserCommand implements CustomParserCommand {
 	}
 
 	// Set the Handlers on the parent...
-	parent.setHandlers(eventName, handlers);
+	if (createHandlerDefinitionOnLayoutDefinition) {
+	    HandlerDefinition def = new HandlerDefinition(eventName);
+	    def.setChildHandlers(handlers);
+	    parent.getLayoutDefinition().setHandlerDefinition(eventName, def);
+	} else {
+	    parent.setHandlers(eventName, handlers);
+	}
     }
 
     /**
      *	<p> This method parses and creates an individual
      *	    <code>Handler</code>.</p>
      */
-    private Handler readHandler(TemplateParser parser, String eventName) throws IOException {
+    private Handler readHandler(TemplateParser parser, String eventName, LayoutElement parent) throws IOException {
 	String target = null;
 	String defVal = null;
 	NameValuePair nvp = null;
 	HandlerDefinition def = null;
 
 	String handlerId = parser.readToken();
-	def = LayoutDefinitionManager.getGlobalHandlerDefinition(handlerId);
+	// Check locally defined Handler
+	def = parent.getLayoutDefinition().getHandlerDefinition(handlerId);
 	if (def == null) {
-	    throw new SyntaxException("Handler '" + handlerId
-		+ "' in event '" + eventName + "' is not declared!  "
-		+ "Ensure the '@Handler' annotation has been defined "
-		+ "on the handler Java method, that it has been "
-		+ "compiled with the annotation processing tool, and "
-		+ "that the resulting"
-		+ " 'META-INF/jsftemplating/Handler.map' is located "
-		+ "in your classpath (you may need to do a clean "
-		+ "build).");
+	    // Check globally defined Handler
+	    def = LayoutDefinitionManager.getGlobalHandlerDefinition(handlerId);
+	    if (def == null) {
+		throw new SyntaxException("Handler '" + handlerId
+		    + "' in event '" + eventName + "' is not declared!  "
+		    + "Ensure the '@Handler' annotation has been defined "
+		    + "on the handler Java method, that it has been "
+		    + "compiled with the annotation processing tool, and "
+		    + "that the resulting"
+		    + " 'META-INF/jsftemplating/Handler.map' is located "
+		    + "in your classpath (you may need to do a clean "
+		    + "build).");
+	    }
 	}
 
 	// Create a Handler

@@ -8,6 +8,21 @@ JSFTemplating 2.0.4
 - Added flag for components to suppress duplicate id checking in debug mode.
   Flag is "skipIdCheck" and should be set as an attribute in the .jsf file
   of the component which should avoid checking for duplicate ids.
+- Added ability to define "instance" handlers.  These are essentially macro
+  handlers that can be defined on a page (LayoutDefinition actually).  This
+  is done by doing something like this:
+
+    <handler id="handler-id-here">
+	println("Whatever handler you want");
+	asMany(value="as you want");
+	println("Use scopes to #{pass.info} to/from embedded handlers.");
+    </handler>
+
+  You can then use it in an event: handler-id-here();
+
+  Parameter passing directly via the handler invocation is not currently
+  supported.
+- Updated the faces-config.xml file to use 1.2 (previously referring to 1.1)
 
 JSFTemplating 2.0.3
 ============================================================
