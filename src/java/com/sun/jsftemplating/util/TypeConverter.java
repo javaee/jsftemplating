@@ -23,6 +23,7 @@
 package com.sun.jsftemplating.util;
 
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -553,7 +554,7 @@ public class TypeConverter extends Object {
 	    if (value.getClass().isArray()) {
 		// This is a byte array; we can convert it to a string
 		if (value.getClass().getComponentType() == Byte.TYPE) {
-		    value = new String((byte[]) value);
+		    value = new String((byte[]) value, UTF8);
 		} else if (value.getClass().getComponentType() == Character.TYPE) {
 		    value = new String((char[]) value);
 		}
@@ -1044,6 +1045,7 @@ public class TypeConverter extends Object {
      *	    application.</p>
      */
     private static final String CONVERSIONS =	"__jsft_TypeConversions";
+    private static final Charset UTF8	    =	Charset.forName("UTF-8");
 
 
     /** Logical type name "null" */

@@ -17,7 +17,7 @@
 -->
 
 <!-- Build file for JSFTemplating -->
-<project name="JSFTemplating" default="jar" basedir="." xmlns:artifact="urn:maven-artifact-ant">
+<project name="JSFTemplating" default="jar-all" basedir="." xmlns:artifact="urn:maven-artifact-ant">
 
     <!-- Set properties -->
     <!-- NOTE: Change jsftemplating.bnd also to change the version! -->
@@ -25,6 +25,12 @@
     <property file="user.properties" />
     <property file="build.properties" />
     <property name="remote.repo.url" value="java-net:/maven2-repository/trunk/repository"/>
+
+    <path id="jsft-dependencies">
+        <pathelement location="${servlet-api.jar}" />
+        <pathelement location="${jsf-api.jar}" />
+        <pathelement location="${el-api.jar}" />
+    </path>
 
     <path id="dependencies">
         <pathelement location="${servlet-api.jar}" />
@@ -75,7 +81,7 @@
 	</tstamp>
     </target>
 
-    <target name="build" depends="jar" description="Build the project"/>
+    <target name="build" depends="jar-all" description="Build the project"/>
 
     <target name="all" depends="build, build-samples" description="Build the project and the samples"/>
 
@@ -106,7 +112,7 @@
 		destdir="${build}/."
 		debug="${compile.debug}"
 		deprecation="${compile.deprecation}"
-		excludes="**/annotation/**"
+		excludes="**/annotation/**,com/sun/jsft/**"
 		optimize="${compile.optimize}">
 		<!--
 		target="${compile.target}"
@@ -114,6 +120,45 @@
 		-->
 	    <classpath refid="dependencies" />
 	</apt>
+    </target>
+
+    <target name="jsft-comp" depends="init" description="Compile source">
+        <mkdir dir="${build}/." />
+	<javac	srcdir="${src}"
+		fork="true"
+		destdir="${build}/."
+		debug="${compile.debug}"
+		deprecation="${compile.deprecation}"
+		excludes="com/sun/jsftemplating/**"
+		optimize="${compile.optimize}">
+		<!--
+		target="${compile.target}"
+		source="${source.version}"
+		-->
+	    <classpath refid="jsft-dependencies" />
+	</javac>
+    </target>
+
+    <target name="jar-all" depends="jsft,oldjsftemplating" description="Package everything: jsftemplating.jar and jsft.jar" />
+
+    <target name="jsft" depends="jsft-comp" description="Package the project">
+	<mkdir dir="${dist}/." />
+	<echo>Copying misc files to build directory.</echo>
+	<copy todir="${build}/META-INF" filtering="false" overwrite="true">
+	    <fileset dir="${jsftemplating.home}/../jsft" includes="*.xml" />
+	</copy>
+
+	<!-- build the jsft.jar file -->
+	<echo>Building ${jsft.jar}</echo>
+
+	<!-- Apply bnd to generate OSGi header info -->
+	<taskdef resource="aQute/bnd/ant/taskdef.properties" classpath="${bnd.jar}" />
+	<bnd files="jsft.bnd" sourcepath="${src}" classpath="${build}" output="${jsft.jar}" />
+
+	<!-- Copy .jar file to the demo app -->
+	<copy todir="eventdemo/WEB-INF/lib" filtering="true" overwrite="true">
+	    <fileset file="${jsft.jar}"/>
+	</copy>
     </target>
 
     <macrodef name="build.jar">
@@ -133,7 +178,7 @@
 	</sequential>
     </macrodef>
     
-    <target name="jar" depends="compile" description="Package the project">
+    <target name="oldjsftemplating" depends="compile" description="Package the project">
 	<mkdir dir="${dist}/." />
 	<echo>Copying misc files to build directory.</echo>
 	<copy todir="${dist}/.">
@@ -159,9 +204,10 @@
 	<!-- <build.jar jarfile="${jsftemplating-base.jar}" xml=" "/> -->
     </target>
 
-    <target name="jarsrc" depends="jar" description="Package the project source">
-	 <jar jarfile="${jsftemplating-src.jar}" basedir="${src}" excludes="**/CVS/*,**/annotation**" update="true"/>
-	 <jar jarfile="${jsftemplating-dt-src.jar}" basedir="${src}" includes="**/annotation/**" update="true"/>
+    <target name="jarsrc" description="Package the project source">
+	 <jar jarfile="${jsft-src.jar}" basedir="${src}" excludes="**/CVS/*,**/annotation**,**/com/sun/jsftemplating/**" update="true" />
+	 <jar jarfile="${jsftemplating-src.jar}" basedir="${src}" excludes="**/CVS/*,**/annotation**,**/com/sun/jsft/**" update="true" />
+	 <jar jarfile="${jsftemplating-dt-src.jar}" basedir="${src}" includes="**/annotation/**" update="true" />
     </target>
 
     <target name="javadoc" depends="build" description="Generate javadocs">
@@ -200,7 +246,7 @@
     </target>
 
 
-    <target name="compileTest" depends="jar">
+    <target name="compileTest" depends="jar-all">
         <mkdir dir="${test}/build/." />
 
         <!-- Compile the java code from ${src} into ${build} -->
@@ -217,6 +263,7 @@
         <delete dir="${dist}" />
         <delete dir="${test}/build" />
         <delete dir="${docs}" />
+	<delete dir="eventdemo/WEB-INF/lib" />
         <ant dir="samples" target="clean" />
     </target>
 
@@ -263,7 +310,7 @@
                        overwrite="yes"/>
     </target>
     
-    <target name="push-to-maven-prepare" depends="jar,jarsrc" description="Prepare artifacts for deployment to the Maven repo">
+    <target name="push-to-maven-prepare" depends="jar-all,jarsrc" description="Prepare artifacts for deployment to the Maven repo">
         <taskdef resource="maven-repository-importer.properties">
             <classpath>
                 <pathelement path="${maven-repository-importer.jar}" />
@@ -309,8 +356,10 @@
     </target>
 
     <target name="initialize.maven">
-        <!--download ant-tasks -->
+        <!--download ant-tasks
+	     This is currently failing... I check in the .jar file to avoid this hassle
         <get src="http://mirror.its.uidaho.edu/pub/apache/maven/binaries/maven-ant-tasks-2.1.0.jar" dest="maven-ant-tasks.jar"/>   
+	-->
         <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="urn:maven-artifact-ant"
                  classpath="maven-ant-tasks.jar"/>
         <condition property="maven.repo.local" value="${maven.repo.local}" else="${user.home}/.m2/repository">

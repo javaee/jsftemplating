@@ -1,0 +1,4 @@
+Export-Package=*
+Bundle-Version=2.1.0
+Bundle-SymbolicName=com.sun.jsft
+Bundle-Description=JSFTemplating framework for JavaServer Faces 2.1
