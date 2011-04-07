@@ -92,13 +92,6 @@ public class UtilCommands {
     }
 
     /**
-     * For testing...
-     */
-    public String getTest() {
-	return "Hello World Test!";
-    }
-
-    /**
      *	<p> This command writes using
      *	    <code>FacesContext.getResponseWriter()</code>.</p>
      *
@@ -113,6 +106,70 @@ public class UtilCommands {
 	} catch (IOException ex) {
 	    throw new RuntimeException(ex);
 	}
+    }
+
+    /**
+     *	<p> This command provides a way to see the call stack by printing a
+     *	    stack trace.  The output will go to stderr and will also be
+     *	    returned in the output value "stackTrace".  An optional message
+     *	    may be provided to be included in the trace.</p>
+     */
+    public void printStackTrace(String msg) {
+	// See if we have a message to print w/ it
+	if (msg == null) {
+	    msg = "";
+	}
+
+	// Get the StackTrace
+	StringWriter strWriter = new StringWriter();
+	new RuntimeException(msg).printStackTrace(new PrintWriter(strWriter));
+	String trace = strWriter.toString();
+
+	// Print it to stderr and return it
+	System.err.println(trace);
+    }
+    
+    /**
+     *	<p> This command prints out the contents of the given
+     *	    <code>UIComponent</code>'s attribute map.</p>
+     */
+    public void dumpAttributeMap(UIComponent comp) {
+	if (comp != null) {
+            Map<String,Object> map = comp.getAttributes();
+            for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry me = (Map.Entry)iter.next();
+                System.out.println("key="+ me.getKey()+"'"+"value="+ me.getValue());
+            }
+        } else {
+            System.out.println("UIComponent is null");
+        }
+    }
+
+    /**
+     *	<p> This command marks the response complete.  This means that no
+     *	    additional response will be sent.  This is useful if you've
+     *	    provided a response already and you don't want JSF to do it again
+     *	    (it may cause problems to do it 2x).</p>
+     *
+     *	@param	context	The HandlerContext.
+     */
+    public static void responseComplete() {
+	FacesContext.getCurrentInstance().responseComplete();
+    }
+
+    /**
+     *	<p> This command indicates to JSF that the request should proceed
+     *	    immediately to the render response phase.  It will be ignored if
+     *	    rendering has already begun.  This is useful if you want to stop
+     *	    processing and jump to the response.  This is often the case when
+     *	    an error ocurrs or validation fails.  Typically the page the user
+     *	    is on will be reshown (although if navigation has already
+     *	    occurred, the new page will be shown.</p>
+     *
+     *	@param	context	The HandlerContext.
+     */
+    public void renderResponse() {
+	FacesContext.getCurrentInstance().renderResponse();
     }
 
     /**
@@ -243,43 +300,6 @@ public class UtilCommands {
      */
 
     /**
-     *	<p> This command provides a way to see the call stack by printing a
-     *	    stack trace.  The output will go to stderr and will also be
-     *	    returned in the output value "stackTrace".  An optional message
-     *	    may be provided to be included in the trace.</p>
-     */
-    public void printStackTrace(String msg) {
-	// See if we have a message to print w/ it
-	if (msg == null) {
-	    msg = "";
-	}
-
-	// Get the StackTrace
-	StringWriter strWriter = new StringWriter();
-	new RuntimeException(msg).printStackTrace(new PrintWriter(strWriter));
-	String trace = strWriter.toString();
-
-	// Print it to stderr and return it
-	System.err.println(trace);
-    }
-    
-    /**
-     *	<p> This command prints out the contents of the given
-     *	    <code>UIComponent</code>'s attribute map.</p>
-     */
-    public void dumpAttributeMap(UIComponent comp) {
-	if (comp != null) {
-            Map<String,Object> map = comp.getAttributes();
-            for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
-                Map.Entry me = (Map.Entry)iter.next();
-                System.out.println("key="+ me.getKey()+"'"+"value="+ me.getValue());
-            }
-        } else {
-            System.out.println("UIComponent is null");
-        }
-    }
-
-    /**
      *	<p> This command url-encodes the given String.  It will return null if
      *	    null is given and it will use a default encoding of "UTF-8" if no
      *	    encoding is specified.</p>
@@ -309,33 +329,6 @@ public class UtilCommands {
 	context.setOutputValue("result", value);
     }
      */
-
-    /**
-     *	<p> This command marks the response complete.  This means that no
-     *	    additional response will be sent.  This is useful if you've
-     *	    provided a response already and you don't want JSF to do it again
-     *	    (it may cause problems to do it 2x).</p>
-     *
-     *	@param	context	The HandlerContext.
-     */
-    public static void responseComplete() {
-	FacesContext.getCurrentInstance().responseComplete();
-    }
-
-    /**
-     *	<p> This command indicates to JSF that the request should proceed
-     *	    immediately to the render response phase.  It will be ignored if
-     *	    rendering has already begun.  This is useful if you want to stop
-     *	    processing and jump to the response.  This is often the case when
-     *	    an error ocurrs or validation fails.  Typically the page the user
-     *	    is on will be reshown (although if navigation has already
-     *	    occurred, the new page will be shown.</p>
-     *
-     *	@param	context	The HandlerContext.
-     */
-    public void renderResponse() {
-	FacesContext.getCurrentInstance().renderResponse();
-    }
 
     /**
      *	<p> This command gets the current system time in milliseconds.  It may

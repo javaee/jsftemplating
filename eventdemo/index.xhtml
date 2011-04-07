@@ -4,13 +4,20 @@
 <ui:composition>
 <f:view contentType="text/html">
     <h:form>
-	Test: #{util.test} <br />
+	<jsft:event type="preRenderComponent">
+	    util.println('preRenderComponent');
+	</jsft:event>
 
 	<jsft:event type="beforeEncode">
 	    util.println('hi');
 	    util.println(param['foo']);
 	    util.println(component);
-	    util.write(theEvent);
+	    if (false) {
+		util.write(theEvent);
+	    }
+	    if (true) {
+		util.write('&lt;br&gt;test');
+	    }
 	</jsft:event>
 
     </h:form>

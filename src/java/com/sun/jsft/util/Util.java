@@ -56,8 +56,8 @@ import javax.faces.context.FacesContext;
 /**
  *  <p>	This class is for general purpose utility methods.</p>
  *
- *  Created March 29, 2011
- *  @author Ken Paulsen kenapaulsen@gmail.com
+ *  Created  March 29, 2011
+ *  @author  Ken Paulsen (kenapaulsen@gmail.com)
  */
 public class Util {
 

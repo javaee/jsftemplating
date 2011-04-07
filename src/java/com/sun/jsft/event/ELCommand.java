@@ -44,6 +44,7 @@ package com.sun.jsft.event;
 import com.sun.jsft.util.Util;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 import javax.el.ELContext;
 import javax.el.ExpressionFactory;
@@ -55,27 +56,31 @@ import javax.faces.event.ComponentSystemEventListener;
 
 
 /**
- *  <p>	This class handles the dispatching of events to commands.  Currently
- *	Commands delegate execution to EL.  In the future, other Command types
- *	may be supported.</p>
+ *  <p>	This class represents a Command that is processed via Unified EL.</p>
  *
- *  Created  March 29, 2011
+ *  Created  March 31, 2011
  *  @author  Ken Paulsen (kenapaulsen@gmail.com)
  */
-public class CommandEventListener extends Command implements ComponentSystemEventListener {
+public class ELCommand extends Command {
 
     /**
      *	<p> Default constructor needed for serialization.</p>
      */
-    public CommandEventListener() {
+    public ELCommand() {
     }
 
     /**
-     *	<p> Primary constructor used.  It is neeeded in order to supply a list
-     *	    of commands.</p>
+     *	<p> This constructor should be used to create a new
+     *	    <code>ELCommand</code> instance.  It expects to be passed an
+     *	    expression, and optionally a List&lt;Command&gt; that represent
+     *	    <i>child</i> commands.</p>
+     *
+     *	    FIXME: Add more documentation on how this works...
      */
-    public CommandEventListener(List<Command> commands) {
-	super(commands);
+// FIXME: Figure out how to represent the result (another el?)
+    public ELCommand(String el, List<Command> childCommands) {
+	super(childCommands);
+	this.el = el;
     }
 
     /**
@@ -85,32 +90,32 @@ public class CommandEventListener extends Command implements ComponentSystemEven
      *	    it can be accessed easiliy via EL.  For example:
      *	    <code>util.println(theEvent);</code></p>
      */
-    public void processEvent(ComponentSystemEvent event) throws AbortProcessingException {
+    public Object invoke() throws AbortProcessingException {
+	FacesContext ctx = FacesContext.getCurrentInstance();
+	ELContext elCtx = ctx.getELContext();
 
-	// Store the event under the key "theEvent" in case we want to access
-	// it for some reason.
-	FacesContext.getCurrentInstance().getExternalContext().getRequestMap().
-		put("theEvent", event);
+	// Store the Command for access inside the expression.
+	// This is useful for loops or other commands which need access to
+	// their child Commands.
+	ctx.getExternalContext().getRequestMap().put(COMMAND_KEY, this);
 
-	// Execute the child commands
-	invoke();
+	// Create expression
+	ValueExpression ve = ctx.getApplication().getExpressionFactory().
+		createValueExpression(
+			elCtx, "#{" + this.el + "}", Object.class);
+
+	// Execute expression
+	return ve.getValue(elCtx);
     }
 
     /**
-     *	<p> This is the method responsible for performing the action.  It is
-     *	    also responsible for invoking any of its child commands.</p>
+     *	<p> Print out the <code>ELCommand</code>.</p>
      */
-    public Object invoke() throws AbortProcessingException {
-	// Get the child commands...
-	List<Command> commands = getChildCommands();
-
-	// Iterate through the commands and invoke them
-	if (commands != null) {
-	    for (Command command : commands) {
-		command.invoke();
-	    }
-	}
-	return null;
+    @Override
+    public String toString() {
+	StringBuilder buf = new StringBuilder(el);
+	buf.append(super.toString());
+	return buf.toString();
     }
 
     @Override
@@ -122,22 +127,22 @@ public class CommandEventListener extends Command implements ComponentSystemEven
             return false;
         }
 
-        CommandEventListener that = (CommandEventListener) obj;
+        ELCommand that = (ELCommand) obj;
 
-	if (hashCode() != that.hashCode()) {
-	    return false;
+	if (hashCode() == that.hashCode()) {
+	    return true;
 	}
 
-        return true;
+        return false;
     }
 
     @Override
     public int hashCode() {
 	if (hash == -1) {
-	    StringBuilder builder = new StringBuilder("");
-	    List<Command> commands = getChildCommands();
-	    if (commands != null) {
-		for (Command command : commands) {
+	    StringBuilder builder = new StringBuilder(el);
+	    List<Command> children = getChildCommands();
+	    if (children != null) {
+		for (Command command : children) {
 		    builder.append(command.toString());
 		}
 	    }
@@ -146,7 +151,7 @@ public class CommandEventListener extends Command implements ComponentSystemEven
 	return hash;
     }
 
-
+    private String el = null;
     private transient int hash = -1;
-    private static final long serialVersionUID = 6945415935164238909L;
+    private static final long serialVersionUID = 6201115935164238909L;
 }

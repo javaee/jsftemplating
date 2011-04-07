@@ -41,12 +41,15 @@
 
 package com.sun.jsft.facelets;
 
+import com.sun.jsft.event.Command;
+import com.sun.jsft.event.ELCommand;
 import com.sun.jsft.event.CommandEventListener;
 import com.sun.jsft.util.Util;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -72,8 +75,8 @@ import javax.faces.view.facelets.TagHandler;
 /**
  *  <p>	This is the TagHandler for the jsft:event tag.</p>
  *
- *  Created March 29, 2011
- *  @author Ken Paulsen kenapaulsen@gmail.com
+ *  Created  March 29, 2011
+ *  @author  Ken Paulsen (kenapaulsen@gmail.com)
  */
 public class EventHandler extends TagHandler {
 
@@ -81,60 +84,46 @@ public class EventHandler extends TagHandler {
      *	<p> Constructor.</p>
      */
     public EventHandler(TagConfig config) {
-        super(config);
+	super(config);
 	
-        this.type = this.getRequiredAttribute("type");
+	this.type = this.getRequiredAttribute("type");
 	if (!(config.getNextHandler().getClass().getName().equals(
 		    "com.sun.faces.facelets.compiler.UIInstructionHandler"))) {
 	    // This occurs when an empty jsft:event tag is used... ignore
 	    return;
 	}
 
-	/*
-	TagAttribute atts[] = config.getTag().getAttributes().getAll();
-	for (TagAttribute att : atts) {
-	    System.out.println("ATTRIBUTE[" + att.getLocalName() + "] = " + att.getValue());
-	}
-	System.out.println("NEXT HANDLER: " + config.getNextHandler());
-	*/
+	// Create a CommandReader
+	CommandReader reader = new CommandReader(config.getNextHandler().toString());
 
-	// Split apart the EL commands
-	StringTokenizer tok = new StringTokenizer(config.getNextHandler().toString(), ";");
-	String next = null;
-	while (tok.hasMoreTokens()) {
-	    next = tok.nextToken().trim();
-	    if (next.equals("")) {
-		continue;
-	    }
-	    if (next.startsWith("#{")) {
-		if (!next.endsWith("}")) {
-		    throw new FacesException(
-			"Expression started with #{ but did not end with }!");
-		}
-		next = next.substring(2, next.length() - 1);
-	    }
-	    commands.add(next);
+	// Read the Commands
+	try {
+	    commands = reader.read();
+	} catch (IOException ex) {
+	    throw new RuntimeException(
+		    "Unable to parse Commands for event type '" + type + "'.",
+		    ex);
 	}
     }
 
     /**
      *	<p> This method is responsible for queueing up the EL that should be
-     *	:   invoked when the event is fired.</p>
+     *	    invoked when the event is fired.</p>
      */
     public void apply(FaceletContext ctx, UIComponent parent) throws IOException {
-        if (ComponentHandler.isNew(parent)) {
-            Class<? extends SystemEvent> eventClass = getEventClass(ctx);
-            // ensure that f:event can be used anywhere on the page for
+	if (ComponentHandler.isNew(parent)) {
+	    Class<? extends SystemEvent> eventClass = getEventClass(ctx);
+	    // ensure that f:event can be used anywhere on the page for
 	    // these events, not just as a direct child of the viewRoot
-            if ((PreRenderViewEvent.class == eventClass)
+	    if ((PreRenderViewEvent.class == eventClass)
 		    || (PostConstructViewMapEvent.class == eventClass)
 		    || (PreDestroyViewMapEvent.class == eventClass)) {
-                parent = ctx.getFacesContext().getViewRoot();
-            }
-            if ((eventClass != null) && (parent != null)) {
-                parent.subscribeToEvent(eventClass, new CommandEventListener(this.commands));
-            }
-        } else {
+		parent = ctx.getFacesContext().getViewRoot();
+	    }
+	    if ((eventClass != null) && (parent != null)) {
+		parent.subscribeToEvent(eventClass, new CommandEventListener(this.commands));
+	    }
+	} else {
 	    // already done...
 	}
     }
@@ -176,10 +165,10 @@ public class EventHandler extends TagHandler {
      *		    event type.
      */
     protected Class<? extends SystemEvent> getEventClass(FaceletContext ctx) {
-        String eventType = (String) this.type.getValueExpression(ctx, String.class).getValue(ctx);
-        if (eventType == null) {
-            throw new FacesException("Attribute 'type' can not be null!");
-        }
+	String eventType = (String) this.type.getValueExpression(ctx, String.class).getValue(ctx);
+	if (eventType == null) {
+	    throw new FacesException("Attribute 'type' can not be null!");
+	}
 
 	// Check the pre-defined types / aliases
 	Class cls = eventAliases.get(eventType);
@@ -197,31 +186,44 @@ public class EventHandler extends TagHandler {
 	return cls;
     }
 
+    /**
+     *	<p> Print out the <code>Command</code>.</p>
+     */
+    @Override
+    public String toString() {
+	StringBuilder buf = new StringBuilder("");
+	Iterator<Command> it = commands.iterator();
+	while (it.hasNext()) {
+	    buf.append(it.next().toString());
+	}
+	return buf.toString();
+    }
+
     private static Map<String, Class<? extends SystemEvent>> eventAliases = new HashMap<String, Class<? extends SystemEvent>>(20);
     static {
-        eventAliases.put("beforeEncode", PreRenderComponentEvent.class);
-        eventAliases.put("preRenderComponent", PreRenderComponentEvent.class);
-        eventAliases.put("javax.faces.event.PreRenderComponent", PreRenderComponentEvent.class);
+	eventAliases.put("beforeEncode", PreRenderComponentEvent.class);
+	eventAliases.put("preRenderComponent", PreRenderComponentEvent.class);
+	eventAliases.put("javax.faces.event.PreRenderComponent", PreRenderComponentEvent.class);
 
-        eventAliases.put("beforeEncodeView", PreRenderViewEvent.class);
-        eventAliases.put("preRenderView", PreRenderViewEvent.class);
-        eventAliases.put("javax.faces.event.PreRenderView", PreRenderViewEvent.class);
+	eventAliases.put("beforeEncodeView", PreRenderViewEvent.class);
+	eventAliases.put("preRenderView", PreRenderViewEvent.class);
+	eventAliases.put("javax.faces.event.PreRenderView", PreRenderViewEvent.class);
 
-        eventAliases.put("afterCreate", PostAddToViewEvent.class);
-        eventAliases.put("postAddToView", PostAddToViewEvent.class);
-        eventAliases.put("javax.faces.event.PostAddToView", PostAddToViewEvent.class);
+	eventAliases.put("afterCreate", PostAddToViewEvent.class);
+	eventAliases.put("postAddToView", PostAddToViewEvent.class);
+	eventAliases.put("javax.faces.event.PostAddToView", PostAddToViewEvent.class);
 
 	eventAliases.put("afterCreateView", PostRestoreStateEvent.class);
 	eventAliases.put("postRestoreState", PostRestoreStateEvent.class);
 	eventAliases.put("javax.faces.event.PostRestoreStateEvent", PostRestoreStateEvent.class);
 
-        eventAliases.put("beforeValidate", PreValidateEvent.class);
-        eventAliases.put("preValidate", PreValidateEvent.class);
-        eventAliases.put("javax.faces.event.PreValidate", PreValidateEvent.class);
+	eventAliases.put("beforeValidate", PreValidateEvent.class);
+	eventAliases.put("preValidate", PreValidateEvent.class);
+	eventAliases.put("javax.faces.event.PreValidate", PreValidateEvent.class);
 
-        eventAliases.put("afterValidate", PostValidateEvent.class);
-        eventAliases.put("postValidate", PostValidateEvent.class);
-        eventAliases.put("javax.faces.event.PostValidate", PostValidateEvent.class);
+	eventAliases.put("afterValidate", PostValidateEvent.class);
+	eventAliases.put("postValidate", PostValidateEvent.class);
+	eventAliases.put("javax.faces.event.PostValidate", PostValidateEvent.class);
 
 	eventAliases.put("preRemoveFromView", PreRemoveFromViewEvent.class);
 	eventAliases.put("javax.faces.event.PreRemoveFromViewEvent", PreRemoveFromViewEvent.class);
@@ -242,5 +244,5 @@ public class EventHandler extends TagHandler {
     }
 
     protected final TagAttribute type;
-    protected List<String> commands = new ArrayList<String>(5);
+    protected List<Command> commands = new ArrayList<Command>(5);
 }

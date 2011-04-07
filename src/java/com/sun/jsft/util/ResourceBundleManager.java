@@ -53,8 +53,8 @@ import javax.faces.context.FacesContext;
 /**
  *  <p>	This class caches <code>ResourceBundle</code> objects per locale.</p>
  *
- *  Created March 29, 2011
- *  @author Ken Paulsen kenapaulsen@gmail.com
+ *  Created  March 29, 2011
+ *  @author  Ken Paulsen (kenapaulsen@gmail.com)
  */
 public class ResourceBundleManager {
 

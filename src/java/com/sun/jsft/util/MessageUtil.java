@@ -38,6 +38,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+
 package com.sun.jsft.util;
 
 import java.text.MessageFormat;
@@ -53,8 +54,8 @@ import com.sun.jsft.util.ResourceBundleManager;
 /**
  *  <p>	This class gets ResourceBundle messages and formats them.</p>
  *
- *  Created March 29, 2011
- *  @author Ken Paulsen kenapaulsen@gmail.com
+ *  Created  March 29, 2011
+ *  @author  Ken Paulsen (kenapaulsen@gmail.com)
  */
 public class MessageUtil extends Object {
 

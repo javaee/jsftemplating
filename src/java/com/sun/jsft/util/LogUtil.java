@@ -38,6 +38,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+
 package com.sun.jsft.util;
 
 import java.util.logging.Level;
@@ -62,8 +63,8 @@ import java.util.logging.Logger;
  *	    <li>SEVERE	-- Serious failure messages</li>
  *	</ul>
  *
- *  Created March 29, 2011
- *  @author Ken Paulsen kenapaulsen@gmail.com
+ *  Created  March 29, 2011
+ *  @author  Ken Paulsen (kenapaulsen@gmail.com)
  */
 public class LogUtil {
 
