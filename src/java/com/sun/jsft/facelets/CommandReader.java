@@ -143,6 +143,8 @@ public class CommandReader {
 	// Enable "if" keyword (beginning of expression only for now)
 	if (exp.startsWith("if")) {
 	    exp = "jsft._if" + exp.substring(2);
+	} else if (exp.startsWith("foreach")) {
+	    exp = "jsft.foreach" + exp.substring(7);
 	}
 	return exp;
     }

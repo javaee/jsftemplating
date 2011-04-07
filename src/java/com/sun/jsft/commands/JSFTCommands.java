@@ -99,4 +99,40 @@ public class JSFTCommands {
 	    }
 	}
     }
+
+    /**
+     *	<p> This command iterates over the given List and sets given
+     */
+    public void foreach(String var, List list) {
+	// Get the Request Map
+	Map<String, Object> reqMap = FacesContext.getCurrentInstance().
+		getExternalContext().getRequestMap();
+
+	// Get the Current Command...
+	Command command = (Command) reqMap.get(Command.COMMAND_KEY);
+
+	// Iterate over each item in the List
+	List<Command> childCommands = null;
+	for (Object item : list) {
+	    // Set the item in the request scope under the given key
+	    reqMap.put(var, item);
+
+	    // Invoke all the child commands
+	    childCommands = command.getChildCommands();
+	    if (childCommands != null) {
+		for (Command childCommand : childCommands) {
+		    childCommand.invoke();
+		}
+	    }
+	}
+    }
+
+    /**
+     *	<p> This command sets a requestScope attribute with the given
+     *	    <code>key</code> and <code>value</code>.</p>
+     */
+    public void setAttribute(String key, Object value) {
+	FacesContext.getCurrentInstance().getExternalContext().
+		getRequestMap().put(key, value);
+    }
 }
