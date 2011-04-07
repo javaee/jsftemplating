@@ -49,117 +49,42 @@
 <facelet-taglib>
     <namespace>http://jsftemplating.java.net/event</namespace>
     <tag>
-        <tag-name>event</tag-name>
+	<tag-name>event</tag-name>
 	<handler-class>com.sun.jsft.facelets.EventHandler</handler-class>
-        <attribute>
-            <description><![CDATA[
+	<attribute>
+	    <description><![CDATA[
+		<p> Name of the event for which to install a listener. The
+		following table lists the valid values for this attribute,
+		and the corresponding event type for which the listener
+		action is registered.</p>
 
-                <p class="changed_added_2_0">Name of the event for which
-                to install a listener. The following table lists the
-                valid values for this attribute, and the corresponding
-                event type for which the listener action is
-                registered.</p>
+		<table border="1">
+		    <tr><th>value for "<code>type</code>" tag attribute</th>
+			<th>Type of event sent to listener method</th></tr>
+		    <tr><td>preRenderComponent</td>
+			<td>javax.faces.event.PreRenderComponentEvent</td></tr>
+		    <tr><td>postAddToView</td>
+			<td>javax.faces.event.PostAddToViewEvent</td></tr>
+		    <tr><td>preValidate</td>
+			<td>javax.faces.event.PreValidateEvent</td></tr>
+		    <tr><td>postValidate</td>
+			<td>javax.faces.event.PostValidateEvent</td></tr>
+		</table>
 
-                <table border="1">
-                <tr>
+		<p> In addition to these values, the fully qualified class
+		    name of any java class that extends
+		    <code>javax.faces.event.ComponentSystemEvent</code> may be
+		    used as the value of the "type" attribute.</p>
 
-                <th>value for "<code>type</code>" tag
-                attribute</th>
-
-                <th>Type of event sent to listener method
-                </th>
-
-                </tr>
-
-                <tr>
-
-                <td>preRenderComponent
-                </td>
-
-                <td>javax.faces.event.PreRenderComponentEvent
-                </td>
-
-                </tr>
-
-                <tr>
-
-                <td>postAddToView
-                </td>
-
-                <td>javax.faces.event.PostAddToViewEvent
-                </td>
-
-                </tr>
-
-                <tr>
-
-                <td>preValidate
-                </td>
-
-                <td>javax.faces.event.PreValidateEvent
-                </td>
-
-                </tr>
-
-                <tr>
-
-                <td>postValidate
-                </td>
-
-                <td>javax.faces.event.PostValidateEvent
-                </td>
-
-                </tr>
-
-                </table>
-
-                <div class="changed_added_2_0">
-
-                <p>In addition to these values, the fully qualified class
-                name of any
-                java class that extends
-                <code>javax.faces.event.ComponentSystemEvent</code>
-                may be used as the
-                value of the "type" attribute.</p>
-
-                <p>Also, the <code>@javax.faces.event.NamedEvent</code>
-                annotation may
-                be attached to any java class that extends
-                <code>javax.faces.event.ComponentSystemEvent</code>.
-                This enables that
-                event to be referenced from this attribute, as descibed in the
-                javadocs
-                for <code>@NamedEvent</code>.</p>
-
-                </div>
-
-
-            ]]></description>
-            <name>type</name>
-            <required>true</required>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <description><![CDATA[
-
-              <p class="changed_modified_2_0_rev_a">The expression must
-              evaluate to a public method that takes a
-              <code>ComponentSystemEvent</code> parameter, with a return
-              type of void, or to a public method that takes no
-              arguments with a return type of void. In the latter case,
-              the method has no way of easily knowing where the event
-              came from, but this can be useful in cases where a
-              notification is needed that "an event happened".</p>
-            ]]></description>
-            <name>listener</name>
-            <required>true</required>
-            <method-signature>public void
-                listener(javax.faces.event.ComponentSystemEvent event) throws
-                javax.faces.event.AbortProcessingException
-            </method-signature>
-        </attribute>
+		<p> The listener that is registered will dipatch to the
+		    expressions specified in the body of this element.  Each
+		    expression must be separated by a semicolon and need not
+		    be enclosed in #{}.</p>
+	    ]]></description>
+	    <name>type</name>
+	    <required>true</required>
+	    <type>java.lang.String</type>
+	</attribute>
     </tag>
-
-    <handler-class>com.sun.jsft.facelets.EventHandler</handler-class>
 
 </facelet-taglib>
