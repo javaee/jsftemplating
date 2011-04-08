@@ -77,9 +77,9 @@ public class ELCommand extends Command {
      *
      *	    FIXME: Add more documentation on how this works...
      */
-// FIXME: Figure out how to represent the result (another el?)
-    public ELCommand(String el, List<Command> childCommands) {
+    public ELCommand(String resultVar, String el, List<Command> childCommands) {
 	super(childCommands);
+	this.resultVar = resultVar;
 	this.el = el;
     }
 
@@ -100,12 +100,27 @@ public class ELCommand extends Command {
 	ctx.getExternalContext().getRequestMap().put(COMMAND_KEY, this);
 
 	// Create expression
-	ValueExpression ve = ctx.getApplication().getExpressionFactory().
-		createValueExpression(
-			elCtx, "#{" + this.el + "}", Object.class);
+	ExpressionFactory fact = ctx.getApplication().getExpressionFactory();
+	ValueExpression ve = null;
+	Object result = null;
+	if (this.el.length() > 0) {
+	    ve = fact.createValueExpression(
+		    elCtx, "#{" + this.el + "}", Object.class);
+	    // Execute expression
+	    result = ve.getValue(elCtx);
 
-	// Execute expression
-	return ve.getValue(elCtx);
+	    // If we should store the result... do it.
+	    if (this.resultVar != null) {
+		ve = fact.createValueExpression(
+			elCtx, "#{" + this.resultVar + "}", Object.class);
+		ve.setValue(elCtx, result);
+	    }
+	} else {
+	    // Do this since we have no command to execute (which is normally
+	    // responsible for doing this)
+	    invokeChildCommands();
+	}
+	return result;
     }
 
     /**
@@ -151,6 +166,7 @@ public class ELCommand extends Command {
 	return hash;
     }
 
+    private String resultVar = null;
     private String el = null;
     private transient int hash = -1;
     private static final long serialVersionUID = 6201115935164238909L;

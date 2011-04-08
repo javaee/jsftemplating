@@ -85,6 +85,18 @@ public abstract class Command implements Serializable {
     }
 
     /**
+     *	<p> This method is a useful helper utility for invoking the child
+     *	    {@link Command}s.</p>
+     */
+    public void invokeChildCommands() {
+	if (this.childCommands != null) {
+	    for (Command childCommand : this.childCommands) {
+		childCommand.invoke();
+	    }
+	}
+    }
+
+    /**
      *	<p> Print out the <code>ELCommand</code>.</p>
      */
     @Override

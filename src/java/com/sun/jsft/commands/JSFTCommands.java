@@ -91,12 +91,7 @@ public class JSFTCommands {
 	    Command command = (Command) FacesContext.getCurrentInstance().
 		    getExternalContext().getRequestMap().
 		    get(Command.COMMAND_KEY);
-	    List<Command> childCommands = command.getChildCommands();
-	    if (childCommands != null) {
-		for (Command childCommand : childCommands) {
-		    childCommand.invoke();
-		}
-	    }
+	    command.invokeChildCommands();
 	}
     }
 
@@ -134,5 +129,14 @@ public class JSFTCommands {
     public void setAttribute(String key, Object value) {
 	FacesContext.getCurrentInstance().getExternalContext().
 		getRequestMap().put(key, value);
+    }
+
+    /**
+     *	<p> This command gets a requestScope attribute with the given
+     *	    <code>key</code>.</p>
+     */
+    public Object getAttribute(String key) {
+	return FacesContext.getCurrentInstance().getExternalContext().
+		getRequestMap().get(key);
     }
 }

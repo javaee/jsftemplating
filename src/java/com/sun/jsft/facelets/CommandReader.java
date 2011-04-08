@@ -121,15 +121,23 @@ public class CommandReader {
 	    parser.unread(ch);
 	}
 
-	// FIXME: Handle return values, for now assume they are not supported...
+	// Check to see if there is a variable to store the result...
+	String variable = null;
+	int idx = indexOf((byte) '=', commandLine);
+	if (idx != -1) {
+	    // We have a result variable, store it separately...
+	    variable = commandLine.substring(0, idx).trim();
+	    commandLine = commandLine.substring(++idx).trim();
+	}
 
 	// Create the Command
 	Command command = null;
-	if (commandLine.length() > 0) {
+	if ((commandLine.length() > 0) || (commandChildren != null)) {
 	    command = new ELCommand(
-		    convertKeywords(commandLine), commandChildren);
+		    variable,
+		    convertKeywords(commandLine),
+		    commandChildren);
 	}
-// FIXME: else if (commandChildren != null) <-- may happen if empty {} block is used
 
 	// Return the LayoutElement
 	return command;
@@ -140,13 +148,51 @@ public class CommandReader {
      *	    developer convenience.</p>
      */
     private String convertKeywords(String exp) {
-	// Enable "if" keyword (beginning of expression only for now)
-	if (exp.startsWith("if")) {
-	    exp = "jsft._if" + exp.substring(2);
-	} else if (exp.startsWith("foreach")) {
-	    exp = "jsft.foreach" + exp.substring(7);
+	if (exp != null) {
+	    // Enable "if" keyword (beginning of expression only for now)
+	    if (exp.startsWith("if")) {
+		exp = "jsft._if" + exp.substring(2);
+	    } else if (exp.startsWith("foreach")) {
+		exp = "jsft.foreach" + exp.substring(7);
+	    }
 	}
 	return exp;
+    }
+
+    /**
+     *	<p> This method looks for the given <code>char</code> in the given
+     *	    <code>String</code>.  It will not match any values that are
+     *	    found within parenthesis or quotes.</p>
+     */
+    private int indexOf(byte ch, String str) {
+	byte[] bytes = str.getBytes();
+	
+	int idx = 0;
+	int insideChar = -1;
+	for (byte curr : bytes) {
+	    if (insideChar == -1) {
+		// Not inside anything...
+		if (ch == curr) {
+		    break;
+		} else if (('\'' == curr) || ('"' == curr)) {
+		    insideChar = curr;
+		} else if ('(' == curr) {
+		    insideChar = ')';
+		} else if ('[' == curr) {
+		    insideChar = ']';
+		}
+	    } else if (insideChar == curr) {
+		// Was inside something, ending now...
+		insideChar = -1;
+	    }
+	    idx++;
+	}
+
+	// If we found it return it, otherwise return -1
+	if (idx >= bytes.length) {
+	    idx = -1;
+	}
+	return idx;
     }
 
     /**
