@@ -141,7 +141,7 @@ public class LayoutViewHandler extends ViewHandler {
 	}
 
 	// Check to see if jsftemplating should create the view
-	if(!this.isMappedView(viewId)) {
+	if(!this.isMappedView(viewId) || (viewId == null)) {
 	    UIViewRoot viewRoot = _oldViewHandler.createView(context, viewId);
 	    return viewRoot;
 	}
