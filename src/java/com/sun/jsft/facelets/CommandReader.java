@@ -68,7 +68,8 @@ public class CommandReader {
      *	<p> Constructor.</p>
      */
     public CommandReader(String str) {
-	this(new ByteArrayInputStream(("{" + str + "}").getBytes()));
+	this(new ByteArrayInputStream(
+		("{" + CommandReader.unwrap(str) + "}").getBytes()));
     }
 
     /**
@@ -253,6 +254,24 @@ public class CommandReader {
 	// Return the Commands
 	return commands;
     }
+
+    /**
+     *	<p> This function removes the containing CDATA tags, if found.</p>
+     */
+    private static String unwrap(String str) {
+	str = str.trim();
+	if (str.startsWith(OPEN_CDATA)) {
+	    int endingIdx = str.lastIndexOf(CLOSE_CDATA);
+	    if (endingIdx != -1) {
+		// Remove the CDATA wrapper
+		str = str.substring(OPEN_CDATA.length(), endingIdx);
+	    }
+	}
+	return str;
+    }
+
+    private static final String	    OPEN_CDATA	= "<![CDATA[";
+    private static final String	    CLOSE_CDATA	= "]]>";
 
     private CommandParser  _parser    = null;
 }
