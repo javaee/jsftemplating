@@ -75,7 +75,7 @@ public class CommandEventListener extends Command implements ComponentSystemEven
      *	    of commands.</p>
      */
     public CommandEventListener(List<Command> commands) {
-	super(commands);
+	super(commands, null);
     }
 
     /**
@@ -101,15 +101,9 @@ public class CommandEventListener extends Command implements ComponentSystemEven
      *	    also responsible for invoking any of its child commands.</p>
      */
     public Object invoke() throws AbortProcessingException {
-	// Get the child commands...
-	List<Command> commands = getChildCommands();
+	// Invoke the child commands...
+	invokeChildCommands();
 
-	// Iterate through the commands and invoke them
-	if (commands != null) {
-	    for (Command command : commands) {
-		command.invoke();
-	    }
-	}
 	return null;
     }
 

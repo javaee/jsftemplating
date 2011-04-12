@@ -65,8 +65,9 @@ public abstract class Command implements Serializable {
     /**
      *	<p> Constructor which sets the child commands.</p>
      */
-    public Command(List<Command> children) {
+    public Command(List<Command> children, Command elseCommand) {
 	setChildCommands(children);
+	setElseCommand(elseCommand);
     }
 
     /**
@@ -74,6 +75,15 @@ public abstract class Command implements Serializable {
      *	    also responsible for invoking any of its child commands.</p>
      */
     public abstract Object invoke() throws AbortProcessingException;
+
+    /**
+     *	<p> This getter method retrieves the command to be invoked if this
+     *	    command has an "else" clause.  In most cases this will return
+     *	    <code>null</code>.</p>
+     */
+    public Command getElseCommand() {
+	return this.elseCommand;
+    }
 
     /**
      *	<p> Returns a reference to list of child commands.  Note, there is
@@ -119,7 +129,15 @@ public abstract class Command implements Serializable {
      *
      */
     private void setChildCommands(List<Command> commands) {
-	childCommands = commands;
+	this.childCommands = commands;
+    }
+
+    /**
+     *	<p> This setter method stores the command to be invoked if this
+     *	    command has an "else" clause.</p>
+     */
+    private void setElseCommand(Command command) {
+	this.elseCommand = command;
     }
 
 
@@ -132,4 +150,5 @@ public abstract class Command implements Serializable {
     private static final long serialVersionUID = 6945415932011238909L;
 
     private List<Command> childCommands = null;
+    private Command elseCommand = null;
 }

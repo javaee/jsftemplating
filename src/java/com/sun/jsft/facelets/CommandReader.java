@@ -77,7 +77,7 @@ public class CommandReader {
      *	@param	stream	The <code>InputStream</code> for the {@link Command}.
      */
     protected CommandReader(InputStream stream) {
-	parser = new CommandParser(stream);
+	_parser = new CommandParser(stream);
     }
 
     /**
@@ -91,13 +91,13 @@ public class CommandReader {
      */
     public List<Command> read() throws IOException {
 	// Start...
-	parser.open();
+	_parser.open();
 
 	try {
 	    // Populate the LayoutDefinition from the Document
 	    return readCommandList();
 	} finally {
-	    parser.close();
+	    _parser.close();
 	}
     }
 
@@ -106,19 +106,19 @@ public class CommandReader {
      */
     private Command readCommand() throws IOException {
 	// Skip White Space...
-	parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
+	_parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
 
 	// Read the next Command
-	String commandLine = parser.readUntil(new int[] {';', '{', '}'}, true);
+	String commandLine = _parser.readUntil(new int[] {';', '{', '}'}, true);
 
 	// Read the children
-	int ch = parser.nextChar();
+	int ch = _parser.nextChar();
 	List<Command> commandChildren = null;
 	if (ch == '{') {
 	    // Read the Command Children 
 	    commandChildren = readCommandList();
 	} else if (ch == '}') {
-	    parser.unread(ch);
+	    _parser.unread(ch);
 	}
 
 	// Check to see if there is a variable to store the result...
@@ -130,13 +130,46 @@ public class CommandReader {
 	    commandLine = commandLine.substring(++idx).trim();
 	}
 
+	// If "if" handle "else" if present
+	Command elseCommand = null;
+	if (commandLine.startsWith("if")) {
+	    // First convert "if" to the real if handler...
+	    commandLine = "jsft._if" + commandLine.substring(2);
+
+	    // Check the next few characters to see if they are "else"...
+	    _parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
+	    int next[] = new int[] {
+		_parser.nextChar(),
+		_parser.nextChar(),
+		_parser.nextChar(),
+		_parser.nextChar(),
+		_parser.nextChar()
+	    };
+	    if ((next[0] == 'e')
+		    && (next[1] == 'l')
+		    && (next[2] == 's')
+		    && (next[3] == 'e')
+		    && (Character.isWhitespace((char) next[4]))) {
+		// This is an else case, parse it...
+		elseCommand = readCommand();
+	    } else {
+		// Not an else, restore the parser state
+		for (idx=4; idx > -1; idx--) {
+		    if (next[idx] != -1) {
+			_parser.unread(next[idx]);
+		    }
+		}
+	    }
+	}
+
 	// Create the Command
 	Command command = null;
 	if ((commandLine.length() > 0) || (commandChildren != null)) {
 	    command = new ELCommand(
 		    variable,
 		    convertKeywords(commandLine),
-		    commandChildren);
+		    commandChildren,
+		    elseCommand);
 	}
 
 	// Return the LayoutElement
@@ -149,11 +182,11 @@ public class CommandReader {
      */
     private String convertKeywords(String exp) {
 	if (exp != null) {
-	    // Enable "if" keyword (beginning of expression only for now)
-	    if (exp.startsWith("if")) {
-		exp = "jsft._if" + exp.substring(2);
-	    } else if (exp.startsWith("foreach")) {
+	    // "if" keyword is processed different to also process "else"
+	    if (exp.startsWith("foreach")) {
 		exp = "jsft.foreach" + exp.substring(7);
+	    } else if (exp.startsWith("for")) {
+		exp = "jsft._for" + exp.substring(3);
 	    }
 	}
 	return exp;
@@ -199,7 +232,7 @@ public class CommandReader {
      *	<p> This method reads Commands until a closing '}' is encountered.</p>
      */
     private List<Command> readCommandList() throws IOException {
-	int ch = parser.nextChar();
+	int ch = _parser.nextChar();
 	List<Command> commands = new ArrayList<Command>();
 	Command command = null;
 	while (ch != '}') {
@@ -210,7 +243,7 @@ public class CommandReader {
 	    }
 
 	    // Get the next char...
-	    ch = parser.nextChar();
+	    ch = _parser.nextChar();
 	    if (ch == -1)  {
 		throw new IOException(
 		    "Unexpected end of stream! Expected to find '}'.");
@@ -221,5 +254,5 @@ public class CommandReader {
 	return commands;
     }
 
-    private CommandParser  parser    = null;
+    private CommandParser  _parser    = null;
 }

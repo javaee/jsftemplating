@@ -87,11 +87,15 @@ public class JSFTCommands {
      *	<p> This command conditionally executes its child commands.</p>
      */
     public void _if(boolean condition) {
+	Command command = (Command) FacesContext.getCurrentInstance().
+		getExternalContext().getRequestMap().get(Command.COMMAND_KEY);
 	if (condition) {
-	    Command command = (Command) FacesContext.getCurrentInstance().
-		    getExternalContext().getRequestMap().
-		    get(Command.COMMAND_KEY);
 	    command.invokeChildCommands();
+	} else {
+	    command = command.getElseCommand();
+	    if (command != null) {
+		command.invoke();
+	    }
 	}
     }
 

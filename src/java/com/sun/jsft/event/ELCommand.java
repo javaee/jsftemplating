@@ -77,8 +77,8 @@ public class ELCommand extends Command {
      *
      *	    FIXME: Add more documentation on how this works...
      */
-    public ELCommand(String resultVar, String el, List<Command> childCommands) {
-	super(childCommands);
+    public ELCommand(String resultVar, String el, List<Command> childCommands, Command elseCommand) {
+	super(childCommands, elseCommand);
 	this.resultVar = resultVar;
 	this.el = el;
     }
@@ -169,5 +169,5 @@ public class ELCommand extends Command {
     private String resultVar = null;
     private String el = null;
     private transient int hash = -1;
-    private static final long serialVersionUID = 6201115935164238909L;
+    private static final long serialVersionUID = 6201115935174238909L;
 }
