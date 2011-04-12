@@ -237,11 +237,20 @@ public class CommandReader {
 	List<Command> commands = new ArrayList<Command>();
 	Command command = null;
 	while (ch != '}') {
+	    // Make sure readCommand gets the full command line...
+	    if (ch != '{') {
+		// We want to throw this char away...
+		_parser.unread(ch);
+	    }
+
 	    // Read a Command
 	    command = readCommand();
 	    if (command != null) {
 		commands.add(command);
 	    }
+
+	    // Skip White Space...
+	    _parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
 
 	    // Get the next char...
 	    ch = _parser.nextChar();
