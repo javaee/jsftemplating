@@ -9,15 +9,18 @@
 	</jsft:event>
 
 	<jsft:event type="beforeEncode">
-	    util.println('hi');
-	    util.println(param['foo']);
-	    util.println(component);
+requestScope.start = jsft.getNanoTime();
+	    //util.println(start);
+	    //util.println(param['foo']);
+	    //util.println(component);
 	    if (false) {
 		util.write(theEvent);
 	    }
 	    if (true) {
-		util.write('&lt;br&gt;test');
+		//util.write('&lt;br&gt;test');
 	    }
+requestScope.end = jsft.getNanoTime() - requestScope.start;
+	    util.println(end);
 	</jsft:event>
 
     </h:form>

@@ -42,7 +42,6 @@
 package com.sun.jsft.facelets;
 
 import com.sun.jsft.event.Command;
-import com.sun.jsft.event.ELCommand;
 import com.sun.jsft.event.CommandEventListener;
 import com.sun.jsft.util.Util;
 
@@ -52,7 +51,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.event.PostAddToViewEvent;

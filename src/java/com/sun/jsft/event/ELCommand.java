@@ -43,16 +43,12 @@ package com.sun.jsft.event;
 
 import com.sun.jsft.util.Util;
 
-import java.io.Serializable;
-import java.util.Iterator;
 import java.util.List;
 import javax.el.ELContext;
 import javax.el.ExpressionFactory;
 import javax.el.ValueExpression;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.event.ComponentSystemEventListener;
 
 
 /**

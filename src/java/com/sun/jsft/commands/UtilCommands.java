@@ -47,24 +47,12 @@
  */
 package com.sun.jsft.commands;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
-
-import com.sun.jsft.util.Util;
-
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import javax.faces.context.FacesContext;
+import javax.faces.bean.ApplicationScoped;
 
 
 /**
@@ -73,7 +61,7 @@ import javax.faces.context.FacesContext;
  *
  *  @author  Ken Paulsen (kenapaulsen@gmail.com)
  */
-@RequestScoped
+@ApplicationScoped
 @ManagedBean(name="util")
 public class UtilCommands {
 
@@ -83,52 +71,6 @@ public class UtilCommands {
     public UtilCommands() {
     }
 
-    /**
-     *	<p> This command writes output using <code>System.out.println</code>.
-     *	    It requires <code>value</code> to be supplied.</p>
-     */
-    public void println(String value) {
-	System.out.println(value);
-    }
-
-    /**
-     *	<p> This command writes using
-     *	    <code>FacesContext.getResponseWriter()</code>.</p>
-     *
-     *	@param	context	The HandlerContext.
-     */
-    public static void write(String text) {
-	if (text == null) {
-	    text = "";
-	}
-	try {
-	    FacesContext.getCurrentInstance().getResponseWriter().write(text);
-	} catch (IOException ex) {
-	    throw new RuntimeException(ex);
-	}
-    }
-
-    /**
-     *	<p> This command provides a way to see the call stack by printing a
-     *	    stack trace.  The output will go to stderr and will also be
-     *	    returned in the output value "stackTrace".  An optional message
-     *	    may be provided to be included in the trace.</p>
-     */
-    public void printStackTrace(String msg) {
-	// See if we have a message to print w/ it
-	if (msg == null) {
-	    msg = "";
-	}
-
-	// Get the StackTrace
-	StringWriter strWriter = new StringWriter();
-	new RuntimeException(msg).printStackTrace(new PrintWriter(strWriter));
-	String trace = strWriter.toString();
-
-	// Print it to stderr and return it
-	System.err.println(trace);
-    }
-    
     /**
      *	<p> This command prints out the contents of the given
      *	    <code>UIComponent</code>'s attribute map.</p>
@@ -143,33 +85,6 @@ public class UtilCommands {
         } else {
             System.out.println("UIComponent is null");
         }
-    }
-
-    /**
-     *	<p> This command marks the response complete.  This means that no
-     *	    additional response will be sent.  This is useful if you've
-     *	    provided a response already and you don't want JSF to do it again
-     *	    (it may cause problems to do it 2x).</p>
-     *
-     *	@param	context	The HandlerContext.
-     */
-    public static void responseComplete() {
-	FacesContext.getCurrentInstance().responseComplete();
-    }
-
-    /**
-     *	<p> This command indicates to JSF that the request should proceed
-     *	    immediately to the render response phase.  It will be ignored if
-     *	    rendering has already begun.  This is useful if you want to stop
-     *	    processing and jump to the response.  This is often the case when
-     *	    an error ocurrs or validation fails.  Typically the page the user
-     *	    is on will be reshown (although if navigation has already
-     *	    occurred, the new page will be shown.</p>
-     *
-     *	@param	context	The HandlerContext.
-     */
-    public void renderResponse() {
-	FacesContext.getCurrentInstance().renderResponse();
     }
 
     /**
@@ -321,8 +236,8 @@ public class UtilCommands {
 	// The value could be null if an EL expression maps to null
 	if (value != null) {
 	    try {
-		value = URLEncoder.encode(value, encoding);
-	    } catch (UnsupportedEncodingException ex) {
+		value = java.net.URLEncoder.encode(value, encoding);
+	    } catch (java.io.UnsupportedEncodingException ex) {
 		throw new IllegalArgumentException(ex);
 	    }
 	}
@@ -356,25 +271,9 @@ public class UtilCommands {
 	    @HandlerOutput(name="result", type=String.class)})
     public static void htmlEscape(HandlerContext context) {
 	String value = (String) context.getInputValue("value");
-	value = Util.htmlEscape(value);
+	value = com.sun.jsft.util.Util.htmlEscape(value);
 	context.setOutputValue("result", value);
     }
-     */
-
-    /**
-     *	<p> This command uses the special "condition" attribute to determine if
-     *	    it should execute (and therefor any of its child commands).</p>
-    @Handler(id="if",
-	input={@HandlerInput(name="condition", type=String.class)})
-    public static void ifHandler(HandlerContext context) {
-	// Do nothing, the purpose of this command is to provide condition
-	// support which is handled by the parser / runtime.
-    }
-
-FIXME: * Make commands have children...
-FIXME: * Make commands return true/false to exec children
-FIXME: * Make commands have a return value? Perhaps only if no children
-
      */
 
     /**
