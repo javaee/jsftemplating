@@ -48,7 +48,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -178,14 +180,28 @@ public class CommandReader {
      *	    developer convenience.</p>
      */
     private String convertKeywords(String exp) {
-	if (exp != null) {
-	    // "if" keyword is processed different to also process "else"
-	    if (exp.startsWith("foreach")) {
-		exp = "jsft.foreach" + exp.substring(7);
-	    } else if (exp.startsWith("for")) {
-		exp = "jsft._for" + exp.substring(3);
+	if (exp == null) {
+	    return null;
+	}
+
+	// Get the key to lookup
+	String key = exp;
+	int paren = exp.indexOf(OPEN_PAREN);
+	if (paren != -1) {
+	    key = exp.substring(0, paren);
+	    if (key.indexOf(".") != -1) {
+		// '.' found, this is not a keyword...
+		return exp;
 	    }
 	}
+	key = key.trim();
+
+	// Check for mapping...
+	String value = _reservedMappings.get(key);
+	if (value != null) {
+	    exp = value + exp.substring(key.length());
+	}
+
 	return exp;
     }
 
@@ -206,10 +222,10 @@ public class CommandReader {
 		    break;
 		} else if (('\'' == curr) || ('"' == curr)) {
 		    insideChar = curr;
-		} else if ('(' == curr) {
-		    insideChar = ')';
-		} else if ('[' == curr) {
-		    insideChar = ']';
+		} else if (OPEN_PAREN == curr) {
+		    insideChar = CLOSE_PAREN;
+		} else if (OPEN_BRACKET == curr) {
+		    insideChar = CLOSE_BRACKET;
 		}
 	    } else if (insideChar == curr) {
 		// Was inside something, ending now...
@@ -275,8 +291,27 @@ public class CommandReader {
 	return str;
     }
 
-    private static final String	    OPEN_CDATA	= "<![CDATA[";
-    private static final String	    CLOSE_CDATA	= "]]>";
+    // Map to hold shortcut mappings (e.g. keywords)
+    private static Map<String, String> _reservedMappings    =
+	    new HashMap<String, String>(16);
+    static {
+	_reservedMappings.put("foreach", "jsft.foreach");
+	_reservedMappings.put("for", "jsft._for");
+	_reservedMappings.put("println", "jsft.println");
+	_reservedMappings.put("write", "jsft.write");
+	_reservedMappings.put("setAttribute", "jsft.setAttribute");
+	_reservedMappings.put("responseComplete", "jsft.responseComplete");
+	_reservedMappings.put("renderResponse", "jsft.renderResponse");
+	_reservedMappings.put("printStackTrace", "jsft.printStackTrace");
+	_reservedMappings.put("getNanoTime", "jsft.getNanoTime");
+    }
+
+    private static final char	    OPEN_BRACKET    = '[';
+    private static final char	    CLOSE_BRACKET   = ']';
+    private static final char	    OPEN_PAREN	    = '(';
+    private static final char	    CLOSE_PAREN	    = ')';
+    private static final String	    OPEN_CDATA	    = "<![CDATA[";
+    private static final String	    CLOSE_CDATA	    = "]]>";
 
     private CommandParser  _parser    = null;
 }
