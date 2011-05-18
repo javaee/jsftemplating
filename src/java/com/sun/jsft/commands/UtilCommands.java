@@ -88,23 +88,6 @@ public class UtilCommands {
     }
 
     /**
-     *	<p> This command increments a number by 1.  This command requires
-     *	    "number" to be supplied as an Integer input value.  It sets an
-     *	    output value "value" to number+1.</p>
-     *
-     *	@param	context	The HandlerContext.
-    @Handler(id="inc",
-	input={
-	    @HandlerInput(name="number", type=Integer.class, required=true)},
-	output={
-	    @HandlerOutput(name="value", type=Integer.class)})
-    public static void inc(HandlerContext context) {
-	Integer value = (Integer) context.getInputValue("number");
-	context.setOutputValue("value", new Integer(value.intValue() + 1));
-    }
-     */
-
-    /**
      *	<p> This method returns an <code>Iterator</code> for the given
      *	    <code>List</code>.  The <code>List</code> input value key is:
      *	    "list".  The output value key for the <code>Iterator</code> is:
