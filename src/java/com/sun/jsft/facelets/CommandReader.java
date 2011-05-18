@@ -103,6 +103,11 @@ public class CommandReader {
     /**
      *
      */
+// FIXME: Parenthesis are not well supported.  When convertKeywords is called,
+// FIXME: it receivces "(foo...)".  First foo() is not recognized because of
+// FIXME: the leading '('.  Second, there is a good possibility that other
+// FIXME: keywords may exist in the middle of the string.  Need to rethink how
+// FIXME: this conversion is done.
     private Command readCommand() throws IOException {
 	// Skip White Space...
 	_parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
