@@ -47,7 +47,9 @@
   "http://java.sun.com/dtd/facelet-taglib_1_0.dtd">
 
 <facelet-taglib>
-    <namespace>http://jsftemplating.java.net/event</namespace>
+
+    <namespace>http://jsftemplating.java.net/jsft</namespace>
+
     <tag>
 	<tag-name>event</tag-name>
 	<handler-class>com.sun.jsft.facelets.EventHandler</handler-class>
@@ -85,6 +87,13 @@
 	    <required>true</required>
 	    <type>java.lang.String</type>
 	</attribute>
+    </tag>
+
+    <tag>
+	<tag-name>deferredFragment</tag-name>
+	<component>
+	    <component-type>com.sun.jsft.component.DeferredFragment</component-type>
+	</component>
     </tag>
 
 </facelet-taglib>
