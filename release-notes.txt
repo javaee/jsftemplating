@@ -1,4 +1,13 @@
 
+JSFTemplating 2.1.0
+============================================================
+- Created new "jsft.jar" which focuses on supporting true Facelets while
+  providing features, such as JSFT's event model.
+- Added new EL-based event handling <jsft:event> to jsft.jar.
+- Added initial implementation of "deferredFragments" -- allowing slow data
+  to be processed in parallel so rendering can be sped up.  WIP
+- Minor NPE bug fix re: (null) viewId being passed in -- why do that?
+
 JSFTemplating 2.0.4
 ============================================================
 - Fixed NPE in ResourceContentSource when empty file ("") was requested.
