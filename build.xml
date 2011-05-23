@@ -9,9 +9,9 @@
     NOTE:
     NOTE: Before doing this make sure you have:
     NOTE:   * Permission
-    NOTE:   * Updated the version number in build.xml and jsftemplating.bnd
+    NOTE:   * Updated the version number in build.xml and jsftemplating.bnd and jsft.bnd
     NOTE:   * Updated the release notes with any changes
-    NOTE:   * Have an updated source tree and have tested jsftemplating.jar
+    NOTE:   * Have an updated source tree and have tested jsftemplating.jar & jsft.jar
     NOTE:   * Update javadoc if necessary
     NOTE:   * Have tagged the source tree with the new version
 -->
@@ -367,6 +367,36 @@
         </condition>
     </target>
 
+    <target name="push.jsft.artifact" >
+        <!-- Generate a Dynamic POM file -->
+        <artifact:pom id="pom.tmp.ref" groupId="com.sun.jsftemplating" version="${version}" artifactId="jsft" packaging="jar" name="JSFT Java Server Faces 2.1+" />
+        <!--  Write the generated POM file out to a temporary file on disc -->
+        <tempfile property="pom.tmp.file" deleteonexit="true" />  
+        <artifact:writepom pomRefId="pom.tmp.ref" file="${pom.tmp.file}" />
+        <!--  Read the temporary file back in as the POM reference  -->
+        <artifact:pom id="jsft.pom" file="${pom.tmp.file}" />
+
+	<!-- deploy to local maven repo -->
+        <artifact:localRepository id="local.repository" path="${maven.repo.local}"/>
+        <artifact:install file="${dist}/jsft.jar">
+            <pom refid="jsft.pom"/>
+            <localRepository refid="local.repository"/>
+            <attach file="${jsft-src.jar}" classifier="src" />
+        </artifact:install>    
+
+        <!-- install Maven wagon provider to upload artifact to remote repo -->
+        <artifact:install-provider artifactId="wagon-svn" groupId="org.jvnet.wagon-svn" version="1.7">
+            <artifact:remoteRepository id="java.net.maven2.repository" url="http://download.java.net/maven/2/" />
+        </artifact:install-provider>
+
+	<!-- deploy to remote maven repo -->
+        <artifact:deploy file="${dist}/jsft.jar">
+            <pom refid="jsft.pom"/>
+            <remoteRepository url="${remote.repo.url}"/>
+            <attach file="${jsft-src.jar}" classifier="src" />
+        </artifact:deploy>
+    </target>
+
     <target name="push.jsftemplating.artifact" >
         <!-- Generate a Dynamic POM file -->
         <artifact:pom id="pom.tmp.ref" groupId="com.sun.jsftemplating" version="${version}" artifactId="jsftemplating" packaging="jar" name="Templating for Java Server Faces" />
@@ -427,9 +457,10 @@
         </artifact:deploy>
     </target>
 
-    <target name="push-to-maven2" depends="initialize.maven,jarsrc" description="Publish artifacts to the java.net Maven2 repo" >
+    <target name="push-to-maven2" depends="initialize.maven,jarsrc,build" description="Publish artifacts to the java.net Maven2 repo" >
         <antcall target="push.jsftemplating.artifact"/>
         <antcall target="push.jsftemplating-dt.artifact"/>
+        <antcall target="push.jsft.artifact"/>
     </target>
 
 </project>
