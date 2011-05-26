@@ -24,7 +24,7 @@
     <property name="version" value="2.1.0"/>
     <property file="user.properties" />
     <property file="build.properties" />
-    <property name="remote.repo.url" value="java-net:/maven2-repository/trunk/repository"/>
+    <property name="remote.repo.url" value="java-net:/maven2-repository~svn/trunk/repository"/>
 
     <path id="jsft-dependencies">
         <pathelement location="${servlet-api.jar}" />
@@ -385,7 +385,7 @@
         </artifact:install>    
 
         <!-- install Maven wagon provider to upload artifact to remote repo -->
-        <artifact:install-provider artifactId="wagon-svn" groupId="org.jvnet.wagon-svn" version="1.7">
+        <artifact:install-provider artifactId="wagon-svn" groupId="org.jvnet.wagon-svn" version="1.12">
             <artifact:remoteRepository id="java.net.maven2.repository" url="http://download.java.net/maven/2/" />
         </artifact:install-provider>
 
@@ -415,7 +415,7 @@
         </artifact:install>    
 
         <!-- install Maven wagon provider to upload artifact to remote repo -->
-        <artifact:install-provider artifactId="wagon-svn" groupId="org.jvnet.wagon-svn" version="1.7">
+        <artifact:install-provider artifactId="wagon-svn" groupId="org.jvnet.wagon-svn" version="1.12">
             <artifact:remoteRepository id="java.net.maven2.repository" url="http://download.java.net/maven/2/" />
         </artifact:install-provider>
 
@@ -445,7 +445,7 @@
         </artifact:install>    
 
         <!-- install Maven wagon provider to upload artifact to remote repo -->
-        <artifact:install-provider artifactId="wagon-svn" groupId="org.jvnet.wagon-svn" version="1.7">
+        <artifact:install-provider artifactId="wagon-svn" groupId="org.jvnet.wagon-svn" version="1.12">
             <artifact:remoteRepository id="java.net.maven2.repository" url="http://download.java.net/maven/2/" />
         </artifact:install-provider>
 
@@ -457,7 +457,7 @@
         </artifact:deploy>
     </target>
 
-    <target name="push-to-maven2" depends="initialize.maven,jarsrc,build" description="Publish artifacts to the java.net Maven2 repo" >
+    <target name="push-to-maven2" depends="clean,initialize.maven,jarsrc,build" description="Publish artifacts to the java.net Maven2 repo" >
         <antcall target="push.jsftemplating.artifact"/>
         <antcall target="push.jsftemplating-dt.artifact"/>
         <antcall target="push.jsft.artifact"/>
