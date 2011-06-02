@@ -39,7 +39,7 @@
  * holder.
  */
 
-package com.sun.jsft.tasks;
+package com.sun.jsft.component.fragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,33 +62,33 @@ import javax.faces.event.SystemEventListener;
 
 
 /**
- *  <p>	This is the default {@link TaskManager} implementation.</p>
+ *  <p>	This is the default {@link DependencyManager} implementation.</p>
  */
-public class DefaultTaskManager extends TaskManager {
+public class DefaultDependencyManager extends DependencyManager {
 
     /**
      *	<p> Default constructor.</p>
      */
-    protected DefaultTaskManager() {
+    protected DefaultDependencyManager() {
 	super();
     }
 
     /**
-     *	<p> This method is responsible for executing the queued Tasks.  It is
+     *	<p> This method is responsible for executing the queued Dependencies.  It is
      *	    possible this method may be called more than once (not common), so
      *	    care should be taken to ensure this is handled appropriately.  This
      *	    method is normally executed after the page (excluding
      *	    DefferedFragments, of course) have been rendered.</p>
      */
     public void start() {
-	System.out.println("Starting to execute Tasks: " + getTasks());
-	// Loop through the tasks and execute them...
-	for (Task task : getTasks()) {
-// FIXME: This implementation is a no-op, it just loops through the tasks and fires the TASK_COMPLETE event.
-// FIXME: A real implementation would aggregate & dispatch the tasks and register listeners with the "backend dispatcher" which would fire the TASK_COMPLETE event.
+	System.out.println("Starting to execute Dependencies: " + getDependencies());
+	// Loop through the dependencies and execute them...
+	for (Dependency dependency : getDependencies()) {
+// FIXME: This implementation is a no-op, it just loops through the dependencies and fires the DEPENDENCY_COMPLETE event.
+// FIXME: A real implementation would aggregate & dispatch the dependencies and register listeners with the "backend dispatcher" which would fire the DEPENDENCY_COMPLETE event.
 // FIXME: This method should not block.
-	    SystemEvent event = new TaskEvent(task);
-	    List<SystemEventListener> listeners = task.getListeners(TaskEvent.TASK_COMPLETE);
+	    SystemEvent event = new DependencyEvent(dependency);
+	    List<SystemEventListener> listeners = dependency.getListeners(DependencyEvent.DEPENDENCY_COMPLETE);
 	    if (listeners != null) {
 		for (SystemEventListener listener : listeners) {
 		    listener.processEvent(event);

@@ -39,9 +39,8 @@
  * holder.
  */
 
-package com.sun.jsft.component;
+package com.sun.jsft.component.fragment;
 
-import com.sun.jsft.tasks.TaskManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,8 +87,8 @@ public class FragmentRenderer extends UIComponentBase implements ComponentSystem
 
     public void encodeBegin(FacesContext context) throws IOException {
 	System.out.println("Starting FragmentRenderer...");
-	// Start processing the Tasks...
-	TaskManager.getInstance().start();
+	// Start processing the Dependencies...
+	DependencyManager.getInstance().start();
     }
 
     public void encodeChildren(FacesContext context) throws IOException {
@@ -133,7 +132,7 @@ System.out.println("Encoding: " + comp.getId());
     }
 
     /**
-     *	<p> This method returns the number of tasks this DeferredFragment is
+     *	<p> This method returns the number of dependencies this DeferredFragment is
      *	    waiting for.</p>
      */
     public int getFragmentCount() {

@@ -92,7 +92,7 @@
     <tag>
 	<tag-name>deferredFragment</tag-name>
 	<component>
-	    <component-type>com.sun.jsft.component.DeferredFragment</component-type>
+	    <component-type>com.sun.jsft.component.fragment.DeferredFragment</component-type>
 	</component>
     </tag>
 

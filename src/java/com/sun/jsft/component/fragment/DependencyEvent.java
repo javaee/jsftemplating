@@ -39,20 +39,47 @@
  * holder.
  */
 
-package com.sun.jsft.component;
+package com.sun.jsft.component.fragment;
 
-import javax.faces.event.ComponentSystemEvent;
+import javax.faces.event.SystemEvent;
 
 
 /**
- *  <p>	This event is used for dispatching {@link Task} related events.</p>
+ *  <p>	This event is used for dispatching {@link Dependency} related events.</p>
  */
-public class FragmentReadyEvent extends ComponentSystemEvent {
+public class DependencyEvent extends SystemEvent {
 
     /**
      *	<p> Constructor.</p>
      */
-    public FragmentReadyEvent(DeferredFragment source) {
+    public DependencyEvent(Dependency source) {
 	super(source);
     }
+
+    /**
+     *	<p> Constructor.</p>
+     */
+    public DependencyEvent(Dependency source, String type) {
+	super(source);
+	if (type != null) {
+	    this.type = type;
+	}
+    }
+
+    /**
+     *	<p> Returns the event sub-type.</p>
+     */
+    public String getType() {
+	return type;
+    }
+
+    /**
+     *	<p> This event's sub-type, which defaults to {@link DEPENDENCY_COMPLETE}.</p>
+     */
+    private String type = DEPENDENCY_COMPLETE;
+
+    /**
+     *	<p> The sub-type used when a {@link Dependency} has completed.</p>
+     */
+    public static final String DEPENDENCY_COMPLETE	= "dependencyComplete";
 }
