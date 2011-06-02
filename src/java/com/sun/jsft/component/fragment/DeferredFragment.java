@@ -51,6 +51,7 @@ import javax.faces.component.UIComponentBase;
 import javax.faces.component.UIOutput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ComponentSystemEventListener;
@@ -88,11 +89,20 @@ public class DeferredFragment extends UIComponentBase {
     }
 
     public void encodeBegin(FacesContext context) throws IOException {
-	System.out.println("Encode Begin ("+getId()+")...");
+	context.getResponseWriter().write("<span id=\"" + getClientId(context)
+		+ "\" style=\"display:none;\">");
     }
 
-    public void encodeEnd(FacesContext context) throws IOException {
-	System.out.println("Encode End ("+getId()+")...");
+    public void encodeEnd(FacesContext ctx) throws IOException {
+	// Close span
+	ResponseWriter respWriter = ctx.getResponseWriter();
+	respWriter.write("</span>");
+
+	// Write JS
+	respWriter.write("<script type=\"text/javascript\">var on=document."
+		+ "getElementById('" + getFacetKey(ctx) + "');var nn=document."
+		+ "getElementById('" + getClientId() + "');on.parentNode."
+		+ "replaceChild(nn,on);nn.style.display='inline';</script>");
     }
 
     /**
@@ -204,6 +214,24 @@ System.out.println("DeferredFragmentDependencyListener.processEvent()!");
     }
 
     /**
+     *	<p> This method returns the key under which this component should be
+     *	    stored, when moved to the <code>UIViewRoot</code> as a facet.
+     *	    This key is also used when rendering the temporary markup
+     *	    (&lt;span&gt; tag) id attribute -- this allows JS to locate it and
+     *	    replace it with the contents of the facet.</p>
+     *
+     *	@param	ctx	The <code>FacesContext</code>.
+     *
+     *	@return	The facet key.
+     */
+    public String getFacetKey(FacesContext ctx) {
+	if (facetKey == null) {
+	    facetKey = "jsft_" + getClientId(ctx);
+	}
+	return facetKey;
+    }
+
+    /**
      *	<p> Listener used to relocate the children to a facet on the
      *	    UIViewRoot.</p>
      */
@@ -243,7 +271,7 @@ System.out.println("DeferredFragmentDependencyListener.processEvent()!");
 	    Map<String, UIComponent> facetMap = viewRoot.getFacets();
 
 	    // Create a place holder...
-	    String key = "jsft_" + comp.getClientId(ctx);
+	    String key = comp.getFacetKey(ctx);
 	    UIComponent placeHolder = new UIOutput();
 	    placeHolder.getAttributes().put(
 		    "value", "<span id='" + key + "'></span>");
@@ -276,6 +304,8 @@ System.out.println("DeferredFragmentDependencyListener.processEvent()!");
 
 		    // Register the Dependency...
 		    dm.addDependency(dependency, type, new DeferredFragmentDependencyListener(comp));
+// FIXME: Move all this to the defaultdependency manager as the impl for the new addDependency method.
+// FIXME: Question: WHO is responsible for wiring up the eventlisteners?  The DeferredFragment?  Or the DependencyManager?  NOTE: DM is impl specific... creating an eventlistener might be too much work.  I think it is safe to use the same eventlistener for all "types"... look into this more.
 
 		    // Count the dependencies we depend on...
 		    dependencyCnt++;
@@ -330,6 +360,12 @@ System.out.println("DeferredFragmentDependencyListener.processEvent()!");
      *	    later.</p>
      */
     private transient String placeHolderId = "";
+
+    /**
+     *	<p> The id of the facet for this component, also used as the
+     *	    placeholder HTML id (to avoid a naming conflict).</p>
+     */
+    private transient String facetKey = null;
 
     /**
      *	<p> This <code>List</code> will hold the list of listeners interested

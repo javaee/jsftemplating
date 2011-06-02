@@ -87,6 +87,7 @@ public class FragmentRenderer extends UIComponentBase implements ComponentSystem
 
     public void encodeBegin(FacesContext context) throws IOException {
 	System.out.println("Starting FragmentRenderer...");
+// FIXME: If we are not the last component in the UIViewRoot... move!
 	// Start processing the Dependencies...
 	DependencyManager.getInstance().start();
     }
@@ -104,13 +105,14 @@ public class FragmentRenderer extends UIComponentBase implements ComponentSystem
 		if (renderQueue.isEmpty()) {
 		    try {
 			// Wait at most 30 seconds...
+// FIXME: Make this timeout configurable?
 			renderQueue.wait(30 * 1000);
 			if (renderQueue.isEmpty()) {
-			    System.out.println("EMPTY QUEUE!");
+System.out.println("EMPTY QUEUE!");
 			    return;
 			}
 		    } catch (InterruptedException ex) {
-			System.out.println("Interrupted!");
+System.out.println("Interrupted!");
 			return;
 		    }
 		}
@@ -122,7 +124,7 @@ public class FragmentRenderer extends UIComponentBase implements ComponentSystem
 System.out.println("Encoding: " + comp.getId());
 		    comp.encodeAll(FacesContext.getCurrentInstance());
 		} catch (Exception ex) {
-		    // FIXME: cleanup
+// FIXME: cleanup
 		    ex.printStackTrace();
 		}
 	    }

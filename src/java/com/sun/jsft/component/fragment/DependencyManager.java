@@ -142,8 +142,8 @@ public abstract class DependencyManager {
      *	    according to the requested event <code>type</code>.  If the
      *	    <code>type</code> is not specified, it will default to
      *	    {@link Dependency#DEFAULT_EVENT_TYPE} indicating that the given
-     *	    <code>newListeners</code> should be fired at the completion of the
-     *	    dependency.</p>
+     *	    <code>newListeners</code> should be fired when the dependency is
+     *	    satisfied.</p>
      *
      *	<p> Note: If the <code>dependency</code> is already queued, it will NOT be
      *	    performed twice.  The <code>newListeners</code> will be added to
@@ -161,6 +161,7 @@ public abstract class DependencyManager {
      *	@param	newListeners	The SystemEventListener to be associated with this
      *			dependency and optional type if specified.
      */
+// FIXME: add a overloaded abstract method here that does not specify the type (opaque String to define dependencies)
     public void addDependency(String dependencyName, String type, SystemEventListener ... newListeners) {
 // FIXME: Do I want to accept priority too??  Or perhaps that is handled in
 // FIXME: the implementation-specific way dependencies are registered?  Or is priority
