@@ -289,27 +289,8 @@ System.out.println("DeferredFragmentDependencyListener.processEvent()!");
 	    String dependency = (String) comp.getAttributes().get("dependency");
 	    int dependencyCnt = 0;
 	    if (dependency != null) {
-		StringTokenizer tok = new StringTokenizer(dependency, ";");
-		DependencyManager dm = DependencyManager.getInstance();
-		while (tok.hasMoreTokens()) {
-		    dependency = tok.nextToken().trim();
-
-		    // Check to see if we have dependency:listenerType
-		    int idx = dependency.indexOf(":");
-		    String type = null;
-		    if (idx != -1) {
-			type = dependency.substring(idx + 1);
-			dependency = dependency.substring(0, idx);
-		    }
-
-		    // Register the Dependency...
-		    dm.addDependency(dependency, type, new DeferredFragmentDependencyListener(comp));
-// FIXME: Move all this to the defaultdependency manager as the impl for the new addDependency method.
-// FIXME: Question: WHO is responsible for wiring up the eventlisteners?  The DeferredFragment?  Or the DependencyManager?  NOTE: DM is impl specific... creating an eventlistener might be too much work.  I think it is safe to use the same eventlistener for all "types"... look into this more.
-
-		    // Count the dependencies we depend on...
-		    dependencyCnt++;
-		}
+		dependencyCnt = DependencyManager.getInstance().addDependencies(
+		    dependency, new DeferredFragmentDependencyListener(comp));
 	    }
 
 	    // Store the dependency count...

@@ -48,7 +48,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
 import javax.faces.component.UIOutput;
@@ -162,7 +161,7 @@ public abstract class DependencyManager {
      *			dependency and optional type if specified.
      */
 // FIXME: add a overloaded abstract method here that does not specify the type (opaque String to define dependencies)
-    public void addDependency(String dependencyName, String type, SystemEventListener ... newListeners) {
+    protected void addDependency(String dependencyName, String type, SystemEventListener ... newListeners) {
 // FIXME: Do I want to accept priority too??  Or perhaps that is handled in
 // FIXME: the implementation-specific way dependencies are registered?  Or is priority
 // FIXME: only associated with DeferredFragments?
@@ -182,6 +181,16 @@ public abstract class DependencyManager {
 	    }
 	}
     }
+
+    /**
+     *	<p> This method is responsible for parsing the given dependency String
+     *	    according to the specific <code>DependencyManager</code> that is
+     *	    being used.  It then invokes {@link #addDependency(
+     *	    String dependency, String type, SystemEventListener ..
+     *	    newListeners)} for each of the derived dependencies and returns a
+     *	    count of them.</p>
+     */
+    public abstract int addDependencies(String dependencyString, SystemEventListener ... newListeners);
 
     /**
      *	<p> This method returns the <code>List&lt;Dependency&gt;</code>.</p>

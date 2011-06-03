@@ -74,6 +74,48 @@ public class DefaultDependencyManager extends DependencyManager {
     }
 
     /**
+     *	<p> This method is responsible for parsing the given dependency String.
+     *	    In this implementation, it expects dependencies to be separated by
+     *	    semi-colons (;), and they can be further qualified by providing an
+     *	    event type after a colon (:).  For example:
+     *
+     *	    <blockquote>
+     *		<code>
+     *		    dependency1:anEventType;dep2:dependencyComplete
+     *		</code>
+     *	    </blockquote></p>
+     *
+     *	    It then invokes {@link DependencyManager#addDependency(String
+     *	    dependency, String type, SystemEventListener .. newListeners)}
+     *	    for each of the derived dependencies and returns a count of
+     *	    them.</p>
+     */
+    public int addDependencies(String depString, SystemEventListener ... newListeners) {
+	StringTokenizer tok = new StringTokenizer(depString, ";");
+	int dependencyCnt = 0;
+	while (tok.hasMoreTokens()) {
+	    depString = tok.nextToken().trim();
+
+	    // Check to see if we have dependency:listenerType
+	    int idx = depString.indexOf(":");
+	    String type = null;
+	    if (idx != -1) {
+		type = depString.substring(idx + 1);
+		depString = depString.substring(0, idx);
+	    }
+
+	    // Register the Dependency...
+	    addDependency(depString, type, newListeners);
+
+	    // Count the dependencies we depend on...
+	    dependencyCnt++;
+	}
+	// Return the # of dependencies so the caller knows how many were
+	// registered.
+	return dependencyCnt++;
+    }
+
+    /**
      *	<p> This method is responsible for executing the queued Dependencies.  It is
      *	    possible this method may be called more than once (not common), so
      *	    care should be taken to ensure this is handled appropriately.  This
