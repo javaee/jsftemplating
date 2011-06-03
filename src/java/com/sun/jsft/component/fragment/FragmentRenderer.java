@@ -58,6 +58,7 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ComponentSystemEventListener;
 import javax.faces.event.ListenerFor;
 import javax.faces.event.PostAddToViewEvent;
+import javax.faces.event.PreRenderViewEvent;
 
 
 /**
@@ -68,7 +69,36 @@ public class FragmentRenderer extends UIComponentBase implements ComponentSystem
     /**
      *	<p> Default constructor.</p>
      */
-    public FragmentRenderer() {
+    protected FragmentRenderer() {
+    }
+
+    /**
+     *	<p> This method returns an instance of this class which is scoped to
+     *	    the given UIViewRoot.</p>
+     */
+    public static FragmentRenderer getInstance(UIViewRoot viewRoot) {
+	// Ensure we have a FragmentRenderer component...
+	Map<String, UIComponent> viewRootFacets = viewRoot.getFacets();
+	FragmentRenderer fragmentRenderer = (FragmentRenderer)
+		viewRootFacets.get(FRAGMENT_RENDERER);
+	if (fragmentRenderer == null) {
+	    // Create one...
+	    fragmentRenderer = new FragmentRenderer();
+	    fragmentRenderer.setId(FRAGMENT_RENDERER);
+
+	    // Store FragmentRenderer in request scope as well as the last
+	    // component in the UIViewRoot. (request scope for fast access)
+	    viewRootFacets.put(FRAGMENT_RENDERER, fragmentRenderer);
+
+	    // Add a listener which will relocate the FragementRenderer to
+	    // the end of the ViewRoot
+	    viewRoot.subscribeToEvent(
+		PreRenderViewEvent.class,
+		new FragmentRenderer.BeforeEncodeViewListener());
+	}
+
+	// Return the fragmentRenderer instance...
+	return fragmentRenderer;
     }
 
     /**
@@ -181,6 +211,30 @@ System.out.println("Encoding: " + comp.getId());
 	}
     }
 
+    /**
+     *	<p> Listener used to relocate the children to a facet on the
+     *	    UIViewRoot.</p>
+     */
+    public static class BeforeEncodeViewListener implements ComponentSystemEventListener {
+	BeforeEncodeViewListener() {
+	}
+
+	/**
+	 *  <p>	This method is responsible for ensuring the FragmentRenderer
+	 *	component is at the end of the <code>UIViewRoot</code>'s list
+	 *	of children.</p>
+	 */
+	public void processEvent(ComponentSystemEvent event) throws AbortProcessingException {
+	    // Get the component
+	    UIViewRoot comp = (UIViewRoot) event.getComponent();
+
+System.out.println("MOVING FragmentRenderer TO THE END!!!");
+
+	    // Move it to the end of the UIViewRoot...
+	    comp.getChildren().add(FragmentRenderer.getInstance(comp));
+	}
+    }
+
 
     /**
      *	<p> A count of remaining fragments to render.</p>
@@ -191,6 +245,8 @@ System.out.println("Encoding: " + comp.getId());
 	    new ArrayList<DeferredFragment>();
 
     private transient Queue<DeferredFragment> renderQueue   = new ConcurrentLinkedQueue<DeferredFragment>();
+
+    private static final String FRAGMENT_RENDERER	= "jsft-FR";
 
     /**
      *	<p> The component family.</p>

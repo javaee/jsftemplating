@@ -297,24 +297,11 @@ System.out.println("DeferredFragmentDependencyListener.processEvent()!");
 	    comp.setDependencyCount(dependencyCnt);
 
 	    // Ensure we have a FragmentRenderer component...
-	    Map<String, Object> requestScope =
-		    ctx.getExternalContext().getRequestMap();
-	    FragmentRenderer fragmentRenderer =
-		    (FragmentRenderer) requestScope.get(FRAGMENT_RENDERER);
-	    if (fragmentRenderer == null) {
-		// Create one...
-		fragmentRenderer = new FragmentRenderer();
-		fragmentRenderer.setId(FRAGMENT_RENDERER);
-
-		// Store FragmentRenderer in request scope as well as the last
-		// component in the UIViewRoot. (request scope for fast access)
-		viewRoot.getChildren().add(fragmentRenderer);
-		requestScope.put(FRAGMENT_RENDERER, fragmentRenderer);
-	    }
+	    FragmentRenderer fr = FragmentRenderer.getInstance(viewRoot);
 
 	    // Increment fragment count on FragmentRenderer component...
-	    fragmentRenderer.addDeferredFragment(comp);
-	    comp.addReadyListener(fragmentRenderer);
+	    fr.addDeferredFragment(comp);
+	    comp.addReadyListener(fr);
 	}
 
 	private boolean done = false;
