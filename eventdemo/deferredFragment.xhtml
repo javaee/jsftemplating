@@ -16,18 +16,24 @@
 <body>
 <h:form id="form">
 
-<div style="border:1px solid blue; height:100px; width:400px; background-color:#AACCFF; position:absolute; top:50px; right:50px;">
+<div style="border:1px solid blue; height:100px; width:400px; overflow:auto; background-color:#AACCFF; position:absolute; top:50px; right:50px;">
     <jsft:deferredFragment id="p1" dependency="something:dependencyComplete;another;last">
 	<jsft:event type="afterCreate">
 	    println("######## HERE: ".concat(component.children));
 	</jsft:event>
-	<h:outputText value="Something goes here" />
+
+	<center>
+	    <br />
+	    Hello World!<br />
+	    <h:outputText value="Something goes here" />
+	</center>
     </jsft:deferredFragment>
 </div>
 
 <div style="border:1px solid green; height:100px; width:400px; background-color:#AAFFCC; position:absolute; top:50px; left:50px;">
     <jsft:deferredFragment id="p2" dependency="something;else">
-	<h:outputText value="else goes here #{component.getClientId()}" />
+	And something else goes here.<br />
+	The component clientId = #{component.getClientId()}
     </jsft:deferredFragment>
 </div>
 
