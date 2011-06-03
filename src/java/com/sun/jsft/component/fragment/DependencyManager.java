@@ -160,7 +160,6 @@ public abstract class DependencyManager {
      *	@param	newListeners	The SystemEventListener to be associated with this
      *			dependency and optional type if specified.
      */
-// FIXME: add a overloaded abstract method here that does not specify the type (opaque String to define dependencies)
     protected void addDependency(String dependencyName, String type, SystemEventListener ... newListeners) {
 // FIXME: Do I want to accept priority too??  Or perhaps that is handled in
 // FIXME: the implementation-specific way dependencies are registered?  Or is priority
