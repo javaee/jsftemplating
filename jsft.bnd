@@ -1,5 +1,5 @@
 Export-Package: *;version="2.1.0"
-Import-Package: com.sun.jsft.commands;version="2.1.0",com.sun.jsft.event;version="2.1.0",com.sun.jsft.facelets;version="2.1.0",com.sun.jsft.util;version="2.1.0",javax.el;version="[2.1.2,3.0)",javax.faces;version="[2.0.0,3.0)",javax.faces.application;version="[2.0.0,3.0)",javax.faces.bean;version="[2.0.0,3.0)",javax.faces.component;version="[2.0.0,3.0)",javax.faces.context;version="[2.0.0,3.0)",javax.faces.event;version="[2.0.0,3.0)",javax.faces.view.facelets;version="[2.0.0,3.0)"
+Import-Package: com.sun.jsft.commands;version="2.1.0",com.sun.jsft.event;version="2.1.0",com.sun.jsft.facelets;version="2.1.0",com.sun.jsft.util;version="2.1.0",javax.el;version="[2.1.2,3.0)",javax.faces;version="[2.0.0,3.0)",javax.faces.application;version="[2.0.0,3.0)",javax.faces.bean;version="[2.0.0,3.0)",javax.faces.component;version="[2.0.0,3.0)",javax.faces.context;version="[2.0.0,3.0)",javax.faces.event;version="[2.0.0,3.0)",javax.faces.view.facelets;version="[2.0.0,3.0)",*
 Bundle-Version=2.1.0
 Bundle-SymbolicName=com.sun.jsft
 Bundle-Description=JSFTemplating framework for JavaServer Faces 2.1+
