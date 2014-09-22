@@ -51,7 +51,7 @@
     </parent>
     <groupId>com.sun.jsftemplating</groupId>
     <artifactId>jsftemplating-parent</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -76,9 +76,9 @@
     </issueManagement>
 
     <scm>
-        <connection>scm:svn:https://svn.java.net/svn/jsftemplating~svn/tags/jsftemplating-parent-2.1.1</connection>
-        <developerConnection>scm:svn:https://svn.java.net/svn/jsftemplating~svn/tags/jsftemplating-parent-2.1.1</developerConnection>
-        <url>https://svn.java.net/svn/jsftemplating~svn/tags/jsftemplating-parent-2.1.1</url>
+        <connection>scm:svn:https://svn.java.net/svn/jsftemplating~svn/trunk</connection>
+        <developerConnection>scm:svn:https://svn.java.net/svn/jsftemplating~svn/trunk</developerConnection>
+        <url>https://svn.java.net/svn/jsftemplating~svn/trunk</url>
     </scm>
 
     <mailingLists>
