@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+    Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
+
+    The contents of this file are subject to the terms of either the GNU
+    General Public License Version 2 only ("GPL") or the Common Development
+    and Distribution License("CDDL") (collectively, the "License").  You
+    may not use this file except in compliance with the License.  You can
+    obtain a copy of the License at
+    https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
+    or packager/legal/LICENSE.txt.  See the License for the specific
+    language governing permissions and limitations under the License.
+
+    When distributing the software, include this License Header Notice in each
+    file and include the License file at packager/legal/LICENSE.txt.
+
+    GPL Classpath Exception:
+    Oracle designates this particular file as subject to the "Classpath"
+    exception as provided by Oracle in the GPL Version 2 section of the License
+    file that accompanied this code.
+
+    Modifications:
+    If applicable, add the following below the License Header, with the fields
+    enclosed by brackets [] replaced by your own identifying information:
+    "Portions Copyright [year] [name of copyright owner]"
+
+    Contributor(s):
+    If you wish your version of this file to be governed by only the CDDL or
+    only the GPL Version 2, indicate your decision by adding "[Contributor]
+    elects to include this software in this distribution under the [CDDL or GPL
+    Version 2] license."  If you don't indicate a single choice of license, a
+    recipient has the option to distribute your version of this file under
+    either the CDDL, the GPL Version 2 or to extend the choice of license to
+    its licensees as provided above.  However, if you add GPL Version 2 code
+    and therefore, elected the GPL Version 2 license, then the option applies
+    only if the new code is made subject to such option by the copyright
+    holder.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>net.java</groupId>
+        <artifactId>jvnet-parent</artifactId>
+        <version>5</version>
+        <relativePath />
+    </parent>
+    <groupId>com.sun.jsftemplating</groupId>
+    <artifactId>jsftemplating-parent</artifactId>
+    <version>2.1.1</version>
+    <packaging>pom</packaging>
+
+    <organization>
+        <name>Oracle Corporation</name>
+        <url>http://www.oracle.com</url>
+    </organization>
+
+    <url>https://jsftemplating.java.net</url>
+
+    <licenses>
+        <license>
+            <name>CDDL + GPLv2 with classpath exception</name>
+            <url>https://glassfish.java.net/nonav/public/CDDL+GPL_1_1.html</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://java.net/jira/browse/JSFTEMPLATING</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:svn:https://svn.java.net/svn/jsftemplating~svn/tags/jsftemplating-parent-2.1.1</connection>
+        <developerConnection>scm:svn:https://svn.java.net/svn/jsftemplating~svn/tags/jsftemplating-parent-2.1.1</developerConnection>
+        <url>https://svn.java.net/svn/jsftemplating~svn/tags/jsftemplating-parent-2.1.1</url>
+    </scm>
+
+    <mailingLists>
+        <mailingList>
+            <name>dev</name>
+            <subscribe>https://java.net/projects/jsftemplating/lists</subscribe>
+            <post>dev@jsftemplating.java.net</post>
+            <archive>http://java.net/projects/jsftemplating/lists/dev/archive</archive>
+        </mailingList>
+        <mailingList>
+            <name>users</name>
+            <subscribe>http://java.net/projects/jsftemplating/lists</subscribe>
+            <post>users@jsftemplating.java.net</post>
+            <archive>http://java.net/projects/jsftemplating/lists/users/archive</archive>
+        </mailingList>
+        <mailingList>
+            <name>issues</name>
+            <subscribe>http://java.net/projects/jsftemplating/lists</subscribe>
+            <post>issues@jsftemplating.java.net</post>
+            <archive>http://java.net/projects/jsftemplating/lists/issues/archive</archive>
+        </mailingList>
+        <mailingList>
+            <name>commits</name>
+            <subscribe>http://java.net/projects/jsftemplating/lists</subscribe>
+            <post>commits@jsftemplating.java.net</post>
+            <archive>http://java.net/projects/jsftemplating/lists/commits/archive</archive>
+        </mailingList>
+    </mailingLists>
+
+    <distributionManagement>
+        <site>
+            <id>website.java.net</id>
+            <url>dav:https://website.java.net/website/jsftemplating</url>
+        </site>
+    </distributionManagement>
+
+    <modules>
+        <module>jsft</module>
+        <module>jsftemplating</module>
+        <module>jsftemplating-dt</module>
+    </modules>
+
+    <properties>
+        <jdk.version>1.6.0</jdk.version>
+        <mvn.version>3.0.3</mvn.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>osgiversion-maven-plugin</artifactId>
+                <version>2.3.0-b05</version>
+                <executions>
+                    <execution>
+                        <id>compute-osgi-version</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>compute-osgi-version</goal>
+                        </goals>
+                        <configuration>
+                            <dropVersionComponent>qualifier</dropVersionComponent>
+                            <versionPropertyName>project.osgi.version</versionPropertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[${jdk.version},)</version>
+                                    <message>You need JDK ${jdk.version} and above!</message>
+                                </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>[${mvn.version},)</version>
+                                    <message>You need Maven ${mvn.version} or above!</message>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                      <id>add-license.txt</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>org.glassfish:legal:1.1</resourceBundle>
+                            </resourceBundles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                  <source>1.6</source>
+                  <target>1.6</target>
+                  <!--<proc>none</proc>-->
+                </configuration>
+              </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <retryFailedDeploymentCount>10</retryFailedDeploymentCount>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.9</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.2.1</version>
+                    <configuration>
+                      <includePom>true</includePom>
+                    </configuration>
+                </plugin>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-enforcer-plugin</artifactId>
+                  <version>1.0-beta-1</version>
+                </plugin>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-site-plugin</artifactId>
+                  <version>3.2</version>
+                  <configuration>
+                        <skip>true</skip>
+                        <skipDeploy>true</skipDeploy>
+                    </configuration>
+                </plugin>
+                <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>findbugs-maven-plugin</artifactId>
+                  <version>2.5.4</version>
+                  <configuration>
+                    <skip>${findbugs.skip}</skip>
+                    <threshold>${findbugs.threshold}</threshold>
+                    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+                    <excludeFilterFile>
+                      exclude-common.xml,${findbugs.exclude}
+                    </excludeFilterFile>
+                  </configuration>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.glassfish.findbugs</groupId>
+                      <artifactId>findbugs</artifactId>
+                      <version>1.0</version>
+                    </dependency>
+                  </dependencies>
+                </plugin>
+                <plugin>
+                  <groupId>org.apache.felix</groupId>
+                  <artifactId>maven-bundle-plugin</artifactId>
+                  <version>2.3.4</version>
+                  <configuration>
+                    <instructions>
+                        <!-- By default, we don't export anything. -->
+                        <Export-Package />
+                        <Bundle-Version>${project.osgi.version}</Bundle-Version>
+                        <!-- Read all the configuration from osgi.bundle file, if it exists.
+                             See Felix-699 to find out why we use ${basedir}.
+                        -->
+                        <_include>-${basedir}/osgi.bundle</_include>
+                    </instructions>
+                  </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                    <configuration>
+                        <useDefaultManifestFile>true</useDefaultManifestFile>
+                    </configuration>
+                </plugin>
+                <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-dependency-plugin</artifactId>
+                      <version>2.8</version>
+                </plugin>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <version>2.17</version>
+                  <configuration>
+                      <forkCount>0</forkCount>
+                      <systemPropertyVariables>
+                          <propertyName>com.sun.jsftemplating.DEBUG</propertyName>
+                          <buildDirectory>true</buildDirectory>
+                      </systemPropertyVariables>
+                  </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+              <groupId>javax.servlet</groupId>
+              <artifactId>javax.servlet-api</artifactId>
+              <version>3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.faces</artifactId>
+                <version>2.2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.faces</groupId>
+                <artifactId>javax.faces-api</artifactId>
+                <version>2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.el</groupId>
+                <artifactId>el-api</artifactId>
+                <version>2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.woodstock.dependlibs</groupId>
+                <artifactId>dataprovider</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+              <groupId>junit</groupId>
+              <artifactId>junit</artifactId>
+              <version>4.11</version>
+              <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

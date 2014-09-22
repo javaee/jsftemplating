@@ -1,0 +1,42 @@
+<sun:page id="page">
+    <sun:html id="html">
+	<sun:head id="head">
+	    <sun:title id="title">The title</sun:title>
+	</sun:head>
+	<sun:body id="body">
+
+	    <!decorate 'single1' />
+	    <!decorate "single2" />
+	    <!decorate
+		"single3" />
+	    <!decorate template="single4" />
+	    <!decorate template='single5' />
+	    <!decorate template:"Template.jsf" />
+	    <!decorate template:'"single7"' />
+	    <!decorate template = "single11" />
+	    <!decorate template= 'single12' />
+	    <!decorate template
+	    :"single13" />
+	    <!decorate
+	    />
+	    <!decorate
+	    >
+		<staticText value="foo" />
+	    </
+	    decorate
+	    >
+	    <!decorate template:
+		'mult2'
+	    >
+		<f:verbatim>
+		    <br /><br /><p>
+			<center> Test </center>
+		    </p>
+		</f:verbatim>
+
+		<sun:form>
+		</sun:form>
+	    </decorate>
+	</sun:body>
+    </sun:html>
+</sun:page>
