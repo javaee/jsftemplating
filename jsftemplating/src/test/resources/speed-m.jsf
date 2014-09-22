@@ -1,0 +1,170 @@
+<!--
+    Random Text Random Text Random Text Random Text Random Text Random Text Random Text
+    Random Text Random Text Random Text Random Text Random Text Random Text Random Text
+    Random Text Random Text Random Text Random Text Random Text Random Text Random Text
+    Random Text Random Text Random Text Random Text Random Text Random Text Random Text
+    Random Text Random Text Random Text Random Text Random Text Random Text Random Text
+    Random Text Random Text Random Text Random Text Random Text Random Text Random Text
+    Random Text Random Text Random Text Random Text Random Text Random Text Random Text
+    Random Text Random Text Random Text Random Text Random Text Random Text Random Text
+    Random Text Random Text Random Text Random Text Random Text Random Text Random Text
+    Random Text Random Text Random Text Random Text Random Text Random Text Random Text
+-->
+"<html>
+"    <body>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+	<h:form>
+	    <h:inputText value="#{requestScope.foo}" />
+	    <h:inputText value="#{requestScope.bar}">
+		<!beforeCreate
+		    getUIComponentProperty(component="jkl" name="propName" value=>$attribute{output});
+		/>
+	    </h:inputText>
+	    <h:panelGroup>
+"		<br />
+		#{2 + 2}
+		<h:inputText value="#{requestScope.jkl}" />
+	    </h:panelGroup>
+	    <h:inputText value="#{requestScope.lkj}" />
+	</h:form>
+"    </body>
+"</html>  
