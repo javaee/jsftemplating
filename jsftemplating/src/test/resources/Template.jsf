@@ -1,0 +1,21 @@
+<sun:page id="page">
+    <sun:html id="html">
+	<sun:head id="head">
+	    <sun:title id="title">The title</sun:title>
+	</sun:head>
+	<sun:body id="body">
+	    <sun:form id="form">
+		<!insert name="header" />
+		<!insert name="body" />
+		<!insert name="repeat3times" />
+		<!insert name="repeat3times">
+		    "3repeat default
+		</insert>
+		<!insert name="repeat3times" />
+		<!insert name="footer">
+		    "<div class="footer">Default Footer</div>
+		</insert>
+	    </sun:form>
+	</sun:body>
+    </sun:html>
+</sun:page>
