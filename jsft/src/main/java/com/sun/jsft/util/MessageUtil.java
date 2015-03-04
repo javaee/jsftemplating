@@ -57,7 +57,7 @@ import com.sun.jsft.util.ResourceBundleManager;
  *  Created  March 29, 2011
  *  @author  Ken Paulsen (kenapaulsen@gmail.com)
  */
-public class MessageUtil extends Object {
+public final class MessageUtil {
 
     /**
      *	<p> This class should not be instantiated directly.</p>
@@ -69,7 +69,7 @@ public class MessageUtil extends Object {
      *	<p> Use this to get an instance of this class.</p>
      */
     public static MessageUtil getInstance() {
-	return _instance;
+	return instance;
     }
 
     /**
@@ -121,7 +121,10 @@ public class MessageUtil extends Object {
 	ResourceBundle bundle =
 	    ResourceBundleManager.getInstance(ctx).getBundle(baseName, locale);
 	if (bundle == null) {
-	    // FIXME: Log a warning
+            if (LogUtil.finestEnabled()) {
+                LogUtil.finest("Unable to find bundle (" + baseName + " / "
+                        + locale + ")");
+            }
 	    return key;
 	}
 
@@ -130,7 +133,9 @@ public class MessageUtil extends Object {
 	    message = bundle.getString(key);
 	} catch (MissingResourceException ex) {
 	    // Key not found!
-	    // FIXME: Log a warning
+            if (LogUtil.infoEnabled()) {
+                LogUtil.info("Unable to find key (" + key + ")!", ex);
+            }
 	}
 	if (message == null) {
 	    // No message found?
@@ -152,16 +157,11 @@ public class MessageUtil extends Object {
 	    return message;
 	}
 
-	String result = null;
-
-	MessageFormat mf = new MessageFormat(message);
-	result = mf.format(args);
-
-	return (result != null) ? result : message;
+	return new MessageFormat(message).format(args);
     }
 
     /**
      *	<p> Singleton.  This one is OK to share across VMs (no state).</p>
      */
-    private static final MessageUtil _instance = new MessageUtil();
+    private static final MessageUtil instance = new MessageUtil();
 }

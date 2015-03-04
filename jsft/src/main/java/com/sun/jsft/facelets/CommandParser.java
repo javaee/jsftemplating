@@ -70,7 +70,7 @@ public class CommandParser {
      *	@param	stream		<code>InputStream</code> for the template.
      */
     public CommandParser(InputStream stream) {
-	_inputStream = stream;
+	inputStream = stream;
     }
 
     /**
@@ -78,7 +78,7 @@ public class CommandParser {
      *	    the supplied <code>InputStream</code>.</p>
      */
     public InputStream getInputStream() throws IOException {
-	return _inputStream;
+	return inputStream;
     }
 
     /**
@@ -87,19 +87,19 @@ public class CommandParser {
      *	@throws	IOException
      */
     public void open() throws IOException {
-	if (_reader != null) {
+	if (reader != null) {
 	    // Generally this should not happen, but just in case... start over
 	    close();
 	}
 
 // FIXME: It is possible while evaluating the file an #include may need to log a message to the screen!  Provide a callback mechanism to do this in a Template-specific way
 	// Create the reader from the stream
-	_reader = new BufferedReader(
+	reader = new BufferedReader(
 		new InputStreamReader(
 		new BufferedInputStream(getInputStream())));
 
 	// Initialize the queue we will use to push values back
-	_stack = new Stack<Character>();
+	stack = new Stack<Character>();
     }
 
     /**
@@ -108,8 +108,8 @@ public class CommandParser {
      */
     public void close() {
 	try {
-	    if (_reader != null) {
-		_reader.close();
+	    if (reader != null) {
+		reader.close();
 	    }
 	} catch (Exception ex) {
 	    if (LogUtil.configEnabled(this)) {
@@ -122,11 +122,11 @@ public class CommandParser {
      *	<p> This method returns the next character.</p>
      */
     public int nextChar() throws IOException {
-	if (!_stack.empty()) {
+	if (!stack.empty()) {
 	    // We have values in the queue
-	    return _stack.pop().charValue();
+	    return stack.pop().charValue();
 	}
-	return _reader.read();
+	return reader.read();
     }
 
     /**
@@ -134,7 +134,7 @@ public class CommandParser {
      *	    be read next.</p>
      */
     public void unread(int ch) {
-	_stack.push(new Character((char) ch));
+	stack.push(Character.valueOf((char) ch));
     }
 
     /**
@@ -253,12 +253,12 @@ public class CommandParser {
 
 	StringBuffer buf = new StringBuffer("");
 	int ch = nextChar();  // Read a char to unread
-	int idx = 1;
+	int idx = 0;
 	do {
-	    // We didn't find the end, push read values back on queue
+	    // We didn't find the end, push read values on buf
 	    unread(ch);
-	    for (int cnt = idx-1; cnt > 0; cnt--) {
-		unread(arr[cnt]);
+	    for (int cnt = 0; cnt < idx; cnt++) {
+		buf.append(arr[cnt]);
 	    }
 
 	    // Read until the beginning of the end (maybe)
@@ -266,7 +266,7 @@ public class CommandParser {
 	    //buf.append(arr[0]); // readUntil reads but doesn't return this char
 
 	    // Check to see if we are at the end
-	    for (idx = 1; idx < arrlen; idx++) {
+	    for (idx = 0; idx < arrlen; idx++) {
 		ch = nextChar();
 		if (ch != arr[idx]) {
 		    // This is not the end!
@@ -276,7 +276,7 @@ public class CommandParser {
 	} while ((ch != -1) && (idx < arrlen));
 
 	// Append the remaining characters (use idx in case we hit eof)...
-	for (int cnt = 1; cnt < idx; cnt++) {
+	for (int cnt = 0; cnt < idx; cnt++) {
 	    buf.append(arr[cnt]);
 	}
 
@@ -345,7 +345,6 @@ public class CommandParser {
 		    } else if (ch == '*') {
 			// Throw away everything until '*' & '/'.
 			readUntil("*/", false);
-			nextChar();  // Throw away the last char read...
 		    } else {
 			// Not a comment, don't read
 			unread(ch);
@@ -362,7 +361,6 @@ public class CommandParser {
 			    if (ch == '-') {
 				// Ignore HTML-style comment
 				readUntil("-->", false);
-				nextChar();  // Throw away the last char read...
 			    } else {
 				// Not a comment, probably a mistake... lets
 				// throw an exception
@@ -412,17 +410,17 @@ public class CommandParser {
     public String readLine() throws IOException {
 	StringBuffer buf = new StringBuffer();
 	int ch = -1;
-	while (!_stack.empty()) {
+	while (!stack.empty()) {
 	    // We have values in the queue
-	    ch = _stack.pop().charValue();
+	    ch = stack.pop().charValue();
 	    if ((ch == '\r') || (ch == '\n')) {
 		// We hit the EOL...
 		// Check to see if there are 2...
-		if (!_stack.empty()) {
-		    ch = _stack.peek().charValue();
+		if (!stack.empty()) {
+		    ch = stack.peek().charValue();
 		    if ((ch == '\r') || (ch == '\n')) {
 			// Remove this one too...
-			_stack.pop().charValue();
+			stack.pop().charValue();
 		    }
 		}
 		return buf.toString();
@@ -431,7 +429,7 @@ public class CommandParser {
 	}
 
 	// Read the rest of the line
-	buf.append(_reader.readLine());
+	buf.append(reader.readLine());
 
 	int idx = buf.indexOf("\\n");
 	while (idx != -1) {
@@ -476,7 +474,7 @@ public class CommandParser {
      */
     public static final String	SIMPLE_WHITE_SPACE	= " \t\r\n";
 
-    private InputStream			    _inputStream= null;
-    private transient BufferedReader	    _reader	= null;
-    private transient Stack<Character>	    _stack	= null;
+    private InputStream			    inputStream	= null;
+    private transient BufferedReader	    reader	= null;
+    private transient Stack<Character>	    stack	= null;
 }

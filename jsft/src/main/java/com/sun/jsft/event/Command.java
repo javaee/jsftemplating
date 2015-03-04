@@ -60,6 +60,7 @@ public abstract class Command implements Serializable {
      *	<p> Default constructor needed for serialization.</p>
      */
     public Command() {
+        super();
     }
 
     /**

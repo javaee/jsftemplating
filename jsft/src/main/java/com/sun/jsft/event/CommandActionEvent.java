@@ -39,61 +39,24 @@
  * holder.
  */
 
-package com.sun.jsft.tasks;
+package com.sun.jsft.event;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 import javax.faces.component.UIComponent;
-import javax.faces.component.UIComponentBase;
-import javax.faces.component.UIOutput;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ListenerFor;
-import javax.faces.event.PostAddToViewEvent;
-import javax.faces.event.SystemEvent;
-import javax.faces.event.SystemEventListener;
+import javax.faces.event.ComponentSystemEvent;
 
 
 /**
- *  <p>	This is the default {@link TaskManager} implementation.</p>
+ *  <p> This event is used when <code>AcitonSource</code> fires an event.  We
+ *      need this event as opposed to an <code>ActionEvent</code> because
+ *      JSF Event code requires a <code>ComponentSystemEvent</code>, so
+ *      <code>ActionEvent</code> does not work.</p>
  */
-public class DefaultTaskManager extends TaskManager {
+public class CommandActionEvent extends ComponentSystemEvent {
 
     /**
-     *	<p> Default constructor.</p>
+     *  <p> Constructor.</p>
      */
-    protected DefaultTaskManager() {
-	super();
-    }
-
-    /**
-     *	<p> This method is responsible for executing the queued Tasks.  It is
-     *	    possible this method may be called more than once (not common), so
-     *	    care should be taken to ensure this is handled appropriately.  This
-     *	    method is normally executed after the page (excluding
-     *	    DefferedFragments, of course) have been rendered.</p>
-     */
-    public void start() {
-	System.out.println("Starting to execute Tasks: " + getTasks());
-	// Loop through the tasks and execute them...
-	for (Task task : getTasks()) {
-// FIXME: This implementation is a no-op, it just loops through the tasks and fires the TASK_COMPLETE event.
-// FIXME: A real implementation would aggregate & dispatch the tasks and register listeners with the "backend dispatcher" which would fire the TASK_COMPLETE event.
-// FIXME: This method should not block.
-	    SystemEvent event = new TaskEvent(task);
-	    List<SystemEventListener> listeners = task.getListeners(TaskEvent.TASK_COMPLETE);
-	    if (listeners != null) {
-		for (SystemEventListener listener : listeners) {
-		    listener.processEvent(event);
-		}
-	    }
-	}
+    public CommandActionEvent(UIComponent src) {
+        super(src);
     }
 }

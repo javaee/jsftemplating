@@ -57,7 +57,9 @@ import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ApplicationScoped;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 
 
 /**
@@ -71,15 +73,9 @@ import javax.faces.context.FacesContext;
 public class JSFTCommands {
 
     /**
-     *	<p> Default Constructor.</p>
-     */
-    public JSFTCommands() {
-    }
-
-    /**
      *	<p> This command conditionally executes its child commands.</p>
      */
-    public void _if(boolean condition) {
+    public void ifCommand(boolean condition) {
 	Command command = (Command) FacesContext.getCurrentInstance().
 		getExternalContext().getRequestMap().get(Command.COMMAND_KEY);
 	if (condition) {
@@ -105,18 +101,20 @@ public class JSFTCommands {
 
 	// Iterate over each item in the List
 	List<Command> childCommands = null;
-	for (Object item : list) {
-	    // Set the item in the request scope under the given key
-	    reqMap.put(var, item);
+        if (list != null) {
+            for (Object item : list) {
+                // Set the item in the request scope under the given key
+                reqMap.put(var, item);
 
-	    // Invoke all the child commands
-	    childCommands = command.getChildCommands();
-	    if (childCommands != null) {
-		for (Command childCommand : childCommands) {
-		    childCommand.invoke();
-		}
-	    }
-	}
+                // Invoke all the child commands
+                childCommands = command.getChildCommands();
+                if (childCommands != null) {
+                    for (Command childCommand : childCommands) {
+                        childCommand.invoke();
+                    }
+                }
+            }
+        }
     }
 
 
@@ -147,8 +145,14 @@ public class JSFTCommands {
 	if (text == null) {
 	    text = "";
 	}
+	ResponseWriter writer = FacesContext.getCurrentInstance().getResponseWriter();
+	if (writer == null) {
+	    throw new IllegalStateException("The ResponseWriter is currently"
+		    + "(null).  This typically means you are attempting to "
+		    + "write before the RenderResponse phase!");
+	}
 	try {
-	    FacesContext.getCurrentInstance().getResponseWriter().write(text);
+	    writer.write(text);
 	} catch (IOException ex) {
 	    throw new RuntimeException(ex);
 	}
@@ -201,13 +205,84 @@ public class JSFTCommands {
 	// Print it to stderr and return it
 	System.err.println(trace);
     }
-    
+
     /**
      *	<p> Returns the nano seconds since some point in time.  This is only
      *	    useful for relative measurments.</p>
      */
     public long getNanoTime() {
 	return nanoStartTime - System.nanoTime();
+    }
+
+    /**
+     *	<p> This handler redirects to the given page.</p>
+     *
+     *	@param page The page to redirect to.
+     */
+    public static void redirect(String page) {
+	FacesContext ctx = FacesContext.getCurrentInstance();
+	try {
+	    ctx.getExternalContext().redirect(page);
+	    ctx.responseComplete();
+	} catch (IOException ex) {
+	    throw new RuntimeException(
+		    "Unable to navigate to page '" + page + "'!", ex);
+	}
+    }
+
+    /**
+     *  <p> This returns a <code>UIViewRoot</code>.  If the
+     *	    <code>pageName</code> is supplied it will return the requested
+     *	    <code>UIViewRoot</code> (if found). If the <code>id</code> is
+     *	    <code>null</code>, it will return the current
+     *	    <code>UIViewRoot</code>.</p>
+     */
+    public UIViewRoot getUIViewRoot(String pageName) {
+        FacesContext ctx = FacesContext.getCurrentInstance();
+        UIViewRoot root = null;
+        if (pageName == null) {
+            root = ctx.getViewRoot();
+        } else {
+            if (pageName.charAt(0) != '/') {
+                // Ensure we start w/ a '/'
+                pageName = "/" + pageName;
+            }
+            root = ctx.getApplication().getViewHandler().
+                createView(ctx, pageName);
+        }
+	return root;
+    }
+
+    /**
+     *  <p> This handler navigates to the given page.  <code>page</code> may
+     *      either be a <code>UIViewRoot</code> or a <code>String</code>
+     *      representing a <code>UIViewRoot</code>.  Passing in a
+     *      <code>String</code> name of a <code>UIViewRoot</code> will always
+     *      create a new <code>UIViewRoot</code>.</p>
+     *
+     *  <p> {@link #getUIViewRoot(String)} provides a way to obtain a
+     *	    <code>UIViewRoot</code>.</p>
+     *
+     *  @param page	<code>UIViewRoot</code> or page name in which to
+     *			navigate to.
+     */
+    public void navigate(Object page) {
+        UIViewRoot root = null;
+        FacesContext ctx = FacesContext.getCurrentInstance();
+        if (page instanceof String) {
+	    // Get the UIViewRoot by name...
+	    root = getUIViewRoot((String) page);
+        } else if (page instanceof UIViewRoot) {
+            // We recieved a UIViewRoot, use it...
+            root = (UIViewRoot) page;
+        } else {
+            throw new IllegalArgumentException("Type '"
+                + page.getClass().getName()
+                + "' is not valid.  It must be a String or UIViewRoot.");
+        }
+
+        // Set the UIViewRoot so that it will be displayed
+        ctx.setViewRoot(root);
     }
 
     /**

@@ -66,7 +66,14 @@ import java.util.logging.Logger;
  *  Created  March 29, 2011
  *  @author  Ken Paulsen (kenapaulsen@gmail.com)
  */
-public class LogUtil {
+public final class LogUtil {
+
+    /**
+     *	<p> Prevent direct instantiation.</p>
+     */
+    private LogUtil() {
+	// Hide constructor
+    }
 
     ////////////////////////////////////////////////////////////
     // FINEST LOGGING METHODS
@@ -952,7 +959,7 @@ public class LogUtil {
      *	@param	key	The logger to use as specified by the String.
      */
     private static Logger getLogger(String key) {
-	if (key.trim().length() == 0) {
+	if (key.length() == 0) {
 	    return DEFAULT_LOGGER;
 	}
 	return Logger.getLogger(key);

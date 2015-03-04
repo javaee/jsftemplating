@@ -84,7 +84,30 @@
 		    be enclosed in #{}.</p>
 	    ]]></description>
 	    <name>type</name>
-	    <required>true</required>
+	    <required>false</required>
+	    <type>java.lang.String</type>
+	</attribute>
+	<attribute>
+	    <description><![CDATA[
+		<p> Id used to identify the <code>command</code>s held by this
+		    <code>event</code>.  The id should be referenced from
+		    another event via its <code>insert</code> attribute.</p>
+	    ]]></description>
+	    <name>id</name>
+	    <required>false</required>
+	    <type>java.lang.String</type>
+	</attribute>
+	<attribute>
+	    <description><![CDATA[
+		<p> This attribute references the <code>id</code> of another
+		    <code>event</code> element.  It will cause the
+		    <code>commands</code> defined in the other
+		    <code>event</code> to be inserted into the current
+		    component as if they were defined directly inside this
+		    <code>event</code>.</p>
+	    ]]></description>
+	    <name>insert</name>
+	    <required>false</required>
 	    <type>java.lang.String</type>
 	</attribute>
     </tag>
@@ -93,6 +116,41 @@
 	<tag-name>deferredFragment</tag-name>
 	<component>
 	    <component-type>com.sun.jsft.component.fragment.DeferredFragment</component-type>
+	</component>
+    </tag>
+
+    <tag>
+	<tag-name>insertComponent</tag-name>
+	<component>
+	    <component-type>com.sun.jsft.component.uicomp.InsertComponent</component-type>
+	</component>
+    </tag>
+
+    <tag>
+	<tag-name>addComponent</tag-name>
+	<component>
+	    <component-type>com.sun.jsft.component.uicomp.AddComponent</component-type>
+	</component>
+    </tag>
+
+    <tag>
+	<tag-name>replaceComponent</tag-name>
+	<component>
+	    <component-type>com.sun.jsft.component.uicomp.ReplaceComponent</component-type>
+	</component>
+    </tag>
+
+    <tag>
+	<tag-name>removeComponent</tag-name>
+	<component>
+	    <component-type>com.sun.jsft.component.uicomp.RemoveComponent</component-type>
+	</component>
+    </tag>
+
+    <tag>
+	<tag-name>setAttribute</tag-name>
+	<component>
+	    <component-type>com.sun.jsft.component.uicomp.SetAttributeComponent</component-type>
 	</component>
     </tag>
 

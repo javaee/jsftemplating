@@ -39,26 +39,22 @@
  * holder.
  */
 
-package com.sun.jsft.component;
+package com.sun.jsft.component.fragment;
 
-import com.sun.jsft.tasks.TaskManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
-import javax.faces.component.UIOutput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ComponentSystemEventListener;
-import javax.faces.event.ListenerFor;
-import javax.faces.event.PostAddToViewEvent;
+import javax.faces.event.PreRenderViewEvent;
 
 
 /**
@@ -69,7 +65,36 @@ public class FragmentRenderer extends UIComponentBase implements ComponentSystem
     /**
      *	<p> Default constructor.</p>
      */
-    public FragmentRenderer() {
+    protected FragmentRenderer() {
+    }
+
+    /**
+     *	<p> This method returns an instance of this class which is scoped to
+     *	    the given UIViewRoot.</p>
+     */
+    public static FragmentRenderer getInstance(UIViewRoot viewRoot) {
+	// Ensure we have a FragmentRenderer component...
+	Map<String, UIComponent> viewRootFacets = viewRoot.getFacets();
+	FragmentRenderer fragmentRenderer = (FragmentRenderer)
+		viewRootFacets.get(FRAGMENT_RENDERER);
+	if (fragmentRenderer == null) {
+	    // Create one...
+	    fragmentRenderer = new FragmentRenderer();
+	    fragmentRenderer.setId(FRAGMENT_RENDERER);
+
+	    // Store FragmentRenderer in request scope as well as the last
+	    // component in the UIViewRoot. (request scope for fast access)
+	    viewRootFacets.put(FRAGMENT_RENDERER, fragmentRenderer);
+
+	    // Add a listener which will relocate the FragementRenderer to
+	    // the end of the ViewRoot
+	    viewRoot.subscribeToEvent(
+		PreRenderViewEvent.class,
+		new FragmentRenderer.BeforeEncodeViewListener());
+	}
+
+	// Return the fragmentRenderer instance...
+	return fragmentRenderer;
     }
 
     /**
@@ -87,9 +112,10 @@ public class FragmentRenderer extends UIComponentBase implements ComponentSystem
     }
 
     public void encodeBegin(FacesContext context) throws IOException {
-	System.out.println("Starting FragmentRenderer...");
-	// Start processing the Tasks...
-	TaskManager.getInstance().start();
+//System.out.println("Starting FragmentRenderer...");
+// FIXME: If we are not the last component in the UIViewRoot... move!
+	// Start processing the Dependencies...
+	DependencyManager.getInstance().start();
     }
 
     public void encodeChildren(FacesContext context) throws IOException {
@@ -98,20 +124,21 @@ public class FragmentRenderer extends UIComponentBase implements ComponentSystem
 
     public void encodeEnd(FacesContext context) throws IOException {
 	 // Render fragments as they become ready.
-	fragsToRender = getFragmentCount();
+	int fragsToRender = getFragmentCount();
 	DeferredFragment comp = null;
 	while (fragsToRender > 0) {
 	    synchronized (renderQueue) {
 		if (renderQueue.isEmpty()) {
 		    try {
 			// Wait at most 30 seconds...
+// FIXME: Make this timeout configurable?
 			renderQueue.wait(30 * 1000);
 			if (renderQueue.isEmpty()) {
-			    System.out.println("EMPTY QUEUE!");
+//System.out.println("EMPTY QUEUE!");
 			    return;
 			}
 		    } catch (InterruptedException ex) {
-			System.out.println("Interrupted!");
+//System.out.println("Interrupted!");
 			return;
 		    }
 		}
@@ -119,21 +146,21 @@ public class FragmentRenderer extends UIComponentBase implements ComponentSystem
 	    }
 	    if (comp != null) {
 		fragsToRender--;
-		try {
-System.out.println("Encoding: " + comp.getId());
+//		try {
+//System.out.println("Encoding: " + comp.getId());
 		    comp.encodeAll(FacesContext.getCurrentInstance());
-		} catch (Exception ex) {
-		    // FIXME: cleanup
-		    ex.printStackTrace();
-		}
+//		} catch (Exception ex) {
+// FIXME: cleanup
+//		    ex.printStackTrace();
+//		}
 	    }
 	}
 
-	System.out.println("Ending FragmentRenderer..." + fragsToRender);
+	//System.out.println("Ending FragmentRenderer..." + fragsToRender);
     }
 
     /**
-     *	<p> This method returns the number of tasks this DeferredFragment is
+     *	<p> This method returns the number of dependencies this DeferredFragment is
      *	    waiting for.</p>
      */
     public int getFragmentCount() {
@@ -180,16 +207,42 @@ System.out.println("Encoding: " + comp.getId());
 	}
     }
 
+    /**
+     *	<p> Listener used to relocate the children to a facet on the
+     *	    UIViewRoot.</p>
+     */
+    public static class BeforeEncodeViewListener implements ComponentSystemEventListener {
+	BeforeEncodeViewListener() {
+	}
+
+	/**
+	 *  <p>	This method is responsible for ensuring the FragmentRenderer
+	 *	component is at the end of the <code>UIViewRoot</code>'s list
+	 *	of children.</p>
+	 */
+	public void processEvent(ComponentSystemEvent event) throws AbortProcessingException {
+	    // Get the component
+	    UIViewRoot comp = (UIViewRoot) event.getComponent();
+
+//System.out.println("MOVING FragmentRenderer TO THE END!!!");
+
+	    // Move it to the end of the UIViewRoot...
+	    comp.getChildren().add(FragmentRenderer.getInstance(comp));
+	}
+    }
+
 
     /**
      *	<p> A count of remaining fragments to render.</p>
      */
-    private transient int fragsToRender = 1;
+    //private transient int fragsToRender = 1;
 
     private transient List<DeferredFragment> fragments	=
 	    new ArrayList<DeferredFragment>();
 
     private transient Queue<DeferredFragment> renderQueue   = new ConcurrentLinkedQueue<DeferredFragment>();
+
+    private static final String FRAGMENT_RENDERER	= "jsft-FR";
 
     /**
      *	<p> The component family.</p>

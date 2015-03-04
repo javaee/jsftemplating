@@ -39,20 +39,55 @@
  * holder.
  */
 
-package com.sun.jsft.component;
+package com.sun.jsft.event;
 
-import javax.faces.event.ComponentSystemEvent;
+import java.util.List;
+import javax.faces.context.FacesContext;
+import javax.faces.event.AbortProcessingException;
+import javax.faces.event.ActionEvent;
+import javax.faces.event.ActionListener;
 
 
 /**
- *  <p>	This event is used for dispatching {@link Task} related events.</p>
+ *  <p> This class is used to handle an event when an <code>AcitonSource</code>
+ *      is activated.</p>
  */
-public class FragmentReadyEvent extends ComponentSystemEvent {
+public class CommandActionListener implements ActionListener {
 
     /**
-     *	<p> Constructor.</p>
+     * <p>Invoked when the action described by the specified
+     * <code>ActionEvent</code> occurs.</p>
+     *
+     * @param event The <code>ActionEvent</code> that has occurred
+     *
+     * @throws AbortProcessingException Signal the JavaServer Faces
+     *  implementation that no further processing on the current event
+     *  should be performed
      */
-    public FragmentReadyEvent(DeferredFragment source) {
-	super(source);
+    public void processAction(ActionEvent event) throws AbortProcessingException {
+        FacesContext ctx = FacesContext.getCurrentInstance();
+        ctx.getApplication().publishEvent(ctx, CommandActionEvent.class, event.getComponent());
     }
+
+    @Override
+    public boolean equals(Object obj) {
+	if (obj == null) {
+	    // Not if null
+	    return false;
+	}
+	if (obj == this) {
+	    // Same object
+	    return true;
+	}
+
+	// Compare class names, no state... if match, then true.
+	return obj.getClass().equals(this.getClass());
+    }
+
+    @Override
+    public int hashCode() {
+	return HASH;
+    }
+
+    public static final int HASH    = 13;
 }

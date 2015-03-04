@@ -39,80 +39,47 @@
  * holder.
  */
 
-package com.sun.jsft.tasks;
+package com.sun.jsft.component.fragment;
 
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import javax.faces.event.SystemEventListener;
+import javax.faces.event.SystemEvent;
 
 
 /**
- *  <p>	This class holds the representation of a single task.</p>
+ *  <p>	This event is used for dispatching {@link Dependency} related events.</p>
  */
-public class Task {
+public class DependencyEvent extends SystemEvent {
 
     /**
-     *	<p> Default constructor.</p>
+     *	<p> Constructor.</p>
      */
-    public Task() {
-	super();
+    public DependencyEvent(Dependency source) {
+	super(source);
     }
 
     /**
-     *	<p> Constructor w/ <code>name</code>.</p>
+     *	<p> Constructor.</p>
      */
-    public Task(String name) {
-	this();
-	setName(name);
-    }
-
-
-    /**
-     *	<p> The name used to identify the task.  In some instances, the name
-     *	    may define the task (i.e. EL).</p>
-     */
-    public String getName() {
-	return name;
-    }
-
-    /**
-     *
-     */
-    public void setName(String name) {
-	this.name = name;
-    }
-
-    /**
-     *
-     */
-    public List<SystemEventListener> getListeners(String type) {
-	if (type == null) {
-	    type = DEFAULT_EVENT_TYPE;
+    public DependencyEvent(Dependency source, String type) {
+	super(source);
+	if (type != null) {
+	    this.type = type;
 	}
-	return listenersByType.get(type);
     }
 
     /**
-     *
+     *	<p> Returns the event sub-type.</p>
      */
-    public void setListeners(String type, List<SystemEventListener> listeners) {
-	if (type == null) {
-	    type = DEFAULT_EVENT_TYPE;
-	}
-	listenersByType.put(type, listeners);
+    public String getType() {
+	return type;
     }
 
-
-    // The identifier for this Task
-    private String name = "";
-
-    // Map of List to store the events by type
-    private Map<String, List<SystemEventListener>> listenersByType =
-	    new HashMap<String, List<SystemEventListener>>(2);
+    /**
+     *	<p> This event's sub-type, which defaults to {@link DEPENDENCY_COMPLETE}.</p>
+     */
+    private String type = DEPENDENCY_COMPLETE;
 
     /**
-     *	<p> The default event type.</p>
+     *	<p> The sub-type used when a {@link Dependency} has completed.</p>
      */
-    public static final String DEFAULT_EVENT_TYPE   = TaskEvent.TASK_COMPLETE;
+    public static final String DEPENDENCY_COMPLETE	= "dependencyComplete";
 }

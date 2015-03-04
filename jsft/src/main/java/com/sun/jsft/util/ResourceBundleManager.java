@@ -62,6 +62,7 @@ public class ResourceBundleManager {
      *	<p> Use {@link #getInstance()} to obtain an instance.</p>
      */
     protected ResourceBundleManager() {
+        // Declared to make the empty constructor protected.
     }
 
 
@@ -110,7 +111,7 @@ public class ResourceBundleManager {
      *		appropriate <code>Locale</code>.
      */
     protected ResourceBundle getCachedBundle(String baseName, Locale locale) {
-	return (ResourceBundle) _cache.get(getCacheKey(baseName, locale));
+	return (ResourceBundle) cache.get(getCacheKey(baseName, locale));
     }
 
     /**
@@ -128,13 +129,13 @@ public class ResourceBundleManager {
     protected void addCachedBundle(String baseName, Locale locale, ResourceBundle bundle) {
 	// Copy the old Map to prevent changing a Map while someone is
 	// accessing it.
-	Map<String, ResourceBundle> map = new HashMap<String, ResourceBundle>(_cache);
+	Map<String, ResourceBundle> map = new HashMap<String, ResourceBundle>(cache);
 
 	// Add the new bundle
 	map.put(getCacheKey(baseName, locale), bundle);
 
 	// Set this new Map as the shared cache Map
-	_cache = map;
+	cache = map;
     }
 
     /**
@@ -152,10 +153,8 @@ public class ResourceBundleManager {
 		bundle = ResourceBundle.getBundle(baseName, locale,
 		    Util.getClassLoader(baseName));
 	    } catch (MissingResourceException ex) {
-		// Use System.out.println b/c we don't want infinite loop and
-		// we're too lazy to do more...
-		System.out.println("Can't find bundle: " + baseName);
-		ex.printStackTrace();
+                throw new IllegalArgumentException("'" + baseName
+                        + "' not found!", ex);
 	    }
 	    if (bundle != null) {
 		addCachedBundle(baseName, locale, bundle);
@@ -194,5 +193,5 @@ public class ResourceBundleManager {
     /**
      *	<p> The cache of <code>ResourceBundle</code>s.</p>
      */
-    private Map<String, ResourceBundle>	_cache = new HashMap<String, ResourceBundle>();
+    private Map<String, ResourceBundle>	cache = new HashMap<String, ResourceBundle>();
 }

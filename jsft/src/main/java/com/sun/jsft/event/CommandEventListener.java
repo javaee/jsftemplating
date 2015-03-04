@@ -41,11 +41,14 @@
 
 package com.sun.jsft.event;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ComponentSystemEventListener;
+import javax.faces.event.PostAddToViewEvent;
 
 
 /**
@@ -62,6 +65,7 @@ public class CommandEventListener extends Command implements ComponentSystemEven
      *	<p> Default constructor needed for serialization.</p>
      */
     public CommandEventListener() {
+        super();
     }
 
     /**
@@ -80,11 +84,40 @@ public class CommandEventListener extends Command implements ComponentSystemEven
      *	    <code>util.println(theEvent);</code></p>
      */
     public void processEvent(ComponentSystemEvent event) throws AbortProcessingException {
+	// Get the request map...
+	Map<String, Object> reqMap = FacesContext.getCurrentInstance().
+		getExternalContext().getRequestMap();
+
+	// Need to ensure we don't fire the event too many times...
+	if ((event instanceof PostAddToViewEvent)
+		|| (event instanceof InitPageEvent)) {
+	    // PostAddToView gets fired too many times b/c the impl may add it
+	    // multiple times!  Only handle the 1st time...
+	    Map<Integer, Integer> eventMap = (Map<Integer, Integer>)
+		    reqMap.get("jsftDupEvnts");
+	    if (eventMap == null) {
+		eventMap = new HashMap<Integer, Integer>();
+		reqMap.put("jsftDupEvnts", eventMap);
+	    }
+	    // Hash based on source object...
+	    int code = event.getSource().hashCode();
+// FIXME: Need to revisit code where I create the event and make sure I don't create it multiple times.  If I don't already have a hashCode() impl on the event, I may have to create one so I can use it as the key.
+	    // Separate name space for each event type...
+	    code += event.getClass().getName().hashCode();
+	    Integer count = eventMap.get(code);
+	    if (count == null) {
+		count = 1;
+		eventMap.put(code, count);
+	    } else {
+		eventMap.put(code, ++count);
+		// Already processed once, don't do it again...
+		return;
+	    }
+	}
 
 	// Store the event under the key "theEvent" in case we want to access
 	// it for some reason.
-	FacesContext.getCurrentInstance().getExternalContext().getRequestMap().
-		put("theEvent", event);
+	reqMap.put("theEvent", event);
 
 	// Execute the child commands
 	invoke();
@@ -111,7 +144,6 @@ public class CommandEventListener extends Command implements ComponentSystemEven
         }
 
         CommandEventListener that = (CommandEventListener) obj;
-
 	if (hashCode() != that.hashCode()) {
 	    return false;
 	}
@@ -134,7 +166,12 @@ public class CommandEventListener extends Command implements ComponentSystemEven
 	return hash;
     }
 
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+	in.defaultReadObject();
+	// Do this here or hash defaults to 0 (doesn't reinitialize to -1)
+	hash = -1;
+    }
 
     private transient int hash = -1;
-    private static final long serialVersionUID = 6945415935164238909L;
+    private static final long serialVersionUID = 6945415935164238929L;
 }

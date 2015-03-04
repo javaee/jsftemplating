@@ -41,14 +41,13 @@
 
 package com.sun.jsft.event;
 
-import com.sun.jsft.util.Util;
-
 import java.util.List;
 import javax.el.ELContext;
 import javax.el.ExpressionFactory;
 import javax.el.ValueExpression;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
+import javax.faces.view.facelets.FaceletContext;
 
 
 /**
@@ -63,6 +62,7 @@ public class ELCommand extends Command {
      *	<p> Default constructor needed for serialization.</p>
      */
     public ELCommand() {
+        super();
     }
 
     /**
@@ -87,8 +87,19 @@ public class ELCommand extends Command {
      *	    <code>util.println(theEvent);</code></p>
      */
     public Object invoke() throws AbortProcessingException {
+        // Get the FacesContext
 	FacesContext ctx = FacesContext.getCurrentInstance();
-	ELContext elCtx = ctx.getELContext();
+
+        // This is needed in order to recognize ui:param's.  However,
+        // ui:param's are not available after the view is created, so you
+        // can't access them in beforeEncode events or other events which
+        // occur later.
+	ELContext elCtx = (ELContext) ctx.getAttributes().get(
+                FaceletContext.FACELET_CONTEXT_KEY);
+        if (elCtx == null) {
+            // Just in case...
+            elCtx = ctx.getELContext();
+        }
 
 	// Store the Command for access inside the expression.
 	// This is useful for loops or other commands which need access to
@@ -164,6 +175,6 @@ public class ELCommand extends Command {
 
     private String resultVar = null;
     private String el = null;
-    private transient int hash = -1;
+    private int hash = -1;
     private static final long serialVersionUID = 6201115935174238909L;
 }

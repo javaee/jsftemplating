@@ -76,7 +76,7 @@ public class CommandReader {
      *	@param	stream	The <code>InputStream</code> for the {@link Command}.
      */
     protected CommandReader(InputStream stream) {
-	_parser = new CommandParser(stream);
+	parser = new CommandParser(stream);
     }
 
     /**
@@ -90,13 +90,13 @@ public class CommandReader {
      */
     public List<Command> read() throws IOException {
 	// Start...
-	_parser.open();
+	parser.open();
 
 	try {
 	    // Populate the LayoutDefinition from the Document
 	    return readCommandList();
 	} finally {
-	    _parser.close();
+	    parser.close();
 	}
     }
 
@@ -110,19 +110,19 @@ public class CommandReader {
 // FIXME: this conversion is done.
     private Command readCommand() throws IOException {
 	// Skip White Space...
-	_parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
+	parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
 
 	// Read the next Command
-	String commandLine = _parser.readUntil(new int[] {';', '{', '}'}, true);
+	String commandLine = parser.readUntil(new int[] {';', '{', '}'}, true);
 
 	// Read the children
-	int ch = _parser.nextChar();
+	int ch = parser.nextChar();
 	List<Command> commandChildren = null;
 	if (ch == '{') {
 	    // Read the Command Children 
 	    commandChildren = readCommandList();
 	} else if (ch == '}') {
-	    _parser.unread(ch);
+	    parser.unread(ch);
 	}
 
 	// Check to see if there is a variable to store the result...
@@ -138,16 +138,16 @@ public class CommandReader {
 	Command elseCommand = null;
 	if (commandLine.startsWith("if")) {
 	    // First convert "if" to the real if handler...
-	    commandLine = "jsft._if" + commandLine.substring(2);
+	    commandLine = "jsft.ifCommand" + commandLine.substring(2);
 
 	    // Check the next few characters to see if they are "else"...
-	    _parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
+	    parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
 	    int next[] = new int[] {
-		_parser.nextChar(),
-		_parser.nextChar(),
-		_parser.nextChar(),
-		_parser.nextChar(),
-		_parser.nextChar()
+		parser.nextChar(),
+		parser.nextChar(),
+		parser.nextChar(),
+		parser.nextChar(),
+		parser.nextChar()
 	    };
 	    if ((next[0] == 'e')
 		    && (next[1] == 'l')
@@ -160,7 +160,7 @@ public class CommandReader {
 		// Not an else, restore the parser state
 		for (idx=4; idx > -1; idx--) {
 		    if (next[idx] != -1) {
-			_parser.unread(next[idx]);
+			parser.unread(next[idx]);
 		    }
 		}
 	    }
@@ -194,7 +194,7 @@ public class CommandReader {
 	int paren = exp.indexOf(OPEN_PAREN);
 	if (paren != -1) {
 	    key = exp.substring(0, paren);
-	    if (key.indexOf(".") != -1) {
+	    if (key.indexOf('.') != -1) {
 		// '.' found, this is not a keyword...
 		return exp;
 	    }
@@ -250,14 +250,14 @@ public class CommandReader {
      *	<p> This method reads Commands until a closing '}' is encountered.</p>
      */
     private List<Command> readCommandList() throws IOException {
-	int ch = _parser.nextChar();
+	int ch = parser.nextChar();
 	List<Command> commands = new ArrayList<Command>();
 	Command command = null;
 	while (ch != '}') {
 	    // Make sure readCommand gets the full command line...
 	    if (ch != '{') {
 		// We want to throw this char away...
-		_parser.unread(ch);
+		parser.unread(ch);
 	    }
 
 	    // Read a Command
@@ -267,10 +267,10 @@ public class CommandReader {
 	    }
 
 	    // Skip White Space...
-	    _parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
+	    parser.skipCommentsAndWhiteSpace(CommandParser.SIMPLE_WHITE_SPACE);
 
 	    // Get the next char...
-	    ch = _parser.nextChar();
+	    ch = parser.nextChar();
 	    if (ch == -1)  {
 		throw new IOException(
 		    "Unexpected end of stream! Expected to find '}'.");
@@ -318,5 +318,5 @@ public class CommandReader {
     private static final String	    OPEN_CDATA	    = "<![CDATA[";
     private static final String	    CLOSE_CDATA	    = "]]>";
 
-    private CommandParser  _parser    = null;
+    private CommandParser  parser    = null;
 }

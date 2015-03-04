@@ -59,7 +59,14 @@ import javax.faces.context.FacesContext;
  *  Created  March 29, 2011
  *  @author  Ken Paulsen (kenapaulsen@gmail.com)
  */
-public class Util {
+public final class Util {
+
+    /**
+     *	<p> Prevent direct instantiation.</p>
+     */
+    private Util() {
+	// Hide constructor
+    }
 
     /**
      *	<p> This method returns the ContextClassLoader unless it is null, in
@@ -73,10 +80,8 @@ public class Util {
     public static ClassLoader getClassLoader(Object obj) {
 	// Get the ClassLoader
 	ClassLoader loader = Thread.currentThread().getContextClassLoader();
-	if (loader == null) {
-	    if (obj != null) {
-		loader = obj.getClass().getClassLoader();
-	    }
+	if ((loader == null) && (obj != null)) {
+            loader = obj.getClass().getClassLoader();
 	}
 
 	// Wrap with custom ClassLoader if specified
@@ -212,21 +217,19 @@ public class Util {
 	}
 	if (cls == null) {
 	    // Still haven't found it... look for it somewhere else.
-	    if (obj != null) {
-		loader = obj.getClass().getClassLoader();
-		if (loader != null) {
-		    try {
-			cls = Class.forName(className, false, loader);
-		    } catch (ClassNotFoundException ex) {
-			// Ignore
-			if (LogUtil.finestEnabled()) {
-			    LogUtil.finest("Unable to find class (" + className
-				+ ") using ClassLoader: '" + loader
-				+ "'.  I will try the System ClassLoader.", ex);
-			}
-		    }
-		}
-	    }
+            loader = (obj == null) ? null : obj.getClass().getClassLoader();
+            try {
+                cls = (loader == null) ?
+                        null : Class.forName(className, false, loader);
+            } catch (ClassNotFoundException ex) {
+                // Ignore
+                if (LogUtil.finestEnabled()) {
+                    LogUtil.finest("Unable to find class (" + className
+                        + ") using ClassLoader: '" + loader
+                        + "'.  I will try the System ClassLoader.", ex);
+                }
+            }
+
 	    if (cls == null) {
 		// Still haven't found it, use System ClassLoader
 		loader = ClassLoader.getSystemClassLoader();
@@ -250,6 +253,7 @@ public class Util {
 	    cls = Util.loadClass(name, null);
 	} catch (Exception ex) {
 	    // Ignore...
+            cls = null;
 	}
 	return cls;
     }
@@ -287,8 +291,10 @@ public class Util {
 	    method = cls.getMethod(name, prms);
 	} catch (NoSuchMethodException ex) {
 	    // Do nothing, we're eating the exception
+            method = null;
 	} catch (SecurityException ex) {
 	    // Do nothing, we're eating the exception
+            method = null;
 	}
 	return method;
     }
@@ -339,19 +345,132 @@ public class Util {
 	for (char ch : str.toCharArray()) {
 	    switch (ch) {
 		case '&':
-		    buf.append("&amp;");
+		    buf.append(AMPERSAND);
 		    break;
 		case '<':
-		    buf.append("&lt;");
+		    buf.append(LESS_THAN);
 		    break;
 		case '>':
-		    buf.append("&gt;");
+		    buf.append(GREATER_THAN);
+		    break;
+		case '"':
+		    buf.append(DOUBLE_QUOTE);
+		    break;
+		case '\'':
+		    buf.append(SINGLE_QUOTE);
 		    break;
 		default:
 		    buf.append(ch);
 		    break;
 	    }
 	}
+	return buf.toString();
+    }
+
+    /**
+     *	<p> This method reverses html-escaping in the given String.  It is
+     *	    meant to be the converse of {@link #htmlEscape(String)}.  It does
+     *	    not convert every entity, it only converts those supported by
+     *	    <code>htmlEscape(String}</code>.  In other words:</p>
+     *
+     *	<ul><li>&amp;amp; to &amp;</li>
+     *	    <li>&amp;lt; to &lt;</li>
+     *	    <li>&amp;gt; to &gt;</li>
+     *	    <li>&amp;quot; to &quot;</li>
+     *	    <li>&amp;#39; to &#39;</li></ul>
+     */
+    public static String unHtmlEscape(String str) {
+	// Ensure we have a string...
+	if (str == null) {
+	    return null;
+	}
+
+	// Store a lower-case version to avoid worrying about case
+	char lower[] = str.toLowerCase().toCharArray();
+	// Also preserve the original case to avoid changing values
+	char orig[] = str.toCharArray();
+
+	// Variables for indexes
+	int len = lower.length;
+	int stop = len - 3; // Smallest supported entity is 4 chars...
+	char ch, next;
+	int idx = 0;
+
+	// Loop through chars and create the new string w/ converted entities
+	StringBuffer buf = new StringBuffer("");
+	for (idx = 0; idx<stop; idx++) {
+	    ch = orig[idx];
+	    switch (ch) {
+		case '&':
+		    // get char after & (don't check bounds, 3 extra for sure)
+		    next = lower[idx + 1];
+		    if (next == 'a') {
+			// Maybe AMPERSAND entity
+			if (((idx + 4) < len) && new String(lower, idx, 5).equals(AMPERSAND)) {
+			    // Yes, &amp;!
+			    buf.append('&');
+			    idx += 4;
+			} else {
+			    // Unsupported entity, or plain '&' character
+			    buf.append(ch);
+			}
+		    } else if (next =='l') {
+			// Maybe LESS_THAN entity
+			if (((idx + 3) < len) && new String(lower, idx, 4).equals(LESS_THAN)) {
+			    // Yes, &lt;!
+			    buf.append('<');
+			    idx += 3;
+			} else {
+			    // Unsupported entity, or plain '&' character
+			    buf.append(ch);
+			}
+		    } else if (next == 'g') {
+			// Maybe GREATER_THAN entity
+			if (((idx + 3) < len) && new String(lower, idx, 4).equals(GREATER_THAN)) {
+			    // Yes, &gt;!
+			    buf.append('>');
+			    idx += 3;
+			} else {
+			    // Unsupported entity, or plain '&' character
+			    buf.append(ch);
+			}
+		    } else if (next == 'q') {
+			// Maybe DOUBLE_QUOTE entity
+			if (((idx + 5) < len) && new String(lower, idx, 6).equals(DOUBLE_QUOTE)) {
+			    // Yes, &quot;!
+			    buf.append('"');
+			    idx += 5;
+			} else {
+			    // Unsupported entity, or plain '&' character
+			    buf.append(ch);
+			}
+		    } else if (next == '#') {
+			// Maybe SINGLE_QUOTE entity
+			if (((idx + 4) < len) && new String(lower, idx, 5).equals(SINGLE_QUOTE)) {
+			    // Yes, &#39;!
+			    buf.append('\'');
+			    idx += 4;
+			} else {
+			    // Unsupported entity, or plain '&' character
+			    buf.append(ch);
+			}
+		    } else {
+			// Unsupported entity, or plain '&' character
+			buf.append(ch);
+		    }
+		    break;
+		default:
+		    buf.append(ch);
+		    break;
+	    }
+	}
+
+	// We usually stop early, so we may have extra chars to add...
+	for (; idx < len; idx++) {
+	    buf.append(orig[idx]);
+	}
+
+	// Return the new String
 	return buf.toString();
     }
 
@@ -386,6 +505,7 @@ public class Util {
 		is.close();
 	    } catch (Exception e) {
 		// ignore
+                is = null;
 	    }
 	}
     }
@@ -396,6 +516,12 @@ public class Util {
      *	    <code>ClassLoaders</code>.</p>
      */
     private static final String CLASSLOADER_CACHE   =	"__jsft_ClassLoaders";
+
+    private static final String AMPERSAND	    =	"&amp;";
+    private static final String LESS_THAN	    =	"&lt;";
+    private static final String GREATER_THAN	    =	"&gt;";
+    private static final String DOUBLE_QUOTE	    =	"&quot;";
+    private static final String SINGLE_QUOTE	    =	"&#39;";
 
     /**
      *	<p> This is the context-param that specifies the JSFTemplating
