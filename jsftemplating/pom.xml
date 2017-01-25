@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2014-2017 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -46,7 +46,7 @@
     <parent>
         <groupId>com.sun.jsftemplating</groupId>
         <artifactId>jsftemplating-parent</artifactId>
-        <version>2.1.2-SNAPSHOT</version>
+        <version>2.2.4-SNAPSHOT</version>
     </parent>
     <artifactId>jsftemplating</artifactId>
 
@@ -85,7 +85,7 @@
                             <instructions>
                                 <Bundle-Name>com.sun.jsftemplating</Bundle-Name>
                                 <excludeDependencies>javax.faces</excludeDependencies>
-                                <Import-Package>com.sun.data.provider.*;resolution:=optional;password=GlassFish,!com.sun.jsftemplating.annotation.*,*</Import-Package>
+                                <Import-Package>com.sun.data.provider.*;resolution:=optional;password=GlassFish,!com.sun.jsftemplating.annotation.*,javax.servlet.*;version="[3.0,5)",*</Import-Package>
                                 <Export-Package>!com.sun.jsftemplating.annotation.*,!com.sun.data.*,com.sun.jsftemplating.*;version=${project.osgi.version}</Export-Package>
                             </instructions>
                         </configuration>
