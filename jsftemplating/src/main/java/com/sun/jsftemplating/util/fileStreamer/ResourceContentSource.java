@@ -159,11 +159,6 @@ public class ResourceContentSource implements ContentSource {
 	}
 	return path;
 	}
-	
-	public static void main(String[] args) {
-                System.out.println(normalize("/META-INF/somefun..stuff/../heretohavedos../mmmasd/asdasdasdasd"));
-//            System.out.println(normalize("/somefunstuffheretohavedos../mmmasd/asdasdasdasd"));
-	}
 
     /**
      *	<p> This method may be used to clean up any temporary resources.  It
