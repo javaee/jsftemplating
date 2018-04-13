@@ -122,11 +122,8 @@ public class ResourceContentSource implements ContentSource {
 	// Normalize it...
 	if ((path != null) && (path.length() > 0)) {
 	    path = path.replace('\\', '/');
-            // Remove leading '/' chars
-	    while ((path.length() > 0) && (path.charAt(0) == '/')) {
-		path = path.substring(1);
-	    }
-            // Replace all double "//" with "/"
+
+	    // Replace all double "//" with "/"
 	    while (path.indexOf("//") != -1) {
 		path = path.replace("//", "/");
             }
