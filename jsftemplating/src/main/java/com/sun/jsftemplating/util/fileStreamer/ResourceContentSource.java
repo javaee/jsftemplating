@@ -122,34 +122,30 @@ public class ResourceContentSource implements ContentSource {
 	// Normalize it...
 	if ((path != null) && (path.length() > 0)) {
 	    path = path.replace('\\', '/');
-	    // Remove leading '/' chars
+            // Remove leading '/' chars
 	    while ((path.length() > 0) && (path.charAt(0) == '/')) {
 		path = path.substring(1);
 	    }
-	    // Replace all double "//" with "/"
+            // Replace all double "//" with "/"
 	    while (path.indexOf("//") != -1) {
 		path = path.replace("//", "/");
-	    }
-	    for (int idx = path.indexOf("../"); idx != -1; idx = path.indexOf("../")) {
+            }
+	    for (int idx = path.indexOf("/../"); idx != -1; idx = path.indexOf("/../")) {
 		if (idx == 0) {
 		    // Make sure we're not trying to go before the context root
 		    LogUtil.info("JSFT0010", origPath);
 		    throw new IllegalArgumentException(
 			"Invalid Resource Path: '" + origPath + "'");
 		}
-		if (path.charAt(idx-1) != '/') {
-		    // Not a "../" match...
-		    continue;
-		}
 		// Create new path after evaluating ".."
 		int prevPathIdx = path.lastIndexOf('/', idx-2) + 1;
 		path = path.substring(0, prevPathIdx)	// before x/../
-		    + path.substring(idx + 3);		// after  x/../
+		    + path.substring(idx + 4);		// after  x/../
 		while ((path.length() > 0) && (path.charAt(0) == '/')) {
 		    // Remove leading '/' chars
 		    path = path.substring(1);
 		}
-	    }
+            }
 	    // We check for "../" so ".." at the end of a path could occur,
 	    // which is fine, unless it is also at the beginning...
 	    if (path.equals("..")) {
@@ -159,11 +155,10 @@ public class ResourceContentSource implements ContentSource {
 	    // Last ensure path does not end in a '/'
 	    if (path.endsWith("/")) {
 		path = path.substring(0, path.length()-1);
-	    }
+		}
 	}
-
 	return path;
-    }
+	}
 
     /**
      *	<p> This method may be used to clean up any temporary resources.  It
