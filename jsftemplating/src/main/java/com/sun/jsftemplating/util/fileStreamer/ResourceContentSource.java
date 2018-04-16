@@ -117,45 +117,49 @@ public class ResourceContentSource implements ContentSource {
      *	    security reasons.</p>
      */
     public static String normalize(String origPath) {
-	String path = origPath;
+        String path = origPath;
 
-	// Normalize it...
-	if ((path != null) && (path.length() > 0)) {
-	    path = path.replace('\\', '/');
+        // Normalize it...
+        if ((path != null) && (path.length() > 0)) {
+            path = path.replace('\\', '/');
 
-	    // Replace all double "//" with "/"
-	    while (path.indexOf("//") != -1) {
-		path = path.replace("//", "/");
+            if (path.charAt(0) != '/') {
+                path = ("/").concat(path);
             }
-	    for (int idx = path.indexOf("/../"); idx != -1; idx = path.indexOf("/../")) {
-		if (idx == 0) {
-		    // Make sure we're not trying to go before the context root
-		    LogUtil.info("JSFT0010", origPath);
-		    throw new IllegalArgumentException(
-			"Invalid Resource Path: '" + origPath + "'");
-		}
-		// Create new path after evaluating ".."
-		int prevPathIdx = path.lastIndexOf('/', idx-2) + 1;
-		path = path.substring(0, prevPathIdx)	// before x/../
-		    + path.substring(idx + 4);		// after  x/../
-		while ((path.length() > 0) && (path.charAt(0) == '/')) {
-		    // Remove leading '/' chars
-		    path = path.substring(1);
-		}
+            // Replace all double "//" with "/"
+            if (path.contains("//")) {
+                path = path.replaceAll("//", "/");
             }
-	    // We check for "../" so ".." at the end of a path could occur,
-	    // which is fine, unless it is also at the beginning...
-	    if (path.equals("..")) {
-		path = null;
-	    }
+            for (int idx = path.indexOf("/../"); idx != -1; idx = path.indexOf("/../")) {
+                if (idx == 0) {
+                    // Make sure we're not trying to go before the context root
+                    LogUtil.info("JSFT0010", origPath);
+                    throw new IllegalArgumentException(
+                            "Invalid Resource Path: '" + origPath + "'");
+                }
+                // Create new path after evaluating ".."
+                int prevPathIdx = path.lastIndexOf('/', idx - 2) + 1;
+                path = path.substring(0, prevPathIdx) // before x/../
+                        + path.substring(idx + 4);		// after  x/../
+            }
 
-	    // Last ensure path does not end in a '/'
-	    if (path.endsWith("/")) {
-		path = path.substring(0, path.length()-1);
-		}
-	}
-	return path;
-	}
+            // Remove leading '/' chars
+            while ((path.length() > 0) && (path.charAt(0) == '/')) {
+                path = path.substring(1);
+            }
+            // We check for "../" so ".." at the end of a path could occur,
+            // which is fine, unless it is also at the beginning...
+            if (path.equals("..")) {
+                path = null;
+            }
+
+            // Last ensure path does not end in a '/'
+            if (path != null && path.endsWith("/")) {
+                path = path.substring(0, path.length() - 1);
+            }
+        }
+        return path;
+    }
 
     /**
      *	<p> This method may be used to clean up any temporary resources.  It
