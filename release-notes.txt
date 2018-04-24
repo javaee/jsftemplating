@@ -59,3 +59,7 @@ JSFTemplating 2.1.1
 JSFTemplating 2.1.2
 ============================================================
 - Relaxed OSGi import for javax.servlet.* to "[3.0,5)"
+
+JSFTemaplting 2.1.3
+===========================================================
+- Few Bug Fixes and File headers updated.
