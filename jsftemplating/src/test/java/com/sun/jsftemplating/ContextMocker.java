@@ -57,6 +57,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseStream;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.RenderKit;
+import org.mockito.Mockito;
 
 /**
  * Provide a dummy FacesContext for unit tests to pass.
@@ -65,7 +66,7 @@ import javax.faces.render.RenderKit;
  */
 public class ContextMocker extends FacesContext {
   public ExternalContext _extCtx = new ExternalContextMocker();
-  public UIViewRoot _viewRoot = new UIViewRoot();
+  public UIViewRoot _viewRoot = Mockito.mock(UIViewRoot.class);
   
   public ContextMocker() {
   }
@@ -82,7 +83,7 @@ public class ContextMocker extends FacesContext {
 
   @Override
   public Application getApplication() {
-    throw new UnsupportedOperationException("Not supported."); 
+    return Mockito.mock(Application.class);
   }
 
   @Override
